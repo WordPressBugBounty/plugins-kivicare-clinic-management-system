@@ -1,0 +1,560 @@
+:root {
+    --primary: #7093E5;
+    --background-color: #F8FAFC;
+    --white: #ffffff;
+    --heading-color: #F68685;
+    --text-color: #525F7F;
+}
+
+.body {
+    background-color: var(--background-color);
+    margin: 0;
+    font-family: Heebo;
+    /*border: 1px solid #000;*/
+}
+
+.heading1 {
+    font-size: 2em;
+    margin: unset;
+    font-family: Heebo;
+    line-height: unset;
+}
+
+.heading4 {
+    font-size: 1em;
+    color: var(--heading-color);
+    margin: unset;
+    font-family: Heebo;
+    line-height: unset;
+}
+
+.heading3 {
+    font-size: 1.17em;
+    margin: unset !important;
+    font-family: Heebo;
+    line-height: unset;
+}
+
+.paragraph {
+    margin: 8px;
+    color: var(--text-color);
+}
+
+.details .paragraph {
+    margin: unset !important;
+}
+
+.day {
+    color: var(--heading-color);
+    font-weight: bold;
+}
+
+.column-doctor {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.column-doctor::before {
+    content: '';
+    position: absolute;
+    background-color: var(--primary);
+    right: 73%;
+    top: 0%;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    z-index: 0;
+}
+
+.doctor_column_with_gap::before{
+    border-radius: 5px 0 0 5px;
+}
+
+.first_doctor_card {
+    border-radius: 0 5px 0 0;
+}
+
+.last_doctor_card {
+    border-radius: 0 0 5px 0;
+}
+.iq_kivicare_doctor_name-value{
+    margin: 15px 0px;
+}
+.doctor_card_with_gap,
+.iq_kivicare_next_previous,
+.kivicare-doctor-card button,
+.kivicare-doctor-card .iq_kivicare_doctor_session-cell{
+  border-radius:5px;
+}
+
+.first_doctor_column::before{
+    border-radius: 5px 0 0 0 !important;
+}
+.last_doctor_column::before{
+    border-radius: 0 0 0 5px !important;
+}
+.column {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.img {
+    width: 300px;
+    height: 300px;
+    margin-left: 1rem
+}
+
+.image {
+    display: flex;
+    align-items: center;
+    z-index: 1;
+}
+
+.details {
+    padding: 2rem 0;
+    margin-left: 6%;
+    width: 45%;
+}
+
+.flex-container {
+    margin: 15px 0px;
+    display: flex;
+    align-items: center;
+}
+
+.flex-container.clinic-address {
+    align-items: unset;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 10px;
+    padding: 10px 0px;
+}
+
+.grid-container.filter-component{
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+.filter-component button{
+    background-color: var(--primary);
+    border: none;
+    color: var(--white);
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    align-items: center;
+    width: 100%;
+    border-radius: 5px;
+    padding: 12px 24px;
+}
+.grid-container>div {
+    background-color: var(--white);
+    border: 1px solid var(--text-color);
+    text-align: center;
+}
+
+.kivi-pagination {
+    display: flex;
+    justify-content: space-between;
+}
+
+.detail-header {
+    width: 45%;
+}
+
+.detail-data {
+    width: 100%;
+}
+
+.app {
+    font-size: 20px;
+}
+
+.schedule {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.appoin {
+    text-align: center;
+    margin-bottom: 15px;
+    margin-top: 20px;
+}
+
+button,
+button:hover,
+button:active {
+    text-decoration: none;
+}
+
+button,
+button:hover,
+button:active,
+input[type='button'],
+input[type='button']:hover,
+input[type='button']:active a,
+a:hover,
+a:active {
+    text-decoration: none;
+    outline: none;
+}
+
+.book_button {
+    background-color: var(--primary);
+    border: none;
+    color: var(--white);
+    padding: 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    align-items: center;
+    margin-top: 40px;
+    margin-left: 10px;
+    width: 100%;
+}
+
+.numup {
+    margin-top: 40px;
+}
+
+@media (max-width: 1024px) {
+    .column-doctor {
+        flex-direction: column;
+        height: unset;
+        align-items: unset;
+    }
+
+    .column {
+        flex-direction: column;
+        height: unset;
+        align-items: unset;
+    }
+
+    .image {
+        display: flex;
+        justify-content: center;
+        margin-top: 6%;
+    }
+
+    .img {
+        width: 150px;
+        height: 150px;
+        margin: unset;
+    }
+
+    .details {
+        padding: 6%;
+        margin: unset;
+        width: unset;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 10px;
+        padding: 10px 0;
+    }
+    .grid-container.filter-component {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .column-doctor::before {
+        content: '';
+        position: absolute;
+        background-color: var(--primary);
+        right: 0;
+        top: 0%;
+        bottom: 90%;
+        left: 0;
+        height: 9.5%;
+        z-index: 0;
+        border-radius: 5px;
+    }
+
+    .header {
+        text-align: center;
+    }
+
+    .book_button {
+        background-color: var(--primary);
+        border: none;
+        color: var(--white);
+        padding: 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 0px 0px;
+        cursor: pointer;
+        align-items: center;
+        margin-top: 40px;
+        width: 100%;
+    }
+
+    .numup {
+        margin-top: 20px;
+    }
+
+    .book {
+        text-align: center;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .column-doctor::before {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0%;
+        bottom: 90%;
+        left: 0;
+        height: 10%;
+        z-index: 0;
+        border-radius:5px;
+    }
+
+    .book {
+        text-align: center;
+    }
+
+    .image {
+        margin-top: 6%;
+        margin-left: 0;
+    }
+
+    .img {
+        width: 250px;
+        height: 250px;
+    }
+}
+
+@media (min-width: 991.98px) and (max-width:1024px) {
+    .column-doctor::before {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0%;
+        bottom: 90%;
+        left: 0;
+        height: 14%;
+        z-index: 0;
+        border-radius:5px;
+    }
+
+    .book {
+        text-align: center;
+    }
+
+    .image {
+        margin-top: 6%;
+        margin-left: 0;
+    }
+
+    .img {
+        width: 300px;
+        height: 300px;
+    }
+    .iq_kivicare_doctor_name-value,
+    .iq_kivicare_doctor_speciality-value{
+        text-align:center !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+    }
+    .grid-container.filter-component {
+        grid-template-columns: 1fr;
+    }
+    .column-doctor::before{
+        border-radius:5px !important;
+    }
+    .iq_kivicare_doctor_name-value,
+    .iq_kivicare_doctor_speciality-value{
+        text-align:center !important;
+    }
+}
+
+.iq_kivicare_next_previous {
+    padding: 0px 15px;
+    margin: unset;
+}
+
+.iq_kivicare_doctor_session-cell_title {
+    font-size: 13px;
+}
+
+.iq_kivicare_doctor_session-cell_value {
+    font-size: 11px;
+}
+
+.mfp-fade.mfp-bg.mfp-ready {
+    opacity: .5 !important;
+}
+
+.mfp-content .kivi-widget {
+    background: #e7ecf1;
+    border-radius: 15px;
+}
+
+.kivi-position-relative {
+    position: relative;
+}
+
+.kivi-widget-close {
+    display: inline-block;
+    background: #7093e5;
+    color: #fff !important;
+    border: 3px solid #e7ecf1;
+    height: 35px;
+    width: 35px;
+    text-align: center;
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    opacity: 1;
+    padding: 0;
+    border-radius: 50%;
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    z-index: 999;
+    cursor: pointer;
+}
+
+.kivi-widget-close:focus {
+    border-radius: 3px solid #e7ecf1;
+    outline: none;
+}
+
+.white-popup .mfp-close,
+.mfp-close-btn-in .mfp-close {
+    display: none;
+}
+
+.atcb_list {
+    position: fixed !important;
+    width: 16em !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translateY(-50%) translateX(-50%) !important;
+}
+
+@media (max-width: 1024px) {
+    .kivi-widget-close {
+        top: -18px;
+        right: -18px;
+    }
+
+    .white-popup {
+        padding: 30px 16px;
+    }
+}
+
+
+
+/* rtl */
+
+[dir="rtl"] .kivicare-doctor-card .column-doctor::before {
+    left: 73%;
+    right: 0;
+}
+
+[dir="rtl"] .kivicare-doctor-card .iq_kivicare_doctor_name-value,
+[dir="rtl"] .kivicare-doctor-card .iq_kivicare_doctor_speciality-value,
+[dir="rtl"] .kivicare-doctor-card .detail-header,
+[dir="rtl"] .kivicare-doctor-card .iq_kivicare_doctor_number-value,
+[dir="rtl"] .kivicare-doctor-card .iq_kivicare_doctor_email-value,
+[dir="rtl"] .kivicare-doctor-card .iq_kivicare_doctor_address-value,
+[dir="rtl"] .kivicare-doctor-card .iq_kivicare_doctor_admin_number-value ,
+[dir="rtl"] .kivicare-doctor-card .iq_kivicare_doctor_admin_email-value  {
+    text-align: right !important;
+}
+
+[dir="rtl"] .kivicare-doctor-card  .details {
+    margin-right: 6%;
+    margin-left: 0;
+}
+
+[dir="rtl"] .kivicare-doctor-card .book_button{
+    margin-right: 10px;
+    margin-left: 2px;
+}
+
+@media (min-width: 991.98px) and (max-width: 1024px){
+    [dir="rtl"] .kivicare-doctor-card .column-doctor::before {
+        right: 0;
+        left: 0;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px){
+    [dir="rtl"] .kivicare-doctor-card .column-doctor::before {
+        right: 0;
+        left: 0;
+    }  
+}
+
+@media (max-width: 1024px){
+    [dir="rtl"] .kivicare-doctor-card .column-doctor::before {
+        right: 0;
+        left: 0;
+    }    
+}
+
+
+.double-lines-spinner {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    position: relative;
+  }
+  
+  .double-lines-spinner::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .double-lines-spinner::before {
+    border-right: 2px solid var(--iq-primary);
+    animation: spin 0.5s 0s linear infinite;
+  }
+  
+  
+  @keyframes spin {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .d-none{
+    display:none;
+  }
+
+  .center-position-spinner{
+    top: 50%;
+    position: absolute;
+    left: 50%;
+  }
+
+  .blur-div{
+    position: relative;
+    opacity: 0.5;
+  }

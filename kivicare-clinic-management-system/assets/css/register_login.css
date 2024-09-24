@@ -1,0 +1,505 @@
+:root {
+    --iq-primary-light: #F0F4FD;
+    --iq-primary: #7093E5;
+    --iq-primary-dark: #5f84d9;
+    --iq-primary-rgb: 112,147,229;
+    --iq-secondary-light: #fda09f;
+    --iq-secondary: #F68685;
+    --iq-secondary-dark: #e38685;
+    --iq-success: #13C39C;
+    --iq-white: #fff;
+    --iq-form-input-bg: #ecf2ff;
+    --iq-dark: #171C26;
+    --iq-light: #b5b9c4;
+    --iq-black: #000000;
+    --iq-body-color: #6E7990;
+    --iq-body-bg: #e7ecf1;
+    --iq-body-font-family: Poppins, sans-serif;
+    --iq-heading-font-family: Heebo, sans-serif;
+}
+
+.kivi-widget   input[type="text"],
+.kivi-widget   input[type="password"],
+.kivi-widget   input[type="email"],
+.kivi-widget   input[type="url"],
+.kivi-widget   input[type="date"],
+.kivi-widget   input[type="month"],
+.kivi-widget   input[type="time"],
+.kivi-widget   input[type="datetime"],
+.kivi-widget   input[type="datetime-local"],
+.kivi-widget   input[type="week"],
+.kivi-widget   input[type="number"],
+.kivi-widget   input[type="search"],
+.kivi-widget   input[type="tel"],
+.kivi-widget   input[type="color"],
+.kivi-widget   textarea{
+    font-size: unset;
+}
+
+.kivi-widget form textarea, 
+.kivi-widget .form-row textarea, 
+.kivi-widget form input:not([type="submit"]):not([type="button"]):not([type="radio"]):not([type="checkbox"]), 
+.kivi-widget .form-row input:not([type="submit"]):not([type="button"]):not([type="radio"]):not([type="checkbox"]){
+    display: block;
+    padding: 12px 16px;
+    outline: none;
+    border: 1px solid transparent;
+    transition: border 400ms ease-in-out, color 400ms ease-in-out;
+    width: 100%;
+    background-color: var(--iq-white) !important;
+    color: var(--iq-body-color);
+    border: 1px solid #eee;
+    border-radius: 5px;
+    background: unset;
+    margin: 0;
+}
+
+.kivi-widget form input[type="number"], 
+.kivi-widget .form-row input[type="number"] {
+    padding: 12px 0 12px 16px !important;
+}
+
+.kivi-widget   input,
+.kivi-widget   input[type=text],
+.kivi-widget   input[type=email],
+.kivi-widget   input[type=search],
+.kivi-widget   input[type=password],
+.kivi-widget   textarea{
+    line-height: unset;
+    height: auto;
+}
+
+form#kivicare-register-form,
+form#kivicare-login-form {
+    padding: 0;
+    text-align: left;
+}
+
+.kivi-widget form label {
+    display: inline-block;
+}
+
+.kivi-widget .custom-control.custom-radio.custom-control-inline {
+    padding-right: 25px;
+}
+
+.kivi-widget .custom-control.custom-radio.custom-control-inline label {
+    padding-right: 2px;
+}
+
+.kivi-widget .select2-container--default .select2-selection--single .select2-selection__arrow:before {
+      padding: 19px 0;
+}
+
+.kivi-widget .select-wrap:after {
+    display: none;
+}
+
+*,
+*:before{
+    -webkit-box-sizing: inherit;
+    -moz-box-sizing: inherit;
+    box-sizing: inherit;
+}
+
+.kivi-widget .double-lines-spinner {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    position: relative;
+}
+
+.kivi-widget .double-lines-spinner::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 0, 0, 0.05);
+}
+
+.kivi-widget .double-lines-spinner::before {
+    border-right: 2px solid var(--iq-primary);
+    animation: spin 0.5s 0s linear infinite;
+}
+
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.kivi-widget .iq-button.iq-button-primary {
+    background-color: var(--iq-primary);
+    color: var(--iq-white);
+}
+
+.d-none{
+    display:none;
+}
+
+.kivi-widget .iq-button.iq-button-primary:hover {
+    background-color: var(--iq-primary-dark);
+}
+.kivi-widget  .iq-button:focus,
+.kivi-widget  .iq-button:hover {
+    transition: background-color 400ms ease-in-out;
+}
+.kivi-widget .kc-confirmation-buttons .iq-button {
+    padding: 10px 32px !important;
+}
+
+.kivi-widget .iq-button {
+    padding: 8px 32px;
+    font-size: 14px;
+    border: 0;
+    border-radius: 4px;
+    display: inline-block;
+    cursor: pointer;
+    text-transform: uppercase !important;
+    transition: background-color 400ms ease-in-out;
+    font-weight: 600;
+    margin-bottom : 8px;
+    margin-top : 8px;
+}
+
+
+.kivi-widget .iq-kivicare-form-control {
+    display: block;
+    padding: 12px 16px;
+    outline: none;
+    border: 1px solid transparent;
+    transition: border 400ms ease-in-out, color 400ms ease-in-out;
+    width: 100%;
+    background-color: var(--iq-white) !important;
+    color: var(--iq-body-color);
+    border: 1px solid #eee;
+    border-radius: 5px;
+    background: unset;
+    margin: 0;
+}
+
+.kivi-widget .iq-kivicare-form-control:focus,
+.kivi-widget  .iq-kivicare-form-control::-moz-placeholder,
+.kivi-widget .iq-kivicare-form-control:-ms-input-placeholder,
+.kivi-widget .iq-kivicare-form-control::placeholder{
+    border-color: var(--iq-primary);
+}
+
+.kivi-widget .form-group input[type=file]{
+    height: unset;
+    line-height: inherit;
+}
+
+.kivi-widget .form-group .form-label {
+    color: var(--iq-dark);
+    display: inline-block;
+    font-size: 14px;
+    margin-bottom: 10px;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.kivi-widget  .nav-tabs {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    margin: 0;
+    border-bottom: none;
+}
+
+.kivi-widget  .nav-tabs .tab-item {
+    font-weight: 500;
+    padding: 10px 40px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    transition: background-color 0.2s ease-in-out;
+}
+.kivi-widget  .nav-tabs .tab-item a{
+    color: var(--iq-body-color);
+    font-size: 16px;
+    border: none;
+}
+
+.kivi-widget a {
+    text-decoration: none !important;
+}
+.kivi-widget .nav-tabs .tab-item.active a{
+    color: var(--iq-primary);
+    border-color: transparent;
+    background: transparent;
+}
+
+.kivi-widget .nav-tabs .tab-item.active {
+    color: var(--iq-primary);
+    border-top: 3px solid var(--iq-primary);
+}
+
+.kivi-widget  #login-register-panel{
+    background-color: var(--iq-primary-light);
+    padding: 30px 25px;
+}
+.kivi-widget  .alert-danger.alert-left {
+    border: unset;
+    border-left: 4px solid #721c24;
+    background: #bf3939;
+    color: white !important;
+    border-radius: 6px;
+    margin-bottom: unset;
+    padding: 8px 16px;
+    width: 100%;
+}
+
+.kivi-widget .alert.alert-danger.border-start {
+    border: unset;
+    border-left: 4px solid;
+    border-radius: 6px;
+    padding: 10px 32px;
+}
+.kivi-widget .alert-success.alert-left {
+    border: unset;
+    border-left: 4px solid #1aa053;
+    background: #2bb768;
+    color: white;
+    border-radius: 6px;
+    padding: 8px 16px;
+    width: 100%;
+}
+
+.kivi-widget .kivi-center{
+    margin-top :8px;
+    display:flex;
+    justify-content:center;
+}
+.kivi-widget .mb-2 {
+    margin-bottom : 8px;
+}
+
+.wp-block-kivi-care-register-login .kivi-widget{
+    box-sizing: border-box;
+    max-width: 556px;
+    margin: 0 auto;
+}
+
+.wp-block-kivi-care-register-login .kivi-widget .nav-tabs{
+    margin: 0 0 32px;
+    justify-content: center;
+}
+
+.wp-block-kivi-care-register-login .kivi-widget .nav-tabs .tab-item{
+    background-color: transparent;
+    position: relative;
+}
+
+.wp-block-kivi-care-register-login .kivi-widget .nav-tabs .tab-item::after{
+    content: "";
+    background-color: var(--iq-primary);
+    height: 2px;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    transform: scale(0);
+    transition: all .3s ease-in-out;
+}
+
+.wp-block-kivi-care-register-login .kivi-widget .nav-tabs .tab-item.active{
+    background-color: transparent;
+    border: none;
+}
+
+.wp-block-kivi-care-register-login .kivi-widget .nav-tabs .tab-item.active::after{
+    transform: scale(1);
+}
+
+.wp-block-kivi-care-register-login .kivi-widget .form-group{
+    margin-bottom: 24px;
+}
+
+.wp-block-kivi-care-register-login #login-register-panel{
+    background-color: transparent;
+    padding: 0;
+}
+
+.wp-block-kivi-care-register-login .kivi-widget input,
+.wp-block-kivi-care-register-login .kivi-widget textarea{
+    background-color: var(--iq-form-input-bg) !important;
+    font-size: 16px;
+}
+
+.wp-block-kivi-care-register-login .kivi-widget .form-group select{
+    height: auto;
+    background: var(--iq-form-input-bg) !important;
+}
+
+.wp-block-kivi-care-register-login .iq-button{
+    padding: 16px 32px;
+    width: 100%;
+}
+
+.wp-block-kivi-care-register-login .remember-me-content{
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 5px;
+}
+
+.wp-block-kivi-care-register-login .kivi-widget .custom-control-label,
+.wp-block-kivi-care-register-login .kivi-widget .password-toggle{
+    color: var(--iq-body-color);
+}
+
+.wp-block-kivi-care-register-login .kivi-widget .password-toggle{
+    font-size: 14px;
+}
+
+.wp-block-kivi-care-register-login .remember-me-content{
+    font-size: 16px;
+}
+
+.wp-block-kivi-care-register-login .remember-me-content .forgot-password{
+    color: var(--iq-primary);
+}
+
+.wp-block-kivi-care-register-login .select-state-container{
+    width: 40%;
+}
+
+.wp-block-kivi-care-register-login .enter-number{
+    width: 60%;
+}
+
+.kc-relative-center{
+    position:absolute;
+    top:50%;
+    left:50%;
+}
+.kc-position-relative{
+    position:relative;
+}
+
+.kc-position-relative form{
+    opacity: 0.5;
+}
+
+.d-flex{
+    display:flex;
+}
+.justify-content-center{
+    justify-content: center;
+}
+
+.white-popup{
+    position: relative;
+    background: var(--iq-white);
+    padding: 20px;
+    width: auto;
+    max-width: 500px;
+    margin: 20px auto;
+    border-radius:5px;
+}
+
+.m-1{
+    margin:4px;
+}
+
+#kivicare_lite_feedback_modal input[type=radio]{
+    height: 1rem;
+    margin-bottom:5px;
+}
+
+
+/* rtl */
+[dir="rtl"].kivi-widget #kivicare-register-form,
+[dir="rtl"].kivi-widget #kivicare-login-form 
+{
+    text-align: right;
+}
+
+[dir="rtl"].kivi-widget #kivicare-register-form .nice-select:after{
+    left: 20px;
+    right: auto;
+}
+[dir="rtl"].kivi-widget #kivicare-register-form .nice-select.wide .list li,
+[dir="rtl"].kivi-widget #kivicare-register-form .nice-select{
+    text-align: right !important;
+}
+
+[dir="rtl"].kivi-widget #kivi-content   {
+    text-align: right;
+  }
+
+.kivi-widget .contact-box-inline {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+.kivi-widget .select2-container--default .select2-selection--single {
+    background-color: var(--iq-white) !important;
+    color: var(--iq-body-color);
+    border: 1px solid #eee;
+    border-radius: 5px;
+    padding: 12px 16px;
+    height: auto;
+}
+
+.kivi-widget .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100%;
+}
+
+.kivi-widget .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: var(--iq-body-color);
+}
+
+.kivi-widget .select2-container {
+    display: block;
+}
+
+.select2-dropdown {
+    border: 1px solid #eee !important;
+}
+
+.select2-results__option,
+.select2-selection__rendered{
+    font-size: 16px;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    height: 35px;
+    border: 1px solid #eee !important;
+    outline: none;
+}
+
+.select2-results__option--selectable {
+    color: var(--iq-body-color) !important;
+}
+
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+    background-color: #5897fb;
+    color: white !important;
+}
+
+[dir=rtl] input, [dir=rtl] textarea,[dir=rtl] [type=email], [dir=rtl] [type=number], [dir=rtl] [type=tel], [dir=rtl] [type=url] {
+    direction: ltr;
+    text-align: right;
+}
+
+[dir=rtl] input, [dir=rtl] textarea,[dir=rtl] [type=email], [dir=rtl] [type=number], [dir=rtl] [type=tel], [dir=rtl] [type=url] {
+    direction: ltr;
+    text-align: right;
+}
+
+input, input[type=color], input[type=date], input[type=datetime-local], input[type=datetime], input[type=email], input[type=month], input[type=number], input[type=password], input[type=range], input[type=search], input[type=tel], input[type=text], input[type=time], input[type=url], input[type=week], textarea{
+    float: none;
+}
+
+[dir="rtl"] .password-toggle{
+    right: auto !important;
+    left: 10px;
+}
