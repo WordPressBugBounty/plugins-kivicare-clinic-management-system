@@ -53,7 +53,7 @@ class KCPatientMedicalHistoryController extends KCBase {
             wp_send_json( [
                 'status'      => false,
                 'status_code' => 403,
-                'message'     => esc_html__('You don\'t have permission to access', 'kc-lang'),
+                'message'     => esc_html__('You do not have permission to access', 'kc-lang'),
                 'data'        => []
             ] );
         }
@@ -124,6 +124,23 @@ class KCPatientMedicalHistoryController extends KCBase {
 			'type'         => $request_data['type'],
 			'title'        => $request_data['title'],
 		];
+
+        $already_exists = $this->medical_history->get_var( $temp, 'id' );
+
+        if( !empty( $already_exists ) && ( !isset($request_data['id']) || $already_exists == $request_data['id'] ) ) {
+            $error_message = esc_html__('Same data already exists', 'kc-lang');
+            if($request_data['type'] === 'problem'){
+                $error_message =  esc_html__('Same problem already exists', 'kc-lang');
+            }else if($request_data['type'] === 'observation'){
+                $error_message =  esc_html__('Same observations already exists', 'kc-lang');
+            }else if($request_data['type'] === 'note'){
+                $error_message =  esc_html__('Same notes already exists', 'kc-lang');
+            }
+            wp_send_json( [
+                'status'  => false,
+                'message' =>  $error_message
+            ] );
+        }
 
 		if ( ! isset( $request_data['id'] ) ) {
 

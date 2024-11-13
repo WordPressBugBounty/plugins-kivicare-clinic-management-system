@@ -190,7 +190,7 @@ class KCAppointmentSettingController extends KCBase
 		    wp_send_json(kcUnauthorizeAccessResponse(403));
 	    }
         $get_status = get_option(KIVI_CARE_PREFIX.'appointment_description_config_data');
-        $enableAppointmentDescription = gettype($get_status) == 'boolean' ? 'on' : $get_status;
+        $enableAppointmentDescription = gettype($get_status) == 'boolean' ? 'off' : $get_status;
 
         wp_send_json([
             'data' => $enableAppointmentDescription,

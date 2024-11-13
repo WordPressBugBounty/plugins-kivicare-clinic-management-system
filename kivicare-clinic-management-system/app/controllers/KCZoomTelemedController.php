@@ -30,6 +30,46 @@ class KCZoomTelemedController extends KCBase
         parent::__construct();
     }
 
+    public function saveDoctorServeroauthConfiguration() {
+        if($this->getLoginUserRole() !== 'administrator'){
+	        wp_send_json(kcUnauthorizeAccessResponse(403));
+        }
+        $request_data = $this->request->getInputs();
+        $response = apply_filters('kct_save_serveroauth_configuration', ['data'=>$request_data]);
+	    wp_send_json($response);
+
+    }
+    
+    private function getZoomAccessToken($accountId, $clientId, $clientSecret) {
+        $url = "https://zoom.us/oauth/token";
+        $data = [
+            "grant_type" => "account_credentials",
+            "account_id" => $accountId
+        ];
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Authorization: Basic " . base64_encode($clientId . ":" . $clientSecret),
+            "Content-Type: application/x-www-form-urlencoded"
+        ]);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return json_decode($response, true);
+    }
+    
+
+    public function getServerOauthConfig() {
+        if ( $this->getLoginUserRole() !== 'administrator') {
+	        wp_send_json(kcUnauthorizeAccessResponse(403));
+        }
+        $response = apply_filters('kct_get_server_oauth_config', []);
+        wp_send_json($response);
+    }
     public function saveZoomConfiguration()
     {
 
@@ -154,7 +194,7 @@ class KCZoomTelemedController extends KCBase
 
     public function saveOauthConfig()
     {
-        if ($this->getLoginUserRole() !== $this->getDoctorRole()) {
+        if ($this->getLoginUserRole() !== 'administrator') {
             wp_send_json(kcUnauthorizeAccessResponse(403));
         }
         $request_data = $this->request->getInputs();
@@ -169,8 +209,8 @@ class KCZoomTelemedController extends KCBase
 
     public function getZoomTelemedConfig()
     {
-        if ($this->getLoginUserRole() !== $this->getDoctorRole()) {
-            wp_send_json(kcUnauthorizeAccessResponse(403));
+        if (!in_array($this->getLoginUserRole(),['administrator',$this->getDoctorRole()])) {
+	        wp_send_json(kcUnauthorizeAccessResponse(403));
         }
         $request_data = $this->request->getInputs();
 
@@ -178,7 +218,71 @@ class KCZoomTelemedController extends KCBase
             wp_send_json_error(['message' => "KiviCare Telemed Required"]);
         }
         $response = apply_filters('kct_get_zoom_telemed_oauth_config', $request_data);
+        wp_send_json_success($response);
+    }
 
+    public function connectAdminZoomOauth()
+    {
+        if ($this->getLoginUserRole() !== 'administrator') {
+            wp_send_json(kcUnauthorizeAccessResponse(403));
+        }
+        $request_data = $this->request->getInputs();
+
+        if (!has_filter('kct_connect_admin_zoom_oauth')) {
+            wp_send_json_error(['message' => "KiviCare Telemed Required"]);
+        }
+        $response = apply_filters('kct_connect_admin_zoom_oauth', $request_data);
+
+        wp_send_json_success($response);
+    }
+
+    public function connectDoctorServerOauth()
+    {
+        if ($this->getLoginUserRole() !==  $this->getDoctorRole()) {
+            wp_send_json(kcUnauthorizeAccessResponse(403));
+        }
+
+        if (!has_filter('kct_save_zoom_telemed_oauth_config')) {
+            wp_send_json_error(['message' => "KiviCare Telemed Required"]);
+        }
+        $response = apply_filters('kct_save_zoom_telemed_oauth_config', $this->request->getInputs());
+
+        wp_send_json_success($response);
+        
+    }
+
+    public function getDoctorTelemedConfig()
+    {
+        if ($this->getLoginUserRole() !==  $this->getDoctorRole()) {
+            wp_send_json(kcUnauthorizeAccessResponse(403));
+        }
+
+        global $wpdb;
+        $current_user = wp_get_current_user();
+        $doctor_id = $current_user->ID;
+
+        // Query the wp_users table to find all administrators
+        $admin_users = $wpdb->get_results("
+            SELECT u.ID 
+            FROM {$wpdb->users} u
+            INNER JOIN {$wpdb->usermeta} um ON u.ID = um.user_id
+            WHERE um.meta_key = '{$wpdb->prefix}capabilities' 
+            AND um.meta_value LIKE '%administrator%'
+        ");
+
+        if (empty($admin_users)) {
+            wp_send_json_error(['message' => 'No administrators found.']);
+        }
+        $admin_user_id = $admin_users[0]->ID;
+        $cred = get_option(KIVI_CARE_TELEMED_PREFIX . 'zoom_telemed_setting');
+        $request_data = [
+            'data' => $cred
+        ];
+
+        if (!has_filter('kct_get_zoom_telemed_oauth_config')) {
+            wp_send_json_error(['message' => "KiviCare Telemed Required"]);
+        }
+        $response = apply_filters('kct_get_zoom_telemed_oauth_config', $request_data);
         wp_send_json_success($response);
     }
 
@@ -197,6 +301,25 @@ class KCZoomTelemedController extends KCBase
 
         wp_send_json_success($response);
     }
+
+    public function generateDoctorServerOauthCode()
+    {
+        if ($this->getLoginUserRole() !==  $this->getDoctorRole()) {
+            wp_send_json(kcUnauthorizeAccessResponse(403));
+        }
+
+        $request_data = $this->request->getInputs();
+        if (!has_filter('kct_generate_doctor_server_oauth_token')) {
+            wp_send_json_error(['message' => "KiviCare Telemed Required"]);
+        }
+
+        $response = apply_filters('kct_generate_doctor_server_oauth_token', $request_data);
+
+        wp_send_json_success($response);
+
+        
+    }
+
     public function disconnectDoctorZoomOauth()
     {
         if ($this->getLoginUserRole() !==  $this->getDoctorRole()) {
@@ -208,6 +331,21 @@ class KCZoomTelemedController extends KCBase
             wp_send_json_error(['message' => "KiviCare Telemed Required"]);
         }
         $response = apply_filters('kct_disconnect_doctor_zoom_oauth', $request_data);
+
+        wp_send_json_success($response);
+    }
+
+    public function disconnectDoctorServerOauth()
+    {
+        if ($this->getLoginUserRole() !==  $this->getDoctorRole()) {
+            wp_send_json(kcUnauthorizeAccessResponse(403));
+        }
+        $request_data = $this->request->getInputs();
+
+        if (!has_filter('kct_disconnect_doctor_server_oauth')) {
+            wp_send_json_error(['message' => "KiviCare Telemed Required"]);
+        }
+        $response = apply_filters('kct_disconnect_doctor_server_oauth', $request_data);
 
         wp_send_json_success($response);
     }

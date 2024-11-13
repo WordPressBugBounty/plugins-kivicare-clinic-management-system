@@ -982,6 +982,8 @@ class KCAppointmentController extends KCBase {
             $offset = ((int)$filterData['pagination'] - 1) * $limit;
             $query .= " LIMIT {$limit} OFFSET {$offset} ";
         }
+//
+//        echo  $query;die;
 
 		$appCollection = collect( $this->db->get_results( $query, OBJECT ) )->unique( 'id' );
 
@@ -1018,8 +1020,12 @@ class KCAppointmentController extends KCBase {
                 $service_doctor_table = $this->db->prefix . 'kc_service_doctor_mapping';
                 
                 $appointment->clinic_name = decodeSpecificSymbols($appointment->clinic_name);
-                $appointment->appointment_start_time = date('h:i A', strtotime($appointment->appointment_start_time));
-                $appointment->appointment_end_time = date('h:i A', strtotime($appointment->appointment_end_time));
+
+                $appointment->appointment_start_date = $appointment->appointment_start_date;
+                $appointment->appointment_formated_start_date = kcGetFormatedDate($appointment->appointment_start_date);
+                $appointment->appointment_end_date = $appointment->appointment_end_date;
+                $appointment->appointment_start_time = kcGetFormatedTime(date('h:i A', strtotime($appointment->appointment_start_time)));
+                $appointment->appointment_end_time = kcGetFormatedTime(date('h:i A', strtotime($appointment->appointment_end_time)));
                 $appointment->payment_mode = kcAppointmentPaymentMode($appointment->id);
                 $patient_mobile_number = ' -';
                 $patient_user_meta = get_user_meta( $appointment->patient_id, 'basic_data', true );
@@ -1146,10 +1152,10 @@ class KCAppointmentController extends KCBase {
                     $appointment->calendar_content = kcAddToCalendarContent($appointment_data);
                 }
 
-                $appointment->appointment_start_date = kcGetFormatedDate($appointment->appointment_start_date);
-                $appointment->appointment_end_date = $appointment->appointment_end_date;
-                $appointment->appointment_start_time = kcGetFormatedTime($appointment->appointment_start_time);
-                $appointment->appointment_end_time = kcGetFormatedTime($appointment->appointment_end_time);
+                // $appointment->appointment_start_date = kcGetFormatedDate($appointment->appointment_start_date);
+                // $appointment->appointment_end_date = $appointment->appointment_end_date;
+                // $appointment->appointment_start_time = kcGetFormatedTime($appointment->appointment_start_time);
+                // $appointment->appointment_end_time = kcGetFormatedTime($appointment->appointment_end_time);
                 
 
                 $appointment->isEditAble = $date > $current_date;

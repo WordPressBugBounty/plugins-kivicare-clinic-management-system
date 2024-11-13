@@ -577,6 +577,8 @@ class KCAuthController extends KCBase {
                     if($this->getLoginUserRole() !== 'administrator' && kcGetUserRegistrationShortcodeSetting('doctor') !== 'on'){
                         update_user_meta((int)$u->ID,'kivicare_user_account_status','no');
                         $this->db->update($user_table,['user_status' => 1],['ID' => (int)$u->ID]);
+                    }else{
+                        $this->db->update($user_table,['user_status' => 0],['ID' => (int)$u->ID]);
                     }
                     $u->set_role( $this->getDoctorRole());
                     $this->db->insert($this->db->prefix.'kc_doctor_clinic_mappings',[
@@ -599,6 +601,8 @@ class KCAuthController extends KCBase {
                     if($this->getLoginUserRole() !== 'administrator' && kcGetUserRegistrationShortcodeSetting('receptionist') !== 'on'){
                         update_user_meta((int)$u->ID,'kivicare_user_account_status','no');
                         $this->db->update($user_table,['user_status' => 1],['ID' => (int)$u->ID]);
+                    }else{
+                        $this->db->update($user_table,['user_status' => 0],['ID' => (int)$u->ID]);
                     }
                     $u->set_role($this->getReceptionistRole() );
                     $user_email_param['Receptionist_name'] = $parameters['first_name'] . ' ' .$parameters['last_name'];

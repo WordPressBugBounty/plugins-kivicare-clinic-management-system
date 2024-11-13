@@ -43,7 +43,7 @@ class KCProSettingController extends KCBase
         } else {
             $wordpressLogoData = [
                 'status' =>  0,
-                'logo' => KIVI_CARE_DIR_URI . 'assets/images/wp-logo.png'
+                'logo' => KIVI_CARE_DIR_URI . 'assets/images/wp-logo.png?version=22'
             ];
         }
 

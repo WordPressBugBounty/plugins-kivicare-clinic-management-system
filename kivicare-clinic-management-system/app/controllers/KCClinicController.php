@@ -71,7 +71,7 @@ class KCClinicController extends KCBase {
                         $orderByCondition= " ORDER BY clinic.{$sortField} {$sortByValue}";
                         break;
                     case 'clinic_admin_email':
-                        $orderByCondition = " ORDER BY us.user_email $sortByValue} ";
+                        $orderByCondition = " ORDER BY us.user_email $sortByValue ";
                         break;
                 }
             }
@@ -93,8 +93,15 @@ class KCClinicController extends KCBase {
             if(!empty($request_data['columnFilters'])){
                 $request_data['columnFilters'] = kcRecursiveSanitizeTextField(json_decode(stripslashes($request_data['columnFilters']),true));
                 foreach ($request_data['columnFilters'] as $column => $searchValue){
-                    $searchValue = !empty($searchValue) ? $searchValue : '';
-                    $searchValue = esc_sql(strtolower(trim($searchValue)));
+                    if( $column === 'status' ){
+                        if( ! is_numeric($searchValue) ){
+                            continue;
+                        }
+                        $searchValue = (int) $searchValue;
+                    }else{
+                        $searchValue = !empty($searchValue) ? $searchValue : '';
+                        $searchValue = esc_sql(strtolower(trim($searchValue)));
+                    }
                     $column = esc_sql($column);
                     if($searchValue === ''){
                         continue;
@@ -201,16 +208,21 @@ class KCClinicController extends KCBase {
 
         }
 
+        $clinc_detail= kcClinicDetail($requestData['id']);
         //check clinic admin email condition
-        $email_condition = kcCheckUserEmailAlreadyUsed(['user_email' => $requestData['user_email'],'ID' => !empty($requestData['clinic_admin_id']) ? $requestData['clinic_admin_id'] : '']);
-        if(empty($email_condition['status'])){
-	        wp_send_json($email_condition);
+        if(get_user_by('email',$clinc_detail->clinic_admin_id) !=$requestData['user_email'] ){
+            $email_condition = kcCheckUserEmailAlreadyUsed(['user_email' => $requestData['user_email'],'ID' => !empty($requestData['clinic_admin_id']) ? $requestData['clinic_admin_id'] : '']);
+            if(empty($email_condition['status'])){
+                wp_send_json($email_condition);
+            }
         }
 
         //check clinic  email not used by other users
-        $email_condition = kcCheckUserEmailAlreadyUsed(['user_email' => $requestData['email'],'ID' => !empty($requestData['clinic_admin_id']) ? $requestData['clinic_admin_id'] : ''],true);
-        if(empty($email_condition['status'])){
-	        wp_send_json($email_condition);
+        if($clinc_detail->email !=$requestData['email'] ){
+            $email_condition = kcCheckUserEmailAlreadyUsed(['user_email' => $requestData['email'],'ID' => !empty($requestData['clinic_admin_id']) ? $requestData['clinic_admin_id'] : ''],true);
+            if(empty($email_condition['status'])){
+                wp_send_json($email_condition);
+            }
         }
 
         $clinic_id =  !empty($requestData['id']) ? (int)$requestData['id'] : '';

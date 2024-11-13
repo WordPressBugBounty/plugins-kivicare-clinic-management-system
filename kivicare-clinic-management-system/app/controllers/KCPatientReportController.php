@@ -84,6 +84,7 @@ class KCPatientReportController extends KCBase
 	    }
         $response = apply_filters('kcpro_delete_patient_report', [
             'report_id'=>(int)$request_data['id'],
+            'upload_report' => (int)$request_data['upload_report']
         ]);
 	    wp_send_json($response);
     }

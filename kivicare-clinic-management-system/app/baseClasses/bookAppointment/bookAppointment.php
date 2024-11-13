@@ -390,10 +390,6 @@
                         })
                     }
 
-
-                    var element = document.getElementById('CountryCode');
-                    if (element !== null) {
-                    }
                     getUserRegistrationFormData();
 
 

@@ -248,6 +248,8 @@ class KCRoutes
 
             //doctor telemed  route
             'save_doctor_zoom_configuration'   => ['method' => 'post', 'action' => 'KCZoomTelemedController@saveZoomConfiguration'],
+            'save_doctor_server_Oauth_configuration' => ['method' => 'post', 'action' => 'KCZoomTelemedController@saveDoctorServeroauthConfiguration'],
+            'get_server_auth_config'         =>['method' => 'get', 'action' => 'KCZoomTelemedController@getServerOauthConfig'],
             'get_doctor_zoom_configuration'   => ['method' => 'get', 'action' => 'KCZoomTelemedController@getZoomConfiguration'],
             'resend_zoom_link_patient'      => ['method' => 'post', 'action' => 'KCZoomTelemedController@resendZoomLink'],
 
@@ -395,7 +397,12 @@ class KCRoutes
             'zoom_telemed_save_oauth_config' => ['method' => 'post', 'action' => 'KCZoomTelemedController@saveOauthConfig'],
             'get_zoom_telemed_config'        => ['method' => 'get', 'action' => 'KCZoomTelemedController@getZoomTelemedConfig'],
             'generate_doctor_zoom_oauth_token'=> ['method' => 'post', 'action' => 'KCZoomTelemedController@generateDoctorZoomOauthToken'],
+            'generate_doctor_serveroauth_code'=> ['method' => 'post', 'action' => 'KCZoomTelemedController@generateDoctorServerOauthCode'],
+            'connect_admin_zoom_oauth'=> ['method' => 'post', 'action' => 'KCZoomTelemedController@connectAdminZoomOauth'],
+            'connect_doctor_serveroauth'=> ['method' => 'post', 'action' => 'KCZoomTelemedController@connectDoctorServerOauth'],
+            'get_doctor_telemed_config'=> ['method' => 'post', 'action' => 'KCZoomTelemedController@getDoctorTelemedConfig'],
             'disconnect_doctor_zoom_oauth'=> ['method' => 'get', 'action' => 'KCZoomTelemedController@disconnectDoctorZoomOauth'],
+            'disconnect_doctor_serveroauth'=> ['method' => 'post', 'action' => 'KCZoomTelemedController@disconnectDoctorServerOauth'],
             // 'save_google_meet_event_template'        => ['method' => 'post', 'action' => 'KCGooglemeetController@saveGoogleMeetEventTemplate'],
             // 'connect_meet_doctor' => ['method' => 'post', 'action' => 'KCGooglemeetController@connectGoogleMeetDoctor'],
             // 'diconnect_meet_doctor' => ['method' => 'post', 'action' => 'KCGooglemeetController@disconnectMeetDoctor'],

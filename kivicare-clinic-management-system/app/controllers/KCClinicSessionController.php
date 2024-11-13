@@ -109,6 +109,7 @@ class KCClinicSessionController extends KCBase
 
         $validationFalse = false;
         $session = $request_data ;
+        $session['doctors']['id'] = $this->getLoginUserRole() === $this->getDoctorRole()? get_current_user_id() : (int)$session['doctors']['id'];
         foreach ($session['days'] as $day1) {            
             $day1 = substr($day1, 0, 3);
             $query_check = $this->db->get_results("SELECT * FROM {$this->db->prefix}kc_clinic_sessions WHERE  doctor_id={$session['doctors']['id']} AND clinic_id={$clinic_id} AND `day` = '{$day1}'");
@@ -191,7 +192,7 @@ class KCClinicSessionController extends KCBase
             $end_time = date('H:i:s', strtotime($session['s_one_end_time']['HH'] . ':' . $session['s_one_end_time']['mm']));
             $session_temp = [
                 'clinic_id' => (int)$clinic_id,
-                'doctor_id' => (int)$session['doctors']['id'],
+                'doctor_id' => $this->getLoginUserRole() === $this->getDoctorRole()? get_current_user_id() : (int)$session['doctors']['id'],
                 'day' =>  substr($day, 0, 3),
                 'start_time' => $start_time,
                 'end_time' => $end_time,

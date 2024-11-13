@@ -844,10 +844,10 @@ class KCSetupController extends KCBase {
                             if(!empty($specialties)){
                                 $temp = [
                                     'specialties' => $specialties,
-                                    'mobile_number' => '0000000000',
+                                    'mobile_number' => '7655525750',
                                     'gender' => 'male'
                                 ];
-                                update_user_meta($user_id, 'basic_data', json_encode($temp, JSON_UNESCAPED_UNICODE));
+                                self::save_demo_user_meta( $user_id, $temp );
                             }
                             $wpdb->insert($wpdb->prefix.'kc_doctor_clinic_mappings',$new_temp);
 
@@ -929,10 +929,11 @@ class KCSetupController extends KCBase {
                         case $this->getReceptionistRole():
                             $u->set_role( $this->getReceptionistRole() );
                             $temp = [
-                                'mobile_number' => '0000000000',
+                                'mobile_number' => '7455532406',
                                 'gender' => 'male'
                             ];
-                            update_user_meta($user_id, 'basic_data', json_encode($temp, JSON_UNESCAPED_UNICODE));
+
+                            self::save_demo_user_meta( $user_id, $temp );
 
                             $new_temp = [
                                 'receptionist_id' => (int)$user_id,
@@ -945,11 +946,12 @@ class KCSetupController extends KCBase {
                         case $this->getPatientRole():
                             $u->set_role( $this->getPatientRole() );
                             $temp = [
-                                'mobile_number' => '0000000000',
+                                'mobile_number' => '7155530711',
                                 'gender' => 'male'
                             ];
-                            update_user_meta($user_id, 'basic_data', json_encode($temp, JSON_UNESCAPED_UNICODE));
-                            
+
+                            self::save_demo_user_meta( $user_id, $temp );
+
                             $new_temp = [
                                 'patient_id' => (int)$user_id,
                                 'clinic_id'       => kcGetDefaultClinicId(),
@@ -962,6 +964,12 @@ class KCSetupController extends KCBase {
                 }
             }
         }
+    }
+
+    public static function save_demo_user_meta( $user_id, $basic_data ){
+        update_user_meta($user_id, 'basic_data', json_encode( $basic_data, JSON_UNESCAPED_UNICODE));
+        update_user_meta($user_id, 'country_calling_code', '44');
+        update_user_meta($user_id, 'country_code', 'GB');
     }
 
 }

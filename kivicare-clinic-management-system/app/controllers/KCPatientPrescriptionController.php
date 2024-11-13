@@ -69,7 +69,7 @@ class KCPatientPrescriptionController extends KCBase {
 				'status'  => false,
 				'message' => esc_html__('No prescription found', 'kc-lang'),
 				'data'    => [],
-                'prescriptionNames'  => $prescriptions_name_dropdown_options
+                'prescriptionNames'  => array_values($prescriptions_name_dropdown_options)
 			] );
 		}
 
@@ -78,7 +78,7 @@ class KCPatientPrescriptionController extends KCBase {
 			'message'    => esc_html__('Prescription records', 'kc-lang'),
 			'data'       => $prescriptions,
 			'total_rows' => $total_rows,
-            'prescriptionNames'  => $prescriptions_name_dropdown_options
+            'prescriptionNames'  => array_values($prescriptions_name_dropdown_options)
 		] );
 	}
 
@@ -322,7 +322,7 @@ class KCPatientPrescriptionController extends KCBase {
                      'email_template_type' => 'book_prescription'
                  ];
                  $status = kcSendEmail($email_data);
-                 $message = $status ? esc_html__('Prescription send to successfully.', 'kc-lang') : esc_html__('Failed to send email', 'kc-lang');
+                 $message = $status ? esc_html__('Prescription send successfully.', 'kc-lang') : esc_html__('Failed to send email', 'kc-lang');
               }
         }
 

@@ -197,6 +197,7 @@ class KCPatientEncounterController extends KCBase
 			$encounter->clinic_name = decodeSpecificSymbols($encounter->clinic_name);
 			$encounter->custom_forms = $custom_forms;
 			$encounter->encounter_date = kcGetFormatedDate($encounter->encounter_date);
+            $encounter->encounter_edit_after_close_status = get_option(KIVI_CARE_PREFIX . 'encounter_edit_after_close_status', 'off') === 'on';
 		});
 
 		wp_send_json([
@@ -709,7 +710,7 @@ class KCPatientEncounterController extends KCBase
                        doctors.user_email AS doctor_email,    
                        patients.display_name AS patient_name,
                        patients.user_email AS patient_email,
-                       CONCAT('#',{$clinics_table}.address, ', ', {$clinics_table}.city,', '
+                       CONCAT({$clinics_table}.address, ', ', {$clinics_table}.city,', '
 		              ,{$clinics_table}.postal_code,', ',{$clinics_table}.country) AS clinic_address,
                        {$clinics_table}.* 
                     FROM  {$patient_encounter_table}
@@ -789,6 +790,7 @@ class KCPatientEncounterController extends KCBase
 				$dompdf = new Dompdf();
 				$dompdf->set_option('isHtml5ParserEnabled', true);
 				$dompdf->set_option('isPhpEnabled', true);
+				$dompdf->set_option('isRemoteEnabled', true);
 
 				$dompdf->loadHtml($print_data);
 

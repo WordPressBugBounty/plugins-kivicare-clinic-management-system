@@ -50,7 +50,7 @@ class KCPaymentController extends KCBase
             && $data['status'] == 'off'){
 	        wp_send_json([
                 'status'  => false,
-                'message' => esc_html__('Atleast One Payment Gateway should by enable', 'kc-lang'),
+                'message' => esc_html__('Atleast One Payment Gateway should be enable', 'kc-lang'),
             ]);
         }
 
@@ -104,7 +104,7 @@ class KCPaymentController extends KCBase
                 && empty($request_data['data']['enablePaypal']) && !(apply_filters('kivicare_stripepay_enable',false))){
                 $response = [
                     'status' => false,
-                    'message' => esc_html__('Atleast One Payment Gateway should by enable', 'kc-lang'),
+                    'message' => esc_html__('Atleast One Payment Gateway should be enable', 'kc-lang'),
                 ];
             }else{
                 update_option(KIVI_CARE_PREFIX.'paypalConfig', $request_data['data']);
@@ -209,7 +209,7 @@ class KCPaymentController extends KCBase
            && !(apply_filters('kivicare_razorpay_enable',false)) 
            && !(apply_filters('kivicare_stripepay_enable',false))
             && $data['status'] === 'off'){
-            $message = esc_html__('Atleast One Payment Gateway should by enable', 'kc-lang');
+            $message = esc_html__('Atleast One Payment Gateway should be enable', 'kc-lang');
         }else{
             update_option(KIVI_CARE_PREFIX.'local_payment_status', $data['status']);
             $status = true;

@@ -27,11 +27,16 @@ class WidgetHandler extends KCBase {
 
     //button appointment widget
     public function kivicareBookAppointmentButtonWidget($param){
+        wp_enqueue_script( 'country-code-select2-js', plugins_url('kivicare-clinic-management-system/assets/js/select2.min.js'),['jquery'],KIVI_CARE_VERSION, true);
+        if( !(isset($_REQUEST['action']) && $_REQUEST['action'] =='elementor') ){
+            wp_enqueue_style('country-code-select2-css', plugins_url('kivicare-clinic-management-system/assets/css/select2.min.css'), array(), KIVI_CARE_VERSION, false);
+        }
         ob_start();
         if(empty($this->getLoginUserRole()) || $this->getLoginUserRole() === $this->getPatientRole()){
             wp_print_styles("kc_book_appointment");
             $this->shortcodeScript('kivicarePopUpBookAppointment');
             $this->shortcodeScript('kivicareBookAppointmentWidget');
+            wp_enqueue_script( 'country-code-select2-js', $this->plugin_url . 'assets/js/select2.min.js',['jquery'],KIVI_CARE_VERSION, true);
             wp_enqueue_script('kc_bookappointment_widget');
             require KIVI_CARE_DIR . 'app/baseClasses/popupBookAppointment/bookAppointment.php';
         }else{
@@ -282,7 +287,7 @@ class WidgetHandler extends KCBase {
             }
         }
 
-        $login = (bool)true;
+        $login = is_user_logged_in() ? (bool)false : (bool)true;
         $register = (bool)true;
         if( !empty($param) ){
             

@@ -7,6 +7,7 @@ use App\baseClasses\KCRequest;
 use App\models\KCAppointment;
 use App\models\KCBill;
 use App\models\KCServiceDoctorMapping;
+use App\models\KCStaticData;
 use App\models\KCUser;
 use App\models\KCPatientEncounter;
 use App\models\KCDoctorClinicMapping;
@@ -201,6 +202,7 @@ class KCHomeController extends KCBase
                         $zoomWarningStatus = !empty($zoomConfig->api_key) || !empty($zoomConfig->api_secret);
                     }
                     $user->is_enable_doctor_zoom_telemed = get_user_meta($user_id, KIVI_CARE_PREFIX . 'zoom_telemed_connect', true) == 'on' ? 'on' : 'off';
+                    $user->is_zoom_config_enabled = get_option(KIVI_CARE_PREFIX . 'zoom_telemed_setting')['enableCal'] == 'Yes' ? 'on' :  'off';
 
                     if($user->is_enable_doctor_zoom_telemed == 'on'){
                         $zoomWarningStatus =  true;
@@ -348,7 +350,11 @@ class KCHomeController extends KCBase
 
                 $patient_count = 0;
                 if (kcCheckPermission('dashboard_total_patient')) {
-                    $patient_count  = count(kcDoctorPatientList());
+                    $patient_count_id   = kcDoctorPatientList();
+                    $patient_count_id   = implode(',', $patient_count_id); // Convert array to a comma-separated string without quotes
+                    if(!empty($patient_count_id)){
+                        $patient_count      = $this->db->get_var("SELECT count(*) FROM {$this->db->prefix}users WHERE `user_status` = 0 AND `ID` IN ($patient_count_id)");
+                    }
                 }
                 $service_count = 0;
                 if (kcCheckPermission('dashboard_total_service')) {
@@ -357,7 +363,7 @@ class KCHomeController extends KCBase
                     if (kcDoctorTelemedServiceEnable($doctor_id)) {
                         $service = "SELECT  count(*) FROM {$service_table} WHERE `doctor_id` = {$doctor_id}";
                     } else {
-                        $service = "SELECT  count(*) FROM {$service_table} join {$service_name_table} on {$service_name_table}.id= {$service_table}.service_id  WHERE {$service_table}.doctor_id = {$doctor_id} AND {$service_table}.telemed_service != 'yes'";
+                        $service = "SELECT  count(*) FROM {$service_table} join {$service_name_table} on {$service_name_table}.id= {$service_table}.service_id  WHERE {$service_table}.doctor_id = {$doctor_id} AND ( {$service_table}.telemed_service != 'yes' || {$service_table}.telemed_service IS NULL) AND {$service_table}.status = 1 ";
                     }
                     $service_count = $this->db->get_var($service);
                 }
@@ -876,10 +882,42 @@ class KCHomeController extends KCBase
         })->toArray();
         switch ($request_data['module']) {
             case 'static_data':
-                if (!(kcCheckPermission('static_data_edit'))) {
-                    wp_send_json(kcUnauthorizeAccessResponse(403));
+                $static_data_model = ( new KCStaticData());
+                $static_data_table = $static_data_model->get_table_name();
+
+                if(empty($request_data['id'])){
+                    $response = [
+                        'status' => true,
+                    ];
+                    $implode_ids = !empty( $ids ) ?  implode(",", $ids) : '-1' ;
+                    switch ($request_data['action_perform']) {
+                        case 'delete':
+                            if (!(kcCheckPermission('static_data_delete'))) {
+                                wp_send_json(kcUnauthorizeAccessResponse(403));
+                            }
+                            wp_query_builder()->from( $static_data_table, false  )
+                                ->where(['raw' => "id IN ({$implode_ids})",])->delete();
+                            $response['message'] = esc_html__("Static data  deleted successfully", "kc-lang");
+                            break;
+                        case 'active':
+                        case 'inactive':
+                            if (!(kcCheckPermission('static_data_edit'))) {
+                                wp_send_json(kcUnauthorizeAccessResponse(403));
+                            }
+                            wp_query_builder()->from( $static_data_table, false  )
+                                ->set(['status' => $request_data['action_perform'] === 'active' ? 1 : 0 ])
+                                ->where(['raw' => "id IN ({$implode_ids})",])->update();
+                            $response['message'] = esc_html__("Static data status changed successfully", "kc-lang");
+                            break;
+                    }
+                    wp_send_json($response);
+                    break;
+                }else{
+                    if (!(kcCheckPermission('static_data_edit'))) {
+                        wp_send_json(kcUnauthorizeAccessResponse(403));
+                    }
+                    $static_data_model->update( ['status' => $request_data['value']], ['id' => $request_data['id']] );
                 }
-                $this->db->update($this->db->prefix . 'kc_static_data', ['status' => $request_data['value']], ['id' => $request_data['id']]);
                 break;
             case 'custom_field':
                 if (!(kcCheckPermission('custom_field_edit'))) {

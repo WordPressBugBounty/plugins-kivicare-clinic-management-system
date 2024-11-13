@@ -1102,17 +1102,6 @@ function kcAppointmentBookJsContent() {
                 jQuery(formElement).css('opacity', '');
                 jQuery(formElement).find('.kivi-overlay-spinner').addClass('d-none');
                 tabShow('#payment_error');
-                if (appointment_id !== '') {
-
-                    validateBookAppointmentWidgetData(bookAppointmentWidgetData);
-
-                    axios.get(bookAppointmentWidgetData.ajax_url + '?action=ajax_get&route_name=appointment_delete&id=' + appointment_id + '&_ajax_nonce=' + bookAppointmentWidgetData.ajax_get_nonce)
-                        .then((response) => {
-                        })
-                        .catch((error) => {
-                            console.log(error);
-                        })
-                }
             }
         }
 

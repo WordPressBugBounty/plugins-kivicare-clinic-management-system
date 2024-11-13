@@ -1107,6 +1107,11 @@ function kcGetAdminPermissions()
         'patient_bill_view' => ['name' => $prefix . 'patient_bill_view', 'status' => 1],
         'patient_bill_delete' => ['name' => $prefix . 'patient_bill_delete', 'status' => 1],
 
+        'patient_review_add' => ['name' => $prefix . 'patient_review_add', 'status' => 1],
+        'patient_review_edit' => ['name' => $prefix . 'patient_review_edit', 'status' => 1],
+        'patient_review_delete' => ['name' => $prefix . 'patient_review_delete', 'status' => 1],
+        'patient_review_get' => ['name' => $prefix . 'patient_review_get', 'status' => 1],
+
         'custom_field_list' => ['name' => $prefix . 'custom_field_list', 'status' => 1],
         'custom_field_add' => ['name' => $prefix . 'custom_field_add', 'status' => 1],
         'custom_field_edit' => ['name' => $prefix . 'custom_field_edit', 'status' => 1],
@@ -1221,6 +1226,12 @@ function kcGetDoctorPermission()
         'patient_bill_view' => ['name' => $prefix . 'patient_bill_view', 'status' => 1],
         'patient_bill_delete' => ['name' => $prefix . 'patient_bill_delete', 'status' => 1],
 
+
+        'patient_review_add' => ['name' => $prefix . 'patient_review_add', 'status' => 0],
+        'patient_review_edit' => ['name' => $prefix . 'patient_review_edit', 'status' => 0],
+        'patient_review_delete' => ['name' => $prefix . 'patient_review_delete', 'status' => 0],
+        'patient_review_get' => ['name' => $prefix . 'patient_review_get', 'status' => 1],
+
         'dashboard_total_patient' => ['name' => $prefix . 'dashboard_total_patient', 'status' => 1],
         'dashboard_total_appointment' => ['name' => $prefix . 'dashboard_total_appointment', 'status' => 1],
         'dashboard_total_today_appointment' => ['name' => $prefix . 'dashboard_total_today_appointment', 'status' => 1],
@@ -1278,6 +1289,11 @@ function kcGetPatientPermissions()
 
         'patient_bill_list' => ['name' => $prefix . 'patient_bill_list', 'status' => 1],
         'patient_bill_view' => ['name' => $prefix . 'patient_bill_view', 'status' => 1],
+
+        'patient_review_add' => ['name' => $prefix . 'patient_review_add', 'status' => 1],
+        'patient_review_edit' => ['name' => $prefix . 'patient_review_edit', 'status' => 1],
+        'patient_review_delete' => ['name' => $prefix . 'patient_review_delete', 'status' => 1],
+        'patient_review_get' => ['name' => $prefix . 'patient_review_get', 'status' => 1],
 
     ]));
 }
@@ -1408,8 +1424,28 @@ function kcCheckPermission($permission_name)
     $user_kc_roles = array_intersect(array_keys($kc_roles), $userObj->roles);
 
     if (!empty($user_kc_roles)) {
-        $reversed_roles = array_reverse($user_kc_roles);
-        $permissions = $kc_roles[array_pop($reversed_roles)]()->toArray();
+        $kc_role = array_pop( array_reverse($user_kc_roles));
+        $permissions = $kc_roles[$kc_role]()->toArray();
+        if(has_filter('kcpro_get_all_permission')){
+            $permission =apply_filters('kcpro_get_all_permission','');
+            // Initialize an empty array for the output
+            $get_pero_permissions = [];
+
+            // Flatten the capabilities into the required format
+            $capabilities = $permission['data'][$kc_role]['capabilities']->flatMap(function ($module) {
+                return $module;
+            });
+
+            // Transform the collection into the desired output format
+            $capabilities->each(function ($status, $name) use (&$get_pero_permissions) {
+                $get_pero_permissions[str_replace(KIVI_CARE_PREFIX,'',$name)] = [
+                    'name' => $name,
+                    'status' => $status ? 1 : 0
+                ];
+            });
+
+            $permissions= array_merge($permissions,$get_pero_permissions);
+        }
     }
 
 
@@ -2259,12 +2295,8 @@ function kcEmailContentKeyReplace($content, $data,$whatsApp=false)
         '{{user_name}}' => isset($data['username']) ? esc_html($data['username']) : '',
         '{{user_password}}' => isset($data['password']) ? esc_html($data['password']) : '',
         '{{user_email}}' => isset($data['user_email']) ? esc_html($data['user_email']) : '',
-        '{{appointment_date}}' => isset($data['appointment_date']) ? esc_html(wp_date(get_option('date_format'), strtotime($data['appointment_date']))) : '',
+        '{{appointment_date}}' => isset($data['appointment_date']) ? esc_html( $data['appointment_date']) : '',
         '{{appointment_time}}' => isset($data['appointment_time']) ?
-                // (kcGetAppointmentTimeFormatOption() == 'on' ?
-                //     esc_html(date("H:i", strtotime($data['appointment_time']))) :
-                //     esc_html(date("g:i a", strtotime($data['appointment_time'])))) : '',
-                // ( esc_html(date("g:i a", strtotime($data['appointment_time'])))) : '',
             (esc_html(date(get_option('time_format'), strtotime($data['appointment_time'])))) : '',
         '{{appointment_time_zone}}' => !empty(get_option('timezone_string')) ? get_option('timezone_string') : '',
         '{{patient_name}}' => isset($data['patient_name']) ? $data['patient_name'] : '',
@@ -2312,17 +2344,24 @@ function kcCheckUserEmailAlreadyUsed($request_data, $clinic = false)
 {
     $status = true;
     $message = '';
-    $email_exists = email_exists($request_data['user_email']);
     //check if email already used
-    if (!empty($email_exists)) {
-        //if editing user and email is used by editing user only
-        if (!empty($request_data['ID']) && (int) $request_data['ID'] == $email_exists) {
-            $email_exists = false;
+    if($clinic){
+        global $wpdb;
+        $clinic_table_name = $wpdb->prefix . 'kc_clinics';
+        $email_exists = $wpdb->get_var(" SELECT COUNT(*) FROM {$clinic_table_name}  WHERE `email` = '{$request_data['user_email']}' ")>0;
+    }else{
+        $email_exists = email_exists($request_data['user_email']);
+        if (!empty($email_exists)) {
+            //if editing user and email is used by editing user only
+            if (!empty($request_data['ID']) && (int) $request_data['ID'] == $email_exists) {
+                $email_exists = false;
+            }
         }
-        if ($email_exists) {
-            $status = false;
-            $message = $clinic ? esc_html__('There already exists an user registered with this email address,please use other email ID for clinic email', 'kc-lang') : esc_html__('There already exists an User registered with this email address,please use other email ID', 'kc-lang');
-        }
+    }
+    
+    if ($email_exists) {
+        $status = false;
+        $message = $clinic ? esc_html__('There already exists an user registered with this email address,please use other email ID for clinic email', 'kc-lang') : esc_html__('There already exists an User registered with this email address,please use other email ID', 'kc-lang');
     }
     return [
         'status' => $status,
@@ -2958,7 +2997,7 @@ function kivicareGetProductIdOfService($id)
  * @return array
  */
 
-function kvGetTimeSlots($data, $new_time_slot = "", $only_available_slots = false)
+function kvGetTimeSlots($data, $new_time_slot = "", $only_available_slots = false, $from_mobile = false)
 {
     global $wpdb;
     $slots = [];
@@ -2970,22 +3009,46 @@ function kvGetTimeSlots($data, $new_time_slot = "", $only_available_slots = fals
     }
     $data['doctor_id'] = (int) $data['doctor_id'];
 
-    $service_duration = 0;
-    if (!empty($data['service']) && isKiviCareProActive()) {
+    $service_duration = [];
 
-        if (is_array($data['service'])) {
-            $service_id = array_map(function ($v) {
-                return (int) $v->service_id;
-            }, $data['service']);
-        } else {
-            $service_id = [json_decode(stripslashes($data['service']))->service_id];
+    if($from_mobile === false){
+        if (!empty($data['service']) && isKiviCareProActive()) {
+            if (is_array($data['service'])) {
+                if(!empty($data['widgetType']) && $data['widgetType'] === 'phpWidget'){
+                    $service_id = array_map(function ($v) {
+                        return (int) $v['service_id'];
+                    }, $data['service']);
+                }else{
+                    $service_id = array_map(function ($v) {
+                        $v = json_decode(stripslashes($v));
+                        return (int) $v->service_id;
+                    }, $data['service']);
+                }
+            } else {
+                $service_id = [json_decode(stripslashes($data['service']))->service_id];
+            }
+
+            if (!empty($service_id)) {
+                if(is_array($service_id)){
+                    foreach ($service_id as $id) {
+                        $duration = $wpdb->get_var("SELECT duration FROM {$wpdb->prefix}kc_service_doctor_mapping WHERE service_id={$id} AND doctor_id={$data['doctor_id']} AND clinic_id ={$data['clinic_id']}");
+                        $service_duration[] = !empty($duration) ? $duration : false;
+                    }
+                }
+            }
         }
-
+    }else{
+        $service_id = json_decode($data['service_id'],true); 
         if (!empty($service_id)) {
-            $service_id = implode(",", $service_id);
-            $service_duration = $wpdb->get_var("SELECT SUM(duration) FROM {$wpdb->prefix}kc_service_doctor_mapping WHERE service_id IN ({$service_id}) AND doctor_id={$data['doctor_id']} AND clinic_id ={$data['clinic_id']}");
+            if(is_array($service_id)){
+                foreach ($service_id as $id) {
+                    $duration = $wpdb->get_var("SELECT duration FROM {$wpdb->prefix}kc_service_doctor_mapping WHERE service_id={$id} AND doctor_id={$data['doctor_id']} AND clinic_id ={$data['clinic_id']}");
+                    $service_duration[] = !empty($duration) ? $duration : false;
+                }
+            }
         }
     }
+    $service_duration_sum = array_sum($service_duration);
 
     $appointment_day = strtolower(date('l', strtotime($data['date'])));
 
@@ -3027,6 +3090,20 @@ function kvGetTimeSlots($data, $new_time_slot = "", $only_available_slots = fals
         if (count($leaves)) {
             return $slots;
         }
+        $clinic_session_details = [];
+        foreach ($clinic_session as $key => $value) {
+            foreach ($service_duration as $index => $duration) {
+                if($duration == false){
+                    $clinic_session_details[] = [
+                        'start_time' => $value->start_time,
+                        'end_time' => $value->end_time,
+                        'time_slot' => (int)$value->time_slot + (int)$service_duration_sum,
+                    ];
+                }
+            }
+        }
+
+
 
         foreach ($clinic_session as $key => $session) {
 
@@ -3042,14 +3119,6 @@ function kvGetTimeSlots($data, $new_time_slot = "", $only_available_slots = fals
             //create  chunk doctor session
             foreach ($appointments as $time) {
                 //if session time is 45 min then minus those mins from start time
-                $timestamp1 = strtotime($time->appointment_start_time);
-                $timestamp2 = strtotime($time->appointment_end_time);
-                $diffInSeconds = $timestamp2 - $timestamp1;
-                $diffInMinutes = floor($diffInSeconds / 60);
-                $timestamp1 = strtotime($time->appointment_start_time);
-                $newTimestamp = $timestamp1 - ($diffInMinutes * 60);
-
-                $time->appointment_start_time = date("H:i:s", $newTimestamp);
 
                 $current_time_slot_start = DateTime::createFromFormat('h:i a', date('h:i A', strtotime($time->appointment_start_time)));
                 $current_time_slot_end = DateTime::createFromFormat('h:i a', date('h:i A', strtotime($time->appointment_end_time)));
@@ -3066,6 +3135,7 @@ function kvGetTimeSlots($data, $new_time_slot = "", $only_available_slots = fals
                     } else {
                         $last_element = array_key_last($chuck_session);
                         $last = $chuck_session[$last_element]['end'];
+                        // $time->appointment_start_time = date("H:i:s", $newTimestamp);
                         $chuck_session[$last_element] = [
                             'start' => $chuck_session[$last_element]['start'],
                             'end' => $time->appointment_start_time
@@ -3089,9 +3159,15 @@ function kvGetTimeSlots($data, $new_time_slot = "", $only_available_slots = fals
 
                 $start_time = new DateTime($chunk['start']);
                 $time_diff = $start_time->diff(new DateTime($chunk['end']));
+                foreach ($clinic_session_details as  $details) {
+                    if($chunk['start'] == $details['start_time']){
+                        $service_duration_sum = $details['time_slot'];
+                    }
+                }
 
-                if (!empty($service_duration)) {
-                    $time_slot = $service_duration;
+                
+                if (!empty($service_duration_sum)) {
+                    $time_slot = $service_duration_sum;
                 }
                 if ($time_diff->h !== 0) {
                     $time_diff_min = floor(($time_diff->h * 60) / $time_slot);
@@ -3110,23 +3186,24 @@ function kvGetTimeSlots($data, $new_time_slot = "", $only_available_slots = fals
                         $newTimeSlot = date('H:i', strtotime('+' . $time_slot . ' minutes', strtotime($newTimeSlot)));
                     }
 
-
                     if (strtotime('+' . $time_slot . ' minutes', strtotime($newTimeSlot)) > strtotime($chunk['end'])) {
-                        if (!empty($service_duration)) {
-                            if (strtotime('+' . $service_duration . ' minutes', strtotime($newTimeSlot)) > strtotime($chunk['end'])) {
+                        if (!empty($service_duration_sum)) {
+                            if (strtotime('+' . $service_duration_sum . ' minutes', strtotime($newTimeSlot)) > strtotime($chunk['end'])) {
                                 continue;
                             }
-                        } else {
+                        } 
+                        else {
+                            continue;
+                        }
+                    }
+                    
+                    if (!empty($service_duration_sum)) {
+                        if (strtotime('+' . $service_duration_sum . ' minutes', strtotime($newTimeSlot)) > strtotime($chunk['end'])) {
                             continue;
                         }
                     }
 
-                    if (!empty($service_duration)) {
-                        if (strtotime('+' . $service_duration . ' minutes', strtotime($newTimeSlot)) > strtotime($chunk['end'])) {
-                            continue;
-                        }
-                    }
-
+                    
                     if (strtotime($newTimeSlot) < strtotime($chunk['end'])) {
                         $temp = [
                             // 'time' => date('h:i A', strtotime($newTimeSlot)),
@@ -3368,7 +3445,7 @@ function kcCommonNotificationData($appointment_data, $zoom_data, $service_name, 
     $doctor_details = get_user_by('ID', $doctor_id);
 
     $commonData = [
-        'appointment_date' => $appointment_data->appointment_start_date,
+        'appointment_date' => kcGetFormatedDate($appointment_data->appointment_start_date),
         'appointment_time' => $appointment_data->appointment_start_time,
         'service_name' => $service_name,
         'current_date' => current_time('Y-m-d'),
@@ -3548,11 +3625,6 @@ function kcAppointmentMultiFileUploadEnable()
     }
 }
 
-// function kcGetAppointmentTimeFormatOption()
-// {
-//     $data = get_option(KIVI_CARE_PREFIX . 'appointment_time_format', true);
-//     return gettype($data) != 'boolean' ? $data : 'off';
-// }
 
 function kcGetiUnderstand()
 {
@@ -3633,7 +3705,7 @@ function kcWordpressLogostatusAndImage($type)
     }
     if ($type == 'image') {
         $logoImage = get_option(KIVI_CARE_PREFIX . 'wordpress_logo', true);
-        return gettype($logoImage) != 'boolean' && kcWordpressLogostatusAndImage('status') ? wp_get_attachment_url($logoImage) : KIVI_CARE_DIR_URI . 'assets/images/wp-logo.png';
+        return gettype($logoImage) != 'boolean' && kcWordpressLogostatusAndImage('status') ? wp_get_attachment_url($logoImage) : KIVI_CARE_DIR_URI . 'assets/images/wp-logo.png?version=22';
     }
 }
 
@@ -3718,7 +3790,7 @@ function kcDoctorForElementor($type)
     $doctors = collect($doctors)->pluck('display_name', 'ID')->toArray();
     if ($type === 'all') {
         if (!empty($doctors) && count($doctors) > 0) {
-            return isKiviCareProActive() ? $doctors : [kcGetDefaultDoctorId() => $doctors[array_key_first($doctors)]];
+            return isKiviCareProActive() ? $doctors : null;
         } else {
             return ['default' => __('No doctor found', 'kc-lang')];
         }
@@ -4286,7 +4358,10 @@ function patientAndDoctorAppointmentReminder()
                         $appointment_reminder_table_data->email_status != 1
                         && $reminder_setting['status'] == 'on'
                     ) {
-                        $temp['email_status'] = (kcSendEmail($data_patient) && kcSendEmail($data_doctor)) ? 1 : 0;
+                        // $temp['email_status'] = (kcSendEmail($data_patient) && kcSendEmail($data_doctor)) ? 1 : 0;
+                        kcSendEmail($data_patient);
+                        kcSendEmail($data_doctor);
+                        $temp['email_status'] = 1;
                     }
                     if (
                         $smsOptionEnable && $smsSendFunctionExists &&
@@ -5444,7 +5519,7 @@ function kcPrescriptionHtml($data, $id, $type = "encounter")
                                 <img style="height: 80px; width:80px;" src="<?php echo esc_url($data->clinic_logo); ?>">
                             </td>
                             <td style="text-align: right; padding: 8px 0px;">
-                                <strong><?php echo esc_html__('Date:', 'kc-lang') . esc_html($data->date); ?></strong>
+                                <strong><?php echo esc_html__('Date:', 'kc-lang') . ' ' . esc_html(kcGetFormatedDate($data->date)); ?></strong>
                             </td>
                         </tr>
                     </table>
@@ -5473,16 +5548,23 @@ function kcPrescriptionHtml($data, $id, $type = "encounter")
                                 <?php echo esc_html($data->email); ?>
                             </td>
                         </tr>
+                        <?php if(!empty($invoice_id)) {?>
                         <tr>
                             <td style="padding: 8px 0px;">
                                 <strong><?php echo esc_html__('Invoice Id: ', 'kc-lang'); ?></strong>
                                 <?php echo esc_html($invoice_id); ?>
                             </td>
-                            <td style="padding: 8px 0px;"></td>
+                            <td style="text-align: right; padding: 8px 0px;">
+                                <strong><?php echo esc_html__('Payment Status: ', 'kc-lang'); ?></strong>
+                                <span style="color: white; background-color: green; padding: 4px; border-radius: 4px;">
+                                    <?php echo $data->payment_status == 'paid' ? esc_html__('Paid', 'kc-lang') : esc_html__('Unpaid', 'kc-lang') ?>
+                                </span>
+                            </td>
                         </tr>
+                        <?php } ?>
                     </table>
                     <?php do_action('kivicare_print_after_doctor_data', $data, $id); ?>
-                    <hr style="height: 4px; background: #4874dc;">
+                    <hr style="height: 4px; background: rgba(0, 0, 0, 0.1);">
                     <table style="width:100%; padding: 8px 0px;">
                         <tr>
                             <td style="padding: 8px 0px;">
@@ -5509,13 +5591,6 @@ function kcPrescriptionHtml($data, $id, $type = "encounter")
                                     <?php echo esc_html($data->patient_gender); ?>
                                 </td>
                             <?php } ?>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px 0px;"></td>
-                            <td style="text-align: right; padding: 8px 0px;">
-                                <strong><?php echo esc_html__('Email: ', 'kc-lang'); ?></strong>
-                                <?php echo esc_html($data->email); ?>
-                            </td>
                         </tr>
                     </table>
                 </header>
@@ -5658,7 +5733,7 @@ function kcEncounterHtml($data, $id, $type = "encounter")
             }
         </style>
         <h2 style="text-align: center;"><?php echo esc_html__('Encounter Details', 'kc-lang') ?></h2>
-        <hr>
+        <hr style="border-top: 2px solid rgba(0, 0, 0, 0.1);"></hr>
         <div style="background-color: var(--body-backgroud); border-radius: 5px; padding-bottom: 10px;">
             <div style="display:flex;">
                 <div class="section" style="margin-right: auto;">
@@ -5666,9 +5741,10 @@ function kcEncounterHtml($data, $id, $type = "encounter")
                     </p>
                     <p><strong><?php echo esc_html__('Email: ', 'kc-lang') ?></strong>
                         <?php echo esc_html($data->patient_email); ?></p>
-                    <p><strong><?php echo esc_html__('Encounter Date: ', 'kc-lang') ?></strong><?php echo esc_html($data->encounter_date); ?>
+                    <p><strong><?php echo esc_html__('Encounter Date:', 'kc-lang') . ' ' . esc_html(kcGetFormatedDate($data->encounter_date)); ?>
                     </p>
-                    <p><strong><?php echo esc_html__('Address: ', 'kc-lang') ?></strong><?php echo esc_html($data->patient_address); ?>
+                    <p><strong><?php echo esc_html__('Address: ', 'kc-lang') ?></strong>
+                    </strong><?php echo !empty( $data->patient_address ) ? esc_html($data->patient_address) : esc_html__('No records found', 'kc-lang'); ?>
                     </p>
                 </div>
 
@@ -5679,59 +5755,34 @@ function kcEncounterHtml($data, $id, $type = "encounter")
                     </p>
                     <p style="margin-bottom: 10px;">
                         <strong><?php echo esc_html__('Description: ', 'kc-lang') ?></strong>
-                        <?php if (!empty($data->description)) {
-                            echo esc_html($data->description);
-                        } else {
-                            echo esc_html__('No records found', 'kc-lang');
-                        } ?>
+                        <?php 
+                            echo !empty($data->description) ? esc_html($data->description) : esc_html__('No records found', 'kc-lang');
+                        ?>
                     </p>
                     <h5 style="color: <?php echo $data->Estatus ? 'green' : 'red'; ?>; margin: 0%;">
-                        <?php echo $data->Estatus ? 'ACTIVE' : 'CLOSED'; ?>
+                        <?php echo $data->Estatus ? esc_html__('ACTIVE','kc-lang') : esc_html__('CLOSED','kc-lang'); ?>
                     </h5>
                 </div>
             </div>
             <hr>
         </div>
-        <div class="section">
-            <h3><?php echo esc_html__('Clinical Details', 'kc-lang') ?></h3>
-            <hr>
-            <div style="display: flex;">
-                <div style="width: 33%;">
-                    <h4><?php echo esc_html__('Problems', 'kc-lang') ?></h4>
-                    <hr>
-                    <?php
-                    if (isset($data->medical_history['problem']) && is_array($data->medical_history['problem'])) {
-                        foreach ($data->medical_history['problem'] as $index => $problem) {
-                            echo '<p class="list-item">' . ($index + 1) . '. ' . esc_html($problem) . '</p>';
-                        }
-                    }
-                    ?>
+        <?php
+        $hide_clinical_detail_in_patient = filter_var(
+            get_option(KIVI_CARE_PREFIX . 'hide_clinical_detail_in_patient', false), 
+            FILTER_VALIDATE_BOOLEAN
+        );        
+        
+        if($hide_clinical_detail_in_patient === false){
+        ?>
+            <div class="section">
+                <div style="border-bottom: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <h3><?php echo esc_html__('Clinical Details', 'kc-lang') ?></h3>
                 </div>
-                <div style="width: 33%;">
-                    <h4><?php echo esc_html__('Observations', 'kc-lang') ?></h4>
-                    <hr>
-                    <?php
-                    if (isset($data->medical_history['observation']) && is_array($data->medical_history['observation'])) {
-                        foreach ($data->medical_history['observation'] as $index => $observation) {
-                            echo '<p class="list-item">' . ($index + 1) . '. ' . esc_html($observation) . '</p>';
-                        }
-                    }
-                    ?>
-                </div>
-
-                <div style="width: 33%;">
-                    <h4><?php echo esc_html__('Notes', 'kc-lang') ?></h4>
-                    <hr>
-                    <?php
-                    if (isset($data->medical_history['note']) && is_array($data->medical_history['note'])) {
-                        foreach ($data->medical_history['note'] as $index => $note) {
-                            echo '<p class="list-item">' . ($index + 1) . '. ' . esc_html($note) . '</p>';
-                        }
-                    }
-                    ?>
-                </div>
+                 <?php kcEncounterPrintClinicalDetails( $themeColor, $data, $id, $current_user_role, false ); ?>
             </div>
-        </div>
+        <?php
+        }
+        ?>
 
         <div class="section" style="margin-top: 30px ;">
             <div style="border-bottom: 1px solid var(--border-color); margin-bottom: 20px;">
@@ -5969,19 +6020,19 @@ function kcEncounterBillDetailsPrintContent($themeColor, $data, $id, $current_us
             <table style="width: 100%; border-collapse: collapse;">
                 <thead>
                     <tr>
-                        <th style="border: 1px solid #4874dc; padding: 12px; text-transform: uppercase;">
+                        <th style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-transform: uppercase;">
                             <?php echo esc_html__('SR NO', 'kc-lang'); ?>
                         </th>
-                        <th style="border: 1px solid #4874dc; padding: 12px; text-transform: uppercase;">
-                            <?php echo esc_html__('ITEM NAME', 'kc-lang'); ?>
+                        <th style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-transform: uppercase; text-align: right;">
+                            <?php echo esc_html__('SERVICE NAME', 'kc-lang'); ?>
                         </th>
-                        <th style="border: 1px solid #4874dc; padding: 12px; text-transform: uppercase;">
+                        <th style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-transform: uppercase; text-align: right;">
                             <?php echo esc_html__('PRICE', 'kc-lang'); ?>
                         </th>
-                        <th style="border: 1px solid #4874dc; padding: 12px; text-transform: uppercase;">
+                        <th style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-transform: uppercase; text-align: right;">
                             <?php echo esc_html__('QUANTITY', 'kc-lang'); ?>
                         </th>
-                        <th style="border: 1px solid #4874dc; padding: 12px; text-transform: uppercase;">
+                        <th style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-transform: uppercase; text-align: right;">
                             <?php echo esc_html__('TOTAL', 'kc-lang'); ?>
                         </th>
                     </tr>
@@ -5990,39 +6041,78 @@ function kcEncounterBillDetailsPrintContent($themeColor, $data, $id, $current_us
                     <?php foreach ($data->billItems as $key => $pre) {
                         ?>
                         <tr>
-                            <td style="border: 1px solid #4874dc; padding: 12px;">
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px;">
                                 <?php echo esc_html($key + 1); ?>
                             </td>
-                            <td style="border: 1px solid #4874dc; padding: 12px;">
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
                                 <?php echo esc_html($pre['item_id']['label']); ?>
                             </td>
-                            <td style="border: 1px solid #4874dc; padding: 12px;">
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
                                 <?php echo esc_html($prefix . $pre['price'] . $postfix); ?>
                             </td>
-                            <td style="border: 1px solid #4874dc; padding: 12px;">
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
                                 <?php echo esc_html($pre['qty']); ?>
                             </td>
-                            <td style="border: 1px solid #4874dc; padding: 12px; text-align:right;">
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
                                 <?php echo esc_html($prefix . ($pre['price'] * $pre['qty']) . $postfix); ?>
                             </td>
                         </tr>
                         <?php
                     } ?>
+                    </tbody>
+            </table>
+        </div>
+        <?php if(!empty($tax_details['data'])): ?>
+        <?php kcPrintTitle(esc_html__('Tax', 'kc-lang')); ?>
+        <div style="width: 100%; margin-top: 20px;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-transform: uppercase;">
+                            <?php echo esc_html__('Sr No', 'kc-lang'); ?>
+                        </th>
+                        <th style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-transform: uppercase; text-align: center;">
+                            <?php echo esc_html__('Tax Name', 'kc-lang'); ?>
+                        </th>
+                        <th style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-transform: uppercase; text-align: right;">
+                            <?php echo esc_html__('Charges', 'kc-lang'); ?>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($tax_details['data'] as $key => $tax) :?>
+                        <tr>
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px;">
+                                <?php echo esc_html($key + 1); ?>
+                            </td>
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: center;">
+                                <?php echo esc_html($tax->name); ?>
+                            </td>
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
+                                <?php echo esc_html($prefix . ($tax->charges) . $postfix); ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <?php endif; ?>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tbody >
                     <?php if (!empty($tax_details['tax_total'])) {
                         ?>
                         <tr>
-                            <td colspan="4" style="border: 1px solid #4874dc; padding: 12px; text-align: right;">
+                            <td colspan="4" style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
                                 <strong><?php echo esc_html__('Total', 'kc-lang'); ?></strong>
                             </td>
-                            <td style="border: 1px solid #4874dc; padding: 12px;">
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right">
                                 <?php echo esc_html($prefix . ($data->total_amount - $tax_details['tax_total']) . $postfix); ?>
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="4" style="border: 1px solid #4874dc; padding: 12px; text-align: right;">
-                                <strong><?php echo esc_html__('Tax', 'kc-lang'); ?></strong>
+                            <td colspan="4" style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
+                                <strong><?php echo esc_html__('Total Tax', 'kc-lang'); ?></strong>
                             </td>
-                            <td style="border: 1px solid #4874dc; padding: 12px; text-align:right;">
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align:right;">
                                 <?php echo esc_html($prefix . $tax_details['tax_total'] . $postfix); ?>
                             </td>
                         </tr>
@@ -6030,36 +6120,30 @@ function kcEncounterBillDetailsPrintContent($themeColor, $data, $id, $current_us
                     } else {
                         ?>
                         <tr>
-                            <td colspan="4" style="border: 1px solid #4874dc; padding: 12px; text-align: right;">
+                            <td colspan="4" style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
                                 <strong><?php echo esc_html__('Total', 'kc-lang'); ?></strong>
                             </td>
-                            <td style="border: 1px solid #4874dc; padding: 12px; text-align:right;">
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align:right;">
                                 <?php echo esc_html($prefix . $data->total_amount . $postfix); ?>
                             </td>
                         </tr>
                         <?php
                     } ?>
                     <tr>
-                        <td colspan="4" style="border: 1px solid #4874dc; padding: 12px; text-align: right;">
+                        <td colspan="4" style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
                             <strong><?php echo esc_html__('Discount', 'kc-lang'); ?></strong>
                         </td>
-                        <td style="border: 1px solid #4874dc; padding: 12px; text-align:right;">
+                        <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align:right;">
                             <?php echo esc_html($prefix . $data->discount . $postfix); ?>
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="4" style="border: 1px solid #4874dc; padding: 12px; text-align: right;">
-                            <div style="float: left;">
-                                <strong><?php echo esc_html__('Payment Status: ', 'kc-lang'); ?></strong>
-                                <span style="color: white; background-color: green; padding: 4px; border-radius: 4px;">
-                                    <?php echo $data->payment_status == 'paid' ? esc_html__('Paid', 'kc-lang') : esc_html__('Unpaid', 'kc-lang') ?>
-                                </span>
-                            </div>
+                        <td colspan="4" style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
                             <div style="float: right;">
                                 <strong><?php echo esc_html__('Amount due', 'kc-lang'); ?></strong>
                             </div>
                         </td>
-                        <td style="border: 1px solid #4874dc; padding: 12px; text-align:right;">
+                        <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align:right;">
                             <?php echo esc_html($prefix . $data->actual_amount . $postfix); ?>
                         </td>
                     </tr>
@@ -6070,35 +6154,37 @@ function kcEncounterBillDetailsPrintContent($themeColor, $data, $id, $current_us
     }
 }
 
-function kcEncounterPrintTableContent($themeColor, $data, $id, $current_user_role = '')
+function kcEncounterPrintTableContent($themeColor, $data, $id, $current_user_role = '',$title = true)
 {
-    kcPrintTitle(esc_html__('Prescriptions', 'kc-lang'));
+    if($title){
+        kcPrintTitle(esc_html__('Prescriptions', 'kc-lang'));
+    }
     ?>
     <div class="row m-2">
         <div class="col-12">
-            <table class="table table-bordered border-primary">
+            <table class="table table-bordered2">
                 <thead>
                     <tr>
-                        <th class="border-primary text-dark"><?php echo esc_html__('Name', 'kc-lang'); ?></th>
-                        <th class="border-primary text-dark"><?php echo esc_html__('Frequency', 'kc-lang'); ?></th>
-                        <th class="border-primary text-dark"><?php echo esc_html__('Duration', 'kc-lang'); ?></th>
-                        <th class="border-primary text-dark"><?php echo esc_html__('Instruction', 'kc-lang'); ?></th>
+                        <th class="text-dark"><?php echo esc_html__('Name', 'kc-lang'); ?></th>
+                        <th class="text-dark"><?php echo esc_html__('Frequency', 'kc-lang'); ?></th>
+                        <th class="text-dark"><?php echo esc_html__('Duration', 'kc-lang'); ?></th>
+                        <th class="text-dark"><?php echo esc_html__('Instruction', 'kc-lang'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($data->prescription as $pre) {
                         ?>
                         <tr>
-                            <td class="border-primary">
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px;">
                                 <?php echo esc_html($pre->name); ?>
                             </td>
-                            <td class="border-primary">
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px;">
                                 <?php echo esc_html($pre->frequency); ?>
                             </td>
-                            <td class="border-primary">
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px;">
                                 <?php echo esc_html($pre->duration) . esc_html__(' day', 'kc-lang'); ?>
                             </td>
-                            <td class="border-primary">
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; white-space: wrap; word-break: break-all;">
                                 <?php echo esc_html($pre->instruction); ?>
                             </td>
                         </tr>
@@ -6111,86 +6197,7 @@ function kcEncounterPrintTableContent($themeColor, $data, $id, $current_user_rol
     <?php
     do_action('kivicare_print_after_prescription_data', $data, $id);
     if (!empty($data->medical_history['show']) && ($data->medical_history['show'] === 'true' || $data->medical_history['show'] === true)) {
-        kcPrintTitle(esc_html__('Clinical Detail', 'kc-lang'));
-        ?>
-        <div class="row mt-0 m-2">
-            <div class="col-12">
-                <table class="table table-bordered border-primary">
-                    <thead>
-                        <tr>
-                            <?php
-                            if (!empty($data->medical_history['problem']) && $data->medical_history['problem'] != '') {
-                                ?>
-                                <th class="border-primary text-dark">
-                                    <?php echo esc_html__('Problems', 'kc-lang') ?>
-                                </th>
-                                <?php
-                            }
-                            ?>
-                            <?php
-                            if (!empty($data->medical_history['observation']) && $data->medical_history['observation'] != '') {
-                                ?>
-                                <th class="border-primary text-dark">
-                                    <?php echo esc_html__('Observations', 'kc-lang') ?>
-                                </th>
-                                <?php
-                            }
-                            ?>
-                            <?php
-                            if (!empty($data->medical_history['note']) && $data->medical_history['note'] != '') {
-                                ?>
-                                <th class="border-primary text-dark">
-                                    <?php echo esc_html__('Notes', 'kc-lang') ?>
-                                </th>
-                                <?php
-                            }
-                            ?>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        if (!empty($data->medical_history['count']) && $data->medical_history['count'] != 0) {
-                            for ($i = 0; $i < (int) $data->medical_history['count']; $i++) {
-                                ?>
-                                <tr>
-                                    <?php
-                                    if (!empty($data->medical_history['problem']) && $data->medical_history['problem'] != '') {
-                                        ?>
-                                        <td class="border-primary">
-                                            <?php echo esc_html(!empty($data->medical_history['problem'][$i]) ? $data->medical_history['problem'][$i] : ''); ?>
-                                        </td>
-                                        <?php
-                                    }
-                                    ?>
-                                    <?php
-                                    if (!empty($data->medical_history['observation']) && $data->medical_history['observation'] != '') {
-                                        ?>
-                                        <td class="border-primary">
-                                            <?php echo esc_html(!empty($data->medical_history['observation'][$i]) ? $data->medical_history['observation'][$i] : ''); ?>
-                                        </td>
-                                        <?php
-                                    }
-                                    ?>
-                                    <?php
-                                    if (!empty($data->medical_history['note']) && $data->medical_history['note'] != '') {
-                                        ?>
-                                        <td class="border-primary">
-                                            <?php echo esc_html(!empty($data->medical_history['note'][$i]) ? $data->medical_history['note'][$i] : ''); ?>
-                                        </td>
-                                        <?php
-                                    }
-                                    ?>
-                                </tr>
-                                <?php
-                            }
-                        }
-                        ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <?php
-        do_action('kivicare_print_after_clinical_detail_data', $data, $id);
+        kcEncounterPrintClinicalDetails( $themeColor, $data, $id, $current_user_role, $title );
     }
     if (!empty($data->include_encounter_custom_field) && $data->include_encounter_custom_field == 'true') {
         $custom_field = kcGetCustomFields('patient_encounter_module', $id, $data->doctor_id, true);
@@ -6199,6 +6206,103 @@ function kcEncounterPrintTableContent($themeColor, $data, $id, $current_user_rol
             kcCustomFieldPrint($custom_field, $themeColor);
         }
     }
+}
+
+function kcEncounterPrintClinicalDetails( $themeColor, $data, $id, $current_user_role = '',$title = true ){
+    if( $title){
+        kcPrintTitle(esc_html__('Clinical Detail', 'kc-lang'));
+    }
+    $encounter_model = json_decode(get_option(KIVI_CARE_PREFIX . 'enocunter_modules'));
+    $problem_status = $observation_status = $note_status = 0;
+    foreach($encounter_model->encounter_module_config as $config){
+        if($config->name == 'problem'){
+            $problem_status = $config->status;
+        }
+        if($config->name == 'observation'){
+            $observation_status = $config->status;
+        }
+        if($config->name == 'note'){
+            $note_status = $config->status;
+        }
+    }
+    ?>
+    <style>
+        @media print {
+            .table-bordered2 {
+                border-collapse: separate;
+                border: 0;
+                background-color: #000000 !important;
+            }
+
+            .text-dark {
+                color: #000000 !important;
+            }
+        }
+    </style>
+
+    <div class="row mt-0 m-2">
+    <div class="col-12">
+    <table class="table table-bordered2">
+            <thead>
+                <tr>
+                    <?php if($problem_status){
+                        ?>
+                        <th class="text-dark"><?php echo esc_html__('Problems', 'kc-lang'); ?></th>
+                        <?php
+                    } ?>
+                    <?php if($observation_status){
+                        ?>
+                        <th class="text-dark"><?php echo esc_html__('Observations', 'kc-lang'); ?></th>
+                        <?php
+                    } ?>
+                    <?php if($note_status){
+                        ?>
+                        <th class="text-dark"><?php echo esc_html__('Notes', 'kc-lang'); ?></th>
+                        <?php
+                    } ?>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $count = !empty($data->medical_history['count']) ? (int) $data->medical_history['count'] : 0;
+                if ($count > 0) {
+                    for ($i = 0; $i < $count; $i++) {
+                        ?>
+                        <tr>
+                            <?php if($problem_status){ ?>
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; white-space: wrap;">
+                                <?php echo esc_html(!empty($data->medical_history['problem'][$i]) ? $data->medical_history['problem'][$i] : __('No records found', 'kc-lang')); ?>
+                            </td>
+                            <?php } ?>
+                            <?php if($observation_status){ ?>
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; white-space: wrap;">
+                                <?php echo esc_html(!empty($data->medical_history['observation'][$i]) ? $data->medical_history['observation'][$i] : __('No records found', 'kc-lang')); ?>
+                            </td>
+                            <?php } ?>
+                            <?php if($note_status){ ?>
+                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; white-space: wrap; word-break: break-all;">
+                                <?php echo esc_html(!empty($data->medical_history['note'][$i]) ? $data->medical_history['note'][$i] : __('No records found', 'kc-lang')); ?>
+                            </td>
+                            <?php } ?>
+                        </tr>
+                        <?php
+                    }
+                } else {
+                    ?>
+                    <tr>
+                        <td colspan="3" class="text-center"><?php echo esc_html__('No records found', 'kc-lang'); ?></td>
+                    </tr>
+                    <?php
+                }
+                ?>
+            </tbody>
+        </table>
+
+        </div>
+    </div>
+
+    <?php
+    do_action('kivicare_print_after_clinical_detail_data', $data, $id);
 }
 
 function kcAppointmentPrintContent($themeColor, $appointmentData, $id, $current_user_role = '')
@@ -6222,11 +6326,13 @@ function kcAppointmentPrintContent($themeColor, $appointmentData, $id, $current_
             'doctor_id' => $appointmentData->doctor_id,
             'clinic_id' => $appointmentData->clinic_id
         ]);
-        if ($service_charges->telemed_service === 'yes') {
-            $telemedAppointment = true;
+        if(!empty($service_charges)){
+            if ($service_charges->telemed_service === 'yes') {
+                $telemedAppointment = true;
+            }
+            $service_charges->charges = round((float) $service_charges->charges, 3);
+            $serviceCharges = $serviceCharges + $service_charges->charges;
         }
-        $service_charges->charges = round((float) $service_charges->charges, 3);
-        $serviceCharges = $serviceCharges + $service_charges->charges;
     }
 
     $serviceName = !empty($appointmentData->all_services_name) ? $appointmentData->all_services_name : '';
@@ -6298,6 +6404,7 @@ function kcAppointmentPrintContent($themeColor, $appointmentData, $id, $current_
     do_action('kivicare_print_before_appointment_data', $appointmentData, $id);
     kcPrintTitle(esc_html__('Appointment Detail', 'kc-lang'));
     ?>
+    <hr style="height: 1px; background-color: rgba(0, 0, 0, 0.1);"></hr>
     <?php foreach ($data as $value) {
         ?>
         <div class="row m-2">
@@ -6315,27 +6422,32 @@ function kcAppointmentPrintContent($themeColor, $appointmentData, $id, $current_
             } ?>
         </div>
         <?php
-    }
+    }?>
+    <div style="margin: 40px 0 0 0;"></div>
+    <?php 
     do_action('kivicare_print_after_appointment_data', $appointmentData, $id);
     if (kcCheckExtraTabConditionInAppointmentWidget('all') || !empty($custom_field)) {
-        kcPrintTitle(esc_html__('Other Info', 'kc-lang'));
-        ?>
-        <?php if (kcCheckExtraTabConditionInAppointmentWidget('description')) {
+        if(!empty($custom_field) || !empty($appointmentData->description)){
+            kcPrintTitle(esc_html__('Other Info', 'kc-lang'));
             ?>
-            <div class="row m-2">
-                <div class="col-12">
-                    <p class="mb-0">
-                        <span class="text-dark">
-                            <?php echo esc_html__('Description: ', 'kc-lang'); ?>
-                        </span>
-                        <?php echo esc_html(!empty($appointmentData->description) ? $appointmentData->description : ''); ?>
-                    </p>
+            <?php if (kcCheckExtraTabConditionInAppointmentWidget('description') && !empty($appointmentData->description)) {
+                ?>
+                <hr style="height: 1px; background-color: rgba(0, 0, 0, 0.1);"></hr>
+                <div class="row m-2">
+                    <div class="col-12">
+                        <p class="mb-0">
+                            <span class="text-dark">
+                                <?php echo esc_html__('Description: ', 'kc-lang'); ?>
+                            </span>
+                            <?php echo esc_html(!empty($appointmentData->description) ? $appointmentData->description : ''); ?>
+                        </p>
+                    </div>
                 </div>
-            </div>
-            <?php
-        } ?>
-        <?php if (isKiviCareProActive() && !empty($custom_field)) {
-            kcCustomFieldPrint($custom_field, $themeColor);
+                <?php
+            } ?>
+            <?php if (isKiviCareProActive() && !empty($custom_field)) {
+                kcCustomFieldPrint($custom_field, $themeColor);
+            }
         }
     }
     if ($telemedAppointment && (isKiviCareGoogleMeetActive() || isKiviCareTelemedActive())) {
@@ -7002,13 +7114,6 @@ function kcClinicAdminSidebarArray()
     $translate_lang = require KIVI_CARE_DIR . 'resources/assets/lang/temp.php';
     $data = [
         [
-            'label' => isset($translate_lang['widgets']['home']) ? $translate_lang['widgets']['home'] : esc_html__('Home', 'kc-lang'),
-            'type' => 'href',
-            'link' => get_home_url(),
-            'iconClass' => 'fas fa-home',
-            'routeClass' => 'home',
-        ],
-        [
             'label' => isset($translate_lang['dashboard']['dashboard']) ? $translate_lang['dashboard']['dashboard'] : esc_html__('Dashboard', 'kc-lang'),
             'type' => 'route',
             'link' => 'dashboard',
@@ -7118,13 +7223,6 @@ function kcReceptionistSidebarArray()
     $translate_lang = require KIVI_CARE_DIR . 'resources/assets/lang/temp.php';
     $data = [
         [
-            'label' => isset($translate_lang['widgets']['home']) ? $translate_lang['widgets']['home'] : esc_html__('Home', 'kc-lang'),
-            'type' => 'href',
-            'link' => get_home_url(),
-            'iconClass' => 'fas fa-home',
-            'routeClass' => 'home',
-        ],
-        [
             'label' => isset($translate_lang['dashboard']['dashboard']) ? $translate_lang['dashboard']['dashboard'] : esc_html__('Dashboard', 'kc-lang'),
             'type' => 'route',
             'link' => 'dashboard',
@@ -7205,13 +7303,6 @@ function kcDoctorSidebarArray()
 {
     $translate_lang = require KIVI_CARE_DIR . 'resources/assets/lang/temp.php';
     $data = [
-        [
-            'label' => isset($translate_lang['widgets']['home']) ? $translate_lang['widgets']['home'] : esc_html__('Home', 'kc-lang'),
-            'type' => 'href',
-            'link' => get_home_url(),
-            'iconClass' => 'fas fa-home',
-            'routeClass' => 'home',
-        ],
         [
             'label' => isset($translate_lang['dashboard']['dashboard']) ? $translate_lang['dashboard']['dashboard'] : esc_html__('Dashboard', 'kc-lang'),
             'type' => 'route',
@@ -7327,13 +7418,6 @@ function kcPatientSidebarArray()
             'iconClass' => 'fa fa-file',
             'routeClass' => 'patient_medical',
         ],
-        [
-            'label' => isset($translate_lang['clinic']['clinic']) ? $translate_lang['clinic']['clinic'] : esc_html__('Clinic', 'kc-lang'),
-            'type' => 'route',
-            'link' => 'patient-clinic',
-            'iconClass' => 'fas fa-hospital',
-            'routeClass' => 'patient_clinic',
-        ],
     ];
 
     return $data;
@@ -7377,7 +7461,7 @@ function kcUnauthorizeAccessResponse($status_code = '')
 {
     $response = [
         'status' => false,
-        'message' => esc_html__('You don\'t have permission to access', 'kc-lang'),
+        'message' => esc_html__('You do not have permission to access', 'kc-lang'),
         'data' => []
     ];
     if (!empty($status_code)) {
@@ -7504,47 +7588,23 @@ function kcGetCancellationBufferData($current_date, $appointment_start_date, $ap
     return ($current_timestamp < $new_appointment_timestamp) ? true : false;
 }
 
+
 function decodeSpecificSymbols($input)
 {
-    $allowedSymbols = ['&'];
-
     $decoded = html_entity_decode($input, ENT_QUOTES, 'UTF-8');
-    $encoded = htmlentities($decoded, ENT_QUOTES, 'UTF-8');
 
-    foreach ($allowedSymbols as $symbol) {
-        $encoded = str_replace(htmlentities($symbol, ENT_QUOTES, 'UTF-8'), $symbol, $encoded);
-    }
-
-    return $encoded;
+    return $decoded;
 }
 
 function kcEncounterPrintContent($themeColor, $data, $id, $current_user_role = '')
 {
-    ?>
-    <?php foreach ($data->prescription as $pre) { ?>
-        <div
-            style="background-color: var(--body-background); border-radius: 10px; box-shadow: 0 0 34px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 30px;">
-            <h5><?php echo esc_html__('Name', 'kc-lang') ?></h5>
-            <h4 style="margin: 0%;"><?php echo esc_html($pre->name); ?></h4>
-            <p class="list-item"><?php echo esc_html($pre->instruction); ?></p>
-            <div style="display: flex; align-items: center;">
-                <div style="width: 50%;">
-                    <p class="list-item" style="line-height: 2;">
-                        <strong><?php echo esc_html__('Frequency', 'kc-lang') ?><br></strong>
-                        <?php echo esc_html($pre->frequency); ?>
-                    </p>
-                </div>
-                <p class="list-item" style="line-height: 2;">
-                    <strong><?php echo esc_html__('Duration', 'kc-lang') ?><br></strong>
-                    <?php echo esc_html($pre->duration) . ' ' . esc_html__('Days', 'kc-lang'); ?>
-                </p>
-            </div>
-            <p class="list-item"><strong><?php echo esc_html__('Action', 'kc-lang'); ?></strong></p>
-        </div>
+    if(empty($data->prescription)){
+        ?>
+        <p class="text-danger text-center"><?php echo esc_html__('No prescription found','kc-lang')?></p>
         <?php
+    }else{
+        kcEncounterPrintTableContent($themeColor, $data, $id, $current_user_role, false);
     }
-?>
-<?php
 }
 
 /**
@@ -7639,4 +7699,3 @@ add_action('kivicare_custom_form_data_delete', function ($module_type, $module_i
         }
     }
 }, 10, 2);
-

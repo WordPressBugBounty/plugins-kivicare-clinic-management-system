@@ -385,8 +385,7 @@ $rtl_attr = in_array($theme_mode,['1','true']) ? 'rtl' : '';
                 if($(document).find('#userRole').val()){
                     kcGetRegisterPageCustomField($(document).find('#userRole').val())
                 }
-                var element = document.getElementById('CountryCode');
-                if (element !== null) {
+                if (document.getElementById('CountryCode') !== null) {
                     getCountryCodeData();
                 }
                 

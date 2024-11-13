@@ -863,7 +863,7 @@ class KCActivate extends KCBase {
 	}
 	public function validateAuthUser( $user ) {
         // check login user status
-		if( isset($user->data->user_status) && (int)$user->data->user_status === 4 ) {
+		if( isset($user->data->user_status) && (int)$user->data->user_status === 1 ) {
 			$error = new WP_Error();
 			$error->add( 403, __('Login has been disabled. please contact you system administrator. ','kc-lang') );
 			return $error;
@@ -1676,10 +1676,12 @@ class KCActivate extends KCBase {
             'mp_demo_sandbox_id'
         ");
         //localize data
-        $lang = explode('_',get_locale());
+        $user_locale = get_user_locale();
+        $lang = explode('_', $user_locale);
         $lang = !empty($lang[0]) ? $lang[0] : 'en';
         $enableAppointmentDescription = !empty($config_options[KIVI_CARE_PREFIX.'appointment_description_config_data']) ? $config_options[KIVI_CARE_PREFIX.'appointment_description_config_data'] : 'off';
         $enablePatientInfo = !empty($config_options[KIVI_CARE_PREFIX.'appointment_patient_info_config_data']) ? $config_options[KIVI_CARE_PREFIX.'appointment_patient_info_config_data'] : 'off';
+        $time_format = get_option('time_format');
         $data = [
             'ajaxurl' => admin_url( 'admin-ajax.php' ),
             'nonce' => wp_create_nonce('ajax_post'),
@@ -1687,7 +1689,7 @@ class KCActivate extends KCBase {
             'kiviCarePluginURL' => $this->plugin_url,
             'loaderImage' =>  kcPluginLoader(),
             'homePage' => get_home_url(),
-            // 'appointment_time_format' => kcGetAppointmentTimeFormatOption(),
+            'appointment_time_format' => $time_format,
             'current_user_role' => $this->getLoginUserRole(),
             'current_wordpress_lang' => $lang,
             'proActive' => isKiviCareProActive(),
@@ -1698,7 +1700,8 @@ class KCActivate extends KCBase {
             'file_upload_status' => kcAppointmentMultiFileUploadEnable() ? 'on' : 'off',
             'description_status' => $enableAppointmentDescription,
             'patient_detail_info_status' => $enablePatientInfo,
-            'menu_url' => admin_url('admin.php?page=dashboard')
+            'menu_url' => admin_url('admin.php?page=dashboard'),
+            'wp_timezone' => wp_timezone_string()
         ];
 
         if($type === 'frontend'){

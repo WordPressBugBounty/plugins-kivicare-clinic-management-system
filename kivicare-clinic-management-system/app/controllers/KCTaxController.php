@@ -31,9 +31,9 @@ class KCTaxController extends KCBase{
 
         // Set the filter_not_found_message based on the activation status of KiviCare Pro plugin
         if ( isKiviCareProActive() ) {
-            $this->filter_not_found_message = esc_html__( "Please update kivicare pro plugin", "kc-lang" );
+            $this->filter_not_found_message = esc_html__( "Please update kiviCare pro plugin", "kc-lang" );
         } else {
-            $this->filter_not_found_message = esc_html__( "Please install kivicare pro plugin", "kc-lang" );
+            $this->filter_not_found_message = esc_html__( "Please install kiviCare pro plugin", "kc-lang" );
         }
     }
 

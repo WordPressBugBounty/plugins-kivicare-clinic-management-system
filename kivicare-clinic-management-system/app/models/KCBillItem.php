@@ -13,16 +13,27 @@ class KCBillItem extends KCModel {
 	}
 	public static function createAppointmentBillItem($appointment_id) {
 		$appointment_doctor_id = (new KCAppointment())->get_var([ 'id' => (int)$appointment_id], 'doctor_id');
-        if(!empty($appointment_doctor_id)){
+		if(!empty($appointment_doctor_id)){
 			$appointment_service = (new KCAppointmentServiceMapping())->get_by([ 'appointment_id' => (int)$appointment_id], '=', false);
             if(!empty($appointment_service)){
 				$total_amount = 0;
-                foreach ( $appointment_service  as $data ) {
+				foreach ( $appointment_service  as $data ) {
                     $get_mapping_services = (new KCServiceDoctorMapping())->get_by([ 'service_id' => (int)$data->service_id, 'doctor_id'=>(int)$appointment_doctor_id],'=',true);
                     $data->service_charges = (int)$get_mapping_services->charges;
                     $total_amount = $total_amount + (int)$get_mapping_services->charges;
-                }
-
+				}
+				
+				$tax = apply_filters('kivicare_calculate_tax',[
+                    'status' => false,
+                    'message' => '',
+                    'data' => []
+                ], [
+                    "id" => $appointment_id,
+                    "type" => 'appointment',
+                ]);
+				if(is_array($tax)){
+					$total_amount = $tax['tax_total'] + $total_amount;
+				}
                 $patient_encounter_id = (new KCPatientEncounter())->get_var([ 'appointment_id' => (int)$appointment_id], 'id');
 				if(empty($patient_encounter_id)){
                     return;

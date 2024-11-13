@@ -216,9 +216,11 @@ class KCPatientController extends KCBase {
             $data[ $key ]['display_name']    = $patient->display_name;
             //patient clinic list if available or empty
 
-             $condition = '';
-            if ($clinic_id != $data[$key]['clinic_id']) {
-                $condition = "AND clinic.id = {$clinic_id}";
+            $condition = '';
+            if(!empty($clinic_id)){
+                if ($clinic_id != $data[$key]['clinic_id']) {
+                    $condition = "AND clinic.id = {$clinic_id}";
+                }
             } else {
                 $condition = "GROUP BY patient_clinic.patient_id";
             }

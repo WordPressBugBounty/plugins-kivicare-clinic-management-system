@@ -1,10 +1,10 @@
 KiviCare - Clinic & Patient Management System (EHR)
 Contributors: iqonicdesign
-Tags: kivicare,clinic,patient,hospital,management,clinic management,patient management,doctor,doctor management,appointment,appointment management,vuejs,saas,webpack
+Tags: clinic management, patient management, doctor management, appointment management, clinic management solution
 Requires PHP: 8.0 
 Requires at least: 3.0.1
-Tested up to: 6.6.2
-Stable tag: 3.6.3
+Tested up to: 6.7.0
+Stable tag: 3.6.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -123,6 +123,13 @@ Support for the Free version is only via Documentation and Video Guides
 Yes, we’d love to hear from you at hello@iqonic.design.
 
 == Changelog ==
+
+= Version 3.6.4 – 13/11/2024
+
+[Fixed] Time slot issues.
+[Fixed] Duplicate booking issue.
+[Fixed] Various minor bugs.
+[Compatibility] Now compatible with WordPress 6.7.
 
 = Version 3.6.3 – 19/09/2024
 

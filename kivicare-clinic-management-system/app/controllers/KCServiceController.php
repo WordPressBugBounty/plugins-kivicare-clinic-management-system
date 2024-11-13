@@ -275,9 +275,9 @@ class KCServiceController extends KCBase {
 
 
 		$services = collect($this->db->get_results( $query ))->unique('full_service_name')->map( function ( $services )use($clinic_prefix,$clinic_postfix,$request_data,$request_from_new_appointment_widget_and_service_first)  {
-           $services->charges = round((float)$services->charges, 3);
+           $services->charges = round((float)$services->charges, 2);
            $services->clinic_name = decodeSpecificSymbols($services->clinic_name);
-           $services->service_base_price = round((float)$services->service_base_price, 3);
+           $services->service_base_price = round((float)$services->service_base_price, 2);
             //service image
             $services->image = !empty($services->image) ? wp_get_attachment_url($services->image) : '';
 			//service category name format
@@ -328,7 +328,7 @@ class KCServiceController extends KCBase {
 		}
 
         $request_data = $this->request->getInputs();
-        $request_data['price'] = round((float)$request_data['price'], 3);
+        $request_data['price'] = round((float)$request_data['price'], 2);
         $doctor_service_table = $this->db->prefix . 'kc_service_doctor_mapping';
         $service_table =  $this->db->prefix .'kc_services';
         $pro_plugin_active = isKiviCareProActive();
@@ -618,7 +618,7 @@ class KCServiceController extends KCBase {
 					'id'     => $service->mapping_id,
 					'service_id' => $service->service_id,
 					'name'   => $service->name,
-					'price'  => round((float)$service->doctor_charges, 3),
+					'price'  => round((float)$service->doctor_charges, 2),
                     'doctor_id' =>  [
 						'id' 	=>  $service->doctor_id,
 						'label' =>  $service->doctor_name

@@ -3,7 +3,7 @@
  * Plugin Name: KiviCare - Clinic & Patient Management System (EHR)
  * Plugin URI: https://iqonic.design
  * Description: KiviCare is an impressive clinic and patient management plugin (EHR).
- * Version:3.6.3
+ * Version:3.6.4
  * Author: iqonic
  * Text Domain: kc-lang
  * Domain Path: /languages
@@ -47,7 +47,7 @@ if (!defined('KIVI_CARE_PREFIX'))
 
 if (!defined('KIVI_CARE_VERSION'))
 {
-    define('KIVI_CARE_VERSION', "3.6.3");
+    define('KIVI_CARE_VERSION', "3.6.4");
 }
 
 /**

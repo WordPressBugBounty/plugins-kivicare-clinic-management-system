@@ -119,14 +119,14 @@ class KCClinicScheduleController extends KCBase {
          $query = "SELECT {$clinic_schedule_table}.*,{$user_table}.display_name AS doctor_name,{$clinic_table}.name as clinic_name  FROM {$clinic_schedule_table}
                     LEFT JOIN {$user_table} ON {$user_table}.Id = {$clinic_schedule_table}.module_id
                     AND {$clinic_schedule_table}.module_type = 'doctor'
-                    LEFT JOIN {$clinic_table} ON {$clinic_table}.Id = {$clinic_schedule_table}.Id
+                    LEFT JOIN {$clinic_table} ON {$clinic_table}.Id = {$clinic_schedule_table}.module_id
                     AND {$clinic_schedule_table}.module_type = 'clinic'";
 
 
         $total_rows  = $this->db->get_var(  "SELECT count(*) FROM {$clinic_schedule_table}
                     LEFT JOIN {$user_table} ON {$user_table}.Id = {$clinic_schedule_table}.module_id
                     AND {$clinic_schedule_table}.module_type = 'doctor'
-                    LEFT JOIN {$clinic_table} ON {$clinic_table}.Id = {$clinic_schedule_table}.Id
+                    LEFT JOIN {$clinic_table} ON {$clinic_table}.Id = {$clinic_schedule_table}.module_id
                     AND {$clinic_schedule_table}.module_type = 'clinic' WHERE 0=0 {$conditions} ");
 
 		$clinic_schedule = collect($this->db->get_results( "{$query} WHERE 0=0 {$conditions} {$orderByCondition} {$paginationCondition} "))->map(function($v){

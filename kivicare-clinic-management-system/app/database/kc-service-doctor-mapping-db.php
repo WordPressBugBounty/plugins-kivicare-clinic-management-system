@@ -16,6 +16,10 @@ $sql = "CREATE TABLE `{$table_name}` (
     clinic_id int(11) DEFAULT 0,
     charges varchar(50) DEFAULT 0,
     extra longtext NULL, 
+    telemed_service varchar(10),
+    service_name_alias varchar(191),
+    multiple varchar(191),
+    image bigint,
     status int(1) DEFAULT 1,
     created_at datetime NOT NULL,    
     PRIMARY KEY  (id)

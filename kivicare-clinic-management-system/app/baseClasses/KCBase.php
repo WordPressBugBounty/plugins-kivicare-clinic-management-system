@@ -34,7 +34,7 @@ class KCBase {
 
 	public function __construct() {
 
-        $this->permission_message = esc_html__('You don\'t have permission to access', 'kc-lang');
+        $this->permission_message = esc_html__('You do not have permission to access', 'kc-lang');
 
         add_action('init',function (){
             require_once( ABSPATH . "wp-includes/pluggable.php" );

@@ -150,7 +150,8 @@ class KCBookAppointmentWidgetController extends KCBase {
 			'date' => $formData['date'],
 			'doctor_id' => $formData['doctor_id'],
 			'clinic_id' => $formData['clinic_id'],
-            'service' => $formData['service']
+            'service' => $formData['service'],
+            "widgetType" => 'phpWidget'
 		], "", true);
         $htmldata = '';
 		if (count($timeSlots)) {
@@ -227,7 +228,7 @@ class KCBookAppointmentWidgetController extends KCBase {
 			$end_time             = strtotime( "+" . $time_slot . " minutes", strtotime( $formData['appointment_start_time'] ) );
 			$appointment_end_time = date( 'H:i:s', $end_time );
 			$appointment_date     = date( 'Y-m-d', strtotime( $formData['appointment_start_date'] ) );
-            $appointment_start_time = date('H:i:s', strtotime($formData['appointment_start_time']));
+            $appointment_start_time = date('H:i:s', strtotime($formData['appointment_start_time']));           
             if(isKiviCareProActive()){
                 $verifyTimeslot = apply_filters('kcpro_verify_appointment_timeslot',$formData);
                 if(is_array($verifyTimeslot) && array_key_exists('end_time',$verifyTimeslot) && !empty($verifyTimeslot['end_time'])){
@@ -236,6 +237,9 @@ class KCBookAppointmentWidgetController extends KCBase {
                     }
                     $appointment_end_time = date( 'H:i:s', $verifyTimeslot['end_time'] );
                 }
+            }
+            if($formData['payment_mode'] !== 'paymentOffline'){
+                $formData['status'] = 0;
             }
 			// appointment data
             $tempAppointmentData = [
@@ -251,6 +255,7 @@ class KCBookAppointmentWidgetController extends KCBase {
                 'status' => $formData['status'],
                 'created_at' => current_time('Y-m-d H:i:s')
             ];
+
 
             if(isset($formData['file']) && is_array($formData['file']) && count($formData['file']) > 0){
                 kcUpdateFields($wpdb->prefix . 'kc_appointments',[ 'appointment_report' => 'longtext NULL']);
@@ -924,7 +929,7 @@ class KCBookAppointmentWidgetController extends KCBase {
                        patients.user_email AS patient_email,
                        GROUP_CONCAT({$service_table}.name) AS all_services_name,
                        {$clinics_table}.*, 
-                       CONCAT('#',{$clinics_table}.address, ', ', {$clinics_table}.city,', '
+                       CONCAT({$clinics_table}.address, ', ', {$clinics_table}.city,', '
 		             ,{$clinics_table}.postal_code,', ',{$clinics_table}.country) AS clinic_address
                     FROM  {$patient_appointment_table}
                        LEFT JOIN {$users_table} doctors
