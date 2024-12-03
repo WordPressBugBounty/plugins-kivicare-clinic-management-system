@@ -82,8 +82,8 @@ class KCServiceController extends KCBase {
             if(!empty($request_data['sort'])){
                 $request_data['sort'] = kcRecursiveSanitizeTextField(json_decode(stripslashes($request_data['sort'][0]),true));
                 if(!empty($request_data['sort']['field']) && !empty($request_data['sort']['type']) && $request_data['sort']['type'] !== 'none'){
-                    $sortField = esc_sql($request_data['sort']['field']);
-                    $sortByValue = esc_sql(strtoupper($request_data['sort']['type']));
+                    $sortField = sanitize_sql_orderby($request_data['sort']['field']);
+                    $sortByValue = sanitize_sql_orderby(strtoupper($request_data['sort']['type']));
                     switch($request_data['sort']['field']){
                         case 'charges':
                         case 'status':
@@ -127,12 +127,17 @@ class KCServiceController extends KCBase {
                         }
                         switch($column){
                             case 'charges':
-                            case 'status':
                             case 'id':
                             case 'duration':
                                 list($hours, $minutes) = explode(":", $searchValue);
                                 $searchValue = ((int)$hours * 60) + (int)$minutes;
                                 $search_condition.= " AND {$service_doctor_mapping}.{$column} LIKE '%{$searchValue}%' ";
+                                break;
+                            case 'status':
+                                if($searchValue === 'inactive'){
+                                    $searchValue = '';
+                                }
+                                $search_condition.= " AND {$service_doctor_mapping}.{$column} = '{$searchValue}' ";
                                 break;
                             case 'service_id':
                                 $search_condition.= " AND {$service_doctor_mapping}.{$column} LIKE '%{$searchValue}%' ";

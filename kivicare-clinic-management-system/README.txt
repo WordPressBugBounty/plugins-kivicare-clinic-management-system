@@ -3,8 +3,8 @@ Contributors: iqonicdesign
 Tags: clinic management, patient management, doctor management, appointment management, clinic management solution
 Requires PHP: 8.0 
 Requires at least: 3.0.1
-Tested up to: 6.7.0
-Stable tag: 3.6.4
+Tested up to: 6.7.1
+Stable tag: 3.6.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ KiviCare is an impressive clinic and patient management plugin (EHR).
 
 == Description ==
 
-[Save Big with a 30% OFF Discount on KiviCare Theme & KiviCare Pro!](https://codecanyon.net/item/kivicare-pro-clinic-patient-management-system-ehr-addon/30690654?irgwc=1&clickid=Rw52LbTCtxyNU4kRIQTZ1zXmUkFxi7yROVgO2w0&iradid=275988&irpid=2777823&iradtype=ONLINE_TRACKING_LINK&irmptype=mediapartner&mp_value1=&utm_campaign=af_impact_radius_2777823&utm_medium=affiliate&utm_source=impact_radius)
+[🏥 KiviCare Best Products Up to **50% OFF** at this Cyber Week Sale! 💼](https://kivicare.io/?utm_source=referral&utm_medium=wordpress.org&utm_campaign=iqonic-cyber-week-sale-live-2024-wordpress-free-plugins-kivicare)
 
 Launch your  Online Clinic in 60 Seconds! 🚀
 KiviCare is the most simple self-hosted clinic and patient management solution based on WordPress platform. Setup your online clinic instantly.  
@@ -124,12 +124,20 @@ Yes, we’d love to hear from you at hello@iqonic.design.
 
 == Changelog ==
 
+= Version 3.6.5 – 03/12/2024
+
+* [Security] Resolved SQL injection vulnerability.
+* [Fixed] KiviCare dashboard: Added sidebar label display.
+* [Fixed] Doctor session edit: Filtered doctor selection based on the clinic.
+* [Fixed] Resolved various minor bugs.
+* [Compatibility] Now compatible with WordPress 6.7.1
+
 = Version 3.6.4 – 13/11/2024
 
-[Fixed] Time slot issues.
-[Fixed] Duplicate booking issue.
-[Fixed] Various minor bugs.
-[Compatibility] Now compatible with WordPress 6.7.
+* [Fixed] Time slot issues.
+* [Fixed] Duplicate booking issue.
+* [Fixed] Various minor bugs.
+* [Compatibility] Now compatible with WordPress 6.7.
 
 = Version 3.6.3 – 19/09/2024
 

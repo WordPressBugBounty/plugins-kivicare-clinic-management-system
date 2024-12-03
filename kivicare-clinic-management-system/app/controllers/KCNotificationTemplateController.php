@@ -111,7 +111,7 @@ class KCNotificationTemplateController extends KCBase
                 }
                 break;
             case 'sms':
-                $response = apply_filters('kcpro_send_sms_directly',$data['recieverDetails'],$data['content']);
+                $response = apply_filters('kcpro_send_sms_directly',$data['recieverDetails'],$data['content'],0);
                 $message = esc_html__('Failed to send test sms. Please check your Twillo sms setup.', 'kc-lang');
                 if(!empty($response->status)){
                     if(in_array($response->status,['sent','queued','delivered'])){

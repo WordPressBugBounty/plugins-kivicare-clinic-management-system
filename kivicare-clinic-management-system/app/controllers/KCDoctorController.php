@@ -66,8 +66,8 @@ class KCDoctorController extends KCBase
         if(!empty($request_data['sort'])){
             $request_data['sort'] = kcRecursiveSanitizeTextField(json_decode(stripslashes($request_data['sort'][0]),true));
             if(!empty($request_data['sort']['field']) && !empty($request_data['sort']['type']) && $request_data['sort']['type'] !== 'none'){
-                $args['orderby']        = esc_sql($request_data['sort']['field']);
-                $args['order']          = esc_sql(strtoupper($request_data['sort']['type']));
+                $args['orderby']        = sanitize_sql_orderby($request_data['sort']['field']);
+                $args['order']          = sanitize_sql_orderby(strtoupper($request_data['sort']['type']));
             }
         }
 

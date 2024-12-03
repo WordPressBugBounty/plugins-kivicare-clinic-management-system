@@ -52,7 +52,7 @@ class KCCustomFieldController extends KCBase {
         if(!empty($request_data['sort'])){
             $request_data['sort'] = kcRecursiveSanitizeTextField(json_decode(stripslashes($request_data['sort'][0]),true));
             if(!empty($request_data['sort']['field']) && !empty($request_data['sort']['type']) && $request_data['sort']['type'] !== 'none'){
-                $orderByCondition = " ORDER BY ".esc_sql($request_data['sort']['field'])." ".esc_sql(strtoupper($request_data['sort']['type']));
+                $orderByCondition = " ORDER BY ".sanitize_sql_orderby($request_data['sort']['field'])." ".sanitize_sql_orderby(strtoupper($request_data['sort']['type']));
             }
         }
         if(isset($request_data['searchTerm']) && trim($request_data['searchTerm']) !== ''){

@@ -37,6 +37,7 @@ function kcValidateRequest($rules, $request, $message = [])
     $error_messages = [];
     $required_message = __(' field is required', 'kc-lang');
     $email_message = __(' has invalid email address', 'kc-lang');
+    $date_message  = __(' has invalid date','kc-lang');
     if (count($rules)) {
         foreach ($rules as $key => $rule) {
             if (strpos($rule, '|') !== false) {
@@ -50,6 +51,15 @@ function kcValidateRequest($rules, $request, $message = [])
                         if (isset($request[$key])) {
                             if (!filter_var($request[$key], FILTER_VALIDATE_EMAIL)) {
                                 $error_messages[] = isset($message[$key]) ? $message[$key] : str_replace('_', ' ', $key) . $email_message;
+                            }
+                        }
+                    } elseif ($r === 'date') {
+                        if (isset($request[$key])) {
+                            $dateObj = DateTime::createFromFormat('Y-m-d', $request[$key]);
+                            if ($dateObj === false || $dateObj->format('Y-m-d') !== $request[$key]) {
+                                $error_messages[] = isset($message[$key]) 
+                                    ? $message[$key] 
+                                    : str_replace('_', ' ', $key) . $date_message;
                             }
                         }
                     }
@@ -767,6 +777,13 @@ function kcGetCustomFields($module_type, $module_id, $data_module_id = 0, $exclu
         $data = array_map(function ($v) {
             if (!empty($v['type']) && in_array($v['type'], ['checkbox', 'file_upload', 'multiselect']) && !empty($v['field_data'])) {
                 $v['field_data'] = json_decode($v['field_data']);
+                if($v['type'] === 'file_upload'){
+                    $v['field_data']->type = $v['type'];
+                } elseif($v['type'] === 'multiselect'){
+                    $v['field_data'] = array_map(function ($item) {
+                        return $item->text; 
+                    }, (array) $v['field_data']);
+                }
             }
             return $v;
         }, $data);
@@ -4576,6 +4593,69 @@ function kivicareWooocommerceAddToCart($filterData)
     ];
 }
 
+add_action( 'woocommerce_new_order', 'kc_new_order_created_action', 10, 1 );
+
+function kc_new_order_created_action( $order_id ) {
+    $order = wc_get_order( $order_id );
+    
+    foreach ($order->get_items() as $item_id => $item) {
+        $kivicare_appointment_id = $item->get_meta('kivicare_appointment_id');
+        $doctor_id = $item->get_meta('doctor_id');
+        $paymen_method = $order->get_payment_method();
+        if (!empty($kivicare_appointment_id)) {
+            update_post_meta($order_id, 'kivicare_appointment_id', $kivicare_appointment_id);
+        }
+        if (!empty($doctor_id)) {
+            update_post_meta($order_id, 'kivicare_doctor_id', $doctor_id);
+        }
+        if (!empty($paymen_method)) {
+            update_post_meta($order_id, '_payment_method_title', $paymen_method);
+        }
+    }
+}
+
+// Function to transfer cart item meta to order item meta
+add_action('woocommerce_checkout_create_order_line_item', 'add_cart_item_meta_to_order', 10, 4);
+function add_cart_item_meta_to_order($item, $cart_item_key, $values, $order)
+{
+    if (isset($values['kivicare_appointment_id'])) {
+        $item->add_meta_data('kivicare_appointment_id', $values['kivicare_appointment_id']);
+    }
+   
+    if (isset($values['doctor_id'])) {
+        $item->add_meta_data('doctor_id', $values['doctor_id']);
+    }
+}
+
+
+add_action('woocommerce_order_status_changed', 'kc_custom_change_order_status', 10, 4);
+
+function kc_custom_change_order_status($order_id, $old_status, $new_status, $order) {
+
+    if ($new_status === 'completed' && ($order->get_payment_method() === 'bacs' || $order->get_payment_method() === 'cheque')) {
+
+        global $wpdb;
+        if (!empty($order_id) && get_post_status($order_id)) {
+            $appointment_id = get_post_meta($order_id, 'kivicare_appointment_id', true);
+            if (!empty($appointment_id)) {
+                $status = ['status' => 2];
+                if (!empty($new_status) && $new_status == 'completed') {
+                    $status = ['status' => 1];
+                }
+                if($status['status'] == 1){
+                    kivicareWoocommercePaymentComplete($order_id,'woocommerce');
+                }else{
+                    $condition = ['id' => $appointment_id];
+                    $wpdb->update($wpdb->prefix . 'kc_appointments', $status, $condition);
+                }
+                do_action('kc_appointment_status_update', $appointment_id, $status['status']);
+            }
+        }
+        
+    }
+
+}
+
 function kivicareWoocommerceProduct($filterData)
 {
 
@@ -5767,21 +5847,25 @@ function kcEncounterHtml($data, $id, $type = "encounter")
             <hr>
         </div>
         <?php
-        $hide_clinical_detail_in_patient = filter_var(
-            get_option(KIVI_CARE_PREFIX . 'hide_clinical_detail_in_patient', false), 
-            FILTER_VALIDATE_BOOLEAN
-        );        
-        
-        if($hide_clinical_detail_in_patient === false){
-        ?>
-            <div class="section">
-                <div style="border-bottom: 1px solid var(--border-color); margin-bottom: 20px;">
-                    <h3><?php echo esc_html__('Clinical Details', 'kc-lang') ?></h3>
+            $hide_clinical_detail_in_patient = false;
+
+            if ($current_user_role === $kcBase->getPatientRole()) {
+                $hide_clinical_detail_in_patient = filter_var(
+                    get_option(KIVI_CARE_PREFIX . 'hide_clinical_detail_in_patient', false),
+                    FILTER_VALIDATE_BOOLEAN
+                );
+            }
+
+            if (!$hide_clinical_detail_in_patient) {
+                ?>
+                <div class="section">
+                    <div style="border-bottom: 1px solid var(--border-color); margin-bottom: 20px;">
+                        <h3><?php echo esc_html__('Clinical Details', 'kc-lang') ?></h3>
+                    </div>
+                    <?php kcEncounterPrintClinicalDetails($themeColor, $data, $id, $current_user_role, false); ?>
                 </div>
-                 <?php kcEncounterPrintClinicalDetails( $themeColor, $data, $id, $current_user_role, false ); ?>
-            </div>
-        <?php
-        }
+                <?php
+            }
         ?>
 
         <div class="section" style="margin-top: 30px ;">

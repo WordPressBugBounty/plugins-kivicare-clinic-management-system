@@ -68,7 +68,7 @@ class KCActivate extends KCBase {
 		} );
 
         //hook call after all plugins loaded
-        add_action( 'plugins_loaded', function (){
+        add_action( 'init', function (){
             //translate language
             load_plugin_textdomain( 'kc-lang', false, dirname( KIVI_CARE_BASE_NAME ) . '/languages' );
         });
@@ -937,12 +937,20 @@ class KCActivate extends KCBase {
 		}
 	}
 	public function enqueueStyles() {
+
+        global $kivicare_options;
+
         //enqueue dashboard css
 		wp_enqueue_style( 'kc_google_fonts', $this->plugin_url . 'assets/css/poppins-google-fonts.css', array(), KIVI_CARE_VERSION );
 		wp_enqueue_style( 'kc_app_min_style', $this->plugin_url . 'assets/css/app.min.css' , array(), KIVI_CARE_VERSION );
 		wp_enqueue_style( 'kc_font_awesome', $this->plugin_url . 'assets/css/font-awesome-all.min.css' , array(), KIVI_CARE_VERSION );
         wp_dequeue_style( 'stylesheet' );
         wp_deregister_style('wp-admin');
+
+        if (!empty($kivicare_options['kivi_dash_css_code'])) {
+            $custom_style = $kivicare_options['kivi_dash_css_code'];
+            wp_add_inline_style('kc_app_min_style', $custom_style);
+        }
     }
     public function loginPageStyles() {
         //enqueue wordpress login page style
@@ -950,6 +958,15 @@ class KCActivate extends KCBase {
     }
 
 	public function enqueueScripts() {
+
+        global $kivicare_options;
+
+        if (!empty($kivicare_options['kivi_dash_js_code'])) {
+            $custom_js = $kivicare_options['kivi_dash_js_code'];
+            wp_register_script('kivicare-dashboard-custom-js', '', [], '', true);
+            wp_enqueue_script('kivicare-dashboard-custom-js');
+            wp_add_inline_script('kivicare-dashboard-custom-js', wp_specialchars_decode($custom_js));
+        }
 
         // Condition for Development Enviroment Hot Reload
         if(file_exists(KIVI_CARE_DIR."hot")){

@@ -161,7 +161,7 @@ class WidgetHandler extends KCBase {
                     return ob_get_clean();
                 }else{
                     
-                    if($shortcode_clinic_id != 0){
+                    if(empty($shortcode_clinic_id)){
                         $shortcode_clinic_id_single = $kiviCareclinic['single'];
                         $shortcode_clinic_id = $kiviCareclinic['clinic'];
                     }

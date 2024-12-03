@@ -238,7 +238,7 @@ class KCBookAppointmentWidgetController extends KCBase {
                     $appointment_end_time = date( 'H:i:s', $verifyTimeslot['end_time'] );
                 }
             }
-            if($formData['payment_mode'] !== 'paymentOffline'){
+            if(isset($formData['payment_mode']) && $formData['payment_mode'] !== 'paymentOffline'){
                 $formData['status'] = 0;
             }
 			// appointment data
@@ -650,6 +650,7 @@ class KCBookAppointmentWidgetController extends KCBase {
         $request_data['clinic_id'] = (int)$request_data['clinic_id'];
         $doctor_name =  $this->db->get_var("SELECT display_name FROM {$this->db->base_prefix}users WHERE ID = {$request_data['doctor_id']}");
         $request_data['service_list_data'] = $request_data['service_list'];
+        $request_data['service_list_data'] = array_map('absint', $request_data['service_list_data']);
         $request_data['service_list'] = implode(",",array_map('absint',$request_data['service_list']));
         $request_data['tax_details'] = apply_filters('kivicare_calculate_tax',['status' => false,
         'message' => '',
@@ -1082,7 +1083,7 @@ class KCBookAppointmentWidgetController extends KCBase {
         $service_total_charge = 0;
         $prefix = !empty($clinic_currency_detail['prefix']) ? $clinic_currency_detail['prefix'] : '';
         $postfix = !empty($clinic_currency_detail['postfix']) ? $clinic_currency_detail['postfix'] : '';
-        $request_data['service_list_data'] = collect($request_data['service_list'])->pluck('service_id')->toArray();
+        $request_data['service_list_data'] = collect($request_data['service_list'])->pluck('service_id')->map(function($id){ return (int)$id; })->toArray();
         $request_data['service_list'] = array_map(function($v) use ($request_data){
             $temp = absint($v['service_id']);
             $v['charges'] = $this->db->get_var("SELECT charges FROM {$this->db->prefix}kc_service_doctor_mapping WHERE service_id = {$temp} AND clinic_id = {$request_data['clinic_id']} AND doctor_id = {$request_data['doctor_id']}");

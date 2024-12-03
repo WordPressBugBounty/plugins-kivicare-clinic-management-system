@@ -73,8 +73,8 @@ class KCPatientEncounterController extends KCBase
 		if (!empty($request_data['sort'])) {
 			$request_data['sort'] = kcRecursiveSanitizeTextField(json_decode(stripslashes($request_data['sort'][0]), true));
 			if (!empty($request_data['sort']['field']) && !empty($request_data['sort']['type']) && $request_data['sort']['type'] !== 'none') {
-				$sortField = esc_sql($request_data['sort']['field']);
-				$sortByValue = esc_sql(strtoupper($request_data['sort']['type']));
+				$sortField = sanitize_sql_orderby($request_data['sort']['field']);
+				$sortByValue = sanitize_sql_orderby(strtoupper($request_data['sort']['type']));
 				switch ($request_data['sort']['field']) {
 					case 'status':
 					case 'encounter_date':
@@ -243,7 +243,7 @@ class KCPatientEncounterController extends KCBase
 		}
 
 		$rules = [
-			'date' => 'required',
+			'date' => 'required|date',
 			'patient_id' => 'required',
 			'status' => 'required',
 

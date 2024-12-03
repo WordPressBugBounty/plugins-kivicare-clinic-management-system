@@ -1030,7 +1030,8 @@ function kcAppointmentBookJsContent() {
                 widgetType: bookAppointmentWidgetData.popup_appointment_book ? 'popupPhpWidget' : 'phpWidget',
                 payment_mode: payment_mode,
                 g_recaptcha_response: result ? result["g-recaptcha-response"] ? result["g-recaptcha-response"] : "" : "",
-                tax:tax_details
+                tax:tax_details,
+                pageId: bookAppointmentWidgetData.pageId
             })
                 .then((response) => {
                     if (response.data.status !== undefined && response.data.status === true) {
@@ -1060,14 +1061,9 @@ function kcAppointmentBookJsContent() {
                                 }
                             } else if (payment_mode === 'paymentStripepay') {
                                 if (response.data.checkout_detail) {
-                                    // Open Stripe Checkout in a new tab
-                                    child = window.open(
-                                        response.data.checkout_detail.payment_url,
-                                        '_blank',
-                                        'popup=yes,toolbar=0,status=0,width=360,height=500,top=100,left=' +
-                                        (window.screen ? Math.round(screen.width / 2 - 275) : 100)
-                                    );
+                                    // Open Stripe Checkout in a tab
                                     appointment_id = response.data.data.id;
+                                    window.location.href = response.data.checkout_detail.stripe_redirect_url;
                                     return;
                                 } else {
                                     kivicareShowErrorMessage(messageSpanElementId, response.data.message);

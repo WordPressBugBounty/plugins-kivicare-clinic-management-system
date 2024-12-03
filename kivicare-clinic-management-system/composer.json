@@ -11,7 +11,8 @@
         "nesbot/carbon": "^2.45",
         "league/omnipay": "^3",
         "omnipay/paypal": "^3",
-        "10quality/wp-query-builder": "^1.0"
+        "10quality/wp-query-builder": "^1.0",
+        "dompdf/dompdf": "^3.0"
     },
     "license": "GPL-3.0",
     "autoload": {
@@ -28,7 +29,7 @@
             "platform-check": false
         },
         "platform": {
-            "php": "8.*"
+            "php": "^8.0"
          }
     }
 }

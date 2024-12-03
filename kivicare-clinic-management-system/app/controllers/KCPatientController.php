@@ -70,11 +70,11 @@ class KCPatientController extends KCBase {
                 if($request_data['sort']['field'] == 'uid'){
                     if(!kcPatientUniqueIdEnable('status')){
                         $args['orderby']        = 'ID';
-                        $args['order']          = esc_sql(strtoupper($request_data['sort']['type']));
+                        $args['order']          = sanitize_sql_orderby(strtoupper($request_data['sort']['type']));
                     }
                 }else{
-                    $args['orderby']        = esc_sql($request_data['sort']['field']);
-                    $args['order']          = esc_sql(strtoupper($request_data['sort']['type']));
+                    $args['orderby']        = sanitize_sql_orderby($request_data['sort']['field']);
+                    $args['order']          = sanitize_sql_orderby(strtoupper($request_data['sort']['type']));
                 }
             }
         }

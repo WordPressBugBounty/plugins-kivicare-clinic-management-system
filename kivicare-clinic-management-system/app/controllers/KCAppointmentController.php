@@ -269,7 +269,7 @@ class KCAppointmentController extends KCBase {
 
 		$request_data = $this->request->getInputs();
 		$rules = [
-			'appointment_start_date' => 'required',
+			'appointment_start_date' => 'required|date',
 			'appointment_start_time' => 'required',
 			'clinic_id'              => 'required',
 			'doctor_id'              => 'required',
@@ -325,6 +325,9 @@ class KCAppointmentController extends KCBase {
 		$appointment_date     = date( 'Y-m-d', strtotime( $request_data['appointment_start_date'])  );
         $appointment_start_date = esc_sql($appointment_date);
         $appointment_start_time = esc_sql(date( 'H:i:s', strtotime( $request_data['appointment_start_time']) ) );
+        if(isset($request_data['payment_mode']) && $request_data['payment_mode'] !== 'paymentOffline'){
+            $request_data['status'] = 0;
+        }
 		$appointment_status = esc_sql($request_data['status']);
         if(isKiviCareProActive()){
             $verifyTimeslot = apply_filters('kcpro_verify_appointment_timeslot',$request_data);
@@ -799,7 +802,7 @@ class KCAppointmentController extends KCBase {
         }
 
 		$rules = [
-			'date'      => 'required',
+			'date'      => 'required|date',
 			'clinic_id' => 'required',
 			'doctor_id' => 'required',
 

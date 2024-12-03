@@ -316,7 +316,8 @@
             "current_user_id" => esc_js(get_current_user_id()),
             "first_payment_method" => esc_js(array_key_first($allPaymentMethod)),
             "skip_service_when_single" => esc_js(empty($widgetSetting['skip_service_when_single']) ? "false" : $widgetSetting['skip_service_when_single']),
-            "allowed_file_size" => wp_max_upload_size()
+            "allowed_file_size" => wp_max_upload_size(),
+            "pageId"    =>  get_queried_object_id() ?? "awegaweg",
         );
     
     ?>

@@ -223,7 +223,12 @@ class KCTaxController extends KCBase{
         }
 
         // Extract service IDs
-        $service_ids = collect($request_data['visit_type'])->pluck('service_id')->toArray();
+        $service_ids = collect($request_data['visit_type'])
+                        ->pluck('service_id')
+                        ->map(function ($id) {
+                            return (int)$id;
+                        })
+                        ->toArray();
         $implode_service_ids = implode(",", $service_ids);
         $request_data['clinic_id']['id'] = (int) $request_data['clinic_id']['id'];
         $request_data['doctor_id']['id'] = (int) $request_data['doctor_id']['id'];

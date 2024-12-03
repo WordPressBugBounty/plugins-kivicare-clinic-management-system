@@ -63,7 +63,7 @@ class KCClinicScheduleController extends KCBase {
                     case 'id':
                     case 'start_date':
                     case 'end_date':
-                        $orderByCondition = " ORDER BY {$clinic_schedule_table}.".esc_sql($request_data['sort']['field'])." ".esc_sql(strtoupper($request_data['sort']['type']));
+                        $orderByCondition = " ORDER BY {$clinic_schedule_table}.".sanitize_sql_orderby($request_data['sort']['field'])." ".sanitize_sql_orderby(strtoupper($request_data['sort']['type']));
                         break;
                 }
             }
