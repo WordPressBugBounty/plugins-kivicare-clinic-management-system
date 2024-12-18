@@ -362,19 +362,37 @@ class KCStaticDataController extends KCBase {
                         }
                         break;
                     case "doctors":
-                        $da = [];
-                        $doctors = get_users([
-                            'role' => $this->getDoctorRole(),
-                            'user_status' => '0'
-                        ]);
-                        $doctorList = collect($doctors)->toArray();
-                        foreach ($doctorList as $d) {
-                            $da[] = [
-                                'id'    => $d->data->ID,
-                                'label' => $d->data->display_name
-                            ];
+
+                        $clinic_condition = ' ';
+                        $table_name = $wpdb->prefix . 'kc_' . 'doctor_clinic_mappings';
+
+                        if(isKiviCareProActive()){
+                            if($current_user_role === $this->getReceptionistRole()) {
+                                $clinic_id = kcGetClinicIdOfReceptionist() ;
+                                $clinic_condition = " AND dcm.clinic_id = {$clinic_id} ";
+                            }else if($current_user_role === $this->getClinicAdminRole()) {
+                                $clinic_id = kcGetClinicIdOfClinicAdmin() ;
+                                $clinic_condition = " AND dcm.clinic_id = {$clinic_id} ";
+                            }
                         }
-                        $results = $da;
+
+                        $query = " SELECT DISTINCT u.ID as id, u.display_name as label 
+                        FROM {$wpdb->users} as u
+                        INNER JOIN {$table_name} as dcm ON dcm.doctor_id = u.ID
+                        WHERE u.user_status = 0 {$clinic_condition} ";
+
+                        $doctorList = $wpdb->get_results($query, ARRAY_A);
+                        $doctor_list = [];
+                        if (!empty($doctorList)) {
+                            foreach ($doctorList as $doctor) {
+                                $doctor_list[] = [
+                                    'id'    => $doctor['id'],
+                                    'label' => $doctor['label']
+                                ];
+                            }
+                        }
+
+                        $results = $doctor_list;
                         break;
 
                     case "default_clinic":

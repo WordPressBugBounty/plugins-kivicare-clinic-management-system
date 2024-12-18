@@ -1896,8 +1896,8 @@ class KCActivate extends KCBase {
     public function woocommerce_shop_order_add_column(){
         add_action( 'admin_init', function () {
             // Just to make clear how the filters work
-            $posttype = ["shop_order",'product' ];
-
+            $posttype = ["woocommerce_page_wc-orders",'product' ];
+            
             foreach ($posttype as $post){
                 // Priority 20, with 1 parameter (the 1 here is optional)
                 add_filter( "manage_edit-{$post}_columns", function ( $columns )use($post) {
@@ -1906,11 +1906,18 @@ class KCActivate extends KCBase {
                     }else{
                         return $this->woocommerceAddNewColumnInTable(['key' => 'appointment_id','value' =>esc_html__("Appointment ID","kc-lang") ],'order_status',$columns);
                     }
-                }, 20, 1 );
+                }, 20, 11 );
+                add_filter( "manage_{$post}_columns", function ( $columns )use($post) {
+                    if($post === 'product'){
+                        return $this->woocommerceAddNewColumnInTable(['key' => 'service_id','value' =>esc_html__("Service ID","kc-lang") ],'product_tag',$columns);
+                    }else{
+                        return $this->woocommerceAddNewColumnInTable(['key' => 'appointment_id','value' =>esc_html__("Appointment ID","kc-lang") ],'order_status',$columns);
+                    }
+                }, 20, 11 );
 
                 // Priority 20, with 2 parameters
-                add_action( "manage_{$post}_posts_custom_column", function ( $column_name, $post_id ) use($post){
-                    if ( $post === 'shop_order' && 'appointment_id' != $column_name ){
+                add_action( "manage_{$post}_custom_column", function ( $column_name, $order ) use($post){
+                    if ( $post === 'woocommerce_page_wc-orders' && 'appointment_id' != $column_name ){
                         return;
                     }
                     if ( $post === 'product' && 'service_id' != $column_name ){
@@ -1919,8 +1926,8 @@ class KCActivate extends KCBase {
                     $output = "<strong class='order-view'> - </strong>";
 
                     if( $post === 'product'){
-                        $serviceId = get_post_meta($post_id,'kivicare_service_id',true);
-                        $doctor_id = get_post_meta($post_id,'kivicare_doctor_id',true);
+                        $serviceId = get_post_meta($order->get_id(),'kivicare_service_id',true);
+                        $doctor_id = get_post_meta($order->get_id(),'kivicare_doctor_id',true);
                         if(!empty($serviceId) && !empty($doctor_id)){
                             $service_details = (new KCServiceDoctorMapping())->get_by(['id' => (int)$serviceId],'=',true);
                             if(!empty($service_details)){
@@ -1937,7 +1944,7 @@ class KCActivate extends KCBase {
                             }
                         }
                     }else{
-                        $appointment_id = get_post_meta($post_id,'kivicare_appointment_id',true);
+                        $appointment_id = get_post_meta($order->get_id(),'kivicare_appointment_id',true);
                         if(!empty($appointment_id)){
                             $appointment_detail = (new KCAppointment())->get_by(['id' => (int)$appointment_id],'=',true);
                             $text = esc_html('#'.$appointment_id.(!empty($appointment_detail->description) ? ' '.$appointment_detail->description : ' ' ));

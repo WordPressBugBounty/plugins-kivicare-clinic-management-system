@@ -1,6 +1,7 @@
 <?php
 
 use App\baseClasses\KCBase;
+use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 
 class KCElementorClinicWiseDoctor extends \Elementor\Widget_Base
 {
@@ -508,7 +509,9 @@ class KCElementorClinicWiseDoctor extends \Elementor\Widget_Base
             [
                 'name' => 'iq_kivicare_doctor_session_font_title_typography',
                 'label' => esc_html__('Title Font Typography', 'kc-lang'),
-                'scheme' => \Elementor\Core\Schemes\Typography::TYPOGRAPHY_1,
+                'global' => [
+                    'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+            	],
                 'selector' => '{{WRAPPER}} .iq_kivicare_doctor_session-cell_title',
                 'condition' => [
                     'iq_kivivare_doctor_session' => 'yes'
@@ -535,7 +538,9 @@ class KCElementorClinicWiseDoctor extends \Elementor\Widget_Base
             [
                 'name' => 'iq_kivicare_doctor_session_font_value_typography',
                 'label' => esc_html__('Font Typography', 'kc-lang'),
-                'scheme' => \Elementor\Core\Schemes\Typography::TYPOGRAPHY_1,
+                'global' => [
+                    'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+            	],
                 'selector' => '{{WRAPPER}} .iq_kivicare_doctor_session-cell_value',
                 'condition' => [
                     'iq_kivivare_doctor_session' => 'yes'
@@ -642,7 +647,9 @@ class KCElementorClinicWiseDoctor extends \Elementor\Widget_Base
             [
                 'name' => 'iq_kivicare_doctor_' . $type . '-label-typography',
                 'label' => esc_html__('Label Typography', 'kc-lang'),
-                'scheme' => \Elementor\Core\Schemes\Typography::TYPOGRAPHY_1,
+                'global' => [
+                    'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+            	],
                 'selector' => '{{WRAPPER}} .iq_kivicare_doctor_' . $type . '-label',
                 'condition' => [
                     'iq_kivivare_doctor_' . $type => 'yes'
@@ -721,7 +728,9 @@ class KCElementorClinicWiseDoctor extends \Elementor\Widget_Base
             [
                 'name' => 'iq_kivicare_doctor_' . $type . '-value-typography',
                 'label' => esc_html__('Value Typography', 'kc-lang'),
-                'scheme' => \Elementor\Core\Schemes\Typography::TYPOGRAPHY_1,
+                'global' => [
+                    'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+            	],
                 'selector' => '{{WRAPPER}} .iq_kivicare_doctor_' . $type . '-value ,iq_kivicare_doctor_' . $type . '-cell_value, iq_kivicare_doctor_' . $type . '-cell_title',
                 'condition' => [
                     'iq_kivivare_doctor_' . $type => 'yes'

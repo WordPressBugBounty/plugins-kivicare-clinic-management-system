@@ -564,7 +564,7 @@ class KCAuthController extends KCBase {
                     }
                     if ( $user && kcGetUserRegistrationShortcodeSetting('patient') === 'on' ) {
                         if(!is_user_logged_in()){
-                            $redirect = admin_url('admin.php?page=dashboard');
+                            $redirect =  kcGetLogoinRedirectSetting('patient');
                             $auth_success = wp_authenticate( $u->user_email, $u->user_pass );
                             wp_set_current_user( $u->ID, $u->user_login );
                             wp_set_auth_cookie(  $u->ID );
@@ -595,6 +595,7 @@ class KCAuthController extends KCBase {
                     }
                     $user_email_param['doctor_name'] = $parameters['first_name'] . ' ' .$parameters['last_name'];
                     $templateType = 'doctor_registration';
+                    $redirect =  kcGetLogoinRedirectSetting('doctor');
                     do_action( 'kc_doctor_save', $u->ID );
                     break;
                 case $this->getReceptionistRole():
@@ -612,6 +613,7 @@ class KCAuthController extends KCBase {
                         'clinic_id'       => (int)$parameters['user_clinic'],
                         'created_at'      =>   current_datetime('Y-m-d H:i:s' )
                     ]);
+                    $redirect =  kcGetLogoinRedirectSetting('receptionist');
                     do_action( 'kc_receptionist_save', $u->ID );
                     break;
             }

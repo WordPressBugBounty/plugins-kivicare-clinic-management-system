@@ -12,6 +12,7 @@ use App\models\KCPatientEncounter;
 use App\models\KCService;
 use App\models\KCCustomForm;
 use App\models\KCCustomFormData;
+use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 
 function kcUpdateFields($table_name, $new_fields)
 {
@@ -2796,16 +2797,43 @@ function kcGetClinicIdOfDoctor($current_user_id = null)
 
 function kcDoctorPatientList($doctor_id = '')
 {
-    global $wpdb;
-    $doctor_id = !empty($doctor_id) ? (int) $doctor_id : get_current_user_id();
+    global  $wpdb;
+    $doctor_id = !empty($doctor_id) ? (int)$doctor_id : get_current_user_id();
     $appointments = collect((new KCAppointment)->get_by(['doctor_id' => $doctor_id]))->pluck('patient_id')->unique()->toArray();
     $get_doctor_patient = collect($wpdb->get_results("SELECT *  FROM {$wpdb->base_prefix}usermeta WHERE `meta_value` = {$doctor_id} AND
-			                `meta_key` LIKE 'patient_added_by'"))->pluck('user_id')->unique()->toArray();
+                        `meta_key` LIKE 'patient_added_by'"))->pluck('user_id')->unique()->toArray();
     $all_user = array_merge($get_doctor_patient, $appointments);
     $encounters = collect((new KCPatientEncounter())->get_by(['doctor_id' => $doctor_id]))->pluck('patient_id')->unique()->toArray();
     $all_user = array_unique(array_merge($all_user, $encounters));
-    return $all_user;
+    $filtered_user_ids = verify_and_filter_user_ids($all_user);
+    
+    return $filtered_user_ids;
 }
+
+function verify_and_filter_user_ids($user_ids) {
+    global $wpdb;
+
+    $user_ids_str = implode(',', array_map('intval', $user_ids));
+
+    $query_users = "SELECT ID FROM {$wpdb->users} WHERE ID IN ($user_ids_str)";
+    $existing_user_ids = $wpdb->get_col($query_users);
+
+    $filtered_user_ids = array_intersect($user_ids, $existing_user_ids);
+
+    if (empty($filtered_user_ids)) {
+        return array();
+    }
+
+    $filtered_user_ids_str = implode(',', array_map('intval', $filtered_user_ids));
+
+    $query_mappings = "SELECT patient_id FROM {$wpdb->prefix}kc_patient_clinic_mappings WHERE patient_id IN ($filtered_user_ids_str)";
+    $existing_patient_ids = $wpdb->get_col($query_mappings);
+
+    $final_filtered_user_ids = array_intersect($filtered_user_ids, $existing_patient_ids);
+
+    return $final_filtered_user_ids;
+}
+
 function kcClinicPatientList($clinic_id = '')
 {
     $patient = (new KCPatientClinicMapping)->get_var(['clinic_id' => $clinic_id], 'patient_id', false);
@@ -3876,7 +3904,9 @@ function kcElementorAllCommonController($this_ele, $type)
         [
             'name' => 'iq_kivicare_' . $type . '_button_font_typography',
             'label' => esc_html__('Font Typography', 'kc-lang'),
-            'scheme' => \Elementor\Core\Schemes\Typography::TYPOGRAPHY_1,
+            'global' => [
+                'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+            ],
             'selector' => '{{WRAPPER}} .appointment_button',
         ]
     );
@@ -4082,7 +4112,9 @@ function kcElementorAllCommonController($this_ele, $type)
         [
             'name' => 'iq_kivicare_' . $type . '_normal_button_font_typography',
             'label' => esc_html__('Font Typography', 'kc-lang'),
-            'scheme' => \Elementor\Core\Schemes\Typography::TYPOGRAPHY_1,
+            'global' => [
+                'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+            ],
             'selector' => '{{WRAPPER}} .iq_kivicare_next_previous',
         ]
     );
@@ -4776,20 +4808,33 @@ function kivicareGetCartItemsFromSession($item, $values, $key)
 }
 
 // woocommerce kivicare appointment status change based on woocommerce order status.
-function kivicareWooOrderStatusChangeCustom($order_id, $old_status, $new_status)
+function kivicareWooOrderStatusChangeCustom($order_id, $old_status, $new_status, $order)
 {
     global $wpdb;
-    if (!empty($order_id) && get_post_status($order_id)) {
-        $appointment_id = get_post_meta($order_id, 'kivicare_appointment_id', true);
-        if (!empty($appointment_id)) {
-            $status = ['status' => 2];
-            if (!empty($new_status) && $new_status == 'completed') {
-                $status = ['status' => 1];
-            }
-            $condition = ['id' => $appointment_id];
-            $wpdb->update($wpdb->prefix . 'kc_appointments', $status, $condition);
-            do_action('kc_appointment_status_update', $appointment_id, $status['status']);
-        }
+
+    if (empty($order_id) || !get_post_status($order_id)) {
+        return;
+    }
+
+    $appointment_id = get_post_meta($order_id, 'kivicare_appointment_id', true);
+    if (empty($appointment_id)) {
+        return;
+    }
+
+    $status = ['status' => 2];
+    if ($new_status === 'completed') {
+        $status = ['status' => 1];
+    } elseif ($new_status === 'canceled') {
+        $status = ['status' => 0];
+    }
+
+    $condition = ['id' => $appointment_id];
+    $wpdb->update($wpdb->prefix . 'kc_appointments', $status, $condition);
+
+    do_action('kc_appointment_status_update', $appointment_id, $status['status']);
+
+    if ($status['status'] == 1 && ($order->get_payment_method() === 'bacs' || $order->get_payment_method() === 'cheque')) {
+        kivicareWoocommercePaymentComplete($order_id, 'woocommerce');
     }
 }
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\baseClasses\KCBase;
+use Elementor\Core\Kits\Documents\Tabs\Global_Typography;
 
 class KCElementorClinicCard extends \Elementor\Widget_Base {
 
@@ -340,7 +341,9 @@ class KCElementorClinicCard extends \Elementor\Widget_Base {
             [
                 'name' => 'iq_kivicare_doctor_administrator-label-typography',
                 'label' => esc_html__('Label Typography', 'kc-lang'),
-                'scheme' => \Elementor\Core\Schemes\Typography::TYPOGRAPHY_1,
+                'global' => [
+                    'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+            	],
                 'selector' => '{{WRAPPER}} .iq_kivicare_doctor_administrator-label',
                 'condition' => [
                     'iq_kivivare_clinic_administrator' => 'yes'
@@ -496,7 +499,9 @@ class KCElementorClinicCard extends \Elementor\Widget_Base {
             [
                 'name' => 'iq_kivicare_doctor_'.$type.'-label-typography',
                 'label' => esc_html__('Label Typography', 'kc-lang'),
-                'scheme' => \Elementor\Core\Schemes\Typography::TYPOGRAPHY_1,
+                'global' => [
+                    'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+            	],
                 'selector' => '{{WRAPPER}} .iq_kivicare_doctor_'.$type.'-label',
                 'condition' => [
                     'iq_kivivare_clinic_'.$type => 'yes'
@@ -572,7 +577,9 @@ class KCElementorClinicCard extends \Elementor\Widget_Base {
             [
                 'name' => 'iq_kivicare_doctor_'.$type.'-value-typography',
                 'label' => esc_html__('Value Typography', 'kc-lang'),
-                'scheme' => \Elementor\Core\Schemes\Typography::TYPOGRAPHY_1,
+                'global' => [
+                    'default' => Global_Typography::TYPOGRAPHY_PRIMARY,
+            	],
                 'selector' => '{{WRAPPER}} .iq_kivicare_doctor_'.$type.'-value',
                 'condition' => [
                     'iq_kivivare_clinic_'.$type => 'yes'

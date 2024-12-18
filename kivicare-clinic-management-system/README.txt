@@ -4,15 +4,13 @@ Tags: clinic management, patient management, doctor management, appointment mana
 Requires PHP: 8.0 
 Requires at least: 3.0.1
 Tested up to: 6.7.1
-Stable tag: 3.6.5
+Stable tag: 3.6.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 KiviCare is an impressive clinic and patient management plugin (EHR).
 
 == Description ==
-
-[🏥 KiviCare Best Products Up to **50% OFF** at this Cyber Week Sale! 💼](https://kivicare.io/?utm_source=referral&utm_medium=wordpress.org&utm_campaign=iqonic-cyber-week-sale-live-2024-wordpress-free-plugins-kivicare)
 
 Launch your  Online Clinic in 60 Seconds! 🚀
 KiviCare is the most simple self-hosted clinic and patient management solution based on WordPress platform. Setup your online clinic instantly.  
@@ -123,6 +121,14 @@ Support for the Free version is only via Documentation and Video Guides
 Yes, we’d love to hear from you at hello@iqonic.design.
 
 == Changelog ==
+
+= Version 3.6.6 – 18th Dec 2024
+
+- [Fixed] Custom form not displaying user-wise and clinic-wise.
+- [Fixed] Service not being added/edited when the number includes decimals.
+- [Fixed] Issue preventing the addition/editing of holidays.
+- [Fixed] Google Meet automatically disconnecting when clicking on the Zoom Telemedicine tab in the doctor dashboard.
+- [Fixed] Elementor compatibility
 
 = Version 3.6.5 – 03/12/2024
 

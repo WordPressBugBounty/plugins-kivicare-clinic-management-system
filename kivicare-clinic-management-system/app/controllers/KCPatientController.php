@@ -564,7 +564,10 @@ class KCPatientController extends KCBase {
                 ->map(function ($v){
                     return ['id' => $v->id ,'label' => decodeSpecificSymbols($v->label)];
                 })->toArray();
+                
+            $clinic_ids = array_column($clinics, 'id');
             $data->clinic_id = $clinics;
+            $data->clinic_ids = $clinic_ids;
 
             //patient custom field
 			$custom_filed = kcGetCustomFields('patient_module', $id);
