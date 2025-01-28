@@ -16,6 +16,8 @@ use App\models\KCServiceDoctorMapping;
 
 use App\models\KCUser;
 use DateTime;
+use DateInterval;
+use DatePeriod;
 use Exception;
 use WP_User;
 
@@ -40,9 +42,8 @@ class KCDoctorController extends KCBase
 
     public function index()
     {
-
+        global $wpdb;
         $table_name = $this->db->prefix . 'kc_doctor_clinic_mappings';
-
         //check current login user permission
         if (!kcCheckPermission('doctor_list')) {
 	        wp_send_json(kcUnauthorizeAccessResponse(403));
@@ -73,16 +74,33 @@ class KCDoctorController extends KCBase
 
         //global filter
         if(!empty($request_data['searchTerm'])){
-            $args['search_columns'] = ['user_email','ID','display_name','user_status'];
             $args['search'] = '*'.esc_sql(strtolower(trim($request_data['searchTerm']))).'*' ;
+            $args['search_columns'] = ['user_email','ID','display_name'];
+            // Extract status using regex
+            $status = null;
+           if (preg_match('/:(active|inactive)/i', $request_data['searchTerm'], $matches)) {
+               $status = $matches[1]!='active'?'1':'0';
+               // Remove status from search term
+               $request_data['searchTerm'] = trim( preg_replace('/:(active|inactive)/i', '', $request_data['searchTerm']));
+           }
+           
+           $args['search'] = '*'.esc_sql(strtolower(trim($request_data['searchTerm']))).'*' ;
+
+             // Add status filter if provided
+           if(!is_null($status)){
+                
+               $search_condition.= " AND {$wpdb->prefix}users.user_status LIKE '{$status}' ";
+           }
+
+
         }else{
             //column wise filter
             if(!empty($request_data['columnFilters'])){   
                 $request_data['columnFilters'] = kcRecursiveSanitizeTextField(json_decode(stripslashes($request_data['columnFilters']),true));
                 foreach ($request_data['columnFilters'] as $column => $searchValue){
-                    $searchValue = !empty($searchValue) ? $searchValue : '';
                     $searchValue = esc_sql(strtolower(trim($searchValue)));
                     if( empty($searchValue) && $column !== 'user_status'){
+                        $searchValue = !empty($searchValue) ? $searchValue : '';
                         continue;
                     }
                     $column = esc_sql($column);
@@ -781,10 +799,86 @@ class KCDoctorController extends KCBase
             $request_data['doctor_id'] = (int)$request_data['doctor_id'];
             $request_data['clinic_id'] = (int)$request_data['clinic_id'];
 
-
             //get doctor session days
             $results = collect($this->db->get_results("SELECT DISTINCT day FROM {$this->db->prefix}kc_clinic_sessions where doctor_id={$request_data['doctor_id']} AND clinic_id={$request_data['clinic_id']}"))->pluck('day')->toArray();
-            $leaves = collect($this->db->get_results("SELECT * FROM {$this->db->prefix}kc_clinic_schedule where module_id ={$request_data['doctor_id']} AND module_type = 'doctor'"))->toArray();
+            $leaves = collect($this->db->get_results("SELECT * FROM {$this->db->prefix}kc_clinic_schedule where (module_id ={$request_data['doctor_id']} AND module_type = 'doctor') OR (module_id ={$request_data['clinic_id']} AND module_type = 'clinic')"))->toArray();
+
+            // First, let's get clinic sessions and organize them by day
+            $clinic_sessions = $this->db->get_results("
+                                    SELECT day, start_time, end_time, time_slot
+                                    FROM {$this->db->prefix}kc_clinic_sessions 
+                                    WHERE doctor_id = {$request_data['doctor_id']}
+                                    AND clinic_id = {$request_data['clinic_id']}
+                                ");
+
+            // Create an array to store total slots available per day
+            $slots_per_day = [];
+            foreach ($clinic_sessions as $session) {
+                $day = $session->day;
+                if (!isset($slots_per_day[$day])) {
+                    $slots_per_day[$day] = 0;
+                }
+
+                // Calculate number of slots in this session
+                $start = strtotime("2000-01-01 " . $session->start_time);
+                $end = strtotime("2000-01-01 " . $session->end_time);
+                $duration = $end - $start;
+                $slots_in_session = $duration / ($session->time_slot * 60);
+
+                $slots_per_day[$day] += $slots_in_session;
+            }
+
+            // Get appointments and organize them by date
+            $appointments = $this->db->get_results("
+                                SELECT 
+                                    appointment_start_date,
+                                    appointment_start_time,
+                                    appointment_end_time
+                                FROM {$this->db->prefix}kc_appointments
+                                WHERE doctor_id = {$request_data['doctor_id']}
+                                AND clinic_id = {$request_data['clinic_id']}
+                                AND status != 0
+                                AND appointment_start_date >= CURDATE()
+                                ORDER BY appointment_start_date
+                            ");
+
+            // Count appointments per date
+            $appointments_per_date = [];
+            $fully_booked_dates = [];
+
+            foreach ($appointments as $appointment) {
+                $date = $appointment->appointment_start_date;
+                $day_name = strtolower(date('D', strtotime($date))); // Get day name (mon, tue, etc.)
+
+                if (!isset($appointments_per_date[$date])) {
+                    $appointments_per_date[$date] = 0;
+                }
+
+                // Count this appointment
+                $appointments_per_date[$date]++;
+
+                // Check if this date is now fully booked
+                if (
+                    isset($slots_per_day[$day_name]) &&
+                    $appointments_per_date[$date] >= $slots_per_day[$day_name]
+                ) {
+                    $fully_booked_dates[] = $date;
+                }
+            }
+
+            $all_leaves = [];
+
+            // Loop through each leave entry
+            foreach ($leaves as $leave) {
+                // Generate all dates within the range
+                $dates = $this->generateDateRange($leave->start_date, $leave->end_date);
+                // Merge the dates into the allDates array
+                $all_leaves = array_merge($all_leaves, $dates);
+            }
+
+            $all_leaves = array_merge( $all_leaves, $fully_booked_dates );
+
+            $unique_leaves = array_unique($all_leaves);
 
             //week day for php vue appointment dashboard
             $days = [1 => 'sun', 2 => 'mon', 3 =>'tue', 4 => 'wed', 5 => 'thu', 6 => 'fri', 7 => 'sat'];
@@ -792,7 +886,6 @@ class KCDoctorController extends KCBase
             if(!empty($request_data['type']) && $request_data['type'] === 'flatpicker'){
                 $days = [0 => 'sun', 1 => 'mon', 2 =>'tue', 3 => 'wed', 4 => 'thu', 5 => 'fri', 6 => 'sat'];
             }
-
 
             if(count($results) > 0){
                 // get unavilable  days
@@ -811,9 +904,26 @@ class KCDoctorController extends KCBase
         }
 	    wp_send_json([
             'status' => $status,
-             'data' => $results,
-             'holiday' => $leaves
+            'data' => $results,
+            'holiday' => $unique_leaves
         ]);
+    }
+
+    // Function to generate all dates within a range
+    public function generateDateRange($startDate, $endDate) {
+        $dates = [];
+        $current = new DateTime($startDate);
+        $end = new DateTime($endDate);
+        $end = $end->modify('+1 day');
+    
+        $interval = new DateInterval('P1D');
+        $dateRange = new DatePeriod($current, $interval, $end);
+    
+        foreach ($dateRange as $date) {
+            $dates[] = $date->format('Y-m-d');
+        }
+    
+        return $dates;
     }
 
     public function getDoctorWorkdayAndSession(){

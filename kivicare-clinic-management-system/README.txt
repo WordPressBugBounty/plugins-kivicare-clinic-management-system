@@ -4,7 +4,7 @@ Tags: clinic management, patient management, doctor management, appointment mana
 Requires PHP: 8.0 
 Requires at least: 3.0.1
 Tested up to: 6.7.1
-Stable tag: 3.6.6
+Stable tag: 3.6.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,13 +122,18 @@ Yes, we’d love to hear from you at hello@iqonic.design.
 
 == Changelog ==
 
+= Version 3.6.6 – 28th Jan 2024
+
+- [Fixed] Status filter issue in the global search on datatables.
+- [Fixed] Disabled date selection for holidays.
+
 = Version 3.6.6 – 18th Dec 2024
 
 - [Fixed] Custom form not displaying user-wise and clinic-wise.
 - [Fixed] Service not being added/edited when the number includes decimals.
 - [Fixed] Issue preventing the addition/editing of holidays.
 - [Fixed] Google Meet automatically disconnecting when clicking on the Zoom Telemedicine tab in the doctor dashboard.
-- [Fixed] Elementor compatibility
+- [Fixed] Elementor latest version issue fixed
 
 = Version 3.6.5 – 03/12/2024
 

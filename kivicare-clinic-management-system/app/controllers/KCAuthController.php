@@ -217,6 +217,32 @@ class KCAuthController extends KCBase {
         // Remove extra spaces
         $parameters['mobile_number'] = preg_replace('/\s+/', '', $parameters['mobile_number']);
 
+        $user_ids = [];
+        $users = get_users();
+        $user_meta_data = [];
+        foreach ($users as $user) {
+            $user_ids[] = $user->ID;
+            $country_calling_code = get_user_meta($user->ID, 'country_calling_code', true);
+            $basic_data_json = get_user_meta($user->ID, 'basic_data', true);
+            $basic_data = !empty($basic_data_json) ? json_decode($basic_data_json, true) : null;
+            $mobile_number = isset($basic_data['mobile_number']) ? $basic_data['mobile_number'] : null;
+            $country_calling_code = isset($country_calling_code) ? $country_calling_code : null;
+            $user_meta_data[] = [
+                'user_id' => $user->ID,
+                'mobile_number' => $mobile_number,
+                'country_calling_code' => $country_calling_code
+            ];
+        }
+        foreach ($user_meta_data as $user_data) {
+            if (($user_data['mobile_number'] !== null && $user_data['mobile_number'] === $parameters['mobile_number']) &&
+                ($user_data['country_calling_code'] !== null && $user_data['country_calling_code'] === $countrycodedata['countryCallingCode'])) {
+                wp_send_json([
+                    'status'  => false,
+                    'message' => esc_html__( "User already exists with the same mobile number and country calling code.", 'kc-lang' )
+                ]);
+            }
+        }
+
 		try {
 
             $temp = [
@@ -509,6 +535,32 @@ class KCAuthController extends KCBase {
 
         // Remove extra spaces
         $parameters['mobile_number'] = preg_replace('/\s+/', '', $parameters['mobile_number']);
+
+        $user_ids = [];
+        $users = get_users();
+        $user_meta_data = [];
+        foreach ($users as $user) {
+            $user_ids[] = $user->ID;
+            $country_calling_code = get_user_meta($user->ID, 'country_calling_code', true);
+            $basic_data_json = get_user_meta($user->ID, 'basic_data', true);
+            $basic_data = !empty($basic_data_json) ? json_decode($basic_data_json, true) : null;
+            $mobile_number = isset($basic_data['mobile_number']) ? $basic_data['mobile_number'] : null;
+            $country_calling_code = isset($country_calling_code) ? $country_calling_code : null;
+            $user_meta_data[] = [
+                'user_id' => $user->ID,
+                'mobile_number' => $mobile_number,
+                'country_calling_code' => "+".$country_calling_code
+            ];
+        }
+        foreach ($user_meta_data as $user_data) {
+            if (($user_data['mobile_number'] !== null && $user_data['mobile_number'] === $parameters['mobile_number']) &&
+                ($user_data['country_calling_code'] !== null && $user_data['country_calling_code'] === $countrycodedata['countryCallingCode'])) {
+                wp_send_json([
+                    'status'  => false,
+                    'message' => esc_html__( "User already exists with the same mobile number and country calling code.", 'kc-lang' )
+                ]);
+            }
+        }
 
         try {
             $temp = [ 'mobile_number'  => str_replace(" ","",$parameters['mobile_number']),

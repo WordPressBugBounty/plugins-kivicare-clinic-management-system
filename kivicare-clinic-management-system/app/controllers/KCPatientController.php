@@ -46,6 +46,7 @@ class KCPatientController extends KCBase {
 		if ( ! kcCheckPermission( 'patient_list' ) ) {
 			wp_send_json(kcUnauthorizeAccessResponse(403));
 		}
+        global $wpdb;
         $request_data = $this->request->getInputs();
         $patients = [];
         $patient_clinic_mapping_table = $this->db->prefix . 'kc_patient_clinic_mappings';
@@ -81,8 +82,22 @@ class KCPatientController extends KCBase {
 
         //global filter
         if(isset($request_data['searchTerm']) && $request_data['searchTerm'] !== ''){
-            $args['search_columns'] = ['user_email','ID','display_name','user_status'];
+            $args['search_columns'] = ['user_email','ID','display_name'];
+             // Extract status using regex
+             $status = null;
+            if (preg_match('/:(active|inactive)/i', $request_data['searchTerm'], $matches)) {
+                $status = $matches[1]!='active'?'1':'0';
+                // Remove status from search term
+                $request_data['searchTerm'] = trim( preg_replace('/:(active|inactive)/i', '', $request_data['searchTerm']));
+            }
+            
             $args['search'] = '*'.esc_sql(strtolower(trim($request_data['searchTerm']))).'*' ;
+
+              // Add status filter if provided
+            if(!is_null($status)){
+                $search_condition.= " AND {$wpdb->prefix}users.user_status LIKE '{$status}' ";
+            }
+         
         }else{
             //column wise filter
             if(!empty($request_data['columnFilters'])){
@@ -93,9 +108,9 @@ class KCPatientController extends KCBase {
                     // unset($request_data['columnFilters']['mobile_number']);
                 }
                 foreach ($request_data['columnFilters'] as $column => $searchValue){
-                    $searchValue = !empty($searchValue) ? $searchValue : '';
                     $searchValue = esc_sql(strtolower(trim($searchValue)));
                     if($column !== 'user_status' && empty($searchValue) ){
+                        $searchValue = !empty($searchValue) ? $searchValue : '';
                         continue;
                     }
                     $column = $column === 'uid' ? 'ID' : esc_sql($column);
@@ -128,10 +143,10 @@ class KCPatientController extends KCBase {
                         ];
                        
                         continue;
-                    }
+                    }           
                     $search_condition .= " AND {$column} LIKE '%{$searchValue}%' ";
 
-                }
+                }   
             }
         }
 

@@ -71,21 +71,34 @@ class KCStaticDataController extends KCBase {
 		$condition = ' WHERE 0=0 ';
         if(isset($request_data['searchTerm']) && trim($request_data['searchTerm']) !== ''){
             $request_data['searchTerm'] = esc_sql(strtolower(trim($request_data['searchTerm'])));
+
+            // Extract status using regex
+            $status = null;
+            if (preg_match('/:(active|inactive)/i', $request_data['searchTerm'], $matches)) {
+                $status = $matches[1]=='active'?'1':'0';
+                // Remove status from search term
+                $request_data['searchTerm'] = trim( preg_replace('/:(active|inactive)/i', '', $request_data['searchTerm']));
+            }
+        
             $condition.= " AND (`value` LIKE '%{$request_data['searchTerm']}%' 
-                           OR `type` LIKE '%{$request_data['searchTerm']}%' 
-                           OR `status` LIKE '%{$request_data['searchTerm']}%' ) ";
+                           OR `type` LIKE '%{$request_data['searchTerm']}%' ) ";
+            if(!is_null($status)){
+                $condition.= " AND `status` LIKE '{$status}'";
+            }
         }else{
             if(!empty($request_data['columnFilters'])){
                 $request_data['columnFilters'] = kcRecursiveSanitizeTextField(json_decode(stripslashes($request_data['columnFilters']),true));
                 foreach ($request_data['columnFilters'] as $column => $searchValue){
-                    $searchValue = !empty($searchValue) ? $searchValue : '';
+                    if($column !== 'status'){
+                        $searchValue = !empty($searchValue) ? $searchValue : '';
+                    }
                     $searchValue = esc_sql(strtolower(trim($searchValue)));
                     $column = esc_sql($column);
                     if($searchValue === ''){
                         continue;
                     }
                     $condition.= " AND `{$column}` LIKE '%{$searchValue}%' ";
-                }
+                }             
             }
         }
 
@@ -96,8 +109,12 @@ class KCStaticDataController extends KCBase {
 		$static_data_query = "
 			SELECT *, REPLACE(type,'_',' ') as type
 			FROM  {$static_data_table}  {$condition} {$orderByCondition} {$paginationCondition}";
-
+ 
 		$static_data = $this->db->get_results( $static_data_query );
+
+        foreach ($static_data as $data) {
+            $data->type = __($data->type, 'kc-lang'); 
+        }
 
 		if ( empty($static_data)  ) {
 			wp_send_json( [

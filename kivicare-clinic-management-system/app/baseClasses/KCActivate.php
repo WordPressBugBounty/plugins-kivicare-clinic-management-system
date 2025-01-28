@@ -118,7 +118,7 @@ class KCActivate extends KCBase {
                 $this->getReceptionistRole(),
                 $this->getClinicAdminRole()];           
             
-
+      
             if (empty($config_options[KIVI_CARE_PREFIX . 'new-permissions-migrate' . KIVI_CARE_VERSION])) {
  
                 $editable_roles = get_editable_roles();
@@ -131,7 +131,6 @@ class KCActivate extends KCBase {
                     if($containsSearch){
                         foreach ($allRole as $role) {
                             $subscriber = get_role($role);
-                                    
                             $subscriber->add_cap('upload_files',kcGetUserDefaultPermission($subscriber,'upload_files',true));
                             $subscriber->add_cap('edit_published_pages',kcGetUserDefaultPermission($subscriber,'edit_published_pages',true));
                             $subscriber->add_cap(KIVI_CARE_PREFIX . 'home_page', kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'home_page',$role === $this->getPatientRole()));
@@ -162,6 +161,7 @@ class KCActivate extends KCBase {
                                 $subscriber->add_cap(KIVI_CARE_PREFIX . 'custom_form_edit',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'custom_form_edit',true));
                                 $subscriber->add_cap(KIVI_CARE_PREFIX . 'custom_form_delete',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'custom_form_delete',true));
                                 $subscriber->add_cap(KIVI_CARE_PREFIX . 'custom_form_list',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'custom_form_list',true));
+                                $subscriber->add_cap(KIVI_CARE_PREFIX . 'receptionist_resend_credential',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'receptionist_resend_credential',true));                     
                             }
 
                             if(in_array($role,['administrator', $this->getClinicAdminRole(),$this->getReceptionistRole()])){
@@ -170,6 +170,10 @@ class KCActivate extends KCBase {
                                 $subscriber->add_cap(KIVI_CARE_PREFIX . 'dashboard_total_doctor',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'dashboard_total_doctor',true));
                                 $subscriber->add_cap(KIVI_CARE_PREFIX . 'dashboard_total_appointment',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'dashboard_total_appointment',true));
                                 $subscriber->add_cap(KIVI_CARE_PREFIX . 'dashboard_total_revenue',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'dashboard_total_revenue',true));
+                                $subscriber->add_cap(KIVI_CARE_PREFIX . 'patient_profile',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'patient_profile',true));
+                                $subscriber->add_cap(KIVI_CARE_PREFIX . 'clinic_resend_credential',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'clinic_resend_credential',true));
+                                $subscriber->add_cap(KIVI_CARE_PREFIX . 'doctor_resend_credential',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'doctor_resend_credential',true));
+                                $subscriber->add_cap(KIVI_CARE_PREFIX . 'patient_resend_credential',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'patient_resend_credential',true));
                             }
 
                             if($role === $this->getDoctorRole()){
@@ -177,6 +181,8 @@ class KCActivate extends KCBase {
                                 $subscriber->add_cap(KIVI_CARE_PREFIX . 'dashboard_total_appointment',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'dashboard_total_appointment',true));
                                 $subscriber->add_cap(KIVI_CARE_PREFIX . 'dashboard_total_today_appointment',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'dashboard_total_today_appointment',true));
                                 $subscriber->add_cap(KIVI_CARE_PREFIX . 'dashboard_total_service',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'dashboard_total_service',true));
+                                $subscriber->add_cap(KIVI_CARE_PREFIX . 'patient_profile',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'patient_profile',true));
+                                $subscriber->add_cap(KIVI_CARE_PREFIX . 'patient_resend_credential',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'patient_resend_credential',true));
                             }
 
                             if($role !== $this->getPatientRole()){
@@ -195,10 +201,24 @@ class KCActivate extends KCBase {
                             }
 
                             $subscriber->add_cap(KIVI_CARE_PREFIX . 'static_data_add',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'static_data_add',$role !== $this->getPatientRole()));
-
+                            
+                            if (in_array($role, ['administrator', $this->getDoctorRole(), $this->getReceptionistRole(), $this->getClinicAdminRole()])) {
+                                $subscriber->remove_cap(KIVI_CARE_PREFIX . 'home_page');
+                                $subscriber->remove_cap(KIVI_CARE_PREFIX . 'patient_review_add');
+                                $subscriber->remove_cap(KIVI_CARE_PREFIX . 'patient_review_edit');
+                                $subscriber->remove_cap(KIVI_CARE_PREFIX . 'patient_review_delete');
+                                $subscriber->remove_cap(KIVI_CARE_PREFIX . 'patient_bill_delete');
+                            }
+                            if (in_array($role, [$this->getPatientRole()])) {
+                                $subscriber->add_cap(KIVI_CARE_PREFIX . 'appointment_cancel',kcGetUserDefaultPermission($subscriber,KIVI_CARE_PREFIX .'appointment_cancel',true));
+                                $subscriber->remove_cap(KIVI_CARE_PREFIX . 'appointment_delete');
+                                $subscriber->remove_cap(KIVI_CARE_PREFIX . 'patient_bill_edit');
+                            }
+                            
                             do_action( 'kivicare_new_permissions_migrate', $role, $subscriber );
 
                         }
+                        
                         update_option(KIVI_CARE_PREFIX . 'new-permissions-migrate' . KIVI_CARE_VERSION, 'yes');
                     }
                 }
@@ -899,9 +919,9 @@ class KCActivate extends KCBase {
 		$site_title = get_bloginfo('name');
         $kivi_current_theme = get_stylesheet();
         if(!empty($kivi_current_theme) && $kivi_current_theme == 'kivicare'){
-            add_menu_page( $site_title, 'KiviCare' , kcGetPermission('dashboard'), 'dashboard/', [$this, 'adminDashboard'], $this->plugin_url . 'assets/images/sidebar-icon.svg', 4);
+            add_menu_page( $site_title, _x('KiviCare', 'admin-menu', 'kc-lang') , kcGetPermission('dashboard'), 'dashboard/', [$this, 'adminDashboard'], $this->plugin_url . 'assets/images/sidebar-icon.svg', 4);
         }else{
-            add_menu_page( $site_title, 'KiviCare' , kcGetPermission('dashboard'), 'dashboard/', [$this, 'adminDashboard'], $this->plugin_url . 'assets/images/sidebar-icon.svg', 99);
+            add_menu_page( $site_title, _x('KiviCare', 'admin-menu', 'kc-lang'), kcGetPermission('dashboard'), 'dashboard/', [$this, 'adminDashboard'], $this->plugin_url . 'assets/images/sidebar-icon.svg', 99);
         }
         $user_role = get_userdata(get_current_user_id());
         if(!empty($user_role->roles[0])){

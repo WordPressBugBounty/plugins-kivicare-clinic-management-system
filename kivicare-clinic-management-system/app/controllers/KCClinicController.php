@@ -79,19 +79,33 @@ class KCClinicController extends KCBase {
 
         if(isset($request_data['searchTerm']) && trim($request_data['searchTerm']) !== ''){
             $request_data['searchTerm'] = esc_sql(strtolower(trim($request_data['searchTerm'])));
+
+            $status=null;
+            // Extract status using regex
+            if (preg_match('/:(active|inactive)/i', $request_data['searchTerm'], $matches)) {
+                $status = $matches[1]=='active'?'1':'0';
+                // Remove the matched status from the search term and trim
+                $request_data['searchTerm'] = trim( preg_replace('/:(active|inactive)/i', '', $request_data['searchTerm']));
+            }
+            
             $search_condition.= " AND (
                            clinic.id LIKE '%{$request_data['searchTerm']}%' 
                            OR clinic.name LIKE '%{$request_data['searchTerm']}%' 
                            OR clinic.email LIKE '%{$request_data['searchTerm']}%'
                            OR clinic.telephone_no LIKE '%{$request_data['searchTerm']}%'
                            OR clinic.specialties LIKE '%{$request_data['searchTerm']}%'
-                           OR clinic.status LIKE '%{$request_data['searchTerm']}%'
+                         
                            OR us.user_email LIKE '%{$request_data['searchTerm']}%' 
                            OR CONCAT(clinic.address, ', ',clinic.city,', ',clinic.postal_code,', ',clinic.country) LIKE '%{$request_data['searchTerm']}%'  
                            ) ";
+
+            if(!is_null($status)){
+                $search_condition.= " AND clinic.status LIKE '{$status}' ";
+            }
+                     
         }else{
             if(!empty($request_data['columnFilters'])){
-                $request_data['columnFilters'] = kcRecursiveSanitizeTextField(json_decode(stripslashes($request_data['columnFilters']),true));
+                $request_data['columnFilters'] = json_decode(stripslashes($request_data['columnFilters']));
                 foreach ($request_data['columnFilters'] as $column => $searchValue){
                     if( $column === 'status' ){
                         if( ! is_numeric($searchValue) ){
@@ -110,10 +124,12 @@ class KCClinicController extends KCBase {
                         case 'id':
                         case 'name':
                         case 'email':
-                        case 'telephone_no':
                         case 'status':
                         case 'specialties':
                             $search_condition.= " AND clinic.{$column} LIKE '%{$searchValue}%' ";
+                            break;
+                        case 'telephone_no':
+                            $search_condition.= " AND CONCAT(clinic.country_calling_code, clinic.telephone_no)   LIKE '%{$searchValue}%' ";
                             break;
                         case 'clinic_admin_email':
                             $search_condition.= " AND us.user_email LIKE '%{$searchValue}%' ";
@@ -128,12 +144,11 @@ class KCClinicController extends KCBase {
 
 		$clinics_query = "SELECT clinic.*,CONCAT(clinic.address, ', ',clinic.city,', '
 		           ,clinic.postal_code,', ',clinic.country) AS clinic_full_address, us.user_email AS 
-		               clinic_admin_email from {$this->db->prefix}kc_clinics AS clinic LEFT JOIN {$this->db->base_prefix}users 
+		               clinic_admin_email  from {$this->db->prefix}kc_clinics AS clinic LEFT JOIN {$this->db->base_prefix}users 
 		                   AS us ON us.ID = clinic.clinic_admin_id {$condition} {$search_condition} {$orderByCondition}  {$paginationCondition}" ;
 
         $total = $this->db->get_var("SELECT count(*) from {$this->db->prefix}kc_clinics AS clinic LEFT JOIN {$this->db->base_prefix}users 
 		                   AS us ON us.ID = clinic.clinic_admin_id {$condition} {$search_condition} ");
-
 		$clinics = collect($this->db->get_results($clinics_query))->map(function($x){
             $profile_img_url = wp_get_attachment_url($x->profile_image);
             $x->name = !empty($x->name) ? decodeSpecificSymbols($x->name) : '';

@@ -107,6 +107,13 @@ class KCServiceController extends KCBase {
 
             if(isset($request_data['searchTerm']) && trim($request_data['searchTerm']) !== ''){
                 $request_data['searchTerm'] = esc_sql(strtolower(trim($request_data['searchTerm'])));
+                $status=null;
+                // Extract status using regex
+                if (preg_match('/:(active|inactive)/i', $request_data['searchTerm'], $matches)) {
+                    $status = $matches[1]=='active'?'1':'0';
+                    // Remove the matched status from the search term and trim
+                    $request_data['searchTerm'] = trim( preg_replace('/:(active|inactive)/i', '', $request_data['searchTerm']));
+                }
                 $search_condition.= " AND (
                            {$service_doctor_mapping}.id LIKE '%{$request_data['searchTerm']}%' 
                            OR {$service_table}.name LIKE '%{$request_data['searchTerm']}%' 
@@ -115,6 +122,9 @@ class KCServiceController extends KCBase {
                            OR {$service_table}.type LIKE '%{$request_data['searchTerm']}%' 
                            OR {$service_doctor_mapping}.status LIKE '%{$request_data['searchTerm']}%' 
                            ) ";
+                if(!is_null($status)){
+                    $search_condition.= " AND {$service_doctor_mapping}.status LIKE '{$status}' ";
+                }
             }else{
                 if(!empty($request_data['columnFilters'])){
                     $request_data['columnFilters'] = json_decode(stripslashes($request_data['columnFilters']),true);
@@ -128,6 +138,8 @@ class KCServiceController extends KCBase {
                         switch($column){
                             case 'charges':
                             case 'id':
+                                $search_condition.= " AND {$service_doctor_mapping}.{$column} LIKE '%{$searchValue}%' ";
+                                break;
                             case 'duration':
                                 list($hours, $minutes) = explode(":", $searchValue);
                                 $searchValue = ((int)$hours * 60) + (int)$minutes;
@@ -453,8 +465,8 @@ class KCServiceController extends KCBase {
                             'status'     => (int)$request_data['status']['id'],
                             'image'       => $attachment_id,
                             'multiple'  =>$request_data['multiservice']['id'],
-                            'telemed_service' => $request_data['telemed_service'],
-                            'service_name_alias' => $request_data['telemed_service'] === 'yes' ? $request_data['type']['label'] :  $temp['type']
+                            'telemed_service' => $request_data['telemed_service']['id'],
+                            'service_name_alias' => $request_data['telemed_service']['id'] === 'yes' ? $request_data['type']['label'] :  $temp['type']
                         ];
                         
 		                $service_mapping_data = apply_filters('kivicare_update_service_mapping_save_fields', $service_mapping_data, $request_data);
@@ -515,7 +527,7 @@ class KCServiceController extends KCBase {
 				'charges'    => $request_data['price'],
                 'status'    => (int)$request_data['status']['id'],
                 'multiple'  =>$request_data['multiservice']['id'],
-                'telemed_service' => $request_data['telemed_service']
+                'telemed_service' => $request_data['telemed_service']['id']
 			];
 
             $service_mapping_update_data = apply_filters('kivicare_update_service_mapping_save_fields', $service_mapping_update_data, $request_data);
@@ -527,7 +539,7 @@ class KCServiceController extends KCBase {
                 $service_mapping_update_data['image'] = $attachment_id;
             }
 
-            if($request_data['telemed_service'] === 'yes'){
+            if($request_data['telemed_service']['id'] === 'yes'){
                 $service_mapping_update_data['service_name_alias'] = $telemedTemp['type'];
             }
 

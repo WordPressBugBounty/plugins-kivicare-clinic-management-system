@@ -84,7 +84,7 @@ function kcValidateRequest($rules, $request, $message = [])
     return $error_messages;
 }
 
-function kcRecursiveSanitizeTextField($array)
+function kcRecursiveSanitizeTextField($array,$allow_key_sanitize=['email'])
 {
     $filterParameters = [];
     foreach ($array as $key => $value) {
@@ -99,9 +99,9 @@ function kcRecursiveSanitizeTextField($array)
                     $filterParameters[$key] = $value;
                 } else if (preg_match("/<[^<]+>/", $value, $m) !== 0) {
                     $filterParameters[$key] = kcSanitizeHTML($value);
-                } elseif (strpos(strtolower($key), 'email') !== false) {
+                } elseif (in_array(['email'],$allow_key_sanitize) && strpos(strtolower($key), 'email') !== false) {
                     $filterParameters[$key] = kcSanitizeHTML(sanitize_email($value));
-                } elseif (strpos(strtolower($key), '_ajax_nonce') !== false) {
+                } elseif ( strpos(strtolower($key), '_ajax_nonce') !== false) {
                     $filterParameters[$key] = kcSanitizeHTML(sanitize_key($value));
                 } else {
                     $filterParameters[$key] = kcSanitizeHTML(sanitize_text_field($value));
@@ -1031,18 +1031,22 @@ function kcGetAdminPermissions()
         'doctor_edit' => ['name' => $prefix . 'doctor_edit', 'status' => 1],
         'doctor_view' => ['name' => $prefix . 'doctor_view', 'status' => 1],
         'doctor_delete' => ['name' => $prefix . 'doctor_delete', 'status' => 1],
+        'doctor_resend_credential' => ['name' => $prefix . 'doctor_resend_credential', 'status' => 1],
 
         'receptionist_list' => ['name' => $prefix . 'receptionist_list', 'status' => 1],
         'receptionist_add' => ['name' => $prefix . 'receptionist_add', 'status' => 1],
         'receptionist_edit' => ['name' => $prefix . 'receptionist_edit', 'status' => 1],
         'receptionist_view' => ['name' => $prefix . 'receptionist_view', 'status' => 1],
         'receptionist_delete' => ['name' => $prefix . 'receptionist_delete', 'status' => 1],
+        'receptionist_resend_credential' => ['name' => $prefix . 'receptionist_resend_credential', 'status' => 1],
 
         'patient_list' => ['name' => $prefix . 'patient_list', 'status' => 1],
         'patient_add' => ['name' => $prefix . 'patient_add', 'status' => 1],
         'patient_edit' => ['name' => $prefix . 'patient_edit', 'status' => 1],
         'patient_view' => ['name' => $prefix . 'patient_view', 'status' => 1],
         'patient_delete' => ['name' => $prefix . 'patient_delete', 'status' => 1],
+        'patient_profile' => ['name' => $prefix . 'patient_profile', 'status' => 1],
+        'patient_resend_credential' => ['name' => $prefix . 'patient_resend_credential', 'status' => 1],
 
         'clinic_list' => ['name' => $prefix . 'clinic_list', 'status' => 1],
         'clinic_add' => ['name' => $prefix . 'clinic_add', 'status' => 1],
@@ -1050,6 +1054,7 @@ function kcGetAdminPermissions()
         'clinic_view' => ['name' => $prefix . 'clinic_view', 'status' => 1],
         'clinic_delete' => ['name' => $prefix . 'clinic_delete', 'status' => 1],
         'clinic_profile' => ['name' => $prefix . 'clinic_profile', 'status' => 1],
+        'clinic_resend_credential' => ['name' => $prefix . 'clinic_resend_credential', 'status' => 1],
 
         'appointment_list' => ['name' => $prefix . 'appointment_list', 'status' => 1],
         'appointment_add' => ['name' => $prefix . 'appointment_add', 'status' => 1],
@@ -1125,8 +1130,6 @@ function kcGetAdminPermissions()
         'patient_bill_view' => ['name' => $prefix . 'patient_bill_view', 'status' => 1],
         'patient_bill_delete' => ['name' => $prefix . 'patient_bill_delete', 'status' => 1],
 
-        'patient_review_add' => ['name' => $prefix . 'patient_review_add', 'status' => 1],
-        'patient_review_edit' => ['name' => $prefix . 'patient_review_edit', 'status' => 1],
         'patient_review_delete' => ['name' => $prefix . 'patient_review_delete', 'status' => 1],
         'patient_review_get' => ['name' => $prefix . 'patient_review_get', 'status' => 1],
 
@@ -1225,6 +1228,8 @@ function kcGetDoctorPermission()
         'patient_edit' => ['name' => $prefix . 'patient_edit', 'status' => 1],
         'patient_view' => ['name' => $prefix . 'patient_view', 'status' => 1],
         'patient_delete' => ['name' => $prefix . 'patient_delete', 'status' => 1],
+        'patient_profile' => ['name' => $prefix . 'patient_profile', 'status' => 1],
+        'patient_resend_credential' => ['name' => $prefix . 'patient_resend_credential', 'status' => 1],
 
         'medical_records_list' => ['name' => $prefix . 'medical_records_list', 'status' => 1],
         'medical_records_add' => ['name' => $prefix . 'medical_records_add', 'status' => 1],
@@ -1244,10 +1249,6 @@ function kcGetDoctorPermission()
         'patient_bill_view' => ['name' => $prefix . 'patient_bill_view', 'status' => 1],
         'patient_bill_delete' => ['name' => $prefix . 'patient_bill_delete', 'status' => 1],
 
-
-        'patient_review_add' => ['name' => $prefix . 'patient_review_add', 'status' => 0],
-        'patient_review_edit' => ['name' => $prefix . 'patient_review_edit', 'status' => 0],
-        'patient_review_delete' => ['name' => $prefix . 'patient_review_delete', 'status' => 0],
         'patient_review_get' => ['name' => $prefix . 'patient_review_get', 'status' => 1],
 
         'dashboard_total_patient' => ['name' => $prefix . 'dashboard_total_patient', 'status' => 1],
@@ -1276,14 +1277,14 @@ function kcGetPatientPermissions()
         'appointment_add' => ['name' => $prefix . 'appointment_add', 'status' => 1],
         'appointment_edit' => ['name' => $prefix . 'appointment_edit', 'status' => 1],
         'appointment_view' => ['name' => $prefix . 'appointment_view', 'status' => 1],
-        'appointment_delete' => ['name' => $prefix . 'appointment_delete', 'status' => 1],
+        'appointment_cancel' => ['name' => $prefix . 'appointment_cancel', 'status' => 1],
 
         'patient_clinic' => ['name' => $prefix . 'patient_clinic', 'status' => 1],
 
         'patient_report' => ['name' => $prefix . 'patient_report', 'status' => 1],
         'patient_report_add' => ['name' => $prefix . 'patient_report_add', 'status' => 0],
         'patient_report_view' => ['name' => $prefix . 'patient_report_view', 'status' => 1],
-        'patient_bill_edit' => ['name' => $prefix . 'patient_bill_edit', 'status' => 1],
+        // 'patient_bill_edit' => ['name' => $prefix . 'patient_bill_edit', 'status' => 1],
         'patient_report_delete' => ['name' => $prefix . 'patient_report_delete', 'status' => 0],
 
         // 'doctor_session_list' => ['name' => $prefix . 'doctor_session_list', 'status' => 0],
@@ -1337,12 +1338,15 @@ function kcGetReceptionistPermission()
         'doctor_edit' => ['name' => $prefix . 'doctor_edit', 'status' => 0],
         'doctor_view' => ['name' => $prefix . 'doctor_view', 'status' => 1],
         'doctor_delete' => ['name' => $prefix . 'doctor_delete', 'status' => 0],
+        'doctor_resend_credential' => ['name' => $prefix . 'doctor_resend_credential', 'status' => 1],
 
         'patient_list' => ['name' => $prefix . 'patient_list', 'status' => 1],
         'patient_add' => ['name' => $prefix . 'patient_add', 'status' => 0],
         'patient_edit' => ['name' => $prefix . 'patient_edit', 'status' => 1],
         'patient_view' => ['name' => $prefix . 'patient_view', 'status' => 1],
         'patient_delete' => ['name' => $prefix . 'patient_delete', 'status' => 1],
+        'patient_profile' => ['name' => $prefix . 'patient_profile', 'status' => 1],
+        'patient_resend_credential' => ['name' => $prefix . 'patient_resend_credential', 'status' => 1],
 
         'clinic_list' => ['name' => $prefix . 'clinic_list', 'status' => 0],
         'clinic_add' => ['name' => $prefix . 'clinic_add', 'status' => 0],
@@ -1350,6 +1354,7 @@ function kcGetReceptionistPermission()
         'clinic_view' => ['name' => $prefix . 'clinic_view', 'status' => 0],
         'clinic_delete' => ['name' => $prefix . 'clinic_delete', 'status' => 0],
         'clinic_profile' => ['name' => $prefix . 'clinic_profile', 'status' => 0],
+        'clinic_resend_credential' => ['name' => $prefix . 'clinic_resend_credential', 'status' => 1],
 
         'service_list' => ['name' => $prefix . 'service_list', 'status' => 1],
         'service_add' => ['name' => $prefix . 'service_add', 'status' => 1],
@@ -2205,6 +2210,7 @@ function kcSendEmail($data)
         $email_content = kcEmailContentKeyReplace($email_content, $data);
         $small_prefix = strtolower(KIVI_CARE_PREFIX);
 
+        
         switch ($args['post_name']) {
             case $small_prefix . 'doctor_registration':
                 $email_title = esc_html__('Doctor Registration', 'kc-lang');
@@ -4480,7 +4486,7 @@ function kcAppointmentIsWoocommerceOrder($appointment_id)
     $postMetaTable = $wpdb->prefix . 'postmeta';
     $query = "select {$postTable}.ID from {$postTable} 
               left join {$postMetaTable} on {$postMetaTable}.post_id={$postTable}.ID
-              where post_type='shop_order' and meta_key='kivicare_appointment_id' and meta_value={$appointment_id}";
+              where post_type LIKE '%shop_order%' and meta_key='kivicare_appointment_id' and meta_value={$appointment_id}";
     return $wpdb->get_var($query);
 }
 
@@ -5681,7 +5687,7 @@ function kcPrescriptionHtml($data, $id, $type = "encounter")
                             </td>
                             <td style="text-align: right; padding: 8px 0px;">
                                 <strong><?php echo esc_html__('Payment Status: ', 'kc-lang'); ?></strong>
-                                <span style="color: white; background-color: green; padding: 4px; border-radius: 4px;">
+                                <span style="color: white; background-color: <?php echo $data->payment_status == 'paid' ? 'green' : '#dc3545'; ?>; padding: 4px; border-radius: 4px;">
                                     <?php echo $data->payment_status == 'paid' ? esc_html__('Paid', 'kc-lang') : esc_html__('Unpaid', 'kc-lang') ?>
                                 </span>
                             </td>
@@ -6311,7 +6317,9 @@ function kcEncounterPrintTableContent($themeColor, $data, $id, $current_user_rol
                                 <?php echo esc_html($pre->frequency); ?>
                             </td>
                             <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px;">
-                                <?php echo esc_html($pre->duration) . esc_html__(' day', 'kc-lang'); ?>
+                                <?php 
+                                    echo esc_html($pre->duration) . ' ' . esc_html(_n('day', 'days', $pre->duration, 'kc-lang')); 
+                                ?>
                             </td>
                             <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; white-space: wrap; word-break: break-all;">
                                 <?php echo esc_html($pre->instruction); ?>
@@ -6637,7 +6645,9 @@ function kcAppointmentPaymentMode($id)
         if (iskcWooCommerceActive()) {
             $order_id = kcAppointmentIsWoocommerceOrder($id);
             if (!empty($order_id)) {
-                $payment_mode = get_post_meta($order_id, '_payment_method_title', true);
+                $order = wc_get_order( $order_id );
+                $payment_method = $order->get_payment_method();
+                $payment_mode = 'Woocommerce-' . $payment_method;
             }
         }
     }
@@ -7828,3 +7838,49 @@ add_action('kivicare_custom_form_data_delete', function ($module_type, $module_i
         }
     }
 }, 10, 2);
+
+// add_filter('woocommerce_order_item_get_formatted_meta_data', 'custom_hide_order_item_meta', 10, 2);
+
+// function custom_hide_order_item_meta($formatted_meta, $item) {
+//     // Define meta keys to hide
+//     $meta_keys_to_hide = ['kivicare_appointment_id', 'doctor_id'];
+
+//     foreach ($formatted_meta as $key => $meta) {
+//         if (in_array($meta->key, $meta_keys_to_hide)) {
+//             unset($formatted_meta[$key]);
+//         }
+//     }
+
+//     return $formatted_meta;
+// }
+
+add_filter('woocommerce_order_item_display_meta_key', 'replace_meta_key_labels', 10, 2);
+add_filter('woocommerce_order_item_display_meta_value', 'replace_meta_value_with_doctor_name', 10, 2);
+
+function replace_meta_key_labels($display_key, $meta) {
+    if ($display_key === 'kivicare_appointment_id') {
+        $display_key = __('Appointment ID', 'kc-lang'); 
+    }
+    if ($display_key === 'doctor_id') {
+        $display_key = __('Doctor Name', 'kc-lang');
+    }
+    return $display_key;
+}
+
+function replace_meta_value_with_doctor_name($display_value, $meta) {
+    if ($meta->key === 'doctor_id') {
+        $doctor_id = $display_value; // The stored doctor ID
+
+        $doctor_data = get_userdata($doctor_id);
+
+        if ($doctor_data) {
+            $doctor_name = $doctor_data->display_name; // Get the display name
+        }
+
+        if ($doctor_name) {
+            $display_value = $doctor_name; // Replace the value with the doctor's name
+        }
+    }
+    return $display_value;
+}
+

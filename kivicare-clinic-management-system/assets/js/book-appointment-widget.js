@@ -851,7 +851,7 @@ function kcAppointmentBookJsContent() {
             $('.iq-kivi-calendar-slot').addClass('d-none')
             let selected_clinic = kivicareGetSelectedItem('selected-clinic');
             let doctorWorkdayajaxData = {
-                clinic_id: selected_clinic,
+                clinic_id: selected_clinic, 
                 doctor_id: id,
                 type: 'flatpicker'
             }
@@ -860,18 +860,21 @@ function kcAppointmentBookJsContent() {
                     if (response.data.status !== undefined && response.data.status === true) {
                         let restrictionData = bookAppointmentWidgetData.restriction_data;
                         let days = response.data.data;
-                        //if doctor not have any working days show message and hide date picker
+                        let leaves = response.data.holiday;
+
+                        // If doctor does not have any working days, show message and hide date picker
                         if ([0, 1, 2, 3, 4, 5, 6].every(r => days.includes(r))) {
                             $('.doctor-session-error').removeClass('d-none');
                             $('.doctor-session-loader').addClass('d-none');
                             $('#doctor-datepicker-loader').addClass('d-none');
-                            $('.iq-kivi-calendar-slot').addClass('d-none')
+                            $('.iq-kivi-calendar-slot').addClass('d-none');
                         } else {
-                            $('.iq-kivi-calendar-slot').removeClass('d-none')
+                            $('.iq-kivi-calendar-slot').removeClass('d-none');
                             $('.doctor-session-loader').addClass('d-none');
                             $('.doctor-session-error').addClass('d-none');
                             $('#doctor-datepicker-loader').addClass('d-none');
-                            //initialize datepicker
+
+                            // Initialize datepicker
                             flatpickr(".iq-inline-datepicker", {
                                 // Inline flatpicker
                                 inline: true,
@@ -879,6 +882,7 @@ function kcAppointmentBookJsContent() {
                                 maxDate: restrictionData.only_same_day_book === 'on' ? new Date() : new Date().fp_incr(restrictionData.post_book),
                                 disable: [
                                     function (date) {
+                                        // Disable days based on working days
                                         return ((days.includes(0) && date.getDay() === 0)
                                             || (days.includes(1) && date.getDay() === 1)
                                             || (days.includes(2) && date.getDay() === 2)
@@ -887,11 +891,13 @@ function kcAppointmentBookJsContent() {
                                             || (days.includes(5) && date.getDay() === 5)
                                             || (days.includes(6) && date.getDay() === 6)
                                         );
-                                    }
+                                    },
+                                    // Disable leave dates
+                                    ...leaves.map(leave => new Date(leave))
                                 ],
                                 locale: bookAppointmentWidgetData.message.full_calendar,
                                 shorthandCurrentMonth: true,
-                                onChange: function (selectedDates, dateStr, instance) { //event when date selected in calendar
+                                onChange: function (selectedDates, dateStr, instance) { // Event when date selected in calendar
                                     let timeSlotListsElement = document.getElementById("timeSlotLists");
                                     timeSlotListsElement.classList.remove('d-grid');
                                     kivicareAddLoader(timeSlotListsElement);
@@ -907,8 +913,8 @@ function kcAppointmentBookJsContent() {
                                         date: dateStr,
                                         widgetType: 'phpWidget',
                                         service: visit_type_data
-                                    }
-                                    //get selected date time slots
+                                    };
+                                    // Get selected date time slots
                                     get('get_time_slots', timeSlotAjaxData)
                                         .then((res) => {
                                             if (res.data.status !== undefined && res.data.status) {
@@ -919,13 +925,13 @@ function kcAppointmentBookJsContent() {
                                             } else if (res.data.status !== undefined && !res.data.status) {
                                                 timeSlotListsElement.innerHTML = `<p class="loader-class">` + res.data.message + `</p>`;
                                             }
-
-                                        }).catch((error) => {
+                                        })
+                                        .catch((error) => {
                                             console.log(error);
                                             kivicareShowErrorMessage('kivicare_error_msg', bookAppointmentWidgetData.message.internal_server_msg);
-                                        })
+                                        });
 
-                                    $('.iq-inline-datepicker').addClass('d-none')
+                                    $('.iq-inline-datepicker').addClass('d-none');
                                 },
                             });
                         }
@@ -934,7 +940,8 @@ function kcAppointmentBookJsContent() {
                 .catch((error) => {
                     console.log(error);
                     kivicareShowErrorMessage('kivicare_error_msg', bookAppointmentWidgetData.message.internal_server_msg);
-                })
+                });
+
         }
 
         //function to get loader content

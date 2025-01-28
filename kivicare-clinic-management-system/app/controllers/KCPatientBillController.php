@@ -214,6 +214,7 @@ class KCPatientBillController extends KCBase {
 			( new KCPatientEncounter() )->update( [ 'status' => '0' ], [ 'id' => $request_data['encounter_id'] ] );
 			if((string)$request_data['checkOutVal'] === '1'){
 				(new KCAppointment() )->update( [ 'status' => '3' ], [ 'id' => (int)$request_data['patientEncounter']['appointment_id'] ] );
+				do_action( 'kc_appointment_status_update', $request_data['patientEncounter']['appointment_id'] , '3' );
 			}
 			if(isKiviCareProActive()){
                 if(kcCheckSmsOptionEnable() || kcCheckWhatsappOptionEnable()){

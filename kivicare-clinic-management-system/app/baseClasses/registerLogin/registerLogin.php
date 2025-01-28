@@ -237,7 +237,7 @@ $rtl_attr = in_array($theme_mode,['1','true']) ? 'rtl' : '';
                                 </div>
                                 <div>
                                     <button type="submit" name="submit" value="submit"
-                                            class="iq-button iq-button-primary"><?php echo esc_html__("Login"); ?>
+                                            class="iq-button iq-button-primary"><?php echo esc_html__('Login', 'kc-lang'); ?>
                                     </button>
                                 </div>
                             </div>
@@ -493,7 +493,7 @@ $rtl_attr = in_array($theme_mode,['1','true']) ? 'rtl' : '';
                             $('#kivi-content').removeClass('kc-position-relative')
                             $('#kivi-main-loader-overlay').addClass('d-none')
                             $('#kivi-main-loader-overlay').removeClass('kc-relative-center')
-                            kivicareButtonTextChange(this, '<?php echo esc_html__("Login"); ?>', false)
+                            kivicareButtonTextChange(this, '<?php echo esc_html__('Login', 'kc-lang'); ?>', false)
                             if (response.data.status !== undefined && response.data.status === true) {
                                 setTimeout(() => {
                                     location.href = response.data.login_redirect_url;
@@ -505,7 +505,7 @@ $rtl_attr = in_array($theme_mode,['1','true']) ? 'rtl' : '';
                         $('#kivi-content').removeClass('kc-position-relative')
                         $('#kivi-main-loader-overlay').addClass('d-none')
                         $('#kivi-main-loader-overlay').removeClass('kc-relative-center')
-                        kivicareButtonTextChange(this, '<?php echo esc_html__("Login"); ?>', false)
+                        kivicareButtonTextChange(this, '<?php echo esc_html__('Login', 'kc-lang'); ?>', false)
                         console.log(error);
                         kcShowErrorMessage('<?php echo esc_html__("Internal server error","kc-lang"); ?>')
                     })

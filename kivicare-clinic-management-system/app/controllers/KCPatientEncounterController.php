@@ -98,13 +98,24 @@ class KCPatientEncounterController extends KCBase
 
 		if (isset($request_data['searchTerm']) && trim($request_data['searchTerm']) !== '') {
 			$request_data['searchTerm'] = esc_sql(strtolower(trim($request_data['searchTerm'])));
+
+            $status=null;
+            // Extract status using regex
+            if (preg_match('/:(active|inactive)/i', $request_data['searchTerm'], $matches)) {
+                $status = $matches[1]=='active'?'1':'0';
+                // Remove the matched status from the search term and trim
+                $request_data['searchTerm'] = trim( preg_replace('/:(active|inactive)/i', '', $request_data['searchTerm']));
+            }
+
 			$search_condition .= " AND (
                            {$patient_encounter_table}.id LIKE '%{$request_data['searchTerm']}%' 
                            OR {$clinics_table}.name LIKE '%{$request_data['searchTerm']}%' 
                            OR doctors.display_name LIKE '%{$request_data['searchTerm']}%' 
                            OR patients.display_name LIKE '%{$request_data['searchTerm']}%'  
-                           OR {$patient_encounter_table}.status LIKE '%{$request_data['searchTerm']}%' 
                            ) ";
+			if(!is_null($status)){
+				$search_condition.= " AND {$patient_encounter_table}.status LIKE '{$status}' ";
+			}
 		} else {
 			if (!empty($request_data['columnFilters'])) {
 				$request_data['columnFilters'] = kcRecursiveSanitizeTextField(json_decode(stripslashes($request_data['columnFilters']), true));
@@ -271,6 +282,10 @@ class KCPatientEncounterController extends KCBase
 			'description' => $request_data['description'],
 			'status' => $request_data['status'],
 		];
+
+		if ($this->getLoginUserRole() === $this->getDoctorRole() && get_current_user_id() !== $temp['doctor_id']){
+			wp_send_json(kcUnauthorizeAccessResponse(403));
+		}
 
 		$temp = apply_filters('kivicare_update_encounter_save_fields', $temp, $request_data);
 
@@ -683,10 +698,6 @@ class KCPatientEncounterController extends KCBase
 	{
 		$request_data = $this->request->getInputs();
 		$request_data['id'] = (int) $request_data['id'];
-
-		echo '<pre>';
-		print_r($request_data);
-		die;
 	}
 
 	public function printEncounterBillDetail()

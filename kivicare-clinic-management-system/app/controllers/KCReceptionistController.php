@@ -53,16 +53,32 @@ class KCReceptionistController extends KCBase {
 
         //global filter
         if(isset($request_data['searchTerm']) && $request_data['searchTerm'] !== ''){
-            $args['search_columns'] = ['user_email','ID','display_name','user_status'];
-            $args['search'] = '*'.esc_sql(strtolower(trim($request_data['searchTerm']))).'*' ;
+			$args['search'] = '*'.esc_sql(strtolower(trim($request_data['searchTerm']))).'*' ;
+			$args['search_columns'] = ['user_email','ID','display_name'];
+			// Extract status using regex
+			$status = null;
+			if (preg_match('/:(active|inactive)/i', $request_data['searchTerm'], $matches)) {
+				$status = $matches[1]!='active'?'1':'0';
+				// Remove status from search term
+				$request_data['searchTerm'] = trim( preg_replace('/:(active|inactive)/i', '', $request_data['searchTerm']));
+			}
+			
+			$args['search'] = '*'.esc_sql(strtolower(trim($request_data['searchTerm']))).'*' ;
+
+				// Add status filter if provided
+			if(!is_null($status)){
+					
+				$search_condition.= " AND {$wpdb->prefix}users.user_status LIKE '{$status}' ";
+			}
+
         }else{
             //column wise filter
             if(!empty($request_data['columnFilters'])){
                 $request_data['columnFilters'] = kcRecursiveSanitizeTextField(json_decode(stripslashes($request_data['columnFilters']),true));
                 foreach ($request_data['columnFilters'] as $column => $searchValue){
-					$searchValue = !empty($searchValue) ? $searchValue : '';
                     $searchValue = esc_sql(strtolower(trim($searchValue)));
                     if($column !== 'user_status' && empty($searchValue) ){
+						$searchValue = !empty($searchValue) ? $searchValue : '';
                         continue;
                     }
                     $column = esc_sql($column);

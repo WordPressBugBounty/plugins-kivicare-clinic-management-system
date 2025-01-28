@@ -263,7 +263,7 @@ class KCAppointmentController extends KCBase {
 
 		global $wpdb;
 
-		if ( ! kcCheckPermission( 'appointment_add' ) ) {
+		if ( ! kcCheckPermission( 'appointment_add' ) && !kcCheckPermission('appointment_edit') ) {
 			wp_send_json(kcUnauthorizeAccessResponse(403));
 		}
 
@@ -303,6 +303,7 @@ class KCAppointmentController extends KCBase {
         };
 
         $current_user_role = $this->getLoginUserRole();
+        $current_login_user_id = get_current_user_id();
         if($proPluginActive){
             if($current_user_role == $this->getClinicAdminRole()){
                 $request_data['clinic_id']['id'] = kcGetClinicIdOfClinicAdmin();
@@ -343,6 +344,13 @@ class KCAppointmentController extends KCBase {
         $doctor_id = (int)$request_data['doctor_id']['id'];
         $patient_id = (int)$request_data['patient_id']['id'];
 
+        if( $current_user_role === $this->getPatientRole() && $patient_id !== $current_login_user_id ){
+            wp_send_json(kcUnauthorizeAccessResponse(403));
+        }
+
+        if( $current_user_role === $this->getDoctorRole() && $doctor_id !== $current_login_user_id ){
+            wp_send_json(kcUnauthorizeAccessResponse(403));
+        }
 
         $temp = [
 			'appointment_start_date' => $appointment_start_date,
@@ -846,8 +854,9 @@ class KCAppointmentController extends KCBase {
 	}
 
 	public function getAppointmentQueue() {
+
         if ( ! kcCheckPermission( 'appointment_list' ) ) {
-            wp_send_json(kcUnauthorizeAccessResponse());
+            wp_send_json(kcUnauthorizeAccessResponse(403));
         }
 		$request_data = $this->request->getInputs();
 		$filterData = isset( $request_data['filterData'] ) ? stripslashes( $request_data['filterData'] ) : [];
