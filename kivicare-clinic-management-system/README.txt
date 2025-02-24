@@ -3,8 +3,8 @@ Contributors: iqonicdesign
 Tags: clinic management, patient management, doctor management, appointment management, clinic management solution
 Requires PHP: 8.0 
 Requires at least: 3.0.1
-Tested up to: 6.7.1
-Stable tag: 3.6.7
+Tested up to: 6.7.2
+Stable tag: 3.6.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,7 +122,13 @@ Yes, we’d love to hear from you at hello@iqonic.design.
 
 == Changelog ==
 
-= Version 3.6.6 – 28th Jan 2024
+= Version 3.6.8 – 24th Feb 2024
+
+- [Security] Fixed security issue.
+- [Fixed] Resolved Shortcode JS conflict.
+
+
+= Version 3.6.7 – 28th Jan 2024
 
 - [Fixed] Status filter issue in the global search on datatables.
 - [Fixed] Disabled date selection for holidays.

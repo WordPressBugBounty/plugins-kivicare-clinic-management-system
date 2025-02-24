@@ -197,13 +197,16 @@ class KCAppointmentController extends KCBase {
             $new_appointments[ $key ]['doctor_name']            = $appointment->doctor_name;
             $new_appointments[ $key ]['status']                 = $appointment->status;
             $new_appointments[ $key ]['all_services']= !empty($all_service_results[$appointment->id]->service_name) ? $all_service_results[$appointment->id]->service_name : '';
-            $new_appointments[ $key ]['color'] = '#3490dc';
             if ( $appointment->status === '0' ) {
                 $new_appointments[ $key ]['color'] = '#f5365c';
-            } elseif ($appointment->status === '3') {
+            } elseif ($appointment->status === '1') {
                 $new_appointments[ $key ]['color'] = '#23a359';
+            }elseif ($appointment->status === '2') {
+                $new_appointments[ $key ]['color'] = '#efc51c';
+            }elseif ($appointment->status === '3') {
+                $new_appointments[ $key ]['color'] = '#78c0fb';
             }elseif ($appointment->status === '4') {
-                $new_appointments[ $key ]['color'] = '#f68685';
+                $new_appointments[ $key ]['color'] = '#4874dc';
             }
             $appointment->all_service_details = $all_service_results[$appointment->id];
             $new_appointments[ $key ]['color'] = apply_filters('kivicare_appointment_calendar_color',$new_appointments[ $key ]['color'],$appointment->id,$appointment);

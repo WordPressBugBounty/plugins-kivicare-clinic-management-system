@@ -415,18 +415,16 @@
                             })
                     }
 
-                    $('#togglePassword').on('click', function (e) {
-                        var passwordInput = document.getElementById("loginPassword");
-                        var toggleIcon = document.getElementById("togglePassword");
+                    $('#kc_login').on('click', '#togglePassword', function() {
+                        var passwordInput = $(this).siblings('input[type="password"], input[type="text"]');
+                        var toggleIcon = $(this);
 
-                        if (passwordInput.type === "password") {
-                            passwordInput.type = "text";
-                            toggleIcon.classList.remove("fa-eye");
-                            toggleIcon.classList.add("fa-eye-slash");
+                        if (passwordInput.attr('type') === 'password') {
+                            passwordInput.attr('type', 'text');
+                            toggleIcon.removeClass('fa-eye').addClass('fa-eye-slash');
                         } else {
-                            passwordInput.type = "password";
-                            toggleIcon.classList.remove("fa-eye-slash");
-                            toggleIcon.classList.add("fa-eye");
+                            passwordInput.attr('type', 'password');
+                            toggleIcon.removeClass('fa-eye-slash').addClass('fa-eye');
                         }
                     });
 

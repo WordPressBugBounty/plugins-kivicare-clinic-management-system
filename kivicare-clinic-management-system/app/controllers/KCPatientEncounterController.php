@@ -803,7 +803,7 @@ class KCPatientEncounterController extends KCBase
 				$dompdf->set_option('isPhpEnabled', true);
 				$dompdf->set_option('isRemoteEnabled', true);
 
-				$dompdf->loadHtml($print_data);
+				$dompdf->loadHtml('<meta charset="UTF-8">' . $print_data);
 
 				// (Optional) Setup the paper size and orientation
 				$dompdf->setPaper('A4', 'portrait');

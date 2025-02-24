@@ -316,15 +316,15 @@ function kcAppointmentBookJsContent() {
                     var formName = document.getElementsByClassName('authActive active')
                     for (var i = 0; i < formName.length; i++) {
                         if (formName[i].id == 'kc_login') {
-                            $('#kivicare-login-form input').prop('required', true);
-                            $('#kivicare-register-form input,textarea, select').prop('required', false);
+                            $('#kc_login #kivicare-login-form input').prop('required', true);
+                            $('#kc_register #kivicare-register-form input,textarea, select').prop('required', false);
 
                             if (!$("#kiviLoginRegister")[0].checkValidity()) {
                                 return
                             }
 
                             var result = {};
-                            $.each($('#kivicare-login :input').serializeArray(), function () {
+                            $.each($('#kc_login #kivicare-login :input').serializeArray(), function () {
                                 result[this.name] = this.value;
                             });
                             e.preventDefault();
@@ -354,8 +354,8 @@ function kcAppointmentBookJsContent() {
                                 })
                         }
                         if (formName[i].id == 'kc_register') {
-                            $('#kivicare-login-form input').prop('required', false);
-                            $('#kivicare-register input').prop('required', true);
+                            $('#kc_login #kivicare-login-form input').prop('required', false);
+                            $('#kc_register #kivicare-register input').prop('required', true);
                             $('#customFieldsList .kivicare-required').prop('required', true);
                             $.each($('#customFieldsList').find(':input:checkbox').parent().parent(), function (key, value) {
                                 let cbx_group = $(value).find(':input:checkbox');
@@ -369,7 +369,7 @@ function kcAppointmentBookJsContent() {
                             }
 
                             var result = {};
-                            $.each($('#kivicare-register :input').serializeArray(), function () {
+                            $.each($('#kc_register #kivicare-register :input').serializeArray(), function () {
                                 result[this.name] = this.value;
                             });
 

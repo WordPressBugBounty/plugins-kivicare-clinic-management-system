@@ -324,15 +324,25 @@ class KCPatientController extends KCBase {
                 ] );
             }
 			$condition = '';
-			if(isset( $request_data['ID'])){
-				$condition = ' and user_id !='.(int)$request_data['ID'];
-			}
-			$patient_unique_id = $request_data['u_id'];
-			$patient_unique_id_exist = $this->db->get_var("SELECT  count(*) FROM  ".$this->db->base_prefix."usermeta WHERE  meta_key = 'patient_unique_id'  AND  meta_value ='".$patient_unique_id."'".$condition);
-            if($patient_unique_id_exist > 0 ){
-	            wp_send_json( [
-					'status' => false,
-                    'message' => esc_html__('Patient Unique ID is already used', 'kc-lang')
+            if ( isset( $request_data['ID'] ) ) {
+                $condition = ' AND user_id != ' . (int) $request_data['ID'];
+            }
+
+            $patient_unique_id = $request_data['u_id'];
+
+            // Prepare the SQL query using placeholders for the dynamic values
+            $sql = $this->db->prepare(
+                "SELECT count(*) FROM {$this->db->base_prefix}usermeta WHERE meta_key = %s AND meta_value = %s" . $condition,
+                'patient_unique_id',
+                $patient_unique_id
+            );
+
+            $patient_unique_id_exist = $this->db->get_var( $sql );
+
+            if ( $patient_unique_id_exist > 0 ) {
+                wp_send_json( [
+                    'status'  => false,
+                    'message' => esc_html__( 'Patient Unique ID is already used', 'kc-lang' )
                 ] );
             }
         }

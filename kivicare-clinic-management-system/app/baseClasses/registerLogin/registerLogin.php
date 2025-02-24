@@ -392,12 +392,12 @@ $rtl_attr = in_array($theme_mode,['1','true']) ? 'rtl' : '';
                 getUserRegistrationFormData();
 
                 if('<?php echo !is_user_logged_in(); ?>'){
-                    $('.kivi-widget ul li.tab-item a').on('click', function (e) {
+                    $('.wp-block-kivi-care-register-login .kivi-widget ul li.tab-item a').on('click', function (e) {
                         e.preventDefault();
                         const tab_id = $(this).attr('href');
-                        $('.kivi-widget li.tab-item').removeClass('active');
+                        $('.wp-block-kivi-care-register-login .kivi-widget li.tab-item').removeClass('active');
                         $(this).parent().addClass('active');
-                        $('.kivi-widget form').addClass ('d-none');
+                        $('.wp-block-kivi-care-register-login .kivi-widget form').addClass ('d-none');
                         $(tab_id).parent().removeClass('d-none')
                     });
                 }

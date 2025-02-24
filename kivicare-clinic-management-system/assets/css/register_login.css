@@ -79,11 +79,11 @@ form#kivicare-login-form {
     display: inline-block;
 }
 
-.kivi-widget .custom-control.custom-radio.custom-control-inline {
+#wp-block-kivi-care-register-login .kivi-widget .custom-control.custom-radio.custom-control-inline {
     padding-right: 25px;
 }
 
-.kivi-widget .custom-control.custom-radio.custom-control-inline label {
+#wp-block-kivi-care-register-login .kivi-widget .custom-control.custom-radio.custom-control-inline label {
     padding-right: 2px;
 }
 

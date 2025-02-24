@@ -113,6 +113,7 @@ class KCHomeController extends KCBase
                     break;
                 case $this->getDoctorRole():
                     $image_attachment_id = get_user_meta($user_id, 'doctor_profile_image', true);
+                    $user_clinic_id = kcGetClinicIdOfDoctor();
                     $kivicare_user = true;
                     break;
                 case $this->getPatientRole():

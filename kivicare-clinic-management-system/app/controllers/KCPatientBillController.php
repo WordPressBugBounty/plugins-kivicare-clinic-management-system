@@ -210,7 +210,8 @@ class KCPatientBillController extends KCBase {
 		}
 		if(!empty($request_data['payment_status']) && $request_data['payment_status'] == 'paid'){
             //hook when bill paid
-            do_action('kc_encounter_bill_paid',$temp);
+			do_action('kc_encounter_bill_paid',$temp);
+            do_action('kc_encounter_update', $request_data['encounter_id']);
 			( new KCPatientEncounter() )->update( [ 'status' => '0' ], [ 'id' => $request_data['encounter_id'] ] );
 			if((string)$request_data['checkOutVal'] === '1'){
 				(new KCAppointment() )->update( [ 'status' => '3' ], [ 'id' => (int)$request_data['patientEncounter']['appointment_id'] ] );
