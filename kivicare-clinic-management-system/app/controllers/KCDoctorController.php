@@ -606,6 +606,11 @@ class KCDoctorController extends KCBase
                 ->map(function ($v){
                     return ['id' => $v->id ,'label' => decodeSpecificSymbols($v->label)];
                 })->toArray();
+
+            $clinic_ids = array_column($clinics, 'id');
+            $data->clinic_id = $clinics;
+            $data->clinic_ids = $clinic_ids;
+
             $data->clinic_id = $clinics;
             if (isset($data->price_type)) {
                 if ($data->price_type === "range") {

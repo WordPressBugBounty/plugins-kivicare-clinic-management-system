@@ -4,13 +4,15 @@ Tags: clinic management, patient management, doctor management, appointment mana
 Requires PHP: 8.0 
 Requires at least: 3.0.1
 Tested up to: 6.7.2
-Stable tag: 3.6.8
+Stable tag: 3.6.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 KiviCare is an impressive clinic and patient management plugin (EHR).
 
 == Description ==
+
+[🏨 KiviCare Best Products Up to **50% OFF** at this March Madness Sale! 💼](https://kivicare.io/?utm_source=referral&utm_medium=wordpress.org&utm_campaign=iqonic-march+madness-sale-2025-wordpress-org-banner-click) 
 
 Launch your  Online Clinic in 60 Seconds! 🚀
 KiviCare is the most simple self-hosted clinic and patient management solution based on WordPress platform. Setup your online clinic instantly.  
@@ -121,6 +123,18 @@ Support for the Free version is only via Documentation and Video Guides
 Yes, we’d love to hear from you at hello@iqonic.design.
 
 == Changelog ==
+
+= Version 3.6.9 – 24th Mar 2024 =
+
+- [Update] Redirected PayPal payment to the payment page instead of opening a popup.
+- [Update] Google migrate FedCM APIs for connect with Google.
+- [Fixed] Issue where using both the Elementor widgets Doctor List and Clinic List on the same page caused a conflict.
+- [Fixed] Upcoming Appointments tab not displaying appointments when the WooCommerce payment order is deleted.
+- [Fixed] Custom field values not displaying in the KiviCare dashboard when a doctor registers via the Register/Login shortcode.
+- [Fixed] Pagination not working in the Encounter List.
+- [Fixed] Issue where WooCommerce payments did not redirect to the checkout page.
+- [Fixed] Register/Login shortcode redirection issue when doctors or receptionists register — not redirecting to the login redirect URL.
+- [Fixed] Custom form not displaying properly when conditions are applied.
 
 = Version 3.6.8 – 24th Feb 2024
 

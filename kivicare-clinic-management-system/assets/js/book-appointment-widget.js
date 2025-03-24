@@ -6,6 +6,7 @@ function kcAppointmentBookJsContent() {
         if (bookAppointmentWidgetData.popup_appointment_book) {
             $('.kivi-widget-close').on("click", function () {
                 $.magnificPopup.close();
+                $(this).closest('.white-popup').html('');
             });
         }
 
@@ -748,11 +749,6 @@ function kcAppointmentBookJsContent() {
         function kivicareGetSelectedItem(element) {
             let defaultSelected = 0;
             if (element === 'selected-clinic') {
-                //return clinic id already in pass in shortcode or by query parameters
-                // if (parseInt(bookAppointmentWidgetData.preselected_clinic_id) !== 0) {
-                //     return bookAppointmentWidgetData.preselected_clinic_id
-                // }
-
                 if (bookAppointmentWidgetData.preselected_single_clinic_id) {
                     return bookAppointmentWidgetData.preselected_clinic_id
                 }
@@ -1046,14 +1042,8 @@ function kcAppointmentBookJsContent() {
                         if (checkWoocommerceCart.woocommerce_cart_data !== undefined) {
                             if (checkWoocommerceCart.woocommerce_cart_data.woocommerce_redirect !== undefined) {
                                 if (payment_mode === 'paymentPaypal') {
-                                    child = window.open(
-                                        checkWoocommerceCart.woocommerce_cart_data.woocommerce_redirect,
-                                        '_blank',
-                                        'toolbar=0,status=0,width=360,height=500,top=100,left=' +
-                                        (window.screen ? Math.round(screen.width / 2 - 275) : 100)
-                                    );
+                                    location.href = checkWoocommerceCart.woocommerce_cart_data.woocommerce_redirect;
                                     appointment_id = response.data.data.id
-                                    timer = setInterval(checkChildWindow, 500);
                                     return;
                                 } else {
                                     location.href = checkWoocommerceCart.woocommerce_cart_data.woocommerce_redirect;
@@ -1152,7 +1142,6 @@ function kcAppointmentBookJsContent() {
 
 //check payment complete by razorpay or PayPal gateway
 function kivicareCheckPaymentStatus(newStatus, newAppointmentID) {
-    // clearInterval(timer);
     switch (newStatus) {
         case 'approved':
             kivicareLoadConfirmPage(newAppointmentID)
@@ -1220,7 +1209,6 @@ function kivicarePrintContent(id) {
                         window.location.href = newUrl;
                     }
                 }
-                // document.body.innerHTML = prr;
             }
         })
         .catch((error) => {

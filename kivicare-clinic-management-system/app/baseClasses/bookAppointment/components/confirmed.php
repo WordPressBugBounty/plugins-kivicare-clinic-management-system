@@ -37,7 +37,10 @@ if(kcWoocommercePaymentGatewayEnable() === 'on' && $appointment_id !== 'off'){
     </div>
     <hr class="my-4 kc-confirmation-hr">
     <div class="d-flex flex-wrap gap-1 justify-content-center kc-confirmation-buttons">
-        <a href="<?php echo esc_url(remove_query_arg('confirm_page',$url)); ?>">
+        <?php 
+            $paramsToRemove = ['confirm_page','kivicare_payment', 'appointment_id', 'paymentId', 'token', 'PayerID', 'kivicare_stripe_payment'];
+        ?>
+        <a href="<?php echo esc_url(remove_query_arg($paramsToRemove,$url)); ?>">
             <button type="button"
                     class="iq-button iq-button-primary"><?php echo esc_html__('Book More Appointments', 'kc-lang'); ?>
             </button>

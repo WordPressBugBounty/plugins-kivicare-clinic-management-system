@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the KiviCare - Clinic & Patient Management System (EHR) plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 3.6.8\n"
+"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 3.6.9\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/kivicare-clinic-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-02-24T10:32:25+00:00\n"
+"POT-Creation-Date: 2025-03-24T10:07:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: kc-lang\n"
@@ -54,7 +54,7 @@ msgstr ""
 #: app/baseClasses/registerLogin/registerLogin.php:476
 #: app/baseClasses/registerLogin/registerLogin.php:510
 #: resources/assets/lang/temp.php:418
-#: resources/assets/lang/temp.php:1142
+#: resources/assets/lang/temp.php:1143
 msgid "Internal server error"
 msgstr ""
 
@@ -69,15 +69,15 @@ msgstr ""
 #: app/baseClasses/registerLogin/registerLogin.php:496
 #: app/baseClasses/registerLogin/registerLogin.php:508
 #: resources/assets/lang/temp.php:236
-#: resources/assets/lang/temp.php:1875
+#: resources/assets/lang/temp.php:1876
 msgid "Login"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:235
 #: app/baseClasses/bookAppointment/components/detail-info/tab-panel.php:15
 #: app/baseClasses/registerLogin/registerLogin.php:56
-#: resources/assets/lang/temp.php:1876
-#: utils/kc_helpers.php:6748
+#: resources/assets/lang/temp.php:1877
+#: utils/kc_helpers.php:6747
 msgid "Register"
 msgstr ""
 
@@ -85,30 +85,30 @@ msgstr ""
 #: app/baseClasses/bookAppointment/components/clinic/tab-panel.php:3
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:88
 #: app/baseClasses/registerLogin/registerLogin.php:184
-#: resources/assets/lang/temp.php:803
-#: resources/assets/lang/temp.php:887
-#: resources/assets/lang/temp.php:931
-#: resources/assets/lang/temp.php:1074
-#: resources/assets/lang/temp.php:1773
+#: resources/assets/lang/temp.php:804
+#: resources/assets/lang/temp.php:888
+#: resources/assets/lang/temp.php:932
+#: resources/assets/lang/temp.php:1075
+#: resources/assets/lang/temp.php:1774
 msgid "Select Clinic"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:237
 #: app/baseClasses/bookAppointment/components/doctor/tab-panel.php:3
-#: resources/assets/lang/temp.php:1131
-#: resources/assets/lang/temp.php:1547
+#: resources/assets/lang/temp.php:1132
+#: resources/assets/lang/temp.php:1548
 msgid "Select Doctor"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:238
-#: resources/assets/lang/temp.php:1791
+#: resources/assets/lang/temp.php:1792
 msgid "Select Category"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:239
 #: app/baseClasses/bookAppointment/components/date-time/tab-panel.php:3
 #: app/baseClasses/bookAppointment/components/date-time/tab.php:2
-#: resources/assets/lang/temp.php:1765
+#: resources/assets/lang/temp.php:1766
 #: utils/kc_helpers.php:5312
 msgid "Select Date and Time"
 msgstr ""
@@ -137,51 +137,51 @@ msgstr ""
 #: app/baseClasses/bookAppointment/bookAppointment.php:245
 #: app/controllers/KCElementorController.php:270
 #: app/controllers/KCElementorController.php:535
-#: resources/assets/lang/temp.php:1861
-#: utils/kc_helpers.php:6757
-#: utils/kc_helpers.php:6764
+#: resources/assets/lang/temp.php:1862
+#: utils/kc_helpers.php:6756
+#: utils/kc_helpers.php:6763
 msgid "Next"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:246
-#: resources/assets/lang/temp.php:1785
-#: utils/kc_helpers.php:6759
-#: utils/kc_helpers.php:6762
+#: resources/assets/lang/temp.php:1786
+#: utils/kc_helpers.php:6758
+#: utils/kc_helpers.php:6761
 msgid "Confirm"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:250
-#: resources/assets/lang/temp.php:1945
+#: resources/assets/lang/temp.php:1946
 msgid "Sun"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:251
-#: resources/assets/lang/temp.php:1939
+#: resources/assets/lang/temp.php:1940
 msgid "Mon"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:252
-#: resources/assets/lang/temp.php:1940
+#: resources/assets/lang/temp.php:1941
 msgid "Tue"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:253
-#: resources/assets/lang/temp.php:1941
+#: resources/assets/lang/temp.php:1942
 msgid "Wed"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:254
-#: resources/assets/lang/temp.php:1942
+#: resources/assets/lang/temp.php:1943
 msgid "Thu"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:255
-#: resources/assets/lang/temp.php:1943
+#: resources/assets/lang/temp.php:1944
 msgid "Fri"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:256
-#: resources/assets/lang/temp.php:1944
+#: resources/assets/lang/temp.php:1945
 msgid "Sat"
 msgstr ""
 
@@ -221,130 +221,130 @@ msgid "Saturday"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:270
-#: resources/assets/lang/temp.php:1962
+#: resources/assets/lang/temp.php:1963
 msgid "Jan"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:271
-#: resources/assets/lang/temp.php:1963
+#: resources/assets/lang/temp.php:1964
 msgid "Feb"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:272
-#: resources/assets/lang/temp.php:1964
+#: resources/assets/lang/temp.php:1965
 msgid "Mar"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:273
-#: resources/assets/lang/temp.php:1965
+#: resources/assets/lang/temp.php:1966
 msgid "Apr"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:274
 #: app/baseClasses/bookAppointment/bookAppointment.php:288
-#: resources/assets/lang/temp.php:1952
-#: resources/assets/lang/temp.php:1966
+#: resources/assets/lang/temp.php:1953
+#: resources/assets/lang/temp.php:1967
 #: utils/kc_helpers.php:641
 msgid "May"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:275
-#: resources/assets/lang/temp.php:1967
+#: resources/assets/lang/temp.php:1968
 msgid "Jun"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:276
-#: resources/assets/lang/temp.php:1968
+#: resources/assets/lang/temp.php:1969
 msgid "Jul"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:277
-#: resources/assets/lang/temp.php:1969
+#: resources/assets/lang/temp.php:1970
 msgid "Aug"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:278
-#: resources/assets/lang/temp.php:1970
+#: resources/assets/lang/temp.php:1971
 msgid "Sep"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:279
-#: resources/assets/lang/temp.php:1971
+#: resources/assets/lang/temp.php:1972
 msgid "Oct"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:280
-#: resources/assets/lang/temp.php:1972
+#: resources/assets/lang/temp.php:1973
 msgid "Nov"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:281
-#: resources/assets/lang/temp.php:1973
+#: resources/assets/lang/temp.php:1974
 msgid "Dec"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:284
-#: resources/assets/lang/temp.php:1948
+#: resources/assets/lang/temp.php:1949
 #: utils/kc_helpers.php:637
 msgid "January"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:285
-#: resources/assets/lang/temp.php:1949
+#: resources/assets/lang/temp.php:1950
 #: utils/kc_helpers.php:638
 msgid "February"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:286
-#: resources/assets/lang/temp.php:1950
+#: resources/assets/lang/temp.php:1951
 #: utils/kc_helpers.php:639
 msgid "March"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:287
-#: resources/assets/lang/temp.php:1951
+#: resources/assets/lang/temp.php:1952
 #: utils/kc_helpers.php:640
 msgid "April"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:289
-#: resources/assets/lang/temp.php:1953
+#: resources/assets/lang/temp.php:1954
 #: utils/kc_helpers.php:642
 msgid "June"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:290
-#: resources/assets/lang/temp.php:1954
+#: resources/assets/lang/temp.php:1955
 #: utils/kc_helpers.php:643
 msgid "July"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:291
-#: resources/assets/lang/temp.php:1955
+#: resources/assets/lang/temp.php:1956
 #: utils/kc_helpers.php:644
 msgid "August"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:292
-#: resources/assets/lang/temp.php:1956
+#: resources/assets/lang/temp.php:1957
 #: utils/kc_helpers.php:645
 msgid "September"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:293
-#: resources/assets/lang/temp.php:1957
+#: resources/assets/lang/temp.php:1958
 #: utils/kc_helpers.php:646
 msgid "October"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:294
-#: resources/assets/lang/temp.php:1958
+#: resources/assets/lang/temp.php:1959
 #: utils/kc_helpers.php:647
 msgid "November"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:295
-#: resources/assets/lang/temp.php:1959
+#: resources/assets/lang/temp.php:1960
 #: utils/kc_helpers.php:648
 msgid "December"
 msgstr ""
@@ -364,18 +364,18 @@ msgid "Doctor Services"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/components/category/tab.php:3
-#: resources/assets/lang/temp.php:1764
+#: resources/assets/lang/temp.php:1765
 msgid "Please select a service from below options"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/components/clinic/tab.php:2
-#: resources/assets/lang/temp.php:1772
+#: resources/assets/lang/temp.php:1773
 #: utils/kc_helpers.php:5309
 msgid "Choose a Clinic"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/components/clinic/tab.php:3
-#: resources/assets/lang/temp.php:1774
+#: resources/assets/lang/temp.php:1775
 msgid "Please select a Clinic you want to visit"
 msgstr ""
 
@@ -384,18 +384,18 @@ msgid "Payment Selection"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/components/confirm/tab-panel.php:2
-#: resources/assets/lang/temp.php:1770
+#: resources/assets/lang/temp.php:1771
 msgid "Confirmation Detail"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/components/confirm/tab.php:2
-#: resources/assets/lang/temp.php:1769
+#: resources/assets/lang/temp.php:1770
 #: utils/kc_helpers.php:5315
 msgid "Confirmation"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/components/confirm/tab.php:3
-#: resources/assets/lang/temp.php:1771
+#: resources/assets/lang/temp.php:1772
 msgid "Confirm your booking"
 msgstr ""
 
@@ -411,16 +411,16 @@ msgstr ""
 msgid "Verification email will receive after payment complete"
 msgstr ""
 
-#: app/baseClasses/bookAppointment/components/confirmed.php:42
+#: app/baseClasses/bookAppointment/components/confirmed.php:45
 msgid "Book More Appointments"
 msgstr ""
 
-#: app/baseClasses/bookAppointment/components/confirmed.php:49
-#: resources/assets/lang/temp.php:1799
+#: app/baseClasses/bookAppointment/components/confirmed.php:52
+#: resources/assets/lang/temp.php:1800
 msgid "Print Detail"
 msgstr ""
 
-#: app/baseClasses/bookAppointment/components/confirmed.php:54
+#: app/baseClasses/bookAppointment/components/confirmed.php:57
 msgid "Add To Calendar"
 msgstr ""
 
@@ -429,7 +429,7 @@ msgid "Time Zone: "
 msgstr ""
 
 #: app/baseClasses/bookAppointment/components/date-time/tab-panel.php:37
-#: resources/assets/lang/temp.php:1777
+#: resources/assets/lang/temp.php:1778
 msgid "Available time slots"
 msgstr ""
 
@@ -438,12 +438,12 @@ msgid "Select doctor session is not available with selected clinic, please selec
 msgstr ""
 
 #: app/baseClasses/bookAppointment/components/date-time/tab.php:3
-#: resources/assets/lang/temp.php:1766
+#: resources/assets/lang/temp.php:1767
 msgid "Select date to see a timeline of available slots"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/components/detail-info/tab-panel.php:8
-#: resources/assets/lang/temp.php:1778
+#: resources/assets/lang/temp.php:1779
 msgid "Enter Details"
 msgstr ""
 
@@ -477,13 +477,13 @@ msgstr ""
 #: app/controllers/KCBookAppointmentWidgetController.php:1274
 #: app/controllers/KCBookAppointmentWidgetController.php:1310
 #: resources/assets/lang/temp.php:228
-#: resources/assets/lang/temp.php:762
-#: resources/assets/lang/temp.php:818
-#: resources/assets/lang/temp.php:854
-#: resources/assets/lang/temp.php:896
-#: resources/assets/lang/temp.php:968
-#: resources/assets/lang/temp.php:1333
-#: resources/assets/lang/temp.php:1776
+#: resources/assets/lang/temp.php:763
+#: resources/assets/lang/temp.php:819
+#: resources/assets/lang/temp.php:855
+#: resources/assets/lang/temp.php:897
+#: resources/assets/lang/temp.php:969
+#: resources/assets/lang/temp.php:1334
+#: resources/assets/lang/temp.php:1777
 msgid "Email"
 msgstr ""
 
@@ -498,7 +498,7 @@ msgstr ""
 #: app/controllers/KCBookAppointmentWidgetController.php:1281
 #: app/controllers/KCBookAppointmentWidgetController.php:1297
 #: resources/assets/lang/temp.php:263
-#: resources/assets/lang/temp.php:1775
+#: resources/assets/lang/temp.php:1776
 msgid "Contact"
 msgstr ""
 
@@ -542,7 +542,7 @@ msgstr ""
 
 #: app/baseClasses/bookAppointment/components/detail-info/tab-panel.php:124
 #: app/baseClasses/registerLogin/registerLogin.php:215
-#: resources/assets/lang/temp.php:1301
+#: resources/assets/lang/temp.php:1302
 msgid "Username or Email"
 msgstr ""
 
@@ -563,24 +563,24 @@ msgid "Forgot Password ?"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/components/detail-info/tab.php:2
-#: resources/assets/lang/temp.php:1767
+#: resources/assets/lang/temp.php:1768
 #: utils/kc_helpers.php:5314
 msgid "User Detail Information"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/components/detail-info/tab.php:3
-#: resources/assets/lang/temp.php:1768
+#: resources/assets/lang/temp.php:1769
 msgid "Please provide you contact details"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/components/doctor/tab.php:2
-#: resources/assets/lang/temp.php:1761
+#: resources/assets/lang/temp.php:1762
 #: utils/kc_helpers.php:5310
 msgid "Choose Your Doctor"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/components/doctor/tab.php:3
-#: resources/assets/lang/temp.php:1762
+#: resources/assets/lang/temp.php:1763
 msgid "pick a specific Doctor to perform your service"
 msgstr ""
 
@@ -622,7 +622,7 @@ msgstr ""
 
 #: app/baseClasses/KCActivate.php:366
 #: resources/assets/lang/temp.php:13
-#: resources/assets/lang/temp.php:1604
+#: resources/assets/lang/temp.php:1605
 msgid "KiviCare - Clinic and Patient Management System (EHR)"
 msgstr ""
 
@@ -640,110 +640,110 @@ msgctxt "admin-menu"
 msgid "KiviCare"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1523
+#: app/baseClasses/KCActivate.php:1522
 msgid "Custom kivicaresms Posts"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1541
+#: app/baseClasses/KCActivate.php:1540
 msgid "Custom kivicaremail Posts"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1560
+#: app/baseClasses/KCActivate.php:1559
 msgid "Custom kivicare Google Event Posts"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1579
+#: app/baseClasses/KCActivate.php:1578
 msgid "Custom kivicare Google Meet Event Posts"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1698
+#: app/baseClasses/KCActivate.php:1697
 msgid "This User account is Not Activated"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1778
+#: app/baseClasses/KCActivate.php:1777
 msgid "Kivicare"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1805
+#: app/baseClasses/KCActivate.php:1804
 msgctxt "Page slug"
 msgid "appointment"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1806
+#: app/baseClasses/KCActivate.php:1805
 msgctxt "Page title"
 msgid "Appointment"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1811
+#: app/baseClasses/KCActivate.php:1810
 msgctxt "Page slug"
 msgid "patient-dashboard"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1812
+#: app/baseClasses/KCActivate.php:1811
 msgctxt "Page title"
 msgid "Patient Dashboard"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1817
+#: app/baseClasses/KCActivate.php:1816
 msgctxt "Page slug"
 msgid "register-login"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1818
+#: app/baseClasses/KCActivate.php:1817
 msgctxt "Page title"
 msgid "Register Login user"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1897
+#: app/baseClasses/KCActivate.php:1896
 msgid "Appointment Booking Page"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1901
+#: app/baseClasses/KCActivate.php:1900
 msgid "Patient Dashboard Page"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1905
+#: app/baseClasses/KCActivate.php:1904
 msgid "User Register Login Page"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1925
-#: app/baseClasses/KCActivate.php:1932
-#: resources/assets/lang/temp.php:1351
+#: app/baseClasses/KCActivate.php:1924
+#: app/baseClasses/KCActivate.php:1931
+#: resources/assets/lang/temp.php:1352
 msgid "Service ID"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:1927
-#: app/baseClasses/KCActivate.php:1934
-#: utils/kc_helpers.php:7862
+#: app/baseClasses/KCActivate.php:1926
+#: app/baseClasses/KCActivate.php:1933
+#: utils/kc_helpers.php:7869
 msgid "Appointment ID"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:2147
-#: resources/assets/lang/temp.php:1208
-#: utils/kc_helpers.php:7133
+#: app/baseClasses/KCActivate.php:2146
+#: resources/assets/lang/temp.php:1209
 #: utils/kc_helpers.php:7140
-#: utils/kc_helpers.php:7270
-#: utils/kc_helpers.php:7379
+#: utils/kc_helpers.php:7147
+#: utils/kc_helpers.php:7277
 #: utils/kc_helpers.php:7386
-#: utils/kc_helpers.php:7460
+#: utils/kc_helpers.php:7393
 #: utils/kc_helpers.php:7467
-#: utils/kc_helpers.php:7540
+#: utils/kc_helpers.php:7474
+#: utils/kc_helpers.php:7547
 msgid "Encounters"
 msgstr ""
 
-#: app/baseClasses/KCActivate.php:2154
+#: app/baseClasses/KCActivate.php:2153
 #: resources/assets/lang/temp.php:248
-#: utils/kc_helpers.php:7147
-#: utils/kc_helpers.php:7284
-#: utils/kc_helpers.php:7393
-#: utils/kc_helpers.php:7474
-#: utils/kc_helpers.php:7644
+#: utils/kc_helpers.php:7154
+#: utils/kc_helpers.php:7291
+#: utils/kc_helpers.php:7400
+#: utils/kc_helpers.php:7481
+#: utils/kc_helpers.php:7651
 msgid "Encounter Templates"
 msgstr ""
 
 #: app/baseClasses/KCBase.php:37
 #: app/controllers/KCPatientMedicalHistoryController.php:56
-#: utils/kc_helpers.php:7603
+#: utils/kc_helpers.php:7610
 msgid "You do not have permission to access"
 msgstr ""
 
@@ -1144,8 +1144,8 @@ msgstr ""
 #: app/baseClasses/popupBookAppointment/bookAppointment.php:68
 #: app/controllers/KCElementorController.php:249
 #: app/controllers/KCElementorController.php:517
-#: resources/assets/lang/temp.php:1030
-#: resources/assets/lang/temp.php:1831
+#: resources/assets/lang/temp.php:1031
+#: resources/assets/lang/temp.php:1832
 msgid "Book Appointment"
 msgstr ""
 
@@ -1247,8 +1247,8 @@ msgstr ""
 
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:805
 #: app/controllers/KCElementorController.php:56
-#: resources/assets/lang/temp.php:788
-#: resources/assets/lang/temp.php:990
+#: resources/assets/lang/temp.php:789
+#: resources/assets/lang/temp.php:991
 msgid "No Doctor Found"
 msgstr ""
 
@@ -1343,8 +1343,8 @@ msgstr ""
 #: app/baseClasses/WidgetHandler.php:257
 #: app/baseClasses/WidgetHandler.php:267
 #: resources/assets/lang/temp.php:218
-#: resources/assets/lang/temp.php:1049
-#: resources/assets/lang/temp.php:1059
+#: resources/assets/lang/temp.php:1050
+#: resources/assets/lang/temp.php:1060
 msgid "Patient"
 msgstr ""
 
@@ -1353,18 +1353,18 @@ msgstr ""
 #: app/controllers/KCBookAppointmentWidgetController.php:751
 #: app/controllers/KCBookAppointmentWidgetController.php:1144
 #: resources/assets/lang/temp.php:215
-#: resources/assets/lang/temp.php:1185
-#: resources/assets/lang/temp.php:1344
-#: resources/assets/lang/temp.php:1745
+#: resources/assets/lang/temp.php:1186
+#: resources/assets/lang/temp.php:1345
+#: resources/assets/lang/temp.php:1746
 msgid "Doctor"
 msgstr ""
 
 #: app/baseClasses/WidgetHandler.php:261
 #: app/baseClasses/WidgetHandler.php:269
 #: resources/assets/lang/temp.php:216
-#: resources/assets/lang/temp.php:919
-#: utils/kc_helpers.php:7177
-#: utils/kc_helpers.php:7307
+#: resources/assets/lang/temp.php:920
+#: utils/kc_helpers.php:7184
+#: utils/kc_helpers.php:7314
 msgid "Receptionist"
 msgstr ""
 
@@ -1424,30 +1424,30 @@ msgstr ""
 #: app/controllers/api/KCPatientAppointmentBooking.php:52
 #: app/controllers/KCAppointmentController.php:284
 #: app/controllers/KCPatientEncounterController.php:264
-#: resources/assets/lang/temp.php:1020
+#: resources/assets/lang/temp.php:1021
 msgid "Status is required"
 msgstr ""
 
 #: app/controllers/api/KCPatientAppointmentBooking.php:53
 #: app/controllers/KCAppointmentController.php:285
 #: app/controllers/KCPatientEncounterController.php:265
-#: resources/assets/lang/temp.php:1047
-#: resources/assets/lang/temp.php:1388
+#: resources/assets/lang/temp.php:1048
+#: resources/assets/lang/temp.php:1389
 msgid "Patient is required"
 msgstr ""
 
 #: app/controllers/api/KCPatientAppointmentBooking.php:54
 #: app/controllers/KCAppointmentController.php:286
-#: app/controllers/KCAppointmentController.php:823
+#: app/controllers/KCAppointmentController.php:827
 #: resources/assets/lang/temp.php:473
 msgid "Clinic is required"
 msgstr ""
 
 #: app/controllers/api/KCPatientAppointmentBooking.php:55
 #: app/controllers/KCAppointmentController.php:287
-#: app/controllers/KCAppointmentController.php:824
+#: app/controllers/KCAppointmentController.php:828
 #: app/controllers/KCPatientEncounterController.php:266
-#: resources/assets/lang/temp.php:1015
+#: resources/assets/lang/temp.php:1016
 msgid "Doctor is required"
 msgstr ""
 
@@ -1464,7 +1464,7 @@ msgid "Appointment list"
 msgstr ""
 
 #: app/controllers/KCAppointmentController.php:388
-#: app/controllers/KCAppointmentController.php:727
+#: app/controllers/KCAppointmentController.php:731
 msgid "This Appointment can not be edited."
 msgstr ""
 
@@ -1477,7 +1477,7 @@ msgid "Appointment Already Booked For This Time Slot."
 msgstr ""
 
 #: app/controllers/KCAppointmentController.php:457
-#: app/controllers/KCAppointmentController.php:637
+#: app/controllers/KCAppointmentController.php:641
 msgid "Appointment booking Failed. Please try again."
 msgstr ""
 
@@ -1485,20 +1485,20 @@ msgstr ""
 msgid "Appointment is Successfully booked."
 msgstr ""
 
-#: app/controllers/KCAppointmentController.php:525
+#: app/controllers/KCAppointmentController.php:529
 #: app/controllers/KCBookAppointmentWidgetController.php:313
 msgid "Failed to generate Video Meeting."
 msgstr ""
 
-#: app/controllers/KCAppointmentController.php:604
+#: app/controllers/KCAppointmentController.php:608
 #: app/controllers/KCBookAppointmentWidgetController.php:402
 msgid "Failed to create razorpay payment link"
 msgstr ""
 
-#: app/controllers/KCAppointmentController.php:658
-#: app/controllers/KCAppointmentController.php:676
-#: app/controllers/KCAppointmentController.php:1286
-#: app/controllers/KCAppointmentController.php:1296
+#: app/controllers/KCAppointmentController.php:662
+#: app/controllers/KCAppointmentController.php:680
+#: app/controllers/KCAppointmentController.php:1290
+#: app/controllers/KCAppointmentController.php:1300
 #: app/controllers/KCClinicController.php:439
 #: app/controllers/KCClinicController.php:470
 #: app/controllers/KCClinicController.php:501
@@ -1511,9 +1511,9 @@ msgstr ""
 #: app/controllers/KCCustomFieldController.php:279
 #: app/controllers/KCCustomFieldController.php:324
 #: app/controllers/KCDoctorController.php:532
-#: app/controllers/KCDoctorController.php:669
-#: app/controllers/KCDoctorController.php:700
-#: app/controllers/KCDoctorController.php:758
+#: app/controllers/KCDoctorController.php:674
+#: app/controllers/KCDoctorController.php:705
+#: app/controllers/KCDoctorController.php:763
 #: app/controllers/KCPatientBillController.php:259
 #: app/controllers/KCPatientBillController.php:314
 #: app/controllers/KCPatientBillController.php:475
@@ -1551,56 +1551,56 @@ msgstr ""
 msgid "Data not found"
 msgstr ""
 
-#: app/controllers/KCAppointmentController.php:673
+#: app/controllers/KCAppointmentController.php:677
 msgid "Appointment is deleted successfully"
 msgstr ""
 
-#: app/controllers/KCAppointmentController.php:780
+#: app/controllers/KCAppointmentController.php:784
 msgid "Appointment status is updated successfully"
 msgstr ""
 
-#: app/controllers/KCAppointmentController.php:841
+#: app/controllers/KCAppointmentController.php:845
 msgid "Appointment slots"
 msgstr ""
 
-#: app/controllers/KCAppointmentController.php:1187
-#: app/controllers/KCAppointmentController.php:1260
-#: resources/assets/lang/temp.php:1005
-#: utils/kc_helpers.php:7126
-#: utils/kc_helpers.php:7263
-#: utils/kc_helpers.php:7372
-#: utils/kc_helpers.php:7453
-#: utils/kc_helpers.php:7533
+#: app/controllers/KCAppointmentController.php:1191
+#: app/controllers/KCAppointmentController.php:1264
+#: resources/assets/lang/temp.php:1006
+#: utils/kc_helpers.php:7133
+#: utils/kc_helpers.php:7270
+#: utils/kc_helpers.php:7379
+#: utils/kc_helpers.php:7460
+#: utils/kc_helpers.php:7540
 msgid "Appointments"
 msgstr ""
 
-#: app/controllers/KCAppointmentController.php:1243
+#: app/controllers/KCAppointmentController.php:1247
 msgid "No appointment found"
 msgstr ""
 
-#: app/controllers/KCAppointmentController.php:1293
+#: app/controllers/KCAppointmentController.php:1297
 msgid "Selected Appointment is deleted successfully"
 msgstr ""
 
-#: app/controllers/KCAppointmentController.php:1333
+#: app/controllers/KCAppointmentController.php:1337
 msgid "Failed to upload Medical report.File Type not supported"
 msgstr ""
 
-#: app/controllers/KCAppointmentController.php:1363
-#: app/controllers/KCAppointmentController.php:1397
+#: app/controllers/KCAppointmentController.php:1367
+#: app/controllers/KCAppointmentController.php:1401
 msgid "Failed to upload Medical report."
 msgstr ""
 
-#: app/controllers/KCAppointmentController.php:1374
+#: app/controllers/KCAppointmentController.php:1378
 #: app/controllers/KCBookAppointmentWidgetController.php:809
 msgid "Uploaded files"
 msgstr ""
 
-#: app/controllers/KCAppointmentController.php:1397
+#: app/controllers/KCAppointmentController.php:1401
 msgid "Medical report uploaded successfully."
 msgstr ""
 
-#: app/controllers/KCAppointmentController.php:1432
+#: app/controllers/KCAppointmentController.php:1436
 msgid "Appointment Date."
 msgstr ""
 
@@ -1744,14 +1744,14 @@ msgstr ""
 
 #: app/controllers/KCBookAppointmentWidgetController.php:719
 #: resources/assets/lang/temp.php:214
-#: resources/assets/lang/temp.php:759
-#: resources/assets/lang/temp.php:814
-#: resources/assets/lang/temp.php:851
-#: resources/assets/lang/temp.php:875
-#: resources/assets/lang/temp.php:894
-#: resources/assets/lang/temp.php:964
-#: resources/assets/lang/temp.php:1135
-#: resources/assets/lang/temp.php:1238
+#: resources/assets/lang/temp.php:760
+#: resources/assets/lang/temp.php:815
+#: resources/assets/lang/temp.php:852
+#: resources/assets/lang/temp.php:876
+#: resources/assets/lang/temp.php:895
+#: resources/assets/lang/temp.php:965
+#: resources/assets/lang/temp.php:1136
+#: resources/assets/lang/temp.php:1239
 #: utils/kc_helpers.php:6303
 msgid "Name"
 msgstr ""
@@ -1759,13 +1759,13 @@ msgstr ""
 #: app/controllers/KCBookAppointmentWidgetController.php:727
 #: resources/assets/lang/temp.php:573
 #: resources/assets/lang/temp.php:601
-#: resources/assets/lang/temp.php:1784
+#: resources/assets/lang/temp.php:1785
 msgid "Number"
 msgstr ""
 
 #: app/controllers/KCBookAppointmentWidgetController.php:748
 #: app/controllers/KCBookAppointmentWidgetController.php:1141
-#: resources/assets/lang/temp.php:1780
+#: resources/assets/lang/temp.php:1781
 msgid "Appointment summary"
 msgstr ""
 
@@ -1782,13 +1782,13 @@ msgstr ""
 #: app/controllers/KCBookAppointmentWidgetController.php:763
 #: app/controllers/KCBookAppointmentWidgetController.php:1156
 #: resources/assets/lang/temp.php:198
-#: resources/assets/lang/temp.php:1408
-#: resources/assets/lang/temp.php:1412
+#: resources/assets/lang/temp.php:1409
+#: resources/assets/lang/temp.php:1413
 #: utils/kc_helpers.php:6152
-#: utils/kc_helpers.php:7184
-#: utils/kc_helpers.php:7314
-#: utils/kc_helpers.php:7416
-#: utils/kc_helpers.php:7490
+#: utils/kc_helpers.php:7191
+#: utils/kc_helpers.php:7321
+#: utils/kc_helpers.php:7423
+#: utils/kc_helpers.php:7497
 msgid "Services"
 msgstr ""
 
@@ -1802,8 +1802,8 @@ msgid "Other info"
 msgstr ""
 
 #: app/controllers/KCBookAppointmentWidgetController.php:847
-#: resources/assets/lang/temp.php:1006
-#: resources/assets/lang/temp.php:1068
+#: resources/assets/lang/temp.php:1007
+#: resources/assets/lang/temp.php:1069
 msgid "Description"
 msgstr ""
 
@@ -1839,7 +1839,7 @@ msgid "yr"
 msgstr ""
 
 #: app/controllers/KCBookAppointmentWidgetController.php:1331
-#: resources/assets/lang/temp.php:1783
+#: resources/assets/lang/temp.php:1784
 msgid "Total Price"
 msgstr ""
 
@@ -1949,7 +1949,7 @@ msgid "Clinic session list"
 msgstr ""
 
 #: app/controllers/KCClinicSessionController.php:162
-#: resources/assets/lang/temp.php:1162
+#: resources/assets/lang/temp.php:1163
 msgid "Selected Doctor is already added in another session"
 msgstr ""
 
@@ -1958,7 +1958,7 @@ msgid "Failed to save clinic session. Please try again."
 msgstr ""
 
 #: app/controllers/KCClinicSessionController.php:230
-#: resources/assets/lang/temp.php:1197
+#: resources/assets/lang/temp.php:1198
 msgid "Doctor session saved successfully"
 msgstr ""
 
@@ -1984,14 +1984,14 @@ msgstr ""
 
 #: app/controllers/KCCustomFieldController.php:244
 #: resources/assets/lang/temp.php:251
-#: resources/assets/lang/temp.php:904
-#: resources/assets/lang/temp.php:1341
+#: resources/assets/lang/temp.php:905
+#: resources/assets/lang/temp.php:1342
 msgid "Active"
 msgstr ""
 
 #: app/controllers/KCCustomFieldController.php:244
 #: resources/assets/lang/temp.php:252
-#: resources/assets/lang/temp.php:1342
+#: resources/assets/lang/temp.php:1343
 msgid "Inactive"
 msgstr ""
 
@@ -2091,7 +2091,7 @@ msgstr ""
 msgid "Failed to save Doctor data."
 msgstr ""
 
-#: app/controllers/KCDoctorController.php:755
+#: app/controllers/KCDoctorController.php:760
 msgid "Doctor has been deleted successfully"
 msgstr ""
 
@@ -2147,7 +2147,7 @@ msgstr ""
 
 #: app/controllers/KCElementorController.php:265
 #: app/controllers/KCElementorController.php:530
-#: resources/assets/lang/temp.php:1593
+#: resources/assets/lang/temp.php:1594
 msgid "Previous"
 msgstr ""
 
@@ -2463,7 +2463,7 @@ msgstr ""
 #: app/controllers/KCPatientBillController.php:77
 #: app/controllers/KCPatientMedicalRecordsController.php:84
 #: app/controllers/KCPatientMedicalRecordsController.php:218
-#: resources/assets/lang/temp.php:1268
+#: resources/assets/lang/temp.php:1269
 msgid "Medical records"
 msgstr ""
 
@@ -2583,7 +2583,7 @@ msgid "Patient encounter delete failed"
 msgstr ""
 
 #: app/controllers/KCPatientEncounterController.php:495
-#: resources/assets/lang/temp.php:1230
+#: resources/assets/lang/temp.php:1231
 msgid "Encounter details"
 msgstr ""
 
@@ -2669,8 +2669,8 @@ msgid "Failed to delete Medical record"
 msgstr ""
 
 #: app/controllers/KCPatientPrescriptionController.php:70
-#: resources/assets/lang/temp.php:1223
-#: utils/kc_helpers.php:7742
+#: resources/assets/lang/temp.php:1224
+#: utils/kc_helpers.php:7749
 msgid "No prescription found"
 msgstr ""
 
@@ -2716,7 +2716,7 @@ msgid "DAYS"
 msgstr ""
 
 #: app/controllers/KCPatientPrescriptionController.php:295
-#: resources/assets/lang/temp.php:1221
+#: resources/assets/lang/temp.php:1222
 #: utils/kc_helpers.php:6306
 msgid "Instruction"
 msgstr ""
@@ -3116,7 +3116,7 @@ msgstr ""
 
 #: resources/assets/lang/temp.php:34
 #: resources/assets/lang/temp.php:433
-#: resources/assets/lang/temp.php:1568
+#: resources/assets/lang/temp.php:1569
 msgid "Press yes to delete"
 msgstr ""
 
@@ -3480,7 +3480,7 @@ msgid "Appointment Module"
 msgstr ""
 
 #: resources/assets/lang/temp.php:125
-#: resources/assets/lang/temp.php:1228
+#: resources/assets/lang/temp.php:1229
 msgid "Encounter Module"
 msgstr ""
 
@@ -3505,7 +3505,7 @@ msgid "Clinical Detail Module"
 msgstr ""
 
 #: resources/assets/lang/temp.php:131
-#: resources/assets/lang/temp.php:1292
+#: resources/assets/lang/temp.php:1293
 msgid "Prescription Module"
 msgstr ""
 
@@ -3587,7 +3587,7 @@ msgstr ""
 
 #: resources/assets/lang/temp.php:151
 #: utils/kc_helpers.php:5487
-#: utils/kc_helpers.php:6660
+#: utils/kc_helpers.php:6659
 msgid "Razorpay"
 msgstr ""
 
@@ -3676,9 +3676,9 @@ msgid "Create Selected Demo User"
 msgstr ""
 
 #: resources/assets/lang/temp.php:173
-#: resources/assets/lang/temp.php:1058
-#: resources/assets/lang/temp.php:1062
-#: resources/assets/lang/temp.php:1246
+#: resources/assets/lang/temp.php:1059
+#: resources/assets/lang/temp.php:1063
+#: resources/assets/lang/temp.php:1247
 msgid "Date"
 msgstr ""
 
@@ -3703,9 +3703,9 @@ msgid "-- Select option --"
 msgstr ""
 
 #: resources/assets/lang/temp.php:179
-#: resources/assets/lang/temp.php:849
-#: resources/assets/lang/temp.php:903
-#: resources/assets/lang/temp.php:1340
+#: resources/assets/lang/temp.php:850
+#: resources/assets/lang/temp.php:904
+#: resources/assets/lang/temp.php:1341
 msgid "All"
 msgstr ""
 
@@ -3722,8 +3722,8 @@ msgid "My Profile"
 msgstr ""
 
 #: resources/assets/lang/temp.php:183
-#: resources/assets/lang/temp.php:1826
-#: resources/assets/lang/temp.php:1833
+#: resources/assets/lang/temp.php:1827
+#: resources/assets/lang/temp.php:1834
 msgid "Change Password"
 msgstr ""
 
@@ -3760,13 +3760,13 @@ msgid "Gender is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:197
-#: resources/assets/lang/temp.php:1755
+#: resources/assets/lang/temp.php:1756
 msgid "Service"
 msgstr ""
 
 #: resources/assets/lang/temp.php:199
 #: resources/assets/lang/temp.php:380
-#: resources/assets/lang/temp.php:1346
+#: resources/assets/lang/temp.php:1347
 msgid "Add Service"
 msgstr ""
 
@@ -3783,12 +3783,12 @@ msgid "Service name"
 msgstr ""
 
 #: resources/assets/lang/temp.php:203
-#: resources/assets/lang/temp.php:1409
+#: resources/assets/lang/temp.php:1410
 msgid "Price"
 msgstr ""
 
 #: resources/assets/lang/temp.php:204
-#: resources/assets/lang/temp.php:1410
+#: resources/assets/lang/temp.php:1411
 msgid "Quantity"
 msgstr ""
 
@@ -3821,14 +3821,14 @@ msgid "Type and press enter to create new service"
 msgstr ""
 
 #: resources/assets/lang/temp.php:210
-#: resources/assets/lang/temp.php:898
-#: resources/assets/lang/temp.php:965
-#: resources/assets/lang/temp.php:1060
-#: resources/assets/lang/temp.php:1066
-#: resources/assets/lang/temp.php:1335
-#: resources/assets/lang/temp.php:1414
-#: resources/assets/lang/temp.php:1426
-#: resources/assets/lang/temp.php:1662
+#: resources/assets/lang/temp.php:899
+#: resources/assets/lang/temp.php:966
+#: resources/assets/lang/temp.php:1061
+#: resources/assets/lang/temp.php:1067
+#: resources/assets/lang/temp.php:1336
+#: resources/assets/lang/temp.php:1415
+#: resources/assets/lang/temp.php:1427
+#: resources/assets/lang/temp.php:1663
 msgid "Status"
 msgstr ""
 
@@ -3837,33 +3837,33 @@ msgid "Change Status"
 msgstr ""
 
 #: resources/assets/lang/temp.php:212
-#: resources/assets/lang/temp.php:768
-#: resources/assets/lang/temp.php:826
-#: resources/assets/lang/temp.php:853
-#: resources/assets/lang/temp.php:899
-#: resources/assets/lang/temp.php:975
-#: resources/assets/lang/temp.php:1069
-#: resources/assets/lang/temp.php:1141
-#: resources/assets/lang/temp.php:1191
-#: resources/assets/lang/temp.php:1248
-#: resources/assets/lang/temp.php:1336
-#: resources/assets/lang/temp.php:1421
-#: resources/assets/lang/temp.php:1559
-#: resources/assets/lang/temp.php:1664
+#: resources/assets/lang/temp.php:769
+#: resources/assets/lang/temp.php:827
+#: resources/assets/lang/temp.php:854
+#: resources/assets/lang/temp.php:900
+#: resources/assets/lang/temp.php:976
+#: resources/assets/lang/temp.php:1070
+#: resources/assets/lang/temp.php:1142
+#: resources/assets/lang/temp.php:1192
+#: resources/assets/lang/temp.php:1249
+#: resources/assets/lang/temp.php:1337
+#: resources/assets/lang/temp.php:1422
+#: resources/assets/lang/temp.php:1560
+#: resources/assets/lang/temp.php:1665
 msgid "Action"
 msgstr ""
 
 #: resources/assets/lang/temp.php:213
-#: resources/assets/lang/temp.php:1427
+#: resources/assets/lang/temp.php:1428
 msgid "Title"
 msgstr ""
 
 #: resources/assets/lang/temp.php:217
-#: resources/assets/lang/temp.php:1546
-#: resources/assets/lang/temp.php:1738
-#: utils/kc_helpers.php:7170
-#: utils/kc_helpers.php:7300
-#: utils/kc_helpers.php:7409
+#: resources/assets/lang/temp.php:1547
+#: resources/assets/lang/temp.php:1739
+#: utils/kc_helpers.php:7177
+#: utils/kc_helpers.php:7307
+#: utils/kc_helpers.php:7416
 msgid "Doctors"
 msgstr ""
 
@@ -3896,7 +3896,7 @@ msgid "Password is required."
 msgstr ""
 
 #: resources/assets/lang/temp.php:233
-#: resources/assets/lang/temp.php:866
+#: resources/assets/lang/temp.php:867
 msgid "Repeat Password"
 msgstr ""
 
@@ -3918,7 +3918,7 @@ msgid "No"
 msgstr ""
 
 #: resources/assets/lang/temp.php:239
-#: resources/assets/lang/temp.php:1739
+#: resources/assets/lang/temp.php:1740
 #: utils/kc_helpers.php:5665
 msgid "Dr."
 msgstr ""
@@ -3936,12 +3936,12 @@ msgid "Close filter"
 msgstr ""
 
 #: resources/assets/lang/temp.php:243
-#: utils/kc_helpers.php:6774
+#: utils/kc_helpers.php:6773
 msgid "Back"
 msgstr ""
 
 #: resources/assets/lang/temp.php:244
-#: resources/assets/lang/temp.php:1396
+#: resources/assets/lang/temp.php:1397
 msgid "Add Encounter Template"
 msgstr ""
 
@@ -3950,7 +3950,7 @@ msgid "Edit Encounter Template"
 msgstr ""
 
 #: resources/assets/lang/temp.php:246
-#: resources/assets/lang/temp.php:1260
+#: resources/assets/lang/temp.php:1261
 msgid "Encounter Template"
 msgstr ""
 
@@ -3959,14 +3959,14 @@ msgid "Patient Encounter"
 msgstr ""
 
 #: resources/assets/lang/temp.php:249
-#: resources/assets/lang/temp.php:740
-#: resources/assets/lang/temp.php:828
-#: resources/assets/lang/temp.php:876
-#: resources/assets/lang/temp.php:961
-#: resources/assets/lang/temp.php:1042
-#: resources/assets/lang/temp.php:1232
-#: resources/assets/lang/temp.php:1322
-#: resources/assets/lang/temp.php:1585
+#: resources/assets/lang/temp.php:741
+#: resources/assets/lang/temp.php:829
+#: resources/assets/lang/temp.php:877
+#: resources/assets/lang/temp.php:962
+#: resources/assets/lang/temp.php:1043
+#: resources/assets/lang/temp.php:1233
+#: resources/assets/lang/temp.php:1323
+#: resources/assets/lang/temp.php:1586
 msgid "Save"
 msgstr ""
 
@@ -3979,7 +3979,7 @@ msgid "Name is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:254
-#: resources/assets/lang/temp.php:1675
+#: resources/assets/lang/temp.php:1676
 msgid "Date is required"
 msgstr ""
 
@@ -3992,10 +3992,10 @@ msgid "Contact information"
 msgstr ""
 
 #: resources/assets/lang/temp.php:257
-#: utils/kc_helpers.php:7219
-#: utils/kc_helpers.php:7349
-#: utils/kc_helpers.php:7430
-#: utils/kc_helpers.php:7504
+#: utils/kc_helpers.php:7226
+#: utils/kc_helpers.php:7356
+#: utils/kc_helpers.php:7437
+#: utils/kc_helpers.php:7511
 msgid "Settings"
 msgstr ""
 
@@ -4040,7 +4040,7 @@ msgid "To"
 msgstr ""
 
 #: resources/assets/lang/temp.php:270
-#: resources/assets/lang/temp.php:1063
+#: resources/assets/lang/temp.php:1064
 msgid "Time"
 msgstr ""
 
@@ -4133,7 +4133,7 @@ msgid "Postal code should be maximum 12 digits"
 msgstr ""
 
 #: resources/assets/lang/temp.php:293
-#: resources/assets/lang/temp.php:1832
+#: resources/assets/lang/temp.php:1833
 msgid "Profile"
 msgstr ""
 
@@ -4230,18 +4230,18 @@ msgid "Basic details"
 msgstr ""
 
 #: resources/assets/lang/temp.php:317
-#: resources/assets/lang/temp.php:1071
-#: resources/assets/lang/temp.php:1851
+#: resources/assets/lang/temp.php:1072
+#: resources/assets/lang/temp.php:1852
 msgid "Close form"
 msgstr ""
 
 #: resources/assets/lang/temp.php:318
-#: resources/assets/lang/temp.php:1583
+#: resources/assets/lang/temp.php:1584
 msgid "Add"
 msgstr ""
 
 #: resources/assets/lang/temp.php:319
-#: resources/assets/lang/temp.php:1147
+#: resources/assets/lang/temp.php:1148
 msgid "Edit"
 msgstr ""
 
@@ -4452,12 +4452,12 @@ msgid "Disabled Patient Clinic Check In  Template"
 msgstr ""
 
 #: resources/assets/lang/temp.php:372
-#: resources/assets/lang/temp.php:1872
+#: resources/assets/lang/temp.php:1873
 msgid "Google Event Template"
 msgstr ""
 
 #: resources/assets/lang/temp.php:373
-#: resources/assets/lang/temp.php:1051
+#: resources/assets/lang/temp.php:1052
 msgid "Upcoming"
 msgstr ""
 
@@ -4466,7 +4466,7 @@ msgid "Completed(check-out)"
 msgstr ""
 
 #: resources/assets/lang/temp.php:375
-#: resources/assets/lang/temp.php:1008
+#: resources/assets/lang/temp.php:1009
 #: utils/kc_helpers.php:6495
 msgid "Cancelled"
 msgstr ""
@@ -4512,13 +4512,13 @@ msgid "All the appointment on selected date will be cancelled."
 msgstr ""
 
 #: resources/assets/lang/temp.php:387
-#: resources/assets/lang/temp.php:761
-#: resources/assets/lang/temp.php:816
-#: resources/assets/lang/temp.php:913
-#: resources/assets/lang/temp.php:967
-#: resources/assets/lang/temp.php:1151
-#: resources/assets/lang/temp.php:1744
-#: utils/kc_helpers.php:7156
+#: resources/assets/lang/temp.php:762
+#: resources/assets/lang/temp.php:817
+#: resources/assets/lang/temp.php:914
+#: resources/assets/lang/temp.php:968
+#: resources/assets/lang/temp.php:1152
+#: resources/assets/lang/temp.php:1745
+#: utils/kc_helpers.php:7163
 msgid "Clinic"
 msgstr ""
 
@@ -4551,8 +4551,8 @@ msgid "Create Add"
 msgstr ""
 
 #: resources/assets/lang/temp.php:395
-#: resources/assets/lang/temp.php:1275
-#: resources/assets/lang/temp.php:1423
+#: resources/assets/lang/temp.php:1276
+#: resources/assets/lang/temp.php:1424
 msgid "DATE"
 msgstr ""
 
@@ -4725,7 +4725,7 @@ msgid "Press yes to delete prescription"
 msgstr ""
 
 #: resources/assets/lang/temp.php:441
-#: resources/assets/lang/temp.php:908
+#: resources/assets/lang/temp.php:909
 msgid "Press yes to delete receptionist"
 msgstr ""
 
@@ -4762,8 +4762,8 @@ msgid "Setting for add event in calendar for patient."
 msgstr ""
 
 #: resources/assets/lang/temp.php:450
-#: resources/assets/lang/temp.php:1274
-#: resources/assets/lang/temp.php:1281
+#: resources/assets/lang/temp.php:1275
+#: resources/assets/lang/temp.php:1282
 msgid "START DATE"
 msgstr ""
 
@@ -4772,13 +4772,13 @@ msgid "Static Data List"
 msgstr ""
 
 #: resources/assets/lang/temp.php:452
-#: resources/assets/lang/temp.php:1645
-#: resources/assets/lang/temp.php:1674
+#: resources/assets/lang/temp.php:1646
+#: resources/assets/lang/temp.php:1675
 msgid "Terms and Condition"
 msgstr ""
 
 #: resources/assets/lang/temp.php:453
-#: resources/assets/lang/temp.php:1428
+#: resources/assets/lang/temp.php:1429
 msgid "Total AMOUNT"
 msgstr ""
 
@@ -4824,7 +4824,7 @@ msgid "Selected Doctor or Clinic is not Available"
 msgstr ""
 
 #: resources/assets/lang/temp.php:465
-#: utils/kc_helpers.php:7240
+#: utils/kc_helpers.php:7247
 msgid "Request Features"
 msgstr ""
 
@@ -5053,7 +5053,7 @@ msgid "This Will Also delete appointments and encounter related with the selecte
 msgstr ""
 
 #: resources/assets/lang/temp.php:523
-#: resources/assets/lang/temp.php:1453
+#: resources/assets/lang/temp.php:1454
 msgid "Custom Field"
 msgstr ""
 
@@ -5078,7 +5078,7 @@ msgid "Get Pro Now"
 msgstr ""
 
 #: resources/assets/lang/temp.php:529
-#: resources/assets/lang/temp.php:1229
+#: resources/assets/lang/temp.php:1230
 #: utils/kc_helpers.php:5924
 msgid "Prescription"
 msgstr ""
@@ -5188,7 +5188,7 @@ msgid "Documentation"
 msgstr ""
 
 #: resources/assets/lang/temp.php:557
-#: utils/kc_helpers.php:7226
+#: utils/kc_helpers.php:7233
 msgid "Get help"
 msgstr ""
 
@@ -5353,7 +5353,7 @@ msgid "Mask"
 msgstr ""
 
 #: resources/assets/lang/temp.php:599
-#: resources/assets/lang/temp.php:663
+#: resources/assets/lang/temp.php:664
 msgid "Filter"
 msgstr ""
 
@@ -5394,4060 +5394,4064 @@ msgid "Image Details"
 msgstr ""
 
 #: resources/assets/lang/temp.php:617
-#: resources/assets/lang/temp.php:1146
+#: resources/assets/lang/temp.php:1147
 msgid "Delete"
 msgstr ""
 
-#: resources/assets/lang/temp.php:620
-msgid "Paypal Settings"
+#: resources/assets/lang/temp.php:618
+msgid "No Result Found"
 msgstr ""
 
 #: resources/assets/lang/temp.php:621
-msgid "Paypal Account Settings"
+msgid "Paypal Settings"
 msgstr ""
 
 #: resources/assets/lang/temp.php:622
-msgid "Paypal Status"
+msgid "Paypal Account Settings"
 msgstr ""
 
 #: resources/assets/lang/temp.php:623
-msgid "Paypal Configration"
+msgid "Paypal Status"
 msgstr ""
 
 #: resources/assets/lang/temp.php:624
-msgid "Client ID"
+msgid "Paypal Configration"
 msgstr ""
 
 #: resources/assets/lang/temp.php:625
-#: resources/assets/lang/temp.php:1917
-msgid "Client Secret"
+msgid "Client ID"
 msgstr ""
 
 #: resources/assets/lang/temp.php:626
-msgid "Mode"
+#: resources/assets/lang/temp.php:1918
+msgid "Client Secret"
 msgstr ""
 
 #: resources/assets/lang/temp.php:627
-msgid "Enter Your Client Id"
+msgid "Mode"
 msgstr ""
 
 #: resources/assets/lang/temp.php:628
-msgid "Enter Your Client Secret"
+msgid "Enter Your Client Id"
 msgstr ""
 
 #: resources/assets/lang/temp.php:629
-msgid "Sandbox"
+msgid "Enter Your Client Secret"
 msgstr ""
 
 #: resources/assets/lang/temp.php:630
-msgid "Live"
+msgid "Sandbox"
 msgstr ""
 
 #: resources/assets/lang/temp.php:631
-msgid "Payment mode is required"
+msgid "Live"
 msgstr ""
 
 #: resources/assets/lang/temp.php:632
-msgid "Client id is required"
+msgid "Payment mode is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:633
-msgid "Client secret is required"
+msgid "Client id is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:634
-msgid "Currency"
+msgid "Client secret is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:635
-msgid "Currency symbol"
+msgid "Currency"
 msgstr ""
 
 #: resources/assets/lang/temp.php:636
-msgid "Currency format"
+msgid "Currency symbol"
 msgstr ""
 
 #: resources/assets/lang/temp.php:637
-msgid "Currency is required"
+msgid "Currency format"
 msgstr ""
 
 #: resources/assets/lang/temp.php:638
-msgid "Price number format"
+msgid "Currency is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:639
-msgid "Price number of decimals"
+msgid "Price number format"
 msgstr ""
 
 #: resources/assets/lang/temp.php:640
+msgid "Price number of decimals"
+msgstr ""
+
+#: resources/assets/lang/temp.php:641
 msgid "Note: The PayPal currency must be the same as the service price currency"
 msgstr ""
 
-#: resources/assets/lang/temp.php:643
-#: utils/kc_helpers.php:7119
-#: utils/kc_helpers.php:7256
-#: utils/kc_helpers.php:7365
-#: utils/kc_helpers.php:7446
-#: utils/kc_helpers.php:7526
+#: resources/assets/lang/temp.php:644
+#: utils/kc_helpers.php:7126
+#: utils/kc_helpers.php:7263
+#: utils/kc_helpers.php:7372
+#: utils/kc_helpers.php:7453
+#: utils/kc_helpers.php:7533
 msgid "Dashboard"
 msgstr ""
 
-#: resources/assets/lang/temp.php:644
+#: resources/assets/lang/temp.php:645
 msgid "Total Patients"
 msgstr ""
 
-#: resources/assets/lang/temp.php:645
+#: resources/assets/lang/temp.php:646
 msgid "Total visited patients"
 msgstr ""
 
-#: resources/assets/lang/temp.php:646
+#: resources/assets/lang/temp.php:647
 msgid "Total Doctors"
 msgstr ""
 
-#: resources/assets/lang/temp.php:647
+#: resources/assets/lang/temp.php:648
 msgid "Total clinic doctors"
 msgstr ""
 
-#: resources/assets/lang/temp.php:648
-msgid "Total Appointments"
-msgstr ""
-
 #: resources/assets/lang/temp.php:649
-msgctxt "dashoard-label"
 msgid "Total Appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:650
-msgid "Total clinic appointments"
+msgctxt "dashoard-label"
+msgid "Total Appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:651
-#: resources/assets/lang/temp.php:1827
-msgid "Latest appointments"
+msgid "Total clinic appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:652
-msgid "Reload"
+#: resources/assets/lang/temp.php:1828
+msgid "Latest appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:653
-msgid "View All"
+msgid "Reload"
 msgstr ""
 
 #: resources/assets/lang/temp.php:654
-msgid "Weekly appointments"
+msgid "View All"
 msgstr ""
 
 #: resources/assets/lang/temp.php:655
-msgid "Weekly total appointments"
+msgid "Weekly appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:656
-msgid "Monthly appointments"
+msgid "Weekly total appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:657
-msgid "Monthly total appointments"
+msgid "Monthly appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:658
-msgid "todays appointment list"
+msgid "Monthly total appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:659
-msgid "All upcoming appointments"
+msgid "todays appointment list"
 msgstr ""
 
 #: resources/assets/lang/temp.php:660
-msgid "Total revenue"
+msgid "All upcoming appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:661
-msgid "Total clinic revenue"
+msgid "Total revenue"
 msgstr ""
 
 #: resources/assets/lang/temp.php:662
+msgid "Total clinic revenue"
+msgstr ""
+
+#: resources/assets/lang/temp.php:663
 msgid "Total generated revenue"
 msgstr ""
 
-#: resources/assets/lang/temp.php:664
+#: resources/assets/lang/temp.php:665
 msgid "Reset"
 msgstr ""
 
-#: resources/assets/lang/temp.php:665
-msgid "Total Today Appointments"
-msgstr ""
-
 #: resources/assets/lang/temp.php:666
-msgctxt "dashoard-label"
 msgid "Total Today Appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:667
-msgid "Total service"
+msgctxt "dashoard-label"
+msgid "Total Today Appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:668
-msgctxt "dashoard-label"
 msgid "Total service"
 msgstr ""
 
 #: resources/assets/lang/temp.php:669
-#: utils/kc_helpers.php:7163
-#: utils/kc_helpers.php:7293
-#: utils/kc_helpers.php:7402
-#: utils/kc_helpers.php:7483
-msgid "Patients"
+msgctxt "dashoard-label"
+msgid "Total service"
 msgstr ""
 
 #: resources/assets/lang/temp.php:670
+#: utils/kc_helpers.php:7170
+#: utils/kc_helpers.php:7300
+#: utils/kc_helpers.php:7409
+#: utils/kc_helpers.php:7490
+msgid "Patients"
+msgstr ""
+
+#: resources/assets/lang/temp.php:671
 msgid "Medical dashboard"
 msgstr ""
 
-#: resources/assets/lang/temp.php:673
-msgid "Doctor name"
-msgstr ""
-
 #: resources/assets/lang/temp.php:674
-#: resources/assets/lang/temp.php:792
-#: resources/assets/lang/temp.php:879
-#: resources/assets/lang/temp.php:914
-msgid " first name"
+msgid "Doctor name"
 msgstr ""
 
 #: resources/assets/lang/temp.php:675
 #: resources/assets/lang/temp.php:793
 #: resources/assets/lang/temp.php:880
 #: resources/assets/lang/temp.php:915
-msgid " last name"
+msgid " first name"
 msgstr ""
 
 #: resources/assets/lang/temp.php:676
 #: resources/assets/lang/temp.php:794
 #: resources/assets/lang/temp.php:881
 #: resources/assets/lang/temp.php:916
-msgid " email"
+msgid " last name"
 msgstr ""
 
 #: resources/assets/lang/temp.php:677
 #: resources/assets/lang/temp.php:795
 #: resources/assets/lang/temp.php:882
 #: resources/assets/lang/temp.php:917
-msgid " contact"
+msgid " email"
 msgstr ""
 
 #: resources/assets/lang/temp.php:678
 #: resources/assets/lang/temp.php:796
 #: resources/assets/lang/temp.php:883
 #: resources/assets/lang/temp.php:918
-msgid " gender"
+msgid " contact"
 msgstr ""
 
 #: resources/assets/lang/temp.php:679
-msgid " specilization"
+#: resources/assets/lang/temp.php:797
+#: resources/assets/lang/temp.php:884
+#: resources/assets/lang/temp.php:919
+msgid " gender"
 msgstr ""
 
 #: resources/assets/lang/temp.php:680
-msgid "Doctor specialization is required"
+msgid " specilization"
 msgstr ""
 
 #: resources/assets/lang/temp.php:681
-msgid "Experience(In Year)"
+msgid "Doctor specialization is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:682
-msgid "Address details"
+msgid "Experience(In Year)"
 msgstr ""
 
 #: resources/assets/lang/temp.php:683
-msgid "Degree"
+msgid "Address details"
 msgstr ""
 
 #: resources/assets/lang/temp.php:684
-msgid "Degree is required"
+msgid "Degree"
 msgstr ""
 
 #: resources/assets/lang/temp.php:685
-msgid "Only alphanumeric characters are allowed for Degree"
+msgid "Degree is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:686
-msgid "University"
+msgid "Only alphanumeric characters are allowed for Degree"
 msgstr ""
 
 #: resources/assets/lang/temp.php:687
-msgid "University is required"
+msgid "University"
 msgstr ""
 
 #: resources/assets/lang/temp.php:688
-msgid "Only alphanumeric characters are allowed for University"
+msgid "University is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:689
-msgid "Year"
+msgid "Only alphanumeric characters are allowed for University"
 msgstr ""
 
 #: resources/assets/lang/temp.php:690
-msgid "-- Select year --"
+msgid "Year"
 msgstr ""
 
 #: resources/assets/lang/temp.php:691
-msgid "Year is required"
+msgid "-- Select year --"
 msgstr ""
 
 #: resources/assets/lang/temp.php:692
-msgid "College/University"
+msgid "Year is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:693
-msgid "API key"
+msgid "College/University"
 msgstr ""
 
 #: resources/assets/lang/temp.php:694
-msgid "API secret"
+msgid "API key"
 msgstr ""
 
 #: resources/assets/lang/temp.php:695
-msgid "API secret is required"
+msgid "API secret"
 msgstr ""
 
 #: resources/assets/lang/temp.php:696
-msgid "API Key is required"
+msgid "API secret is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:697
-msgid "Zoom Configuration guide"
+msgid "API Key is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:698
-#: resources/assets/lang/temp.php:1924
-msgid "Step 1: Sign up or Sign in here"
+msgid "Zoom Configuration guide"
 msgstr ""
 
 #: resources/assets/lang/temp.php:699
 #: resources/assets/lang/temp.php:1925
-msgid "Step 2: Click/Hover on Develop button at the right in navigation bar and click on build app"
+msgid "Step 1: Sign up or Sign in here"
 msgstr ""
 
 #: resources/assets/lang/temp.php:700
-msgid "Step 3: Select JWT and click Create"
+#: resources/assets/lang/temp.php:1926
+msgid "Step 2: Click/Hover on Develop button at the right in navigation bar and click on build app"
 msgstr ""
 
 #: resources/assets/lang/temp.php:701
-msgid "Step 3: Select OAuth and click Create"
+msgid "Step 3: Select JWT and click Create"
 msgstr ""
 
 #: resources/assets/lang/temp.php:702
-msgid "Step 4: Fill the mandatory information and In the App credentials tag you can see API key and API Secret."
+msgid "Step 3: Select OAuth and click Create"
 msgstr ""
 
 #: resources/assets/lang/temp.php:703
-msgid "Step 4: Fill the mandatory information and In the App credentials tag you can see Client ID,Client secret And Redirect URL for OAuth."
+msgid "Step 4: Fill the mandatory information and In the App credentials tag you can see API key and API Secret."
 msgstr ""
 
 #: resources/assets/lang/temp.php:704
-msgid "Step 5: Copy and Paste API key and API secret here and click on save button and you are ready to go."
+msgid "Step 4: Fill the mandatory information and In the App credentials tag you can see Client ID,Client secret And Redirect URL for OAuth."
 msgstr ""
 
 #: resources/assets/lang/temp.php:705
-msgid "Step 5: Copy and Paste Client ID,Client secret And Redirect URL here and click on save button and you are ready to go."
+msgid "Step 5: Copy and Paste API key and API secret here and click on save button and you are ready to go."
 msgstr ""
 
 #: resources/assets/lang/temp.php:706
-msgid "Other detail"
+msgid "Step 5: Copy and Paste Client ID,Client secret And Redirect URL here and click on save button and you are ready to go."
 msgstr ""
 
 #: resources/assets/lang/temp.php:707
-msgid "Consultation Fees"
+msgid "Other detail"
 msgstr ""
 
 #: resources/assets/lang/temp.php:708
-msgid "Video consultation fees"
+msgid "Consultation Fees"
 msgstr ""
 
 #: resources/assets/lang/temp.php:709
-msgid "Doctors fees is required"
+msgid "Video consultation fees"
 msgstr ""
 
 #: resources/assets/lang/temp.php:710
-#: resources/assets/lang/temp.php:1929
-msgid "Zoom market Place portal"
+msgid "Doctors fees is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:711
 #: resources/assets/lang/temp.php:1930
-msgid "Create app"
+msgid "Zoom market Place portal"
 msgstr ""
 
 #: resources/assets/lang/temp.php:712
-msgid "Doctors List"
+#: resources/assets/lang/temp.php:1931
+msgid "Create app"
 msgstr ""
 
 #: resources/assets/lang/temp.php:713
-msgid "Other details"
+msgid "Doctors List"
 msgstr ""
 
 #: resources/assets/lang/temp.php:714
-msgid "Extra detail"
+msgid "Other details"
 msgstr ""
 
 #: resources/assets/lang/temp.php:715
-msgid "Add doctor"
+msgid "Extra detail"
 msgstr ""
 
 #: resources/assets/lang/temp.php:716
-msgid "Edit doctor"
+msgid "Add doctor"
 msgstr ""
 
 #: resources/assets/lang/temp.php:717
-#: resources/assets/lang/temp.php:840
-msgid "Edit profile"
+msgid "Edit doctor"
 msgstr ""
 
 #: resources/assets/lang/temp.php:718
-msgid "Basic information"
+#: resources/assets/lang/temp.php:841
+msgid "Edit profile"
 msgstr ""
 
 #: resources/assets/lang/temp.php:719
-msgid "Basic Settings"
+msgid "Basic information"
 msgstr ""
 
 #: resources/assets/lang/temp.php:720
-#: resources/assets/lang/temp.php:1557
-#: resources/assets/lang/temp.php:1660
-msgid "Type"
+msgid "Basic Settings"
 msgstr ""
 
 #: resources/assets/lang/temp.php:721
-msgid "Type is required"
+#: resources/assets/lang/temp.php:1558
+#: resources/assets/lang/temp.php:1661
+msgid "Type"
 msgstr ""
 
 #: resources/assets/lang/temp.php:722
-msgid "Fees type"
+msgid "Type is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:723
-msgid "Range"
+msgid "Fees type"
 msgstr ""
 
 #: resources/assets/lang/temp.php:724
-msgid "Fixed"
+msgid "Range"
 msgstr ""
 
 #: resources/assets/lang/temp.php:725
-msgid "Fees"
+msgid "Fixed"
 msgstr ""
 
 #: resources/assets/lang/temp.php:726
-msgid "Fees type is required"
+msgid "Fees"
 msgstr ""
 
 #: resources/assets/lang/temp.php:727
-msgid " Doctors fees is required"
+msgid "Fees type is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:728
-msgid "Doctors fees must be greater than zero"
+msgid " Doctors fees is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:729
-msgid "Doctors fees must be between 0 to 1000000000000000000"
+msgid "Doctors fees must be greater than zero"
 msgstr ""
 
 #: resources/assets/lang/temp.php:730
-msgid "Doctors fees minimum fees and maximum fees are required"
+msgid "Doctors fees must be between 0 to 1000000000000000000"
 msgstr ""
 
 #: resources/assets/lang/temp.php:731
-msgid "Doctors fees minimum fees and maximum fees must be greater than zero"
+msgid "Doctors fees minimum fees and maximum fees are required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:732
-msgid "Doctors to fees minimum value must be greater than from fees value."
+msgid "Doctors fees minimum fees and maximum fees must be greater than zero"
 msgstr ""
 
 #: resources/assets/lang/temp.php:733
-msgid "Doctors fees minimum fees and minimum fees must be between 0 to 1000000000000000000"
+msgid "Doctors to fees minimum value must be greater than from fees value."
 msgstr ""
 
 #: resources/assets/lang/temp.php:734
-msgid "Qualification Information"
+msgid "Doctors fees minimum fees and minimum fees must be between 0 to 1000000000000000000"
 msgstr ""
 
 #: resources/assets/lang/temp.php:735
-msgid "Qualification/Speciality details"
+msgid "Qualification Information"
 msgstr ""
 
 #: resources/assets/lang/temp.php:736
-msgid "Doctors working days and sessions"
+msgid "Qualification/Speciality details"
 msgstr ""
 
 #: resources/assets/lang/temp.php:737
-msgid "Working days"
+msgid "Doctors working days and sessions"
 msgstr ""
 
 #: resources/assets/lang/temp.php:738
-msgid "Added charges and doctor selection"
+msgid "Working days"
 msgstr ""
 
 #: resources/assets/lang/temp.php:739
-msgid "Individual doctor field customization"
+msgid "Added charges and doctor selection"
 msgstr ""
 
-#: resources/assets/lang/temp.php:741
-#: resources/assets/lang/temp.php:804
-#: resources/assets/lang/temp.php:874
-#: resources/assets/lang/temp.php:958
-#: resources/assets/lang/temp.php:1607
-#: resources/assets/lang/temp.php:1814
-msgid "Enter first name"
+#: resources/assets/lang/temp.php:740
+msgid "Individual doctor field customization"
 msgstr ""
 
 #: resources/assets/lang/temp.php:742
 #: resources/assets/lang/temp.php:805
-#: resources/assets/lang/temp.php:877
-#: resources/assets/lang/temp.php:1250
+#: resources/assets/lang/temp.php:875
+#: resources/assets/lang/temp.php:959
 #: resources/assets/lang/temp.php:1608
 #: resources/assets/lang/temp.php:1815
-msgid "Enter last name"
+msgid "Enter first name"
 msgstr ""
 
 #: resources/assets/lang/temp.php:743
 #: resources/assets/lang/temp.php:806
 #: resources/assets/lang/temp.php:878
+#: resources/assets/lang/temp.php:1251
 #: resources/assets/lang/temp.php:1609
-#: resources/assets/lang/temp.php:1724
 #: resources/assets/lang/temp.php:1816
-msgid "Enter email"
+msgid "Enter last name"
 msgstr ""
 
 #: resources/assets/lang/temp.php:744
-#: resources/assets/lang/temp.php:808
-#: resources/assets/lang/temp.php:888
-#: resources/assets/lang/temp.php:954
-#: resources/assets/lang/temp.php:1617
-#: resources/assets/lang/temp.php:1820
-msgid "Enter address"
+#: resources/assets/lang/temp.php:807
+#: resources/assets/lang/temp.php:879
+#: resources/assets/lang/temp.php:1610
+#: resources/assets/lang/temp.php:1725
+#: resources/assets/lang/temp.php:1817
+msgid "Enter email"
 msgstr ""
 
 #: resources/assets/lang/temp.php:745
-#: resources/assets/lang/temp.php:811
-#: resources/assets/lang/temp.php:980
-#: resources/assets/lang/temp.php:1619
-#: resources/assets/lang/temp.php:1823
-msgid "Enter country"
+#: resources/assets/lang/temp.php:809
+#: resources/assets/lang/temp.php:889
+#: resources/assets/lang/temp.php:955
+#: resources/assets/lang/temp.php:1618
+#: resources/assets/lang/temp.php:1821
+msgid "Enter address"
 msgstr ""
 
 #: resources/assets/lang/temp.php:746
-#: resources/assets/lang/temp.php:827
-#: resources/assets/lang/temp.php:886
-#: resources/assets/lang/temp.php:950
-#: resources/assets/lang/temp.php:1043
-#: resources/assets/lang/temp.php:1177
-#: resources/assets/lang/temp.php:1235
-#: resources/assets/lang/temp.php:1271
-#: resources/assets/lang/temp.php:1295
-#: resources/assets/lang/temp.php:1352
-#: resources/assets/lang/temp.php:1429
-#: resources/assets/lang/temp.php:1460
-#: resources/assets/lang/temp.php:1623
-#: resources/assets/lang/temp.php:1714
-#: resources/assets/lang/temp.php:1817
-#: resources/assets/lang/temp.php:1818
-msgid "Search"
+#: resources/assets/lang/temp.php:812
+#: resources/assets/lang/temp.php:981
+#: resources/assets/lang/temp.php:1620
+#: resources/assets/lang/temp.php:1824
+msgid "Enter country"
 msgstr ""
 
 #: resources/assets/lang/temp.php:747
-#: resources/assets/lang/temp.php:829
-#: resources/assets/lang/temp.php:1179
-#: resources/assets/lang/temp.php:1234
-#: resources/assets/lang/temp.php:1294
+#: resources/assets/lang/temp.php:828
+#: resources/assets/lang/temp.php:887
+#: resources/assets/lang/temp.php:951
+#: resources/assets/lang/temp.php:1044
+#: resources/assets/lang/temp.php:1178
+#: resources/assets/lang/temp.php:1236
+#: resources/assets/lang/temp.php:1272
+#: resources/assets/lang/temp.php:1296
 #: resources/assets/lang/temp.php:1353
-msgid "Select clinic"
+#: resources/assets/lang/temp.php:1430
+#: resources/assets/lang/temp.php:1461
+#: resources/assets/lang/temp.php:1624
+#: resources/assets/lang/temp.php:1715
+#: resources/assets/lang/temp.php:1818
+#: resources/assets/lang/temp.php:1819
+msgid "Search"
 msgstr ""
 
 #: resources/assets/lang/temp.php:748
-#: resources/assets/lang/temp.php:807
-#: resources/assets/lang/temp.php:1725
-#: resources/assets/lang/temp.php:1819
-msgid "Enter contact"
+#: resources/assets/lang/temp.php:830
+#: resources/assets/lang/temp.php:1180
+#: resources/assets/lang/temp.php:1235
+#: resources/assets/lang/temp.php:1295
+#: resources/assets/lang/temp.php:1354
+msgid "Select clinic"
 msgstr ""
 
 #: resources/assets/lang/temp.php:749
-#: resources/assets/lang/temp.php:830
-#: resources/assets/lang/temp.php:885
-#: resources/assets/lang/temp.php:959
-#: resources/assets/lang/temp.php:1611
-msgid "welcome date"
+#: resources/assets/lang/temp.php:808
+#: resources/assets/lang/temp.php:1726
+#: resources/assets/lang/temp.php:1820
+msgid "Enter contact"
 msgstr ""
 
 #: resources/assets/lang/temp.php:750
 #: resources/assets/lang/temp.php:831
-#: resources/assets/lang/temp.php:1622
-msgid "Doctor specialization"
+#: resources/assets/lang/temp.php:886
+#: resources/assets/lang/temp.php:960
+#: resources/assets/lang/temp.php:1612
+msgid "welcome date"
 msgstr ""
 
 #: resources/assets/lang/temp.php:751
 #: resources/assets/lang/temp.php:832
-msgid "Add Specialization"
+#: resources/assets/lang/temp.php:1623
+msgid "Doctor specialization"
 msgstr ""
 
 #: resources/assets/lang/temp.php:752
 #: resources/assets/lang/temp.php:833
-msgid "Enter experience"
+msgid "Add Specialization"
 msgstr ""
 
 #: resources/assets/lang/temp.php:753
-#: resources/assets/lang/temp.php:812
-#: resources/assets/lang/temp.php:1824
-msgid "Enter pin code"
+#: resources/assets/lang/temp.php:834
+msgid "Enter experience"
 msgstr ""
 
 #: resources/assets/lang/temp.php:754
-#: resources/assets/lang/temp.php:778
-#: resources/assets/lang/temp.php:834
-#: resources/assets/lang/temp.php:1627
-msgid "Enter degree"
+#: resources/assets/lang/temp.php:813
+#: resources/assets/lang/temp.php:1825
+msgid "Enter pin code"
 msgstr ""
 
 #: resources/assets/lang/temp.php:755
 #: resources/assets/lang/temp.php:779
 #: resources/assets/lang/temp.php:835
 #: resources/assets/lang/temp.php:1628
-msgid "Enter university name"
+msgid "Enter degree"
 msgstr ""
 
 #: resources/assets/lang/temp.php:756
+#: resources/assets/lang/temp.php:780
 #: resources/assets/lang/temp.php:836
-msgid "Enter your API key"
+#: resources/assets/lang/temp.php:1629
+msgid "Enter university name"
 msgstr ""
 
 #: resources/assets/lang/temp.php:757
 #: resources/assets/lang/temp.php:837
-msgid "Enter your API secret"
+msgid "Enter your API key"
 msgstr ""
 
 #: resources/assets/lang/temp.php:758
-#: resources/assets/lang/temp.php:813
-#: resources/assets/lang/temp.php:850
-#: resources/assets/lang/temp.php:893
-#: resources/assets/lang/temp.php:963
-#: resources/assets/lang/temp.php:1061
-#: resources/assets/lang/temp.php:1132
-#: resources/assets/lang/temp.php:1184
-#: resources/assets/lang/temp.php:1239
-#: resources/assets/lang/temp.php:1554
-#: resources/assets/lang/temp.php:1657
+#: resources/assets/lang/temp.php:838
+msgid "Enter your API secret"
+msgstr ""
+
+#: resources/assets/lang/temp.php:759
+#: resources/assets/lang/temp.php:814
+#: resources/assets/lang/temp.php:851
+#: resources/assets/lang/temp.php:894
+#: resources/assets/lang/temp.php:964
+#: resources/assets/lang/temp.php:1062
+#: resources/assets/lang/temp.php:1133
+#: resources/assets/lang/temp.php:1185
+#: resources/assets/lang/temp.php:1240
+#: resources/assets/lang/temp.php:1555
+#: resources/assets/lang/temp.php:1658
 msgid "Sr."
 msgstr ""
 
-#: resources/assets/lang/temp.php:760
-#: resources/assets/lang/temp.php:969
+#: resources/assets/lang/temp.php:761
+#: resources/assets/lang/temp.php:970
 msgid "Filter doctor by name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:763
+#: resources/assets/lang/temp.php:764
 msgid "Filter doctor by email"
 msgstr ""
 
-#: resources/assets/lang/temp.php:764
-#: resources/assets/lang/temp.php:855
-#: resources/assets/lang/temp.php:973
+#: resources/assets/lang/temp.php:765
+#: resources/assets/lang/temp.php:856
+#: resources/assets/lang/temp.php:974
 msgid "Mobile"
 msgstr ""
 
-#: resources/assets/lang/temp.php:765
+#: resources/assets/lang/temp.php:766
 msgid "Filter doctor by mobile no"
 msgstr ""
 
-#: resources/assets/lang/temp.php:766
-#: resources/assets/lang/temp.php:856
-#: resources/assets/lang/temp.php:974
-#: resources/assets/lang/temp.php:1300
-#: resources/assets/lang/temp.php:1614
+#: resources/assets/lang/temp.php:767
+#: resources/assets/lang/temp.php:857
+#: resources/assets/lang/temp.php:975
+#: resources/assets/lang/temp.php:1301
+#: resources/assets/lang/temp.php:1615
 msgid "Specialization"
 msgstr ""
 
-#: resources/assets/lang/temp.php:767
-#: resources/assets/lang/temp.php:863
+#: resources/assets/lang/temp.php:768
+#: resources/assets/lang/temp.php:864
 msgid "Filter doctor by specialties"
 msgstr ""
 
-#: resources/assets/lang/temp.php:769
+#: resources/assets/lang/temp.php:770
 msgid "Add Qualification"
 msgstr ""
 
-#: resources/assets/lang/temp.php:770
-#: resources/assets/lang/temp.php:906
-#: resources/assets/lang/temp.php:979
+#: resources/assets/lang/temp.php:771
+#: resources/assets/lang/temp.php:907
+#: resources/assets/lang/temp.php:980
 msgid "Clinic address"
 msgstr ""
 
-#: resources/assets/lang/temp.php:771
-#: resources/assets/lang/temp.php:780
-#: resources/assets/lang/temp.php:809
-#: resources/assets/lang/temp.php:890
-#: resources/assets/lang/temp.php:955
-#: resources/assets/lang/temp.php:981
-#: resources/assets/lang/temp.php:1618
-#: resources/assets/lang/temp.php:1821
+#: resources/assets/lang/temp.php:772
+#: resources/assets/lang/temp.php:781
+#: resources/assets/lang/temp.php:810
+#: resources/assets/lang/temp.php:891
+#: resources/assets/lang/temp.php:956
+#: resources/assets/lang/temp.php:982
+#: resources/assets/lang/temp.php:1619
+#: resources/assets/lang/temp.php:1822
 msgid "Enter city"
 msgstr ""
 
-#: resources/assets/lang/temp.php:772
-#: resources/assets/lang/temp.php:810
-#: resources/assets/lang/temp.php:891
-#: resources/assets/lang/temp.php:1822
+#: resources/assets/lang/temp.php:773
+#: resources/assets/lang/temp.php:811
+#: resources/assets/lang/temp.php:892
+#: resources/assets/lang/temp.php:1823
 msgid "Enter state"
 msgstr ""
 
-#: resources/assets/lang/temp.php:773
-#: resources/assets/lang/temp.php:889
-#: resources/assets/lang/temp.php:956
+#: resources/assets/lang/temp.php:774
+#: resources/assets/lang/temp.php:890
+#: resources/assets/lang/temp.php:957
 msgid "Enter country name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:774
-#: resources/assets/lang/temp.php:892
-#: resources/assets/lang/temp.php:957
-#: resources/assets/lang/temp.php:982
-#: resources/assets/lang/temp.php:1620
-msgid "Enter postal code"
-msgstr ""
-
 #: resources/assets/lang/temp.php:775
-#: resources/assets/lang/temp.php:1624
-msgid "Enter fees"
+#: resources/assets/lang/temp.php:893
+#: resources/assets/lang/temp.php:958
+#: resources/assets/lang/temp.php:983
+#: resources/assets/lang/temp.php:1621
+msgid "Enter postal code"
 msgstr ""
 
 #: resources/assets/lang/temp.php:776
 #: resources/assets/lang/temp.php:1625
-msgid "Min price range"
+msgid "Enter fees"
 msgstr ""
 
 #: resources/assets/lang/temp.php:777
 #: resources/assets/lang/temp.php:1626
+msgid "Min price range"
+msgstr ""
+
+#: resources/assets/lang/temp.php:778
+#: resources/assets/lang/temp.php:1627
 msgid "Max price range"
 msgstr ""
 
-#: resources/assets/lang/temp.php:781
+#: resources/assets/lang/temp.php:782
 msgid "Add qualifiaction"
 msgstr ""
 
-#: resources/assets/lang/temp.php:782
+#: resources/assets/lang/temp.php:783
 msgid "Edit qualification"
 msgstr ""
 
-#: resources/assets/lang/temp.php:783
+#: resources/assets/lang/temp.php:784
 msgid "Google Calender is not connected please"
 msgstr ""
 
-#: resources/assets/lang/temp.php:784
+#: resources/assets/lang/temp.php:785
 msgid "Important! Note"
 msgstr ""
 
-#: resources/assets/lang/temp.php:785
+#: resources/assets/lang/temp.php:786
 msgid "Sign in"
 msgstr ""
 
-#: resources/assets/lang/temp.php:786
+#: resources/assets/lang/temp.php:787
 msgid "Sign in with Google."
 msgstr ""
 
-#: resources/assets/lang/temp.php:787
+#: resources/assets/lang/temp.php:788
 msgid "Save qualification"
 msgstr ""
 
-#: resources/assets/lang/temp.php:791
+#: resources/assets/lang/temp.php:792
 msgid " Patient name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:797
+#: resources/assets/lang/temp.php:798
 msgid "Add patient"
 msgstr ""
 
-#: resources/assets/lang/temp.php:798
+#: resources/assets/lang/temp.php:799
 msgid "Patients Lists"
 msgstr ""
 
-#: resources/assets/lang/temp.php:799
+#: resources/assets/lang/temp.php:800
 msgid "Medical Report"
 msgstr ""
 
-#: resources/assets/lang/temp.php:800
+#: resources/assets/lang/temp.php:801
 msgctxt "patient-report"
 msgid "Add Medical Report"
 msgstr ""
 
-#: resources/assets/lang/temp.php:801
+#: resources/assets/lang/temp.php:802
 msgid "Edit Medical Report"
 msgstr ""
 
-#: resources/assets/lang/temp.php:802
+#: resources/assets/lang/temp.php:803
 msgid "Upload Report"
 msgstr ""
 
-#: resources/assets/lang/temp.php:815
-#: resources/assets/lang/temp.php:859
+#: resources/assets/lang/temp.php:816
+#: resources/assets/lang/temp.php:860
 msgid "Filter patient by name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:817
+#: resources/assets/lang/temp.php:818
 msgid "Filter clinic name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:819
-#: resources/assets/lang/temp.php:860
+#: resources/assets/lang/temp.php:820
+#: resources/assets/lang/temp.php:861
 msgid "Filter patient by email"
 msgstr ""
 
-#: resources/assets/lang/temp.php:820
+#: resources/assets/lang/temp.php:821
 msgid "Mobile No."
 msgstr ""
 
-#: resources/assets/lang/temp.php:821
+#: resources/assets/lang/temp.php:822
 msgid "Filter patient by contact"
 msgstr ""
 
-#: resources/assets/lang/temp.php:822
-#: resources/assets/lang/temp.php:858
-#: resources/assets/lang/temp.php:1813
+#: resources/assets/lang/temp.php:823
+#: resources/assets/lang/temp.php:859
+#: resources/assets/lang/temp.php:1814
 msgid "Blood Group"
 msgstr ""
 
-#: resources/assets/lang/temp.php:823
+#: resources/assets/lang/temp.php:824
 msgid "ARALL"
 msgstr ""
 
-#: resources/assets/lang/temp.php:824
+#: resources/assets/lang/temp.php:825
 msgid "Registered On."
 msgstr ""
 
-#: resources/assets/lang/temp.php:825
+#: resources/assets/lang/temp.php:826
 msgid "Filter patient by Reg. date"
 msgstr ""
 
-#: resources/assets/lang/temp.php:838
+#: resources/assets/lang/temp.php:839
 msgid "Edit Bill"
 msgstr ""
 
-#: resources/assets/lang/temp.php:839
+#: resources/assets/lang/temp.php:840
 msgid "Edit patient"
 msgstr ""
 
-#: resources/assets/lang/temp.php:841
-#: resources/assets/lang/temp.php:1150
-#: resources/assets/lang/temp.php:1199
-#: resources/assets/lang/temp.php:1566
+#: resources/assets/lang/temp.php:842
+#: resources/assets/lang/temp.php:1151
+#: resources/assets/lang/temp.php:1200
+#: resources/assets/lang/temp.php:1567
 msgid "Export CSV"
 msgstr ""
 
-#: resources/assets/lang/temp.php:842
-#: resources/assets/lang/temp.php:1149
-#: resources/assets/lang/temp.php:1200
-#: resources/assets/lang/temp.php:1567
+#: resources/assets/lang/temp.php:843
+#: resources/assets/lang/temp.php:1150
+#: resources/assets/lang/temp.php:1201
+#: resources/assets/lang/temp.php:1568
 msgid "Export Excel"
 msgstr ""
 
-#: resources/assets/lang/temp.php:843
+#: resources/assets/lang/temp.php:844
 msgid "Patient Unique ID"
 msgstr ""
 
-#: resources/assets/lang/temp.php:844
+#: resources/assets/lang/temp.php:845
 msgid "Unique ID"
 msgstr ""
 
-#: resources/assets/lang/temp.php:845
+#: resources/assets/lang/temp.php:846
 msgid "Postfix"
 msgstr ""
 
-#: resources/assets/lang/temp.php:846
+#: resources/assets/lang/temp.php:847
 msgid "Prefix"
 msgstr ""
 
-#: resources/assets/lang/temp.php:847
+#: resources/assets/lang/temp.php:848
 msgid "Patient unique Id Setting"
 msgstr ""
 
-#: resources/assets/lang/temp.php:848
-#: resources/assets/lang/temp.php:1148
-#: resources/assets/lang/temp.php:1363
-#: resources/assets/lang/temp.php:1569
+#: resources/assets/lang/temp.php:849
+#: resources/assets/lang/temp.php:1149
+#: resources/assets/lang/temp.php:1364
+#: resources/assets/lang/temp.php:1570
 msgid "Print"
 msgstr ""
 
-#: resources/assets/lang/temp.php:852
-#: resources/assets/lang/temp.php:895
-#: resources/assets/lang/temp.php:1186
-#: resources/assets/lang/temp.php:1242
+#: resources/assets/lang/temp.php:853
+#: resources/assets/lang/temp.php:896
+#: resources/assets/lang/temp.php:1187
+#: resources/assets/lang/temp.php:1243
 msgid "Clinic Name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:857
-#: resources/assets/lang/temp.php:972
+#: resources/assets/lang/temp.php:858
+#: resources/assets/lang/temp.php:973
 msgid "Registered ON"
 msgstr ""
 
-#: resources/assets/lang/temp.php:861
+#: resources/assets/lang/temp.php:862
 msgid "Filter patient by mobile no"
 msgstr ""
 
-#: resources/assets/lang/temp.php:862
+#: resources/assets/lang/temp.php:863
 msgid "Filter Patient by Date"
 msgstr ""
 
-#: resources/assets/lang/temp.php:864
+#: resources/assets/lang/temp.php:865
 msgid "Enter Username"
 msgstr ""
 
-#: resources/assets/lang/temp.php:865
+#: resources/assets/lang/temp.php:866
 msgid "Enter Password"
 msgstr ""
 
-#: resources/assets/lang/temp.php:867
+#: resources/assets/lang/temp.php:868
 msgid "Enter report name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:868
-#: resources/assets/lang/temp.php:1417
+#: resources/assets/lang/temp.php:869
+#: resources/assets/lang/temp.php:1418
 msgid "Enter title"
 msgstr ""
 
-#: resources/assets/lang/temp.php:869
+#: resources/assets/lang/temp.php:870
 msgid "Enter notes"
 msgstr ""
 
-#: resources/assets/lang/temp.php:870
+#: resources/assets/lang/temp.php:871
 msgid "Check Out or Check In Clinic"
 msgstr ""
 
-#: resources/assets/lang/temp.php:871
+#: resources/assets/lang/temp.php:872
 msgid "Show only numbers in patient unique id"
 msgstr ""
 
-#: resources/assets/lang/temp.php:884
-#: resources/assets/lang/temp.php:977
+#: resources/assets/lang/temp.php:885
+#: resources/assets/lang/temp.php:978
 msgid "Enter contact number"
 msgstr ""
 
-#: resources/assets/lang/temp.php:897
-#: resources/assets/lang/temp.php:1334
+#: resources/assets/lang/temp.php:898
+#: resources/assets/lang/temp.php:1335
 msgid "Mobile No"
 msgstr ""
 
-#: resources/assets/lang/temp.php:900
+#: resources/assets/lang/temp.php:901
 msgid "Filter receptionist by name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:901
+#: resources/assets/lang/temp.php:902
 msgid "Filter receptionist by email"
 msgstr ""
 
-#: resources/assets/lang/temp.php:902
+#: resources/assets/lang/temp.php:903
 msgid "Filter receptionist by mobile no"
 msgstr ""
 
-#: resources/assets/lang/temp.php:905
+#: resources/assets/lang/temp.php:906
 msgid "In Active"
 msgstr ""
 
-#: resources/assets/lang/temp.php:907
-#: resources/assets/lang/temp.php:1734
+#: resources/assets/lang/temp.php:908
+#: resources/assets/lang/temp.php:1735
 msgid "Login user not found"
 msgstr ""
 
-#: resources/assets/lang/temp.php:909
+#: resources/assets/lang/temp.php:910
 msgid "Resend credential"
 msgstr ""
 
-#: resources/assets/lang/temp.php:910
+#: resources/assets/lang/temp.php:911
 msgid "Upload Proifle"
 msgstr ""
 
-#: resources/assets/lang/temp.php:920
+#: resources/assets/lang/temp.php:921
 msgid "Receptionists List"
 msgstr ""
 
-#: resources/assets/lang/temp.php:921
+#: resources/assets/lang/temp.php:922
 msgid "Add receptionist"
 msgstr ""
 
-#: resources/assets/lang/temp.php:922
+#: resources/assets/lang/temp.php:923
 msgid "Clinic name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:923
+#: resources/assets/lang/temp.php:924
 msgid "Clinic information"
 msgstr ""
 
-#: resources/assets/lang/temp.php:924
+#: resources/assets/lang/temp.php:925
 msgid "Clinic Profile"
 msgstr ""
 
-#: resources/assets/lang/temp.php:925
+#: resources/assets/lang/temp.php:926
 msgid "Add clinic"
 msgstr ""
 
-#: resources/assets/lang/temp.php:926
+#: resources/assets/lang/temp.php:927
 msgid "Edit clinic"
 msgstr ""
 
-#: resources/assets/lang/temp.php:927
+#: resources/assets/lang/temp.php:928
 msgid "Admin Profile"
 msgstr ""
 
-#: resources/assets/lang/temp.php:928
+#: resources/assets/lang/temp.php:929
 msgid "Clinic Admin Detail"
 msgstr ""
 
-#: resources/assets/lang/temp.php:929
+#: resources/assets/lang/temp.php:930
 msgid "invalid clinic name format only allow alphabetic value"
 msgstr ""
 
-#: resources/assets/lang/temp.php:930
+#: resources/assets/lang/temp.php:931
 msgid "Clinic name length must be between 2 to 35 characters"
 msgstr ""
 
-#: resources/assets/lang/temp.php:932
+#: resources/assets/lang/temp.php:933
 msgid "Speciality"
 msgstr ""
 
-#: resources/assets/lang/temp.php:933
+#: resources/assets/lang/temp.php:934
 msgid "Specialties"
 msgstr ""
 
-#: resources/assets/lang/temp.php:934
+#: resources/assets/lang/temp.php:935
 msgid "Specialities"
 msgstr ""
 
-#: resources/assets/lang/temp.php:935
+#: resources/assets/lang/temp.php:936
 msgid "Note: Type and press enter to add new specialization"
 msgstr ""
 
-#: resources/assets/lang/temp.php:936
+#: resources/assets/lang/temp.php:937
 msgid "Clinic specialities is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:937
+#: resources/assets/lang/temp.php:938
 msgid "Currency prefix"
 msgstr ""
 
-#: resources/assets/lang/temp.php:938
+#: resources/assets/lang/temp.php:939
 msgid "Currency postfix"
 msgstr ""
 
-#: resources/assets/lang/temp.php:939
+#: resources/assets/lang/temp.php:940
 msgid "Currency decimals"
 msgstr ""
 
-#: resources/assets/lang/temp.php:940
+#: resources/assets/lang/temp.php:941
 msgid "Profile image"
 msgstr ""
 
-#: resources/assets/lang/temp.php:941
+#: resources/assets/lang/temp.php:942
 msgid "Edit profile image"
 msgstr ""
 
-#: resources/assets/lang/temp.php:942
+#: resources/assets/lang/temp.php:943
 msgid "Doctor record not found "
 msgstr ""
 
-#: resources/assets/lang/temp.php:943
+#: resources/assets/lang/temp.php:944
 msgid "Blood group"
 msgstr ""
 
-#: resources/assets/lang/temp.php:944
+#: resources/assets/lang/temp.php:945
 msgid "-- Select blood group --"
 msgstr ""
 
-#: resources/assets/lang/temp.php:945
+#: resources/assets/lang/temp.php:946
 msgid "Update Profile"
 msgstr ""
 
-#: resources/assets/lang/temp.php:946
+#: resources/assets/lang/temp.php:947
 msgid "Clinic List"
 msgstr ""
 
-#: resources/assets/lang/temp.php:947
-#: resources/assets/lang/temp.php:987
-#: resources/assets/lang/temp.php:1612
+#: resources/assets/lang/temp.php:948
+#: resources/assets/lang/temp.php:988
+#: resources/assets/lang/temp.php:1613
 msgid "Enter clinic name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:948
-#: resources/assets/lang/temp.php:976
+#: resources/assets/lang/temp.php:949
+#: resources/assets/lang/temp.php:977
 msgid "Enter email address"
 msgstr ""
 
-#: resources/assets/lang/temp.php:949
-#: resources/assets/lang/temp.php:1610
+#: resources/assets/lang/temp.php:950
+#: resources/assets/lang/temp.php:1611
 msgid "Enter telephone number"
 msgstr ""
 
-#: resources/assets/lang/temp.php:951
-#: resources/assets/lang/temp.php:978
-#: resources/assets/lang/temp.php:1613
-msgid "Clinic specialization"
-msgstr ""
-
 #: resources/assets/lang/temp.php:952
-#: resources/assets/lang/temp.php:983
-#: resources/assets/lang/temp.php:1615
-msgid "Enter currency prefix"
+#: resources/assets/lang/temp.php:979
+#: resources/assets/lang/temp.php:1614
+msgid "Clinic specialization"
 msgstr ""
 
 #: resources/assets/lang/temp.php:953
 #: resources/assets/lang/temp.php:984
 #: resources/assets/lang/temp.php:1616
+msgid "Enter currency prefix"
+msgstr ""
+
+#: resources/assets/lang/temp.php:954
+#: resources/assets/lang/temp.php:985
+#: resources/assets/lang/temp.php:1617
 msgid "Enter currency postfix"
 msgstr ""
 
-#: resources/assets/lang/temp.php:960
+#: resources/assets/lang/temp.php:961
 msgid "Clinic logo"
 msgstr ""
 
-#: resources/assets/lang/temp.php:962
+#: resources/assets/lang/temp.php:963
 msgid "Contact No"
 msgstr ""
 
-#: resources/assets/lang/temp.php:966
+#: resources/assets/lang/temp.php:967
 msgid "Filter clinic by name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:970
+#: resources/assets/lang/temp.php:971
 msgid "Filter clinic by contact number"
 msgstr ""
 
-#: resources/assets/lang/temp.php:971
+#: resources/assets/lang/temp.php:972
 msgid "Filter clinic by specialties"
 msgstr ""
 
-#: resources/assets/lang/temp.php:985
+#: resources/assets/lang/temp.php:986
 msgid "currency decimals"
 msgstr ""
 
-#: resources/assets/lang/temp.php:986
+#: resources/assets/lang/temp.php:987
 msgid "Select decimal"
 msgstr ""
 
-#: resources/assets/lang/temp.php:988
-#: resources/assets/lang/temp.php:1594
+#: resources/assets/lang/temp.php:989
+#: resources/assets/lang/temp.php:1595
 msgid "Add session details"
 msgstr ""
 
-#: resources/assets/lang/temp.php:989
+#: resources/assets/lang/temp.php:990
 msgid "Edit holiday"
 msgstr ""
 
-#: resources/assets/lang/temp.php:991
+#: resources/assets/lang/temp.php:992
 msgid "Edit Session Detail"
 msgstr ""
 
-#: resources/assets/lang/temp.php:992
+#: resources/assets/lang/temp.php:993
 msgid "Save Session Detail"
 msgstr ""
 
-#: resources/assets/lang/temp.php:993
+#: resources/assets/lang/temp.php:994
 msgid "Edit Clinic Profile"
 msgstr ""
 
-#: resources/assets/lang/temp.php:994
+#: resources/assets/lang/temp.php:995
 msgid "Record Not Found"
 msgstr ""
 
-#: resources/assets/lang/temp.php:995
+#: resources/assets/lang/temp.php:996
 msgid "Clinic Not Found"
 msgstr ""
 
-#: resources/assets/lang/temp.php:996
+#: resources/assets/lang/temp.php:997
 msgid "No Speciality Found"
 msgstr ""
 
-#: resources/assets/lang/temp.php:997
+#: resources/assets/lang/temp.php:998
 msgid "Clinic profile updated successfully"
 msgstr ""
 
-#: resources/assets/lang/temp.php:998
+#: resources/assets/lang/temp.php:999
 msgid "Clinic profile not updated successfully"
-msgstr ""
-
-#: resources/assets/lang/temp.php:1001
-#: resources/assets/lang/temp.php:1359
-#: utils/kc_helpers.php:5691
-msgid "Paid"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1002
 #: resources/assets/lang/temp.php:1360
 #: utils/kc_helpers.php:5691
-msgid "Unpaid"
+msgid "Paid"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1003
-msgid "Pending"
+#: resources/assets/lang/temp.php:1361
+#: utils/kc_helpers.php:5691
+msgid "Unpaid"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1004
+msgid "Pending"
+msgstr ""
+
+#: resources/assets/lang/temp.php:1005
 msgid "Appointment"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1007
+#: resources/assets/lang/temp.php:1008
 #: utils/kc_helpers.php:6498
 msgid "Booked"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1009
+#: resources/assets/lang/temp.php:1010
 msgid "Arrived"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1010
+#: resources/assets/lang/temp.php:1011
 msgid "Check in"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1011
+#: resources/assets/lang/temp.php:1012
 msgid "Reschedule Appointment"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1012
+#: resources/assets/lang/temp.php:1013
 msgid "Check out"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1013
+#: resources/assets/lang/temp.php:1014
 msgid "Start"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1014
+#: resources/assets/lang/temp.php:1015
 msgid "Join"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1016
+#: resources/assets/lang/temp.php:1017
 msgid "Visit type is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1017
-#: resources/assets/lang/temp.php:1072
+#: resources/assets/lang/temp.php:1018
+#: resources/assets/lang/temp.php:1073
 msgid "Appointment Date"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1018
+#: resources/assets/lang/temp.php:1019
 msgid "Appointment date is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1019
-#: resources/assets/lang/temp.php:1413
-#: resources/assets/lang/temp.php:1553
-#: resources/assets/lang/temp.php:1655
+#: resources/assets/lang/temp.php:1020
+#: resources/assets/lang/temp.php:1414
+#: resources/assets/lang/temp.php:1554
 #: resources/assets/lang/temp.php:1656
+#: resources/assets/lang/temp.php:1657
 msgid "Select status"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1021
+#: resources/assets/lang/temp.php:1022
 msgid "Available Slot"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1022
-#: resources/assets/lang/temp.php:1732
+#: resources/assets/lang/temp.php:1023
 #: resources/assets/lang/temp.php:1733
+#: resources/assets/lang/temp.php:1734
 msgid "Session"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1023
+#: resources/assets/lang/temp.php:1024
 msgid "No time slots found"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1024
+#: resources/assets/lang/temp.php:1025
 msgid "Time Slot required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1025
+#: resources/assets/lang/temp.php:1026
 msgid "Appointment details"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1026
+#: resources/assets/lang/temp.php:1027
 msgid "Appointment type"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1027
+#: resources/assets/lang/temp.php:1028
 msgid "Completed"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1028
+#: resources/assets/lang/temp.php:1029
 msgid "Appointment Time"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1029
+#: resources/assets/lang/temp.php:1030
 msgid " Appointment time is required."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1031
+#: resources/assets/lang/temp.php:1032
 msgid "Todays Appointment"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1032
+#: resources/assets/lang/temp.php:1033
 msgid "Tomorrows Appointment"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1033
+#: resources/assets/lang/temp.php:1034
 msgid "Appointment Booking"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1034
+#: resources/assets/lang/temp.php:1035
 msgid "Available Appointments On"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1035
+#: resources/assets/lang/temp.php:1036
 msgid "Appointment visit type is required."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1036
+#: resources/assets/lang/temp.php:1037
 #: utils/kc_helpers.php:6542
 msgid "Appointment Detail"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1037
+#: resources/assets/lang/temp.php:1038
 msgid "Save Appointment"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1038
+#: resources/assets/lang/temp.php:1039
 msgid "Appointment List"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1039
+#: resources/assets/lang/temp.php:1040
 msgid "Add Review to doctor"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1040
+#: resources/assets/lang/temp.php:1041
 msgid "Patient rating"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1041
+#: resources/assets/lang/temp.php:1042
 msgid "Ratings"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1044
-#: resources/assets/lang/temp.php:1236
-#: resources/assets/lang/temp.php:1327
+#: resources/assets/lang/temp.php:1045
+#: resources/assets/lang/temp.php:1237
 #: resources/assets/lang/temp.php:1328
-#: resources/assets/lang/temp.php:1718
+#: resources/assets/lang/temp.php:1329
+#: resources/assets/lang/temp.php:1719
 msgid "Select doctor"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1045
+#: resources/assets/lang/temp.php:1046
 msgid "Visit type"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1046
-#: resources/assets/lang/temp.php:1237
+#: resources/assets/lang/temp.php:1047
+#: resources/assets/lang/temp.php:1238
 msgid "Patient type"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1048
+#: resources/assets/lang/temp.php:1049
 msgid "Enter appointment description"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1050
+#: resources/assets/lang/temp.php:1051
 msgid "all"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1052
+#: resources/assets/lang/temp.php:1053
 msgid "past"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1053
-#: resources/assets/lang/temp.php:1178
-#: resources/assets/lang/temp.php:1629
+#: resources/assets/lang/temp.php:1054
+#: resources/assets/lang/temp.php:1179
+#: resources/assets/lang/temp.php:1630
 msgid "Select session doctors"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1054
+#: resources/assets/lang/temp.php:1055
 msgid "Select appointment type"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1055
+#: resources/assets/lang/temp.php:1056
 msgid "Enter something"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1056
+#: resources/assets/lang/temp.php:1057
 msgid "DOCTOR NAME"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1057
+#: resources/assets/lang/temp.php:1058
 msgid "PATIENT NAME"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1064
-#: resources/assets/lang/temp.php:1244
+#: resources/assets/lang/temp.php:1065
+#: resources/assets/lang/temp.php:1245
 msgid "Patient Name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1065
-#: resources/assets/lang/temp.php:1240
-#: utils/kc_helpers.php:7865
+#: resources/assets/lang/temp.php:1066
+#: resources/assets/lang/temp.php:1241
+#: utils/kc_helpers.php:7872
 msgid "Doctor Name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1067
+#: resources/assets/lang/temp.php:1068
 msgid "Visit Type"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1070
+#: resources/assets/lang/temp.php:1071
 msgid "Add appointment"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1073
+#: resources/assets/lang/temp.php:1074
 msgid "Select Date"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1075
+#: resources/assets/lang/temp.php:1076
 msgid "Select Patient"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1076
-#: resources/assets/lang/temp.php:1106
+#: resources/assets/lang/temp.php:1077
+#: resources/assets/lang/temp.php:1107
 msgid "Appointment Setting"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1077
+#: resources/assets/lang/temp.php:1078
 msgid "Booking Restriction"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1078
+#: resources/assets/lang/temp.php:1079
 msgid "Restrict Advance Appointment Booking"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1079
+#: resources/assets/lang/temp.php:1080
 msgid "Appointment Cancellation Buffer"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1080
+#: resources/assets/lang/temp.php:1081
 msgid "To prevent appointments from getting canceled too close to the appointment time by patients, you can set a cancellation buffer."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1081
+#: resources/assets/lang/temp.php:1082
 msgid "Enable Cancellation Buffer"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1082
-#: resources/assets/lang/temp.php:1094
+#: resources/assets/lang/temp.php:1083
+#: resources/assets/lang/temp.php:1095
 msgid "Select Hours"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1083
+#: resources/assets/lang/temp.php:1084
 msgid "Booking Close Before (in Days)"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1084
+#: resources/assets/lang/temp.php:1085
 msgid "Booking Open Before (in Days)"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1085
+#: resources/assets/lang/temp.php:1086
 msgid "Are you sure want save settings?"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1086
+#: resources/assets/lang/temp.php:1087
 msgid "Pre Appointment Restriction Days is Required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1087
+#: resources/assets/lang/temp.php:1088
 msgid "Post Appointment Restriction Days is Required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1088
+#: resources/assets/lang/temp.php:1089
 msgid "Pre Appointment Restriction Days must be greater than zero and less than 365 days"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1089
+#: resources/assets/lang/temp.php:1090
 msgid "Post Appointment Restriction Days must be greater than zero and less than 365 days"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1090
+#: resources/assets/lang/temp.php:1091
 msgid "Appointment File Upload Setting"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1091
+#: resources/assets/lang/temp.php:1092
 msgid "Appointment File Upload"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1092
+#: resources/assets/lang/temp.php:1093
 msgid "Appointment Reminder"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1093
+#: resources/assets/lang/temp.php:1094
 msgid "Email Reminder"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1095
+#: resources/assets/lang/temp.php:1096
 msgid "Sms Reminder (Twilio)"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1096
+#: resources/assets/lang/temp.php:1097
 msgid "Whatsapp Reminder (Twilio)"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1097
+#: resources/assets/lang/temp.php:1098
 msgid "For example, Booking Open Before: 60 days, Booking Close Before: 7 days, As consideration for the current date, The appointment booking opens 60 days ago and closed 7 days ago.  "
 msgstr ""
 
-#: resources/assets/lang/temp.php:1098
+#: resources/assets/lang/temp.php:1099
 msgid "Medical Report Uploading......"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1099
+#: resources/assets/lang/temp.php:1100
 msgid "cron job will run in every 2 minutes and select the appointment in next select hours (Example if you select/save 06:00  cron will job collect all appointment of current date + 6 hours ) and send email/sms/whatsapps accordings to setting notification to patient only once a day."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1100
+#: resources/assets/lang/temp.php:1101
 msgid "Appointment Restriction Post Days Must Be Greater Than Pre Day"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1101
+#: resources/assets/lang/temp.php:1102
 msgid "Appointment Time Format"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1102
+#: resources/assets/lang/temp.php:1103
 msgid "Format Appointment Time in 24 Hours Format"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1103
+#: resources/assets/lang/temp.php:1104
 msgid "Disable multiple delete"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1104
+#: resources/assets/lang/temp.php:1105
 msgid "Enable multiple delete"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1105
+#: resources/assets/lang/temp.php:1106
 msgid "Delete selected appointment"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1107
+#: resources/assets/lang/temp.php:1108
 msgid "Appointment Description"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1108
+#: resources/assets/lang/temp.php:1109
 msgid "Show Patient Info While Save Appointment."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1109
+#: resources/assets/lang/temp.php:1110
 msgid "Start video Call"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1110
+#: resources/assets/lang/temp.php:1111
 msgid "Join video Call"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1111
+#: resources/assets/lang/temp.php:1112
 msgid "Resend Video Conference link"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1112
+#: resources/assets/lang/temp.php:1113
 msgid "view report"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1113
+#: resources/assets/lang/temp.php:1114
 msgid "Select Encounter Templates"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1114
+#: resources/assets/lang/temp.php:1115
 msgid "Allow Same Day Booking Only"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1115
+#: resources/assets/lang/temp.php:1116
 msgctxt "appointment-report"
 msgid "Add Medical Report"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1116
+#: resources/assets/lang/temp.php:1117
 msgctxt "button-label"
 msgid "Booked"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1117
+#: resources/assets/lang/temp.php:1118
 msgctxt "button-label"
 msgid "Check in"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1118
+#: resources/assets/lang/temp.php:1119
 msgctxt "button-label"
 msgid "Check out"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1121
+#: resources/assets/lang/temp.php:1122
 msgid "Schedule"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1122
+#: resources/assets/lang/temp.php:1123
 msgid "Holiday of"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1123
+#: resources/assets/lang/temp.php:1124
 msgid "Module type is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1124
+#: resources/assets/lang/temp.php:1125
 msgid "Schedule date"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1125
+#: resources/assets/lang/temp.php:1126
 msgid "Schedule date is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1126
-#: resources/assets/lang/temp.php:1145
+#: resources/assets/lang/temp.php:1127
+#: resources/assets/lang/temp.php:1146
 msgid "Holiday List"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1127
+#: resources/assets/lang/temp.php:1128
 msgid "Select module type"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1128
-#: resources/assets/lang/temp.php:1545
+#: resources/assets/lang/temp.php:1129
+#: resources/assets/lang/temp.php:1546
 msgid "Select module"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1129
+#: resources/assets/lang/temp.php:1130
 msgid "Select Schedule date"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1130
+#: resources/assets/lang/temp.php:1131
 msgid "doctors"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1133
+#: resources/assets/lang/temp.php:1134
 msgid "Schedule Of"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1134
+#: resources/assets/lang/temp.php:1135
 msgid "Filter Holiday by Schedule"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1136
+#: resources/assets/lang/temp.php:1137
 msgid "Filter Holiday by doctor"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1137
+#: resources/assets/lang/temp.php:1138
 msgid "From Date"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1138
+#: resources/assets/lang/temp.php:1139
 msgid "Filter Holiday by start date"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1139
+#: resources/assets/lang/temp.php:1140
 msgid "To Date"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1140
+#: resources/assets/lang/temp.php:1141
 msgid "Filter Holiday by end date"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1143
-#: resources/assets/lang/temp.php:1562
+#: resources/assets/lang/temp.php:1144
+#: resources/assets/lang/temp.php:1563
 msgid "Are you sure ?"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1144
+#: resources/assets/lang/temp.php:1145
 msgid "Press yes to delete."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1152
+#: resources/assets/lang/temp.php:1153
 msgid "Add holiday"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1153
-#: resources/assets/lang/temp.php:1193
-#: resources/assets/lang/temp.php:1347
+#: resources/assets/lang/temp.php:1154
+#: resources/assets/lang/temp.php:1194
+#: resources/assets/lang/temp.php:1348
 msgid "close form"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1154
+#: resources/assets/lang/temp.php:1155
 msgid "Delete Current Appointment Session"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1155
+#: resources/assets/lang/temp.php:1156
 msgid "Schedule not found"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1156
+#: resources/assets/lang/temp.php:1157
 msgid "This action may delete your doctor's appointments, sessions and holidays."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1159
-#: utils/kc_helpers.php:7191
-#: utils/kc_helpers.php:7321
+#: resources/assets/lang/temp.php:1160
+#: utils/kc_helpers.php:7198
+#: utils/kc_helpers.php:7328
 msgid "Doctor Sessions"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1160
+#: resources/assets/lang/temp.php:1161
 msgid "Session doctor is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1161
+#: resources/assets/lang/temp.php:1162
 msgid "Session is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1163
+#: resources/assets/lang/temp.php:1164
 msgid "Week days"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1164
+#: resources/assets/lang/temp.php:1165
 msgid "Days is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1165
+#: resources/assets/lang/temp.php:1166
 msgid "Selected days already exist in the other session"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1166
+#: resources/assets/lang/temp.php:1167
 msgid "Morning session"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1167
+#: resources/assets/lang/temp.php:1168
 msgid "Start time is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1168
+#: resources/assets/lang/temp.php:1169
 msgid "Start time must be smaller than end time"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1169
+#: resources/assets/lang/temp.php:1170
 msgid "End time is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1170
+#: resources/assets/lang/temp.php:1171
 msgid "End time must be bigger than start time"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1171
+#: resources/assets/lang/temp.php:1172
 msgid "Evening session"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1172
+#: resources/assets/lang/temp.php:1173
 msgid "Start time must be smaller than end time "
 msgstr ""
 
-#: resources/assets/lang/temp.php:1173
+#: resources/assets/lang/temp.php:1174
 msgid "End time must be greater than start time"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1174
+#: resources/assets/lang/temp.php:1175
 msgid "At least one session (morning or evening) must be filled out."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1175
+#: resources/assets/lang/temp.php:1176
 msgid "At least one session start and end time must be filled out."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1176
+#: resources/assets/lang/temp.php:1177
 msgid "This tab helps you to set sessions for individual Doctors"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1180
+#: resources/assets/lang/temp.php:1181
 msgid "Start time"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1181
+#: resources/assets/lang/temp.php:1182
 msgid "End time"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1182
+#: resources/assets/lang/temp.php:1183
 msgid "Filter doctor session by name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1183
+#: resources/assets/lang/temp.php:1184
 msgid "Filter doctor session by clinic"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1187
-#: resources/assets/lang/temp.php:1596
+#: resources/assets/lang/temp.php:1188
+#: resources/assets/lang/temp.php:1597
 msgid "Days"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1188
+#: resources/assets/lang/temp.php:1189
 msgid "Time Slot"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1189
+#: resources/assets/lang/temp.php:1190
 msgid "Morning Session"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1190
+#: resources/assets/lang/temp.php:1191
 msgid "Evening Session"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1192
+#: resources/assets/lang/temp.php:1193
 msgid "Doctor Session"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1194
+#: resources/assets/lang/temp.php:1195
 msgid "Save Session"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1195
+#: resources/assets/lang/temp.php:1196
 msgid "Clinic Session List"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1196
+#: resources/assets/lang/temp.php:1197
 msgid "Doctor session not saved successfully"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1198
+#: resources/assets/lang/temp.php:1199
 msgid "Edit session"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1201
+#: resources/assets/lang/temp.php:1202
 msgid "No speciality Found"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1202
+#: resources/assets/lang/temp.php:1203
 msgid "Save session"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1203
+#: resources/assets/lang/temp.php:1204
 msgid "Clinic Profile Data Not Found"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1206
+#: resources/assets/lang/temp.php:1207
 msgid "Patient extra details"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1207
+#: resources/assets/lang/temp.php:1208
 msgid "Email To Patient"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1209
+#: resources/assets/lang/temp.php:1210
 msgid "Encounter List"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1210
+#: resources/assets/lang/temp.php:1211
 msgid "Encounter dashboard"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1211
+#: resources/assets/lang/temp.php:1212
 msgid "is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1212
+#: resources/assets/lang/temp.php:1213
 msgid "Note: Type and press enter to create new prescription"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1213
+#: resources/assets/lang/temp.php:1214
 msgid "Note: Type and press enter to create new problem"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1214
+#: resources/assets/lang/temp.php:1215
 msgid "Note: Type and press enter to create new observation"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1215
+#: resources/assets/lang/temp.php:1216
 msgid "Select Problem"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1216
+#: resources/assets/lang/temp.php:1217
 msgid "Select Observation"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1217
+#: resources/assets/lang/temp.php:1218
 #: utils/kc_helpers.php:6304
 msgid "Frequency"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1218
+#: resources/assets/lang/temp.php:1219
 msgid "Frequency is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1219
+#: resources/assets/lang/temp.php:1220
 msgid "Duration (In Days)"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1220
+#: resources/assets/lang/temp.php:1221
 msgid "Duration is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1222
+#: resources/assets/lang/temp.php:1223
 #: utils/kc_helpers.php:6305
 msgid "Duration"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1224
+#: resources/assets/lang/temp.php:1225
 msgid "No patient report found"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1225
+#: resources/assets/lang/temp.php:1226
 msgid "Add prescription"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1226
+#: resources/assets/lang/temp.php:1227
 msgid "Encounter Date"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1227
+#: resources/assets/lang/temp.php:1228
 msgid "Encounter date is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1231
+#: resources/assets/lang/temp.php:1232
 msgid "placeholder"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1233
+#: resources/assets/lang/temp.php:1234
 msgid "Enter"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1241
+#: resources/assets/lang/temp.php:1242
 msgid "Filter Encounter by doctor"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1243
+#: resources/assets/lang/temp.php:1244
 msgid "Filter Encounter by clinic name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1245
+#: resources/assets/lang/temp.php:1246
 msgid "Filter Encounter by patient name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1247
+#: resources/assets/lang/temp.php:1248
 msgid "Filter Encounter by date"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1249
+#: resources/assets/lang/temp.php:1250
 msgid "Edit prescription"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1251
+#: resources/assets/lang/temp.php:1252
 msgid "Note: To close the encounter, invoice payment is mandatory"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1252
+#: resources/assets/lang/temp.php:1253
 msgid "Doctor Signature:"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1253
+#: resources/assets/lang/temp.php:1254
 msgid "Select Encounter Template"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1254
+#: resources/assets/lang/temp.php:1255
 msgid "Record Already Available"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1255
+#: resources/assets/lang/temp.php:1256
 msgid "Print Encounter"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1258
+#: resources/assets/lang/temp.php:1259
 msgid "Template Name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1259
+#: resources/assets/lang/temp.php:1260
 msgid "Filter Template Name by name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1263
+#: resources/assets/lang/temp.php:1264
 msgid "Problem type"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1264
+#: resources/assets/lang/temp.php:1265
 msgid "Problem start date is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1265
+#: resources/assets/lang/temp.php:1266
 msgid "Problem start date"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1266
+#: resources/assets/lang/temp.php:1267
 msgid "Problem end date"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1267
+#: resources/assets/lang/temp.php:1268
 msgid "Problem outcome"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1269
+#: resources/assets/lang/temp.php:1270
 msgid "Add medical problems"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1270
+#: resources/assets/lang/temp.php:1271
 msgid "Select problem type"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1272
+#: resources/assets/lang/temp.php:1273
 msgid "Select problem outcome"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1273
+#: resources/assets/lang/temp.php:1274
 msgid "Edit medical record"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1276
+#: resources/assets/lang/temp.php:1277
 msgid "DESCRIPTION"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1277
+#: resources/assets/lang/temp.php:1278
 msgid "END DATE"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1278
+#: resources/assets/lang/temp.php:1279
 msgid "OUTCOME"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1279
+#: resources/assets/lang/temp.php:1280
 msgid "PROBLEM TYPE"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1280
-#: resources/assets/lang/temp.php:1425
+#: resources/assets/lang/temp.php:1281
+#: resources/assets/lang/temp.php:1426
 msgid "Sr. NO"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1282
+#: resources/assets/lang/temp.php:1283
 msgid "Medical record not found"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1283
+#: resources/assets/lang/temp.php:1284
 msgid "Enter Medical Record description"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1286
-#: utils/kc_helpers.php:7212
-#: utils/kc_helpers.php:7342
-#: utils/kc_helpers.php:7554
+#: resources/assets/lang/temp.php:1287
+#: utils/kc_helpers.php:7219
+#: utils/kc_helpers.php:7349
+#: utils/kc_helpers.php:7561
 msgid "Reports"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1287
+#: resources/assets/lang/temp.php:1288
 msgid "View Reports"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1288
+#: resources/assets/lang/temp.php:1289
 msgid "Filter By"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1289
+#: resources/assets/lang/temp.php:1290
 msgid "Clinic Revenue (Overall)"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1290
+#: resources/assets/lang/temp.php:1291
 msgid "Clinic Revenue (Detail)"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1291
+#: resources/assets/lang/temp.php:1292
 msgid "Clinic Doctor Revenue"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1293
+#: resources/assets/lang/temp.php:1294
 msgid "Report is required."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1296
+#: resources/assets/lang/temp.php:1297
 msgid "Select Filter by"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1297
+#: resources/assets/lang/temp.php:1298
 msgctxt "placeholder"
 msgid "Select"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1302
+#: resources/assets/lang/temp.php:1303
 msgid "Please fill in this form to create an account."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1305
+#: resources/assets/lang/temp.php:1306
 msgid "Service List"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1306
+#: resources/assets/lang/temp.php:1307
 msgid "Service category"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1307
+#: resources/assets/lang/temp.php:1308
 msgid "Service category is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1308
+#: resources/assets/lang/temp.php:1309
 msgid "Type and press enter to add new category"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1309
+#: resources/assets/lang/temp.php:1310
 msgid "Doctor is telemed not enabled"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1310
+#: resources/assets/lang/temp.php:1311
 msgid " category"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1311
+#: resources/assets/lang/temp.php:1312
 msgid " name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1312
+#: resources/assets/lang/temp.php:1313
 msgid " charges"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1313
+#: resources/assets/lang/temp.php:1314
 msgid " doctor"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1314
+#: resources/assets/lang/temp.php:1315
 msgid "Service Name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1315
+#: resources/assets/lang/temp.php:1316
 msgid "Service name is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1316
+#: resources/assets/lang/temp.php:1317
 msgid "Service name length should be between 2 to 100 character"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1317
-#: resources/assets/lang/temp.php:1343
+#: resources/assets/lang/temp.php:1318
+#: resources/assets/lang/temp.php:1344
 #: utils/kc_helpers.php:6213
 msgid "Charges"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1318
+#: resources/assets/lang/temp.php:1319
 msgid "service charge from service module. "
 msgstr ""
 
-#: resources/assets/lang/temp.php:1319
+#: resources/assets/lang/temp.php:1320
 msgid "Service charges is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1320
+#: resources/assets/lang/temp.php:1321
 msgid "Service charges should be between 0 to 10000000000"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1321
+#: resources/assets/lang/temp.php:1322
 msgid "Select all"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1323
 #: resources/assets/lang/temp.php:1324
+#: resources/assets/lang/temp.php:1325
 msgid "Select service category"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1325
+#: resources/assets/lang/temp.php:1326
 msgid "Enter service name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1326
+#: resources/assets/lang/temp.php:1327
 msgid "Enter charges"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1329
+#: resources/assets/lang/temp.php:1330
 msgid " Select status"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1330
+#: resources/assets/lang/temp.php:1331
 msgid " Sr."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1331
+#: resources/assets/lang/temp.php:1332
 msgid " Name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1332
+#: resources/assets/lang/temp.php:1333
 msgid " Clinic Name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1337
+#: resources/assets/lang/temp.php:1338
 msgid "Filter service by name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1338
+#: resources/assets/lang/temp.php:1339
 msgid "Filter service by doctor"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1339
+#: resources/assets/lang/temp.php:1340
 msgid "Filter Service by price"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1345
+#: resources/assets/lang/temp.php:1346
 msgid "Category"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1348
+#: resources/assets/lang/temp.php:1349
 msgid "Is this a telemed service ?"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1349
+#: resources/assets/lang/temp.php:1350
 msgid "Service Duration"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1350
+#: resources/assets/lang/temp.php:1351
 msgid "Telemed service is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1356
+#: resources/assets/lang/temp.php:1357
 msgid "Invoice id"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1357
+#: resources/assets/lang/temp.php:1358
 msgid "Created at"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1358
+#: resources/assets/lang/temp.php:1359
 msgid "Payment Status"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1361
+#: resources/assets/lang/temp.php:1362
 msgid "Patient details"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1362
+#: resources/assets/lang/temp.php:1363
 #: utils/kc_helpers.php:6278
 msgid "Amount due"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1364
+#: resources/assets/lang/temp.php:1365
 msgid "Send to patient"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1365
+#: resources/assets/lang/temp.php:1366
 msgid "Service is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1366
+#: resources/assets/lang/temp.php:1367
 msgid "Price is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1367
+#: resources/assets/lang/temp.php:1368
 msgid "Price must be greater than or equal to zero"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1368
+#: resources/assets/lang/temp.php:1369
 msgid "Price must be between 0 to 1000000000000000000"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1369
+#: resources/assets/lang/temp.php:1370
 msgid "Quantity is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1370
+#: resources/assets/lang/temp.php:1371
 msgid "Please add bill items"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1371
+#: resources/assets/lang/temp.php:1372
 msgid "payment link"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1372
+#: resources/assets/lang/temp.php:1373
 msgid "Bill total is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1373
+#: resources/assets/lang/temp.php:1374
 #: utils/kc_helpers.php:6269
 msgid "Discount"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1374
+#: resources/assets/lang/temp.php:1375
 msgid "Discount in amount"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1375
+#: resources/assets/lang/temp.php:1376
 msgid "Discount is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1376
+#: resources/assets/lang/temp.php:1377
 msgid "Discount must be greater than zero"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1377
+#: resources/assets/lang/temp.php:1378
 msgid "Discount must be less than or equal to total bill amount"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1378
+#: resources/assets/lang/temp.php:1379
 msgid "Payable Amount"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1379
+#: resources/assets/lang/temp.php:1380
 msgid "Bill title"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1380
+#: resources/assets/lang/temp.php:1381
 msgid "Bill title is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1381
+#: resources/assets/lang/temp.php:1382
 msgid "Bill items"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1382
+#: resources/assets/lang/temp.php:1383
 msgid "Grand total"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1383
+#: resources/assets/lang/temp.php:1384
 msgid "Grand total is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1384
+#: resources/assets/lang/temp.php:1385
 msgid "Print bill"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1385
-#: utils/kc_helpers.php:7205
-#: utils/kc_helpers.php:7335
-#: utils/kc_helpers.php:7423
-#: utils/kc_helpers.php:7497
-#: utils/kc_helpers.php:7547
+#: resources/assets/lang/temp.php:1386
+#: utils/kc_helpers.php:7212
+#: utils/kc_helpers.php:7342
+#: utils/kc_helpers.php:7430
+#: utils/kc_helpers.php:7504
+#: utils/kc_helpers.php:7554
 msgid "Billing records"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1386
+#: resources/assets/lang/temp.php:1387
 msgid "Add bill"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1387
+#: resources/assets/lang/temp.php:1388
 msgid "Add new bill"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1389
+#: resources/assets/lang/temp.php:1390
 msgid "Close Encounter"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1390
+#: resources/assets/lang/temp.php:1391
 msgid "Close & Checkout"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1391
+#: resources/assets/lang/temp.php:1392
 msgid "Bill Details"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1392
+#: resources/assets/lang/temp.php:1393
 #: utils/kc_helpers.php:6342
 msgid "Other information"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1393
+#: resources/assets/lang/temp.php:1394
 msgid "Patients Encounter List"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1394
+#: resources/assets/lang/temp.php:1395
 msgid "Patients Encounter List Is Empty"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1395
+#: resources/assets/lang/temp.php:1396
 msgid "Encounter Template List"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1397
+#: resources/assets/lang/temp.php:1398
 msgid "Encounter Template Name Required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1398
+#: resources/assets/lang/temp.php:1399
 msgid "Bills"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1399
+#: resources/assets/lang/temp.php:1400
 msgid "Payment Setting"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1400
+#: resources/assets/lang/temp.php:1401
 msgid "Note: If you enable Woocommerce payment. This action may redirect appointments for payment on the default woocommerce cart page with selected appointment services. The appointment will be canceled automatically in case of an unsuccessful payment. (woocommerce redirection is for the patient role only)"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1401
+#: resources/assets/lang/temp.php:1402
 msgid "Woocommerce Payment Gateway"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1402
+#: resources/assets/lang/temp.php:1403
 msgid "Amount"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1403
+#: resources/assets/lang/temp.php:1404
 msgid "Items"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1404
-#: resources/assets/lang/temp.php:1582
+#: resources/assets/lang/temp.php:1405
+#: resources/assets/lang/temp.php:1583
 #: utils/kc_helpers.php:6397
 msgid "Notes"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1405
+#: resources/assets/lang/temp.php:1406
 msgid "Services will be used for invoicing and other future payment related implementations"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1406
+#: resources/assets/lang/temp.php:1407
 msgid "Set currency prefix, postfix, and decimals points."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1407
-#: resources/assets/lang/temp.php:1411
-#: resources/assets/lang/temp.php:1719
+#: resources/assets/lang/temp.php:1408
+#: resources/assets/lang/temp.php:1412
+#: resources/assets/lang/temp.php:1720
 msgid "Select service"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1415
+#: resources/assets/lang/temp.php:1416
 msgid "Enter total_amount"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1416
+#: resources/assets/lang/temp.php:1417
 msgid "Enter discount"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1418
+#: resources/assets/lang/temp.php:1419
 msgid "Add item"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1419
+#: resources/assets/lang/temp.php:1420
 msgid "Add Bill Item"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1420
-#: resources/assets/lang/temp.php:1587
+#: resources/assets/lang/temp.php:1421
+#: resources/assets/lang/temp.php:1588
 msgid "Close Form"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1422
+#: resources/assets/lang/temp.php:1423
 msgid "ACTUAL AMOUNT"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1424
+#: resources/assets/lang/temp.php:1425
 msgid "DISCOUNT"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1430
+#: resources/assets/lang/temp.php:1431
 msgid "Please Enable Payment Gateway And Add Items in Bills"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1431
+#: resources/assets/lang/temp.php:1432
 msgid "Generate invoice"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1432
+#: resources/assets/lang/temp.php:1433
 msgid "Invoice detail"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1433
+#: resources/assets/lang/temp.php:1434
 msgid "Local Payment"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1434
+#: resources/assets/lang/temp.php:1435
 msgid "Generate new bill"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1435
+#: resources/assets/lang/temp.php:1436
 msgid "No encounters found for billing"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1438
+#: resources/assets/lang/temp.php:1439
 msgid "General"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1439
+#: resources/assets/lang/temp.php:1440
 msgid "Holidays"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1440
+#: resources/assets/lang/temp.php:1441
 msgid "Configurations"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1441
+#: resources/assets/lang/temp.php:1442
 msgid "App Configurations"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1442
+#: resources/assets/lang/temp.php:1443
 msgid "One Signal App Configuration (Deprecated)"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1443
+#: resources/assets/lang/temp.php:1444
 msgid "Firebase Cloud Messaging Configuration"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1445
+#: resources/assets/lang/temp.php:1446
 msgid "App ID"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1446
+#: resources/assets/lang/temp.php:1447
 msgid "Enter App ID"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1447
+#: resources/assets/lang/temp.php:1448
 msgid "API Key"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1448
+#: resources/assets/lang/temp.php:1449
 msgid "Enter API Key"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1450
+#: resources/assets/lang/temp.php:1451
 msgid "Email Template"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1451
+#: resources/assets/lang/temp.php:1452
 msgid "SMS/WhatsApp Template"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1452
+#: resources/assets/lang/temp.php:1453
 msgid "Listings"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1454
+#: resources/assets/lang/temp.php:1455
 msgid "Payment"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1455
+#: resources/assets/lang/temp.php:1456
 msgid "New refined settings with various settings like email, invoice, currency, etc."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1456
+#: resources/assets/lang/temp.php:1457
 msgid " Pro Settings "
 msgstr ""
 
-#: resources/assets/lang/temp.php:1457
+#: resources/assets/lang/temp.php:1458
 msgid " Permission Setting "
 msgstr ""
 
-#: resources/assets/lang/temp.php:1458
+#: resources/assets/lang/temp.php:1459
 msgid "Language Settings"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1459
+#: resources/assets/lang/temp.php:1460
 #: utils/kc_helpers.php:902
 msgid "Select Option"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1461
+#: resources/assets/lang/temp.php:1462
 msgid "Enter your ACCOUNT SID"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1462
+#: resources/assets/lang/temp.php:1463
 msgid "Enter your AUTH TOKEN"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1463
+#: resources/assets/lang/temp.php:1464
 msgid "Enter your to number"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1464
+#: resources/assets/lang/temp.php:1465
 msgid "Patient Setting"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1465
+#: resources/assets/lang/temp.php:1466
 msgid "Template Dynamic Keys List(click on button to copy)"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1466
+#: resources/assets/lang/temp.php:1467
 msgid "Click To Copy"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1467
+#: resources/assets/lang/temp.php:1468
 msgid "Key Copied"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1468
+#: resources/assets/lang/temp.php:1469
 msgid "Email Subject"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1470
+#: resources/assets/lang/temp.php:1471
 msgid "Firebase Server Key"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1471
+#: resources/assets/lang/temp.php:1472
 msgid "Client Email"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1472
+#: resources/assets/lang/temp.php:1473
 msgid "Private Key"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1473
+#: resources/assets/lang/temp.php:1474
 msgid "Project Id"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1475
+#: resources/assets/lang/temp.php:1476
 msgid "Content SID"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1476
+#: resources/assets/lang/temp.php:1477
 msgid "Fatch Twillio Template"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1477
+#: resources/assets/lang/temp.php:1478
 msgid "General Settings"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1480
+#: resources/assets/lang/temp.php:1481
 msgid "Theme Settings"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1481
+#: resources/assets/lang/temp.php:1482
 msgid "Site Logo"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1482
+#: resources/assets/lang/temp.php:1483
 msgid "Site Loader"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1483
+#: resources/assets/lang/temp.php:1484
 msgid "Language"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1484
+#: resources/assets/lang/temp.php:1485
 msgid "Theme color"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1485
+#: resources/assets/lang/temp.php:1486
 msgid "RTL Mode"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1486
+#: resources/assets/lang/temp.php:1487
 msgid "on"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1487
+#: resources/assets/lang/temp.php:1488
 msgid "SMS Configuration"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1488
+#: resources/assets/lang/temp.php:1489
 msgid "WhatsApp Configuration"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1489
+#: resources/assets/lang/temp.php:1490
 msgid "ACCOUNT SID"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1490
+#: resources/assets/lang/temp.php:1491
 msgid "AUTH TOKEN"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1491
+#: resources/assets/lang/temp.php:1492
 msgid "PHONE NUMBER"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1492
+#: resources/assets/lang/temp.php:1493
 msgid "Twilio Account Settings"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1493
+#: resources/assets/lang/temp.php:1494
 msgid "Twilo SMS guide"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1494
+#: resources/assets/lang/temp.php:1495
 msgid "Twilo Whatsapp guide"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1495
+#: resources/assets/lang/temp.php:1496
 msgid "Step 1:  You can sign up for a free Twilio trial account here"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1496
+#: resources/assets/lang/temp.php:1497
 msgid "Twilo SMS portal"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1497
+#: resources/assets/lang/temp.php:1498
 msgid "Step 2: To get the Twilio CLI connected to your account. Visit"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1498
+#: resources/assets/lang/temp.php:1499
 msgid "get console"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1499
+#: resources/assets/lang/temp.php:1500
 msgid "and you’ll find your unique Account SID and Auth Token to provide to the CLI."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1500
+#: resources/assets/lang/temp.php:1501
 msgid "Step 3: Copy and Paste ACCOUNT SID  and AUTH TOKEN and click on save button and here you go."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1501
+#: resources/assets/lang/temp.php:1502
 msgid "Step 4 (Optional): To get your first Twilio phone number for sending sms. Visit"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1502
+#: resources/assets/lang/temp.php:1503
 msgid "Important Note: Reciever(doctor/patient) Phone/contact No must be in twillo specific format ([+] [country code] [mobile number] )"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1503
+#: resources/assets/lang/temp.php:1504
 msgid "Please Refer here for more details"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1504
+#: resources/assets/lang/temp.php:1505
 msgid "head on over to the console"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1505
+#: resources/assets/lang/temp.php:1506
 msgid "and you will get phone number to send SMS if you dont want any particular number to send message use your SID"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1506
+#: resources/assets/lang/temp.php:1507
 msgid "Add New Langauge"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1507
+#: resources/assets/lang/temp.php:1508
 msgid "Translate"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1508
+#: resources/assets/lang/temp.php:1509
 msgid "Custom Langauge Translation"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1509
+#: resources/assets/lang/temp.php:1510
 msgid "translating..."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1510
+#: resources/assets/lang/temp.php:1511
 msgid "Select Color"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1511
+#: resources/assets/lang/temp.php:1512
 msgid "Google Account Settings"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1512
+#: resources/assets/lang/temp.php:1513
 msgid "Connect with google"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1513
+#: resources/assets/lang/temp.php:1514
 msgid "Connect with"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1514
+#: resources/assets/lang/temp.php:1515
 msgid "Contact your administrator to activate zoom"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1515
+#: resources/assets/lang/temp.php:1516
 msgid "Please refer the following link for the setup."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1516
+#: resources/assets/lang/temp.php:1517
 msgid "Select Language"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1517
+#: resources/assets/lang/temp.php:1518
 msgid "Include Encounter Clinical Details in Prescription print"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1518
+#: resources/assets/lang/temp.php:1519
 msgid "Hide Encounter Clinical Details To Patient"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1519
+#: resources/assets/lang/temp.php:1520
 msgid "Include Encounter custom fields in Prescription print"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1520
+#: resources/assets/lang/temp.php:1521
 msgid "Copyright Text"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1521
+#: resources/assets/lang/temp.php:1522
 msgid "Change Copyright Text"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1525
+#: resources/assets/lang/temp.php:1526
 msgid "Label name is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1526
+#: resources/assets/lang/temp.php:1527
 msgid "Label name allows only alphabetic value"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1527
+#: resources/assets/lang/temp.php:1528
 msgid "Where it looks like"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1528
+#: resources/assets/lang/temp.php:1529
 msgid "It shows in doctor creation form"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1529
+#: resources/assets/lang/temp.php:1530
 msgid "It shows in patient encounter dashboard"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1530
+#: resources/assets/lang/temp.php:1531
 msgid "It shows in Appointment dashboard"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1531
+#: resources/assets/lang/temp.php:1532
 msgid "It shows in patient creation form"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1532
+#: resources/assets/lang/temp.php:1533
 msgid "Field name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1533
+#: resources/assets/lang/temp.php:1534
 msgid "Invalid label name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1534
+#: resources/assets/lang/temp.php:1535
 msgid "Label is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1535
+#: resources/assets/lang/temp.php:1536
 msgid "Field name is already used."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1536
+#: resources/assets/lang/temp.php:1537
 msgid "Input Type"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1537
+#: resources/assets/lang/temp.php:1538
 msgid "Input type is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1538
+#: resources/assets/lang/temp.php:1539
 msgid "Placeholder"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1539
+#: resources/assets/lang/temp.php:1540
 msgid "Options"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1540
+#: resources/assets/lang/temp.php:1541
 msgid "Validation"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1541
+#: resources/assets/lang/temp.php:1542
 msgid "Mandatory field"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1542
+#: resources/assets/lang/temp.php:1543
 msgid "Custom Field List"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1543
+#: resources/assets/lang/temp.php:1544
 msgid "Add custom field"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1544
+#: resources/assets/lang/temp.php:1545
 msgid "Module"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1548
+#: resources/assets/lang/temp.php:1549
 msgid "Enter field label"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1549
+#: resources/assets/lang/temp.php:1550
 msgid "Select input type"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1550
+#: resources/assets/lang/temp.php:1551
 msgid "Enter placeholder"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1551
+#: resources/assets/lang/temp.php:1552
 msgid "Add this as new option"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1552
+#: resources/assets/lang/temp.php:1553
 msgid "Search or add a option"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1555
+#: resources/assets/lang/temp.php:1556
 msgid "Field"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1556
+#: resources/assets/lang/temp.php:1557
 msgid "Filter custom field by name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1558
+#: resources/assets/lang/temp.php:1559
 msgid "Filter custom field by type"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1560
+#: resources/assets/lang/temp.php:1561
 msgid "Add field"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1561
+#: resources/assets/lang/temp.php:1562
 msgid "Add new field"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1563
+#: resources/assets/lang/temp.php:1564
 msgid "Doctor profile data not found"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1564
+#: resources/assets/lang/temp.php:1565
 msgid "Edit custom field"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1565
+#: resources/assets/lang/temp.php:1566
 msgid "Edit field"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1570
-#: resources/assets/lang/temp.php:1735
+#: resources/assets/lang/temp.php:1571
+#: resources/assets/lang/temp.php:1736
 msgid "Record not found"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1571
+#: resources/assets/lang/temp.php:1572
 msgid "Save field"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1572
-#: resources/assets/lang/temp.php:1650
+#: resources/assets/lang/temp.php:1573
+#: resources/assets/lang/temp.php:1651
 msgid "Label"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1576
+#: resources/assets/lang/temp.php:1577
 msgid "Edit custom form"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1580
+#: resources/assets/lang/temp.php:1581
 #: utils/kc_helpers.php:6387
 msgid "Problems"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1581
+#: resources/assets/lang/temp.php:1582
 #: utils/kc_helpers.php:6392
 msgid "Observations"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1584
+#: resources/assets/lang/temp.php:1585
 msgid "Add Prescription"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1586
+#: resources/assets/lang/temp.php:1587
 #: utils/kc_helpers.php:6350
 msgid "Clinical Detail"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1588
+#: resources/assets/lang/temp.php:1589
 msgid "Add encounter"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1589
+#: resources/assets/lang/temp.php:1590
 msgid "Enter Encounter Template Name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1590
+#: resources/assets/lang/temp.php:1591
 msgid "Enter Template Name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1595
+#: resources/assets/lang/temp.php:1596
 msgid "Session doctors"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1597
+#: resources/assets/lang/temp.php:1598
 msgid "No sessions found"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1598
+#: resources/assets/lang/temp.php:1599
 msgid "Time slot (in minute)"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1599
+#: resources/assets/lang/temp.php:1600
 msgid "Open time"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1600
+#: resources/assets/lang/temp.php:1601
 msgid "Close time"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1601
+#: resources/assets/lang/temp.php:1602
 msgid "Session demo"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1602
+#: resources/assets/lang/temp.php:1603
 msgid "Invalid time slot found. invalid slot time is "
 msgstr ""
 
-#: resources/assets/lang/temp.php:1603
+#: resources/assets/lang/temp.php:1604
 msgid "Doctor list"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1605
-#: resources/assets/lang/temp.php:1862
+#: resources/assets/lang/temp.php:1606
+#: resources/assets/lang/temp.php:1863
 msgid "Prev"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1606
+#: resources/assets/lang/temp.php:1607
 msgid "Enter your current password"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1621
-#: resources/assets/lang/temp.php:1722
+#: resources/assets/lang/temp.php:1622
+#: resources/assets/lang/temp.php:1723
 msgid "Enter password"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1630
+#: resources/assets/lang/temp.php:1631
 msgid "Select start time"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1631
+#: resources/assets/lang/temp.php:1632
 msgid "Select end time"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1634
+#: resources/assets/lang/temp.php:1635
 msgid "Send test email"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1635
+#: resources/assets/lang/temp.php:1636
 msgid "Test sender email is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1636
+#: resources/assets/lang/temp.php:1637
 msgid "Test content"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1637
+#: resources/assets/lang/temp.php:1638
 msgid "Test content is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1638
+#: resources/assets/lang/temp.php:1639
 msgid "Enable/Disable email notification."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1639
+#: resources/assets/lang/temp.php:1640
 msgid "403 | forbidden"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1640
+#: resources/assets/lang/temp.php:1641
 msgid "Enter email Id"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1644
+#: resources/assets/lang/temp.php:1645
 msgid "Listing Data"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1646
+#: resources/assets/lang/temp.php:1647
 msgid "New Enhanced Filters and view"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1647
+#: resources/assets/lang/temp.php:1648
 msgid "The booking widget is updated"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1648
+#: resources/assets/lang/temp.php:1649
 msgid "Visiting Type is replaced with services (please check service tab)"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1649
+#: resources/assets/lang/temp.php:1650
 msgid "Appointment check-in and check-out flow updated"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1651
+#: resources/assets/lang/temp.php:1652
 msgid "Add List Data"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1652
+#: resources/assets/lang/temp.php:1653
 msgid "Enter data label"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1653
 #: resources/assets/lang/temp.php:1654
+#: resources/assets/lang/temp.php:1655
 msgid "Select type"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1658
+#: resources/assets/lang/temp.php:1659
 msgctxt "static data label"
 msgid "Name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1659
+#: resources/assets/lang/temp.php:1660
 msgid "Filter by name"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1661
+#: resources/assets/lang/temp.php:1662
 msgid "Filter by type"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1663
+#: resources/assets/lang/temp.php:1664
 msgid "Filter by status"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1665
+#: resources/assets/lang/temp.php:1666
 msgid "Static data not found"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1666
+#: resources/assets/lang/temp.php:1667
 msgid "prescription medicine"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1667
+#: resources/assets/lang/temp.php:1668
 msgid "clinical problems"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1668
+#: resources/assets/lang/temp.php:1669
 msgid "clinical observations"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1669
+#: resources/assets/lang/temp.php:1670
 msgid "specialization"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1672
+#: resources/assets/lang/temp.php:1673
 msgid "Doctor not found"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1673
+#: resources/assets/lang/temp.php:1674
 msgid "Zoom configuration"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1676
+#: resources/assets/lang/temp.php:1677
 msgid "File is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1677
+#: resources/assets/lang/temp.php:1678
 msgid "Current password"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1678
+#: resources/assets/lang/temp.php:1679
 msgid "Current password is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1679
-#: resources/assets/lang/temp.php:1842
+#: resources/assets/lang/temp.php:1680
+#: resources/assets/lang/temp.php:1843
 msgid "New password"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1680
+#: resources/assets/lang/temp.php:1681
 msgid "Appointment info"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1681
+#: resources/assets/lang/temp.php:1682
 msgid "Available slots"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1682
+#: resources/assets/lang/temp.php:1683
 msgid "Service Detail"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1683
+#: resources/assets/lang/temp.php:1684
 msgid "No service detail found."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1684
+#: resources/assets/lang/temp.php:1685
 msgid "Book Now"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1685
+#: resources/assets/lang/temp.php:1686
 msgid "Registration successful please check your email"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1686
+#: resources/assets/lang/temp.php:1687
 msgid "more detail ..."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1687
+#: resources/assets/lang/temp.php:1688
 msgid "Username or email is required."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1688
+#: resources/assets/lang/temp.php:1689
 msgid "New password is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1689
-#: resources/assets/lang/temp.php:1837
+#: resources/assets/lang/temp.php:1690
+#: resources/assets/lang/temp.php:1838
 msgid "Confirm password"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1690
+#: resources/assets/lang/temp.php:1691
 msgid "Confirm password is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1691
+#: resources/assets/lang/temp.php:1692
 msgid "New password and Confirm password doest match"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1692
-#: utils/kc_helpers.php:7519
+#: resources/assets/lang/temp.php:1693
+#: utils/kc_helpers.php:7526
 msgid "Home"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1693
+#: resources/assets/lang/temp.php:1694
 msgid "Change Password "
 msgstr ""
 
-#: resources/assets/lang/temp.php:1694
+#: resources/assets/lang/temp.php:1695
 msgid "Logging out ...."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1695
+#: resources/assets/lang/temp.php:1696
 msgid "Total Visits"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1696
+#: resources/assets/lang/temp.php:1697
 msgid "Upcoming Visits"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1697
+#: resources/assets/lang/temp.php:1698
 msgid "Example Component"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1698
+#: resources/assets/lang/temp.php:1699
 msgid "Other than this many more fine-tunings and tweaks are done. Please email at"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1699
+#: resources/assets/lang/temp.php:1700
 msgid "hello@iqonic.design"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1700
+#: resources/assets/lang/temp.php:1701
 msgid "if you face any issues with the update."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1701
+#: resources/assets/lang/temp.php:1702
 msgid "After great user feedback, We have some major changes released in this update."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1702
+#: resources/assets/lang/temp.php:1703
 msgid "Important! Major Version update!! (V2.0.1)"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1703
+#: resources/assets/lang/temp.php:1704
 msgid "Replace appointment"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1704
+#: resources/assets/lang/temp.php:1705
 msgid "option as"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1705
+#: resources/assets/lang/temp.php:1706
 msgid "service type"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1706
+#: resources/assets/lang/temp.php:1707
 msgid "you have to add charges for"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1707
+#: resources/assets/lang/temp.php:1708
 msgid "Can Manage individual doctors"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1708
+#: resources/assets/lang/temp.php:1709
 msgid "Test email"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1709
+#: resources/assets/lang/temp.php:1710
 msgid "Send test Email"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1710
+#: resources/assets/lang/temp.php:1711
 msgid "Send test Sms"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1711
+#: resources/assets/lang/temp.php:1712
 msgid "Send test Whatsapp"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1712
+#: resources/assets/lang/temp.php:1713
 msgid "Morning"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1713
+#: resources/assets/lang/temp.php:1714
 msgid "Evening"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1715
+#: resources/assets/lang/temp.php:1716
 msgid "Enter description"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1716
+#: resources/assets/lang/temp.php:1717
 msgid "Clinics"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1717
+#: resources/assets/lang/temp.php:1718
 msgid "Roles"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1720
+#: resources/assets/lang/temp.php:1721
 msgid "Enter username or email"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1721
+#: resources/assets/lang/temp.php:1722
 msgid "Enter firstname"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1723
+#: resources/assets/lang/temp.php:1724
 msgid "Enter lastname"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1726
+#: resources/assets/lang/temp.php:1727
 msgid "Enter current password"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1727
+#: resources/assets/lang/temp.php:1728
 msgid "Enter new password"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1728
-#: resources/assets/lang/temp.php:1841
+#: resources/assets/lang/temp.php:1729
+#: resources/assets/lang/temp.php:1842
 msgid "Enter confirm password"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1729
-msgid "Patient Info"
-msgstr ""
-
 #: resources/assets/lang/temp.php:1730
-#: resources/assets/lang/temp.php:1829
-msgid "Select doctor to get appointments slots."
+msgid "Patient Info"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1731
 #: resources/assets/lang/temp.php:1830
+msgid "Select doctor to get appointments slots."
+msgstr ""
+
+#: resources/assets/lang/temp.php:1732
+#: resources/assets/lang/temp.php:1831
 msgid "Sorry, No slots available of this doctor on selected day."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1736
+#: resources/assets/lang/temp.php:1737
 msgid "Admin can not view the widget. Only patients can view the widget. Please open this page in incognito mode or use another browser without an admin login."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1737
+#: resources/assets/lang/temp.php:1738
 msgid "Summary"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1740
+#: resources/assets/lang/temp.php:1741
 msgid "Back To Home Page"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1743
+#: resources/assets/lang/temp.php:1744
 msgid "Widget Setting"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1746
+#: resources/assets/lang/temp.php:1747
 msgid "Show clinic"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1747
+#: resources/assets/lang/temp.php:1748
 msgid "Show clinic image"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1748
+#: resources/assets/lang/temp.php:1749
 msgid "Show clinic address"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1749
+#: resources/assets/lang/temp.php:1750
 msgid "Contact Details"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1750
+#: resources/assets/lang/temp.php:1751
 msgid "Show doctor image"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1751
+#: resources/assets/lang/temp.php:1752
 msgid "Show doctor experience"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1752
+#: resources/assets/lang/temp.php:1753
 msgid "Show doctor speciality"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1753
+#: resources/assets/lang/temp.php:1754
 msgid "Show doctor degree"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1754
+#: resources/assets/lang/temp.php:1755
 msgid "Contact Detail is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1756
+#: resources/assets/lang/temp.php:1757
 msgid "Show service image"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1757
+#: resources/assets/lang/temp.php:1758
 msgid "Skip service when single is present"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1758
+#: resources/assets/lang/temp.php:1759
 msgid "Show service type"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1759
+#: resources/assets/lang/temp.php:1760
 msgid "Show service price"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1760
+#: resources/assets/lang/temp.php:1761
 msgid "Show service duration"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1763
+#: resources/assets/lang/temp.php:1764
 #: utils/kc_helpers.php:5311
 msgid "Services from Category"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1779
+#: resources/assets/lang/temp.php:1780
 msgid "Signup"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1781
+#: resources/assets/lang/temp.php:1782
 msgid "Date And Time"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1782
+#: resources/assets/lang/temp.php:1783
 msgid "at"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1786
+#: resources/assets/lang/temp.php:1787
 msgid "Payment method"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1787
+#: resources/assets/lang/temp.php:1788
 msgid "PayPal"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1788
+#: resources/assets/lang/temp.php:1789
 #: utils/kc_helpers.php:5476
 msgid "Pay Later"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1789
+#: resources/assets/lang/temp.php:1790
 msgid "VISA"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1790
+#: resources/assets/lang/temp.php:1791
 msgid "Pay"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1792
+#: resources/assets/lang/temp.php:1793
 msgid "Widget Order"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1793
+#: resources/assets/lang/temp.php:1794
 msgid "Widget Color"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1794
+#: resources/assets/lang/temp.php:1795
 msgid "Primary Color"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1795
+#: resources/assets/lang/temp.php:1796
 msgid "Primary Hover Color"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1796
+#: resources/assets/lang/temp.php:1797
 msgid "Secondary Color"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1797
+#: resources/assets/lang/temp.php:1798
 msgid "Secondary Hover Color"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1798
+#: resources/assets/lang/temp.php:1799
 msgid "Print Detail setting"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1800
+#: resources/assets/lang/temp.php:1801
 msgid "Show Phone & Email"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1801
+#: resources/assets/lang/temp.php:1802
 msgid "Show phone number"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1802
+#: resources/assets/lang/temp.php:1803
 msgid "Show email address"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1803
+#: resources/assets/lang/temp.php:1804
 msgid "Hide contact details"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1804
+#: resources/assets/lang/temp.php:1805
 msgid "Loader"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1805
+#: resources/assets/lang/temp.php:1806
 msgid "Select Loader"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1806
+#: resources/assets/lang/temp.php:1807
 msgid "Redirect to Print after payment"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1807
+#: resources/assets/lang/temp.php:1808
 msgid "Redirect to Print appointment after woocommerce payment complete."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1808
+#: resources/assets/lang/temp.php:1809
 msgid "Enable WooCommerce payment."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1809
+#: resources/assets/lang/temp.php:1810
 msgid "Enable Local payment."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1810
+#: resources/assets/lang/temp.php:1811
 msgid "Show doctor rating"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1825
+#: resources/assets/lang/temp.php:1826
 msgid "save"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1828
+#: resources/assets/lang/temp.php:1829
 msgid "No appointment found."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1834
+#: resources/assets/lang/temp.php:1835
 msgid "Personal Info"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1838
+#: resources/assets/lang/temp.php:1839
 msgid "Enter your old password"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1839
+#: resources/assets/lang/temp.php:1840
 msgid "Enter your new password"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1840
+#: resources/assets/lang/temp.php:1841
 msgid "Enter your confirm password"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1843
+#: resources/assets/lang/temp.php:1844
 msgid "Password minimum length should be 5 character"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1846
+#: resources/assets/lang/temp.php:1847
 msgid "Enter API key"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1847
+#: resources/assets/lang/temp.php:1848
 msgid "Enter API secret"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1850
+#: resources/assets/lang/temp.php:1851
 msgid "Question List"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1852
+#: resources/assets/lang/temp.php:1853
 msgid "Add Question"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1853
+#: resources/assets/lang/temp.php:1854
 msgid "Question"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1854
+#: resources/assets/lang/temp.php:1855
 msgid "Filter Health Question by Question"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1855
+#: resources/assets/lang/temp.php:1856
 msgid "Clinic ID"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1856
+#: resources/assets/lang/temp.php:1857
 msgid "Filter Health Question by Clinic ID"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1857
+#: resources/assets/lang/temp.php:1858
 msgid "Enter Question "
 msgstr ""
 
-#: resources/assets/lang/temp.php:1858
+#: resources/assets/lang/temp.php:1859
 msgid "Question is Required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1863
+#: resources/assets/lang/temp.php:1864
 msgid "Rows per page"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1864
+#: resources/assets/lang/temp.php:1865
 msgid "of"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1865
+#: resources/assets/lang/temp.php:1866
 msgid "ALL"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1866
+#: resources/assets/lang/temp.php:1867
 msgid "Search Table"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1867
+#: resources/assets/lang/temp.php:1868
 msgid "Page"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1870
+#: resources/assets/lang/temp.php:1871
 msgid "Google Event title"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1871
+#: resources/assets/lang/temp.php:1872
 msgid "Google Event Description"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1877
+#: resources/assets/lang/temp.php:1878
 msgid "Forget Password ?"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1880
+#: resources/assets/lang/temp.php:1881
 msgid "Google Meet"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1881
+#: resources/assets/lang/temp.php:1882
 msgid "Google Meet Configuration"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1882
+#: resources/assets/lang/temp.php:1883
 msgid "Google Meet Client ID"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1883
+#: resources/assets/lang/temp.php:1884
 msgid "Google Meet Client ID is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1884
+#: resources/assets/lang/temp.php:1885
 msgid "Google Meet Client Secret"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1885
+#: resources/assets/lang/temp.php:1886
 msgid "Google Meet Client Secret is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1886
+#: resources/assets/lang/temp.php:1887
 msgid "Guide to setup google GoogleMeet."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1887
+#: resources/assets/lang/temp.php:1888
 msgid "Google Meet Event Template"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1888
+#: resources/assets/lang/temp.php:1889
 msgid "Google Meet Integration"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1889
+#: resources/assets/lang/temp.php:1890
 msgid "Please connect with your google account to use google meet service."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1893
+#: resources/assets/lang/temp.php:1894
 msgid "Zoom Telemed"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1894
+#: resources/assets/lang/temp.php:1895
 msgid "Zoom Telemed Oauth"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1895
+#: resources/assets/lang/temp.php:1896
 msgid "Zoom Telemed Configuration"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1896
+#: resources/assets/lang/temp.php:1897
 msgid "Zoom Telemed Client ID"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1897
+#: resources/assets/lang/temp.php:1898
 msgid "Zoom Telemed Client ID is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1898
+#: resources/assets/lang/temp.php:1899
 msgid "Zoom Telemed Client Secret"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1899
+#: resources/assets/lang/temp.php:1900
 msgid "Zoom Telemed Client Secret is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1900
+#: resources/assets/lang/temp.php:1901
 msgid "Zoom Telemed Integration"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1901
+#: resources/assets/lang/temp.php:1902
 msgid "Guide to setup Zoom."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1902
-#: resources/assets/lang/temp.php:1913
+#: resources/assets/lang/temp.php:1903
+#: resources/assets/lang/temp.php:1914
 msgid "Please Connect With Your Zoom Account To Use Zoom Telemed Service."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1903
+#: resources/assets/lang/temp.php:1904
 msgid "You are connected with the Zoom."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1904
+#: resources/assets/lang/temp.php:1905
 msgid "Redirect URL."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1905
+#: resources/assets/lang/temp.php:1906
 msgid "Redirect URL is Required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1906
+#: resources/assets/lang/temp.php:1907
 msgid "The Zoom JWT app type is being deprecated. Please switch to OAuth for your Zoom app to continue your Telemed Service."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1907
+#: resources/assets/lang/temp.php:1908
 msgid "Click Here To Goto Settings"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1910
+#: resources/assets/lang/temp.php:1911
 msgid "Server to Server Auth"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1911
+#: resources/assets/lang/temp.php:1912
 msgid "Server to Server Auth Configuration"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1912
+#: resources/assets/lang/temp.php:1913
 msgid "Guide to setup Server to Server Auth."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1914
+#: resources/assets/lang/temp.php:1915
 msgid "Server to Server Auth Intergration"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1915
+#: resources/assets/lang/temp.php:1916
 msgid "Account Id"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1916
+#: resources/assets/lang/temp.php:1917
 msgid "Client Id"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1918
+#: resources/assets/lang/temp.php:1919
 msgid "Enter Account Id"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1919
+#: resources/assets/lang/temp.php:1920
 msgid "Enter Client Id"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1920
+#: resources/assets/lang/temp.php:1921
 msgid "Enter Client Secret"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1921
+#: resources/assets/lang/temp.php:1922
 msgid "Account Id is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1922
+#: resources/assets/lang/temp.php:1923
 msgid "Client Id is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1923
+#: resources/assets/lang/temp.php:1924
 msgid "Client Seceret is required"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1926
+#: resources/assets/lang/temp.php:1927
 msgid "Step 3: Select Server to Server OAuth App and click Create"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1927
+#: resources/assets/lang/temp.php:1928
 msgid "Step 4: Fill in the mandatory information and activate your app. In the App Credentials tab, you will find the Account ID, Client ID, and Client Secret."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1928
+#: resources/assets/lang/temp.php:1929
 msgid "Step 5: Copy and Paste Account Id, Client Id and Client Secret here and click on save button and you are ready to go."
 msgstr ""
 
-#: resources/assets/lang/temp.php:1933
+#: resources/assets/lang/temp.php:1934
 msgid "Today"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1934
+#: resources/assets/lang/temp.php:1935
 msgid "Day"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1935
+#: resources/assets/lang/temp.php:1936
 msgid "Month"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1936
+#: resources/assets/lang/temp.php:1937
 msgid "Week"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1976
+#: resources/assets/lang/temp.php:1977
 msgctxt "administrator-sidebar"
 msgid "Webhooks"
 msgstr ""
 
-#: resources/assets/lang/temp.php:1982
-msgctxt "administrator-sidebar"
-msgid "Dashboard"
-msgstr ""
-
 #: resources/assets/lang/temp.php:1983
 msgctxt "administrator-sidebar"
-msgid "Appointments"
+msgid "Dashboard"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1984
 msgctxt "administrator-sidebar"
-msgid "Encounters"
+msgid "Appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1985
 msgctxt "administrator-sidebar"
-msgid "Encounter List"
+msgid "Encounters"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1986
 msgctxt "administrator-sidebar"
-msgid "Encounter Templates"
+msgid "Encounter List"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1987
 msgctxt "administrator-sidebar"
-msgid "Clinic"
+msgid "Encounter Templates"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1988
 msgctxt "administrator-sidebar"
-msgid "Patients"
+msgid "Clinic"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1989
 msgctxt "administrator-sidebar"
-msgid "Doctors"
+msgid "Patients"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1990
 msgctxt "administrator-sidebar"
-msgid "Receptionist"
+msgid "Doctors"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1991
 msgctxt "administrator-sidebar"
-msgid "Services"
+msgid "Receptionist"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1992
 msgctxt "administrator-sidebar"
-msgid "Doctor Sessions"
+msgid "Services"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1993
 msgctxt "administrator-sidebar"
-msgid "Taxes"
+msgid "Doctor Sessions"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1994
 msgctxt "administrator-sidebar"
-msgid "Billing records"
+msgid "Taxes"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1995
 msgctxt "administrator-sidebar"
-msgid "Reports"
+msgid "Billing records"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1996
 msgctxt "administrator-sidebar"
-msgid "Settings"
+msgid "Reports"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1997
 msgctxt "administrator-sidebar"
-msgid "Get help"
+msgid "Settings"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1998
 msgctxt "administrator-sidebar"
-msgid "Get Pro"
+msgid "Get help"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1999
 msgctxt "administrator-sidebar"
-msgid "Request Features"
+msgid "Get Pro"
 msgstr ""
 
-#: resources/assets/lang/temp.php:2002
-msgctxt "clinic-admin-sidebar"
-msgid "Home"
+#: resources/assets/lang/temp.php:2000
+msgctxt "administrator-sidebar"
+msgid "Request Features"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2003
 msgctxt "clinic-admin-sidebar"
-msgid "Dashboard"
+msgid "Home"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2004
 msgctxt "clinic-admin-sidebar"
-msgid "Appointments"
+msgid "Dashboard"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2005
 msgctxt "clinic-admin-sidebar"
-msgid "Encounters"
+msgid "Appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2006
 msgctxt "clinic-admin-sidebar"
-msgid "Encounters List"
+msgid "Encounters"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2007
 msgctxt "clinic-admin-sidebar"
-msgid "Encounter Templates"
+msgid "Encounters List"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2008
 msgctxt "clinic-admin-sidebar"
-msgid "Patients"
+msgid "Encounter Templates"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2009
 msgctxt "clinic-admin-sidebar"
-msgid "Doctors"
+msgid "Patients"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2010
 msgctxt "clinic-admin-sidebar"
-msgid "Receptionist"
+msgid "Doctors"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2011
 msgctxt "clinic-admin-sidebar"
-msgid "Services"
+msgid "Receptionist"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2012
 msgctxt "clinic-admin-sidebar"
-msgid "Doctor Sessions"
+msgid "Services"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2013
 msgctxt "clinic-admin-sidebar"
-msgid "Taxes"
+msgid "Doctor Sessions"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2014
 msgctxt "clinic-admin-sidebar"
-msgid "Billing records"
+msgid "Taxes"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2015
 msgctxt "clinic-admin-sidebar"
-msgid "Reports"
+msgid "Billing records"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2016
 msgctxt "clinic-admin-sidebar"
-msgid "Settings"
+msgid "Reports"
 msgstr ""
 
-#: resources/assets/lang/temp.php:2019
-msgctxt "receptionist-sidebar"
-msgid "Home"
+#: resources/assets/lang/temp.php:2017
+msgctxt "clinic-admin-sidebar"
+msgid "Settings"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2020
 msgctxt "receptionist-sidebar"
-msgid "Dashboard"
+msgid "Home"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2021
 msgctxt "receptionist-sidebar"
-msgid "Appointments"
+msgid "Dashboard"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2022
 msgctxt "receptionist-sidebar"
-msgid "Encounters"
+msgid "Appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2023
 msgctxt "receptionist-sidebar"
-msgid "Encounter List"
+msgid "Encounters"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2024
 msgctxt "receptionist-sidebar"
-msgid "Encounter Templates"
+msgid "Encounter List"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2025
 msgctxt "receptionist-sidebar"
-msgid "Patients"
+msgid "Encounter Templates"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2026
 msgctxt "receptionist-sidebar"
-msgid "Doctors"
+msgid "Patients"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2027
 msgctxt "receptionist-sidebar"
-msgid "Services"
+msgid "Doctors"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2028
 msgctxt "receptionist-sidebar"
-msgid "Billing records"
+msgid "Services"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2029
 msgctxt "receptionist-sidebar"
-msgid "Settings"
+msgid "Billing records"
 msgstr ""
 
-#: resources/assets/lang/temp.php:2032
-msgctxt "doctor-sidebar"
-msgid "Home"
+#: resources/assets/lang/temp.php:2030
+msgctxt "receptionist-sidebar"
+msgid "Settings"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2033
 msgctxt "doctor-sidebar"
-msgid "Dashboard"
+msgid "Home"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2034
 msgctxt "doctor-sidebar"
-msgid "Appointments"
+msgid "Dashboard"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2035
 msgctxt "doctor-sidebar"
-msgid "Encounters"
+msgid "Appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2036
 msgctxt "doctor-sidebar"
-msgid "Encounter List"
+msgid "Encounters"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2037
 msgctxt "doctor-sidebar"
-msgid "Encounter Templates"
+msgid "Encounter List"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2038
 msgctxt "doctor-sidebar"
-msgid "Patients"
+msgid "Encounter Templates"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2039
 msgctxt "doctor-sidebar"
-msgid "Services"
+msgid "Patients"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2040
 msgctxt "doctor-sidebar"
-msgid "Billing records"
+msgid "Services"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2041
 msgctxt "doctor-sidebar"
-msgid "Settings"
+msgid "Billing records"
 msgstr ""
 
-#: resources/assets/lang/temp.php:2044
-msgctxt "patient-sidebar"
-msgid "Home"
+#: resources/assets/lang/temp.php:2042
+msgctxt "doctor-sidebar"
+msgid "Settings"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2045
 msgctxt "patient-sidebar"
-msgid "Dashboard"
+msgid "Home"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2046
 msgctxt "patient-sidebar"
-msgid "Appointments"
+msgid "Dashboard"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2047
 msgctxt "patient-sidebar"
-msgid "Encounters"
+msgid "Appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2048
 msgctxt "patient-sidebar"
-msgid "Billing records"
+msgid "Encounters"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2049
 msgctxt "patient-sidebar"
-msgid "Reports"
+msgid "Billing records"
 msgstr ""
 
 #: resources/assets/lang/temp.php:2050
+msgctxt "patient-sidebar"
+msgid "Reports"
+msgstr ""
+
+#: resources/assets/lang/temp.php:2051
 msgctxt "patient-sidebar"
 msgid "Clinic"
 msgstr ""
@@ -9794,12 +9798,12 @@ msgid "Woocommerce"
 msgstr ""
 
 #: utils/kc_helpers.php:5483
-#: utils/kc_helpers.php:6658
+#: utils/kc_helpers.php:6657
 msgid "Paypal"
 msgstr ""
 
 #: utils/kc_helpers.php:5491
-#: utils/kc_helpers.php:6662
+#: utils/kc_helpers.php:6661
 msgid "Stripe"
 msgstr ""
 
@@ -9971,11 +9975,11 @@ msgstr ""
 msgid "Manual"
 msgstr ""
 
-#: utils/kc_helpers.php:7233
+#: utils/kc_helpers.php:7240
 msgid "Get Pro"
 msgstr ""
 
-#: utils/kc_helpers.php:7277
-#: utils/kc_helpers.php:7643
+#: utils/kc_helpers.php:7284
+#: utils/kc_helpers.php:7650
 msgid "Encounters List"
 msgstr ""

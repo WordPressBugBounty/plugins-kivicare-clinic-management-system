@@ -615,6 +615,7 @@ $data = [
         "edit_form_field"  => __("Edit Form Field", "kc-lang"),
         "image_details"  => __("Image Details", "kc-lang"),
         "delete_form"  => __("Delete", "kc-lang"),
+        "no_result_found" => __("No Result Found", "kc-lang"),
     ],
     "paypal" => [
         "paypal_setting" => __("Paypal Settings", "kc-lang"),

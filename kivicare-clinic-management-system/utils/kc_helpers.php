@@ -6646,8 +6646,7 @@ function kcAppointmentPaymentMode($id)
             $order_id = kcAppointmentIsWoocommerceOrder($id);
             if (!empty($order_id)) {
                 $order = wc_get_order( $order_id );
-                $payment_method = $order->get_payment_method();
-                $payment_mode = 'Woocommerce-' . $payment_method;
+                $payment_mode = !empty($order) ? 'Woocommerce-' . $order->get_payment_method() : 'Woocommerce';
             }
         }
     }
@@ -6805,6 +6804,14 @@ function kcAddToCalendarContent($appointment_data)
     $calender_content = kcEmailContentKeyReplace($calender_content, $content_data);
     $calender_title = kcEmailContentKeyReplace($calender_title, $content_data);
 
+    $timezone = get_option('timezone_string');
+
+    // If the timezone string is empty, fall back to the offset
+    if (empty($timezone)) {
+        $gmt_offset = get_option('gmt_offset');
+        $timezone = timezone_name_from_abbr('', $gmt_offset * 3600, 0);
+    }
+
     return [
         "name" => $calender_title,
         "description" => $calender_content,
@@ -6813,7 +6820,7 @@ function kcAddToCalendarContent($appointment_data)
         "startTime" => date("H:i", strtotime($appointment_data['start_time'])),
         "endTime" => date("H:i", strtotime($appointment_data['end_time'])),
         "location" => $appointment_data['clinic_address'],
-        "timeZone" => get_option('timezone_string'),
+        "timeZone" => $timezone,
         "iCalFileName" => "Reminder-Event",
     ];
 }

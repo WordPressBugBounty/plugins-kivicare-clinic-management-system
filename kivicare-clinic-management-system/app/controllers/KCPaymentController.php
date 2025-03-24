@@ -272,13 +272,43 @@ class KCPaymentController extends KCBase
             $tempService['name'] = $service['name'];
             $serviceItems[] = $tempService;
         }
+
+        $returnUrl = $this->returnUrl . $request_data['id']; 
+        $cancelUrl = $this->cancelUrl.$request_data['id'];
+
+        $query_args = [];
+
+        if (!empty($request_data['is_dashboard'])) {
+            $query_args['is_dashboard'] = $request_data['is_dashboard'];
+            $returnUrl = add_query_arg($query_args, $returnUrl);
+            $cancelUrl = add_query_arg($query_args, $cancelUrl);
+            
+        } else if (!empty($request_data['pageId'])) {
+
+            $returnUrl = add_query_arg(
+                [
+                    'kivicare_payment' => 'success',
+                    'appointment_id' => $request_data['id']
+                ],
+                get_permalink($request_data['pageId'])
+            );
+
+            $cancelUrl = add_query_arg(
+                [
+                    'kivicare_payment' => 'failed',
+                    'appointment_id' => $request_data['id']
+                ],
+                get_permalink($request_data['pageId'])
+            );
+        }
+
         try {
             $gateway = $this->configPaypalApi();
             $params = array(
                 'amount' => $totalPrice,
                 'currency' => $currency,
-                'returnUrl' => $this->returnUrl.$request_data['id'],
-                'cancelUrl' => $this->cancelUrl.$request_data['id'],
+                'returnUrl' => $returnUrl,
+                'cancelUrl' => $cancelUrl,
                 'transactionId' => $request_data['id'],
             );
             if(!empty($request_data['tax'])){
@@ -290,7 +320,6 @@ class KCPaymentController extends KCBase
                 }   
             }
             $response = $gateway->purchase($params)->send();
-            // $response = $gateway->purchase($params)->setItems($serviceItems)->send();
             if ($response->isRedirect()) {
                 $this->db->delete($this->db->prefix."kc_payments_appointment_mappings",['appointment_id' => $request_data['id']]);
                 $this->db->insert($this->db->prefix."kc_payments_appointment_mappings",[
@@ -347,20 +376,42 @@ class KCPaymentController extends KCBase
                 $this->db->update($this->db->prefix."kc_appointments",['status' => 1],['id' => $appointment_id]);
                 if(empty($this->db->get_var("SELECT notification_status FROM {$this->db->prefix}kc_payments_appointment_mappings WHERE appointment_id ={$appointment_id}"))){
                     kivicareWoocommercePaymentComplete($appointment_id,'paypal');
+                }        
+                if(isset($request_data['is_dashboard']) && !empty($request_data['is_dashboard'] ) && $request_data['is_dashboard']  === 'true'){
+                    
+                    $redirect_url = add_query_arg(
+                        [
+                            'kivicare_payment' => 'success',
+                            'appointment_id' => $appointment_id
+                        ],
+                        admin_url('admin.php?page=dashboard#all-appointment-list')
+                    );
+                    wp_safe_redirect($redirect_url);
+                    exit;
                 }
             }
         }
         ?>
         <script>
-            if(window.opener.document.getElementById('payment_status_child') !== null){
-                window.opener.document.getElementById('payment_status_child').value = '<?php echo esc_html(trim($payment_status));?>';
+            try {
+                document.addEventListener('DOMContentLoaded', () => {
+                    kivicareCheckPaymentStatus('<?php echo esc_html(trim($payment_status));?>','<?php echo esc_html($appointment_id);?>');
+                })
+                const url = new URL(window.location.href);
+                const paramsToRemove = [
+                    'kivicare_payment',
+                    'appointment_id',
+                    'paymentId',
+                    'token',
+                    'PayerID'
+                ];
+                paramsToRemove.forEach(param => url.searchParams.delete(param));
+                window.history.replaceState({}, document.title, url.toString());
+            } catch (error) {
+                console.log(error);
             }
-            window.onunload = function (e) {
-                opener.kivicareCheckPaymentStatus('<?php echo esc_html(trim($payment_status));?>','<?php echo esc_html($appointment_id);?>');
-            };
-            window.close();
         </script>
-        <?php
+    <?php
     }
 
     public function paymentFailedPage(){
@@ -368,17 +419,42 @@ class KCPaymentController extends KCBase
         $request_data = $this->request->getInputs();
         if(array_key_exists('appointment_id',$request_data) && !empty($request_data['appointment_id'])) {
             $appointment_id = (int)$request_data['appointment_id'];
+            $payment_status = $request_data['kivicare_payment'];
             (new KCAppointment())->loopAndDelete(['id' => $appointment_id],true);
         }
+
+        if(isset($request_data['is_dashboard']) && !empty($request_data['is_dashboard'] ) && $request_data['is_dashboard']  === 'true'){
+                    
+            $redirect_url = add_query_arg(
+                [
+                    'kivicare_payment' => 'failed',
+                    'appointment_id' => $appointment_id
+                ],
+                admin_url('admin.php?page=dashboard#all-appointment-list')
+            );
+        
+            wp_safe_redirect($redirect_url);
+            exit;
+        }
+        
         ?>
         <script>
-           if(window.opener.document.getElementById('payment_status_child') !== null){
-               window.opener.document.getElementById('payment_status_child').value = 'failed';
-           }
-            window.onunload = function (e) {
-                opener.kivicareCheckPaymentStatus('failed','<?php echo esc_html($appointment_id);?>');
-            };
-            window.close();
+
+            try {
+                document.addEventListener('DOMContentLoaded', () => {
+                    kivicareCheckPaymentStatus('<?php echo esc_html(trim($payment_status));?>','<?php echo esc_html($appointment_id);?>');
+                })
+                const url = new URL(window.location.href);
+                const paramsToRemove = [
+                    'kivicare_payment',
+                    'appointment_id',
+                    'token',
+                ];
+                paramsToRemove.forEach(param => url.searchParams.delete(param));
+                window.history.replaceState({}, document.title, url.toString());
+            } catch (error) {
+                console.log(error);
+            }
         </script>
         <?php
     }

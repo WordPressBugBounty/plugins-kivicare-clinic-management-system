@@ -999,8 +999,8 @@ class KCActivate extends KCBase {
         wp_enqueue_script( 'jquery' );
         wp_enqueue_media();
         wp_add_inline_script( 'jquery-core', 'var wp = window.wp;' );
-		wp_enqueue_script( 'kc_js_bundle', $path . 'assets/js/app.min.js', ['jquery','media-models'], KIVI_CARE_VERSION,true);
-        wp_enqueue_script( 'google-platform', 'https://apis.google.com/js/api.js', array(), KIVI_CARE_VERSION,true );	
+        wp_register_script( 'google-platform', 'https://accounts.google.com/gsi/client', array(), KIVI_CARE_VERSION,true );	
+		wp_enqueue_script( 'kc_js_bundle', $path . 'assets/js/app.min.js', ['jquery','media-models','google-platform'], KIVI_CARE_VERSION,true);
         wp_enqueue_script( 'kc_custom', $path . 'assets/js/custom.js', ['jquery', 'media-models'], KIVI_CARE_VERSION,true );
         wp_localize_script( 'kc_custom', 'kc_custom_request_data', [
                 'support_mime_type' => get_allowed_mime_types()
@@ -1502,7 +1502,6 @@ class KCActivate extends KCBase {
 		           (new KCPaymentController())->paymentSuccess();
 	           }
            }
-           die;
        }
    }
 

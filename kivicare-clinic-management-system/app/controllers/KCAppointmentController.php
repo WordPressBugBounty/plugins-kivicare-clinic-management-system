@@ -503,7 +503,11 @@ class KCAppointmentController extends KCBase {
                                 }
 
                             }
-                            continue;
+
+                            // When making a payment through WooCommerce, it does not redirect to the checkout page.
+                            if($request_data['payment_mode'] !=='paymentWoocommerce'){
+                                continue;
+                            }
                         }
                         $request_data['appointment_id'] = $appointment_id;
                         $request_data['time_slot'] = $time_slot;

@@ -615,13 +615,7 @@ class KCAuthController extends KCBase {
                         $this->db->update($user_table,['user_status' => 1],['ID' => $u->ID]);
                     }
                     if ( $user && kcGetUserRegistrationShortcodeSetting('patient') === 'on' ) {
-                        if(!is_user_logged_in()){
-                            $redirect =  kcGetLogoinRedirectSetting('patient');
-                            $auth_success = wp_authenticate( $u->user_email, $u->user_pass );
-                            wp_set_current_user( $u->ID, $u->user_login );
-                            wp_set_auth_cookie(  $u->ID );
-                            do_action( 'wp_login',$u->user_login, $u );
-                        }
+                        $this->authenticateAndLogin($u);
                     }
                     do_action( 'kc_patient_save', $u->ID );
                     break;
@@ -642,12 +636,15 @@ class KCAuthController extends KCBase {
                     if (isset($parameters['custom_fields'])) {
                         $parameters['custom_fields'] = $this->customFieldFileUpload($parameters['custom_fields']);
                         if(!empty($parameters['custom_fields'])){
-                            kvSaveCustomFields('patient_module', $user, $parameters['custom_fields']);
+                            kvSaveCustomFields('doctor_module', $user, $parameters['custom_fields']);
                         }
                     }
                     $user_email_param['doctor_name'] = $parameters['first_name'] . ' ' .$parameters['last_name'];
                     $templateType = 'doctor_registration';
                     $redirect =  kcGetLogoinRedirectSetting('doctor');
+                    if ( $user && kcGetUserRegistrationShortcodeSetting('doctor') === 'on' ) {
+                        $this->authenticateAndLogin($u);
+                    }
                     do_action( 'kc_doctor_save', $u->ID );
                     break;
                 case $this->getReceptionistRole():
@@ -666,6 +663,9 @@ class KCAuthController extends KCBase {
                         'created_at'      =>   current_datetime('Y-m-d H:i:s' )
                     ]);
                     $redirect =  kcGetLogoinRedirectSetting('receptionist');
+                    if ( $user && kcGetUserRegistrationShortcodeSetting('receptionist') === 'on' ) {
+                        $this->authenticateAndLogin($u);
+                    }
                     do_action( 'kc_receptionist_save', $u->ID );
                     break;
             }
@@ -849,5 +849,15 @@ class KCAuthController extends KCBase {
             }
         }
         return $custom_field_parameter;
+    }
+
+    public function authenticateAndLogin($user) {
+        if (!is_user_logged_in()) {
+            do_action('kc_before_user_authenticate');
+            $auth_success = wp_authenticate($user->user_email, $user->user_pass);
+            wp_set_current_user($user->ID, $user->user_login);
+            wp_set_auth_cookie($user->ID);
+            do_action('wp_login', $user->user_login, $user);
+        }
     }
 }
