@@ -1,4 +1,5 @@
-<div class="kivi-widget">
+<?php  $elementId= wp_generate_uuid4(); ?>
+<div class="kivi-widget" id="kivi-appointment-widget-<?php echo esc_attr($elementId); ?>">
     <?php if($popup) {
         ?><div class="kivi-position-relative">
         <button class="kivi-widget-close"><i class="fas fa-times"></i></button>
@@ -347,7 +348,7 @@
   ?>
 
     if(bookAppointmentWidgetData.popup_appointment_book){
-        kcAppointmentBookJsContent();
+        kcAppointmentBookJsContent("#kivi-appointment-widget-<?php echo $elementId; ?>");
     }else{
         document.addEventListener('readystatechange', event => {
             if (event.target.readyState === "complete") {
@@ -359,7 +360,7 @@
                 //     }
                 // });
                 'use strict';
-                kcAppointmentBookJsContent();
+                kcAppointmentBookJsContent("#kivi-appointment-widget-<?php echo $elementId; ?>");
                 (function($) {
                     const get = (route, data, frontEnd = false) => {
                         data._ajax_nonce = bookAppointmentWidgetData.ajax_get_nonce;

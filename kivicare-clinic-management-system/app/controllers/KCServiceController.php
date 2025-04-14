@@ -830,7 +830,8 @@ class KCServiceController extends KCBase {
                                    created_at="<?php echo esc_html($service->created_at); ?>"
                                    doctor_name="<?php echo esc_html($service->doctor_name); ?>"
                                    service_type="<?php echo esc_html($service->service_type); ?>"
-                                   multipleService="<?php echo esc_html(!empty($service->multiple) && $service->multiple == 'no' ? 'no' : 'yes')?>" >
+                                   multipleService="<?php echo esc_html(!empty($service->multiple) && $service->multiple == 'no' ? 'no' : 'yes')?>"
+                                   telemed_service="<?php echo esc_html(!empty($service->telemed_service) ? $service->telemed_service : 'no')?>" >
                             <label class="btn-border01 service-content" for="service_<?php echo esc_html($service->id); ?>">
                                 <div class="iq-card iq-card-border iq-fancy-design service-content gap-1 kc-service-card">
                                 <div class="iq-top-left-ribbon-service" style="display:<?php echo esc_html($service->telemed_service === 'yes' ? 'block' : 'none'); ?>">

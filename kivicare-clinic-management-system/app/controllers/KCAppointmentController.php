@@ -486,52 +486,35 @@ class KCAppointmentController extends KCBase {
 
 
 				// generate zoom link request (Telemed AddOn filter)
-			    if (in_array('yes',$telemed_service_in_appointment_service)) {
+			    if ($value['telemed_service'] === 'yes') {
 
                     if ($telemedZoomPluginActive || $telemedGooglemeetPluginActive) {
 
-                        if((string)$request_data['status'] == '0'){
-                            if(!empty( $request_data['id'])){
-                                //zoom telemed entry delete
-                                if (isKiviCareTelemedActive()) {
-                                    apply_filters('kct_delete_appointment_meeting', ['id'=>$appointment_id]);
-                                }
-
-                                //googlemeet telemed entry delete
-                                if(isKiviCareGoogleMeetActive()){
-                                    apply_filters('kcgm_remove_appointment_event',['appoinment_id' => $appointment_id]);
-                                }
-
-                            }
-
-                            // When making a payment through WooCommerce, it does not redirect to the checkout page.
-                            if($request_data['payment_mode'] !=='paymentWoocommerce'){
-                                continue;
-                            }
-                        }
                         $request_data['appointment_id'] = $appointment_id;
                         $request_data['time_slot'] = $time_slot;
 
-                        if(kcCheckDoctorTelemedType($appointment_id) == 'googlemeet'){
-                            $res_data = apply_filters('kcgm_save_appointment_event', ['appoinment_id' => $appointment_id,'service' => kcServiceListFromRequestData($request_data)]);
-                        }else{
-                            $res_data = apply_filters('kct_create_appointment_meeting', $request_data);
-                        }
-						// if zoom meeting is not created successfully
-						if(empty($res_data['status'])) {
-                            if(empty($request_data['id'])){
-                                ( new KCAppointmentServiceMapping() )->delete( [ 'appointment_id' => (int)$appointment_id] );
-                                ( new KCAppointment() )->delete( [ 'id' =>  (int)$appointment_id] );
-                                do_action('kc_appointment_cancel',$appointment_id);
-                            }
-							wp_send_json([
-								'status'  => false,
-								'message' => esc_html__('Failed to generate Video Meeting.', 'kc-lang'),
-                                'error' => $res_data
-							]);
+                        if($request_data['payment_mode'] !== 'paymentWoocommerce'){
+                            if(kcCheckDoctorTelemedType($appointment_id) == 'googlemeet'){
+                                $res_data = apply_filters('kcgm_save_appointment_event', ['appoinment_id' => $appointment_id,'service' => kcServiceListFromRequestData($request_data)]);
+                            }else{
+                                $res_data = apply_filters('kct_create_appointment_meeting', $request_data);
+                            }                         
+                            // if zoom meeting is not created successfully
+                            if(empty($res_data['status'])) {
+                                if(empty($request_data['id'])){
+                                    ( new KCAppointmentServiceMapping() )->delete( [ 'appointment_id' => (int)$appointment_id] );
+                                    ( new KCAppointment() )->delete( [ 'id' =>  (int)$appointment_id] );
+                                    do_action('kc_appointment_cancel',$appointment_id);
+                                }
+                                wp_send_json([
+                                    'status'  => false,
+                                    'message' => esc_html__($res_data['message'], 'kc-lang'),
+                                    'error' => $res_data
+                                ]);
 
-						}
-                        $telemed_service_include = true;
+                            }
+                            $telemed_service_include = true;
+                        }
                     }
                 }
 
@@ -549,12 +532,22 @@ class KCAppointmentController extends KCBase {
 				}
 			}
 
-
 		}
 
         if((string)$request_data['status'] == '0'){
             if(!empty( $request_data['id'])) {
                 kcAppointmentCancelMail($beforeUpdateAppointmentData);
+                
+                 //zoom telemed entry delete
+                 if (isKiviCareTelemedActive()) {
+                    apply_filters('kct_delete_appointment_meeting', ['id'=>$appointment_id]);
+                }
+
+                //googlemeet telemed entry delete
+                if(isKiviCareGoogleMeetActive()){
+                    apply_filters('kcgm_remove_appointment_event',['appoinment_id' => $appointment_id]);
+                }
+
                 //google calendar event delete
                 if(kcCheckGoogleCalendarEnable()){
                     apply_filters('kcpro_remove_appointment_event', ['appoinment_id'=>$appointment_id]);
@@ -771,12 +764,12 @@ class KCAppointmentController extends KCBase {
                 do_action('kc_appointment_cancel',$request_data['appointment_id']);
             }
 
+            ( new KCAppointment() )->update( [ 'status' => $request_data['appointment_status'] ], array( 'id' => $request_data['appointment_id'] ) );
+
             if($request_data['appointment_status'] === '1'){
                 kivicareWoocommercePaymentComplete($request_data['appointment_id'],'status_update');
             }
-
-            ( new KCAppointment() )->update( [ 'status' => $request_data['appointment_status'] ], array( 'id' => $request_data['appointment_id'] ) );
-
+            
             do_action( 'kc_appointment_status_update', $request_data['appointment_id'] , $request_data['appointment_status'] );
 
 			wp_send_json( [

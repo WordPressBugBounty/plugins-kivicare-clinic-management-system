@@ -483,14 +483,16 @@ class KCStaticDataController extends KCBase {
                         if (count($doctor_ids)) {
                             $users_table = $wpdb->base_prefix . 'users';
                             $usermeta_table = $wpdb->base_prefix . 'usermeta';
+
                             if(isset($request_data['telemed_service']) && $request_data['telemed_service'] === 'yes'){
-                                    $new_query = "SELECT user.`ID` as `id`, user.`display_name` as `label`
-                                    FROM {$users_table} user
-                                    INNER JOIN {$usermeta_table} usermeta ON user.`ID` = usermeta.`user_id`
-                                    WHERE user.`ID` IN (" . implode(',', $doctor_ids) . ") 
-                                    AND user.`user_status` = '0'
-                                    AND (usermeta.`meta_key` LIKE 'kiviCare_zoom_telemed_connect' OR usermeta.`meta_key` LIKE 'kiviCare_google_meet_connect')
-                                    AND usermeta.`meta_value` LIKE 'on'";
+                                $new_query = "SELECT user.`ID` as `id`, user.`display_name` as `label`
+                                FROM {$users_table} user
+                                INNER JOIN {$usermeta_table} usermeta ON user.`ID` = usermeta.`user_id`
+                                WHERE user.`ID` IN (" . implode(',', $doctor_ids) . ") 
+                                AND user.`user_status` = '0'
+                                AND (((usermeta.`meta_key` LIKE 'kiviCare_zoom_telemed_connect' OR usermeta.`meta_key` LIKE 'kiviCare_google_meet_connect')
+                                AND usermeta.`meta_value` LIKE 'on') OR (usermeta.`meta_key` = 'zoom_server_to_server_oauth_config_data' 
+                                AND JSON_EXTRACT(usermeta.`meta_value`, '$.enableServerToServerOauthconfig') = 'true'))";                          
                             }
                             else{
                                 $new_query = "SELECT `ID` as `id`, `display_name` as `label`  FROM {$users_table} WHERE `ID` IN (" . implode(',', $doctor_ids) . ") AND `user_status` = '0'";

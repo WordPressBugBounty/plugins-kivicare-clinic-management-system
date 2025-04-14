@@ -252,6 +252,8 @@ class KCRoutes
             'get_server_auth_config'         =>['method' => 'get', 'action' => 'KCZoomTelemedController@getServerOauthConfig'],
             'get_doctor_zoom_configuration'   => ['method' => 'get', 'action' => 'KCZoomTelemedController@getZoomConfiguration'],
             'resend_zoom_link_patient'      => ['method' => 'post', 'action' => 'KCZoomTelemedController@resendZoomLink'],
+            'save_doctor_zoom_server_to_server_oauth_configuration' => ['method' => 'post', 'action' => 'KCZoomTelemedController@saveZoomServerToServerOauthConfiguration'],           
+            'get_doctor_zoom_server_to_server_oauth_configuration'   => ['method' => 'get', 'action' => 'KCZoomTelemedController@getZoomServerToServerOauthConfiguration'],
 
             //GOOGLE MEET ROUTES
             'google_meet_config' => ['method' => 'post', 'action' => 'KCGooglemeetController@saveGoogleMeetConfig'],
@@ -323,6 +325,7 @@ class KCRoutes
             'change_woocommerce_payment_status' => ['method' => 'get', 'action' => 'KCPaymentController@changeWooCommercePaymentStatus'],
             'get_payment_status_all'         => ['method' => 'get', 'action' => 'KCPaymentController@getPaymentStatusAll'],
             'get_appointment_payment_status'  => ['method' => 'get', 'action' => 'KCPaymentController@getAppointmentPaymentStatus', 'nonce' => 0],
+            'get_razorpay_currency_list'   => ['method' => 'get', 'action' => 'KCPaymentController@getRazorpayCurrencyList', 'nonce' => 0],
 
             //langauge setting route
             'get_json_file'         =>               ['method' => 'post', 'action' => 'KCLanguageController@getJosnFile'],
@@ -403,6 +406,8 @@ class KCRoutes
             'get_doctor_telemed_config'=> ['method' => 'post', 'action' => 'KCZoomTelemedController@getDoctorTelemedConfig'],
             'disconnect_doctor_zoom_oauth'=> ['method' => 'get', 'action' => 'KCZoomTelemedController@disconnectDoctorZoomOauth'],
             'disconnect_doctor_serveroauth'=> ['method' => 'post', 'action' => 'KCZoomTelemedController@disconnectDoctorServerOauth'],
+            'save_zoom_telemed_server_to_server_oauth_status' => ['method' => 'post', 'action' => 'KCZoomTelemedController@saveServerToServerOauthStatus'],     
+            'disconnect_doctor_zoom_server_to_server_oauth'=> ['method' => 'post', 'action' => 'KCZoomTelemedController@disconnectDoctorZoomServerToServerOauth'],      
             // 'save_google_meet_event_template'        => ['method' => 'post', 'action' => 'KCGooglemeetController@saveGoogleMeetEventTemplate'],
             // 'connect_meet_doctor' => ['method' => 'post', 'action' => 'KCGooglemeetController@connectGoogleMeetDoctor'],
             // 'diconnect_meet_doctor' => ['method' => 'post', 'action' => 'KCGooglemeetController@disconnectMeetDoctor'],

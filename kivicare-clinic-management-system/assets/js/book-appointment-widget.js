@@ -1,20 +1,22 @@
-function kcAppointmentBookJsContent() {
+function kcAppointmentBookJsContent(elementID) {
+    var ShortcodeElement= document.querySelector(elementID);
+    
+    
     (function ($) {
         window.name = 'kivicareWidget';
-        $('#kivicare-widget-main-content').removeClass('d-none');
-        $('#kivicare-main-page-loader').addClass('d-none');
+        $(elementID+' #kivicare-widget-main-content').removeClass('d-none');
+        $(elementID+' #kivicare-main-page-loader').addClass('d-none');
         if (bookAppointmentWidgetData.popup_appointment_book) {
-            $('.kivi-widget-close').on("click", function () {
+            $(elementID+' .kivi-widget-close').on("click", function () {
                 $.magnificPopup.close();
-                $(this).closest('.white-popup').html('');
             });
         }
 
 
         if (window.matchMedia('(max-width: 768px)').matches) {
-            $('.kivi-widget').css('padding', '8px');
+            $(elementID+'.kivi-widget').css('padding', '8px');
         } else {
-            $('.kivi-widget').css('padding', '16px');
+            $(elementID+'.kivi-widget').css('padding', '16px');
         }
         const post = (route, data = {}, frontEnd = false, headers = {
             headers: { 'Content-Type': 'application/json' }
@@ -125,7 +127,7 @@ function kcAppointmentBookJsContent() {
 
         var tax_details = []
         if (bookAppointmentWidgetData.print_confirm_page === 'off') {
-            switch ($('.iq-fade.iq-tab-pannel.active').attr('id')) {
+            switch ($(elementID+' .iq-fade.iq-tab-pannel.active').attr('id')) {
                 case 'clinic':
                     kivicareGetClinicsLists()
                     break;
@@ -143,8 +145,8 @@ function kcAppointmentBookJsContent() {
 
         
         //logout button click event
-        $(document).on('click', '#kivicare_logout_btn', function () {
-            let logoutElement = $("#kivicare_logout_btn");
+        $(elementID).on('click', '#kivicare_logout_btn', function () {
+            let logoutElement = $(elementID+" #kivicare_logout_btn");
             logoutElement.prop('disabled', true);
             logoutElement.html(bookAppointmentWidgetData.message.loading);
             post('logout', {}).then((response) => {
@@ -164,22 +166,22 @@ function kcAppointmentBookJsContent() {
             })
         })
 
-        $(document).on('click', '[data-toggle="active"]', function () {
+        $(elementID).on('click', '[data-toggle="active"]', function () {
             $(this).toggleClass('active');
         })
 
         //clinic search event
-        $("#clinicSearch").keyup(function () {
+        $(elementID+" #clinicSearch").keyup(function () {
             kivicareGetClinicsLists(this.value)
         });
 
         //doctor search event
-        $("#doctorSearch").keyup(function () {
+        $(elementID+" #doctorSearch").keyup(function () {
             kivicareGetDoctorLists(this.value)
         });
 
         //service search event
-        $("#serviceSearch").keyup(function () {
+        $(elementID+" #serviceSearch").keyup(function () {
             kivicareGetServiceLists(this.value)
         });
 
@@ -196,7 +198,7 @@ function kcAppointmentBookJsContent() {
 
         function kcInitMultiselectElement(id){
 
-            $('#'+id).find('.appointment_widget_multiselect').each(function() {
+            $(elementID+' #'+id).find('.appointment_widget_multiselect').each(function() {
                 $(this).select2({
                     placeholder: $(this).attr('placeholder'),
                     allowClear:true,
@@ -213,19 +215,23 @@ function kcAppointmentBookJsContent() {
             if (bookAppointmentWidgetData.google_recaptcha_enable) {
                 grecaptcha.execute(bookAppointmentWidgetData.google_recatcha_site_key, { action: 'validate_captcha' })
                     .then(function (token) {
-                        var tab = document.getElementById(currentTab);
+                        var tab = ShortcodeElement.querySelector("#"+currentTab);
                         $(tab).find("#g-recaptcha-response").val(token);
                     });
             }
         }
 
         //next button click event
-        $(document).off('click', '[data-step="next"]');
-        $(document).on('click', '[data-step="next"]', function (e) {
-            var perviousTab = $('.iq-tab-pannel.active').find('form').attr('data-prev');
-            var target = $('.iq-tab-pannel.active').find('form').attr('action');
-            removeTabActiveLink($(`[href="${target}"]`).closest('.tab-item'));
-            var currentTab = $('.iq-tab-pannel.active').find('form').closest('.iq-tab-pannel').attr('id')
+        $(elementID).off('click', '[data-step="next"]');
+        $(elementID).on('click', '[data-step="next"]',  (e)=> {
+            let _this=e.currentTarget
+            var perviousTab = $(elementID+' .iq-tab-pannel.active').find('form').attr('data-prev');
+            var target = $(elementID+' .iq-tab-pannel.active').find('form').attr('action');
+            removeTabActiveLink($(elementID+` [href="${target}"]`).closest('.tab-item'));
+            var currentTab = $(elementID+' .iq-tab-pannel.active').find('form').closest('.iq-tab-pannel').attr('id')
+
+            console.log(perviousTab,currentTab);
+            
 
             switch (currentTab) {
                 case 'clinic':
@@ -290,15 +296,15 @@ function kcAppointmentBookJsContent() {
                     }
                     break;
                 case 'file-uploads-custom':
-                    $('#customFieldsListAppointment .kivicare-required').prop('required', true);
-                    $.each($('#customFieldsListAppointment').find(':input:checkbox').parent().parent(), function (key, value) {
+                    $(elementID+' #customFieldsListAppointment .kivicare-required').prop('required', true);
+                    $.each($(elementID+' #customFieldsListAppointment').find(':input:checkbox').parent().parent(),  (key, value)=> {
                         let cbx_group = $(value).find(':input:checkbox');
                         if (cbx_group.is(":checked")) {
                             cbx_group.prop('required', false);
                         }
                     });
 
-                    if (!$("#kivicare-file-upload-form")[0].checkValidity()) {
+                    if (!$(elementID+" #kivicare-file-upload-form")[0].checkValidity()) {
                         return
                     }
                     appointment_custom_fields = kivicareCustomFieldsData('customFieldsListAppointment');
@@ -306,7 +312,7 @@ function kcAppointmentBookJsContent() {
                         target = '#confirm';
                     }
                     window.requestAnimationFrame(function () {
-                        var element = document.getElementById("CountryCode").parentElement;
+                        var element = ShortcodeElement.querySelector("#CountryCode").parentElement;
                         var elementwidth = element.offsetWidth;
                         element.style.setProperty('--kc-country-code-width', elementwidth + 'px');
                     });
@@ -317,16 +323,16 @@ function kcAppointmentBookJsContent() {
                     var formName = document.getElementsByClassName('authActive active')
                     for (var i = 0; i < formName.length; i++) {
                         if (formName[i].id == 'kc_login') {
-                            $('#kc_login #kivicare-login-form input').prop('required', true);
-                            $('#kc_register #kivicare-register-form input,textarea, select').prop('required', false);
+                            $(elementID+' #kc_login #kivicare-login-form input').prop('required', true);
+                            $(elementID+' #kc_register #kivicare-register-form input,textarea, select').prop('required', false);
 
-                            if (!$("#kiviLoginRegister")[0].checkValidity()) {
+                            if (!$(elementID+" #kiviLoginRegister")[0].checkValidity()) {
                                 return
                             }
 
                             var result = {};
-                            $.each($('#kc_login #kivicare-login :input').serializeArray(), function () {
-                                result[this.name] = this.value;
+                            $.each($(elementID+' #kc_login #kivicare-login :input').serializeArray(), function (index, field) {
+                                result[field.name] = field.value;
                             });
                             e.preventDefault();
                             kivicareButtonDisableChangeText('#kiviLoginRegister', true, bookAppointmentWidgetData.message.loading)
@@ -338,12 +344,12 @@ function kcAppointmentBookJsContent() {
                                         bookAppointmentWidgetData.ajax_get_nonce = response.data.token.get;
                                         bookAppointmentWidgetData.ajax_post_nonce = response.data.token.post;
                                         userLogin = true
-                                        $("#kivicare_logout_btn").removeClass('d-none');
+                                        $(elementID+" #kivicare_logout_btn").removeClass('d-none');
                                         kivicareShowErrorMessage('kivicare_success_msg', response.data.message);
                                         showConfirmPage(target, currentTab)
-                                        $(`[href="#${currentTab}"]`).closest('.tab-item').attr('data-check', true)
-                                        $(`[href="${target}"]`).closest('.tab-item').addClass('active')
-                                        tabShow(target);
+                                        $(elementID+` [href="#${currentTab}"]`).closest('.tab-item').attr('data-check', true)
+                                        $(elementID+` [href="${target}"]`).closest('.tab-item').addClass('active')
+                                        tabShow(elementID+' '+target);
 
                                     } else {
                                         kivicareShowErrorMessage('kivicare_error_msg_login_register', response.data.message);
@@ -355,23 +361,23 @@ function kcAppointmentBookJsContent() {
                                 })
                         }
                         if (formName[i].id == 'kc_register') {
-                            $('#kc_login #kivicare-login-form input').prop('required', false);
-                            $('#kc_register #kivicare-register input').prop('required', true);
-                            $('#customFieldsList .kivicare-required').prop('required', true);
-                            $.each($('#customFieldsList').find(':input:checkbox').parent().parent(), function (key, value) {
+                            $(elementID+' #kc_login #kivicare-login-form input').prop('required', false);
+                            $(elementID+' #kc_register #kivicare-register input').prop('required', true);
+                            $(elementID+' #customFieldsList .kivicare-required').prop('required', true);
+                            $.each($(elementID+' #customFieldsList').find(':input:checkbox').parent().parent(), function (key, value) {
                                 let cbx_group = $(value).find(':input:checkbox');
                                 if (cbx_group.is(":checked")) {
                                     cbx_group.prop('required', false);
                                 }
                             });
 
-                            if (!$("#kiviLoginRegister")[0].checkValidity()) {
+                            if (!$(elementID+" #kiviLoginRegister")[0].checkValidity()) {
                                 return
                             }
 
                             var result = {};
-                            $.each($('#kc_register #kivicare-register :input').serializeArray(), function () {
-                                result[this.name] = this.value;
+                            $.each($(elementID+' #kc_register #kivicare-register :input').serializeArray(), function () {
+                                result[_this.name] = _this.value;
                             });
 
                             var custom_fields = kivicareCustomFieldsData('customFieldsList');
@@ -383,7 +389,7 @@ function kcAppointmentBookJsContent() {
                                 }
                             ];
                             const registerData = {...result, ...{custom_fields}};
-                            let formData = new FormData(document.getElementById('kiviLoginRegister'))
+                            let formData = new FormData(ShortcodeElement.querySelector('#kiviLoginRegister'))
                             $.each(registerData, function (key, value) {
                                 if (typeof (value) === 'object') {
                                     value = JSON.stringify(value)
@@ -398,12 +404,12 @@ function kcAppointmentBookJsContent() {
                                         bookAppointmentWidgetData.ajax_get_nonce = response.data.token.get;
                                         bookAppointmentWidgetData.ajax_post_nonce = response.data.token.post;
                                         userLogin = true
-                                        $("#kivicare_logout_btn").removeClass('d-none');
+                                        $(elementID+" #kivicare_logout_btn").removeClass('d-none');
                                         kivicareShowErrorMessage('kivicare_success_msg', response.data.message);
                                         showConfirmPage(target, currentTab)
-                                        $(`[href="#${currentTab}"]`).closest('.tab-item').attr('data-check', true)
-                                        $(`[href="${target}"]`).closest('.tab-item').addClass('active')
-                                        tabShow(target);
+                                        $(elementID+` [href="#${currentTab}"]`).closest('.tab-item').attr('data-check', true)
+                                        $(elementID+` [href="${target}"]`).closest('.tab-item').addClass('active')
+                                        tabShow(elementID+' '+target);
                                     } else {
                                         kivicareShowErrorMessage('kivicare_error_msg_login_register', response.data.message);
                                         kcCreateGoogleRecaptcha(currentTab);
@@ -423,10 +429,10 @@ function kcAppointmentBookJsContent() {
                     e.preventDefault();
                     if (target !== '#payment_mode') {
                         var result = [];
-                        $.each($('#confirm_detail_form :input').serializeArray(), function () {
-                            result[this.name] = this.value;
+                        $.each($(elementID+' #confirm_detail_form :input').serializeArray(), function () {
+                            result[_this.name] = _this.value;
                         });
-                        kivicareBookAppointment(this, bookAppointmentWidgetData.first_payment_method, result);
+                        kivicareBookAppointment(_this, bookAppointmentWidgetData.first_payment_method, result);
                         return;
                     } else {
                         showPaymentPage();
@@ -434,14 +440,14 @@ function kcAppointmentBookJsContent() {
                     break;
                 case 'payment_mode':
                     e.preventDefault();
-                    if ($('#payment_mode input:radio[name="payment_option"]:checked').length == 0) {
+                    if ($(elementID+' #payment_mode input:radio[name="payment_option"]:checked').length == 0) {
                         kivicareShowErrorMessage('kivicare_payment_mode_confirm', bookAppointmentWidgetData.message.select_payment_mode);
                     } else {
                         var result = [];
-                        $.each($('#payment_mode_form :input').serializeArray(), function () {
-                            result[this.name] = this.value;
+                        $.each($(elementID+' #payment_mode_form :input').serializeArray(), function () {
+                            result[_this.name] = _this.value;
                         });
-                        kivicareBookAppointment(this, $('#payment_mode input:radio[name="payment_option"]:checked').attr('id'), result);
+                        kivicareBookAppointment(_this, $(elementID+' #payment_mode input:radio[name="payment_option"]:checked').attr('id'), result);
                     }
                     return
                     break;
@@ -453,11 +459,11 @@ function kcAppointmentBookJsContent() {
                     break;
                 case '#file-uploads-custom':
                     if (bookAppointmentWidgetData.pro_plugin_active) {
-                        document.getElementById('customFieldsListAppointment').innerHTML = ' ';
+                        ShortcodeElement.querySelector('#customFieldsListAppointment').innerHTML = ' ';
                         get('get_appointment_custom_field', { doctor_id: kivicareGetSelectedItem('selected-doctor'),service_id: kivicareGetSelectedServie('single', 'service_id') }, true)
                             .then((res) => {
                                 if (res.data.status !== undefined && res.data.status) {
-                                    document.getElementById('customFieldsListAppointment').innerHTML = validateDOMData(res.data.data);
+                                    ShortcodeElement.querySelector('#customFieldsListAppointment').innerHTML = validateDOMData(res.data.data);
                                     kcInitMultiselectElement('customFieldsListAppointment')
                                 }
                             }).catch((error) => {
@@ -473,21 +479,22 @@ function kcAppointmentBookJsContent() {
                     break;
             }
 
-            $(`[href="#${currentTab}"]`).closest('.tab-item').attr('data-check', true)
-            $(`[href="${target}"]`).closest('.tab-item').addClass('active')
+            $(elementID+` [href="#${currentTab}"]`).closest('.tab-item').attr('data-check', true)
+            $(elementID+` [href="${target}"]`).closest('.tab-item').addClass('active')
+            
             if (target != '#confirm') {
-                tabShow(target);
+                tabShow(elementID+' '+target);
             }
         })
 
         //previous button click event
-        $(document).off('click', '[data-step="prev"]');
-        $(document).on('click', '[data-step="prev"]', function (e) {
+        $(elementID).off('click', '[data-step="prev"]');
+        $(elementID).on('click', '[data-step="prev"]', function (e) {
             e.preventDefault();
-            let target = $('.iq-tab-pannel.active').find('form').attr('data-prev');
-            const currentTab = $('.iq-tab-pannel.active').find('form').closest('.iq-tab-pannel').attr('id')
-            $(`[href="#${currentTab}"]`).closest('.tab-item').attr('data-check', false)
-            $(`[href="#${currentTab}"]`).closest('.tab-item').removeClass('active')
+            let target = $(elementID+' .iq-tab-pannel.active').find('form').attr('data-prev');
+            const currentTab = $(elementID+' .iq-tab-pannel.active').find('form').closest('.iq-tab-pannel').attr('id')
+            $(elementID+` [href="#${currentTab}"]`).closest('.tab-item').attr('data-check', false)
+            $(elementID+` [href="#${currentTab}"]`).closest('.tab-item').removeClass('active')
             if (currentTab == 'confirm') {
                 if (bookAppointmentWidgetData.extra_tab_show) {
                     target = '#file-uploads-custom';
@@ -501,26 +508,26 @@ function kcAppointmentBookJsContent() {
                     target = '#date-time';
                 }
             } else if (currentTab == 'clinic' || currentTab == 'doctor') {
-                $('.iq-tab-pannel.active').find('form').find('input[type="radio"]').prop('checked', false);
+                $(elementID+' .iq-tab-pannel.active').find('form').find('input[type="radio"]').prop('checked', false);
             } else if (currentTab == 'category') {
-                $('.iq-tab-pannel.active').find('form').find('input[type="checkbox"]').prop('checked', false);
-                tabShow(target);
+                $(elementID+' .iq-tab-pannel.active').find('form').find('input[type="checkbox"]').prop('checked', false);
+                tabShow(elementID+' '+target);
             } else if (currentTab == 'date-time') {
-                let timeslot = document.getElementById("timeSlotLists")
+                let timeslot = ShortcodeElement.querySelector("#timeSlotLists")
                 timeslot.classList.remove('d-grid')
                 timeslot.style.height = '100%';
                 timeslot.parentNode.style.height = '400px';
                 timeslot.innerHTML = `<p class="loader-class">` + bookAppointmentWidgetData.message.please_select_date + `</p>`
             }
-            $(`[href="${target}"]`).closest('.tab-item').addClass('active')
-            $(`[href="${target}"]`).closest('.tab-item').attr('data-check', false)
-            tabShow(target);
+            $(elementID+` [href="${target}"]`).closest('.tab-item').addClass('active')
+            $(elementID+` [href="${target}"]`).closest('.tab-item').attr('data-check', false)
+            tabShow(elementID+' '+target);
 
         })
 
 
-        $(document).off('change', '.selected-service');
-        $(document).on('change', '.selected-service', function (e){
+        $(elementID).off('change', '.selected-service');
+        $(elementID).on('change', '.selected-service', function (e){
             const selected_service_clinic = $(this).attr('clinic_id');
             const service_id = $(this).attr('value')
             if (this.checked) {
@@ -541,74 +548,74 @@ function kcAppointmentBookJsContent() {
             }
         });
         //change tab if service is single select
-        $(document).off('change', '.selected-service-single');
-        $(document).on('change', '.selected-service-single', function (e) {
+        $(elementID).off('change', '.selected-service-single');
+        $(elementID).on('change', '.selected-service-single', function (e) {
             if (this.checked) {
-                $('.selected-service').prop('checked', false);
+                $(elementID+' .selected-service').prop('checked', false);
                 $(this).prop('checked', true);
                 if ($(this).attr('multipleservice') == 'no') {
-                    $('.selected-service').prop('disabled', true);
+                    $(elementID+' .selected-service').prop('disabled', true);
                     $(this).prop('disabled', false);
                 }
                 //move to next tab
-                $('.iq-tab-pannel.active').find('form').find('[data-step="next"]').trigger('click');
+                $(elementID+' .iq-tab-pannel.active').find('form').find('[data-step="next"]').trigger('click');
             } else {
                 if ($(this).attr('multipleservice') == 'no') {
-                    $('.selected-service').prop('disabled', false);
+                    $(elementID+' .selected-service').prop('disabled', false);
                 }
             }
         })
 
         //move to next tab when doctor select
-        $(document).off('change', '.kivicare-doctor-widget');
-        $(document).on('change', '.kivicare-doctor-widget', function (e) {
-            $('.iq-tab-pannel.active').find('form').find('[data-step="next"]').trigger('click');
+        $(elementID).off('change', '.kivicare-doctor-widget');
+        $(elementID).on('change', '.kivicare-doctor-widget', function (e) {
+            $(elementID+' .iq-tab-pannel.active').find('form').find('[data-step="next"]').trigger('click');
         })
 
         //move to next tab when timeslot selected
-        $(document).off('change', '.selected-time');
-        $(document).on('change', '.selected-time', function (e) {
-            $('.iq-tab-pannel.active').find('form').find('[data-step="next"]').trigger('click');
+        $(elementID).off('change', '.selected-time');
+        $(elementID).on('change', '.selected-time', function (e) {
+            $(elementID+' .iq-tab-pannel.active').find('form').find('[data-step="next"]').trigger('click');
         });
 
         //move to next tab when clinic selected
-        $(document).off('change', '.selected-clinic');
-        $(document).on('change', '.selected-clinic', function (e) {
-            $('.iq-tab-pannel.active').find('form').find('[data-step="next"]').trigger('click');
+        $(elementID).off('change', '.selected-clinic');
+        $(elementID).on('change', '.selected-clinic', function (e) {
+            $(elementID+' .iq-tab-pannel.active').find('form').find('[data-step="next"]').trigger('click');
         })
 
         //get appointment confirmation page details
         function showConfirmPage(target, currentTab) {
             var selectedService = kivicareGetSelectedServie('single', 'service_id');;
-            let description = document.getElementById('appointment-descriptions-field');
+            let description = ShortcodeElement.querySelector('#appointment-descriptions-field');
             description = description !== null ? description.value : ''
-            $('#kivi_confirm_page').addClass('d-none')
-            $('#confirm_loader').removeClass('d-none')
-            document.getElementById('kivi_confirm_page').innerHTML = ''
+            $(elementID+' #kivi_confirm_page').addClass('d-none')
+            $(elementID+' #confirm_loader').removeClass('d-none')
+            ShortcodeElement.querySelector('#kivi_confirm_page').innerHTML = ''
             setTimeout(() => {
                 post('appointment_confirm_page', { clinic_id: kivicareGetSelectedItem('selected-clinic'), doctor_id: kivicareGetSelectedItem('selected-doctor'), service_list: selectedService, time: kivicareGetSelectedItem('selected-time'), date: appointmentDate, description: description, file: appointmentUploadFiles, custom_field: appointment_custom_fields })
                     .then((response) => {
-                        $('#kivi_confirm_page').removeClass('d-none')
-                        $('#confirm_loader').addClass('d-none')
+                        $(elementID+' #kivi_confirm_page').removeClass('d-none')
+                        $(elementID+' #confirm_loader').addClass('d-none')
                         if (response.data.status) {
-                            document.getElementById('kivi_confirm_page').innerHTML = validateDOMData(response.data.data);
+                            ShortcodeElement.querySelector('#kivi_confirm_page').innerHTML = validateDOMData(response.data.data);
                             tax_details = response.data.tax_details
                         }
                     }).catch((error) => {
-                        $('#kivi_confirm_page').removeClass('d-none')
-                        $('#confirm_loader').addClass('d-none')
+                        $(elementID+' #kivi_confirm_page').removeClass('d-none')
+                        $(elementID+' #confirm_loader').addClass('d-none')
                         console.log(error);
                         kivicareShowErrorMessage('kivicare_error_msg_confirm', bookAppointmentWidgetData.message.internal_server_msg);
                     })
 
-                $(`[href="#${currentTab}"]`).closest('.tab-item').attr('data-check', true)
-                $(`[href="${target}"]`).closest('.tab-item').addClass('active')
-                tabShow(target);
+                $(elementID+` [href="#${currentTab}"]`).closest('.tab-item').attr('data-check', true)
+                $(elementID+` [href="${target}"]`).closest('.tab-item').addClass('active')
+                tabShow(elementID+' '+target);
             }, bookAppointmentWidgetData.user_login ? 100 : 1000)
         }
 
         // register/login tab navbar change event
-        $('[data-iq-toggle="tab"]').on('click', function (e) {
+        $(elementID+' [data-iq-toggle="tab"]').on('click', function (e) {
             if ($(this).attr('href') === '#kc_login') {
                 $(this).closest('form').find('button[data-step="next"]').html(bookAppointmentWidgetData.message.login);
             }
@@ -621,7 +628,7 @@ function kcAppointmentBookJsContent() {
             if ($(this).attr('data-iq-tab') !== 'prevent') {
                 $(this).closest('.tab-item').find('.tab-link.active').removeClass('active')
                 activeNavItem($(this));
-                tabShow(tab_id);
+                tabShow(elementID+' '+tab_id);
                 removeTabActiveLink($(this));
             }
         });
@@ -638,13 +645,13 @@ function kcAppointmentBookJsContent() {
         }
 
         // Model script
-        $(document).on('click', '[data-toggle="modal"]', function () {
+        $(elementID).on('click', '[data-toggle="modal"]', function () {
             const target = $(this).data('target');
             showModal(target);
         })
 
         function showModal(target) {
-            $('.modal').removeClass('show');
+            $(elementID+' .modal').removeClass('show');
             $(target).addClass('show');
             const event = new CustomEvent('modalShown', {
                 detail: {
@@ -657,7 +664,7 @@ function kcAppointmentBookJsContent() {
 
         //get doctor list from api
         function kivicareGetDoctorLists(searchKey_in = '') {
-            let doctorLists = document.getElementById("doctorLists");
+            let doctorLists = ShortcodeElement.querySelector("#doctorLists");
             doctorLists.classList.remove('card-list');
             kivicareAddLoader(doctorLists);
             var service_id = kivicareGetSelectedServie('single', 'service_id');
@@ -686,7 +693,10 @@ function kcAppointmentBookJsContent() {
         }
 
         function kivicareGetClinicsLists(searchKey_in = '') {
-            let clinicCard = document.getElementById("clinicLists");
+            
+            let clinicCard = ShortcodeElement.querySelector("#clinicLists");
+            console.log(clinicCard);
+            
             clinicCard.classList.remove('card-list');
             kivicareAddLoader(clinicCard);
             var service_id = kivicareGetSelectedServie('single', 'service_id');
@@ -715,7 +725,8 @@ function kcAppointmentBookJsContent() {
 
         //get service list from api
         function kivicareGetServiceLists(searchKey_in) {
-            let serviceLists = document.getElementById("serviceLists");
+            let serviceLists = ShortcodeElement.querySelector("#serviceLists");
+            
             kivicareAddLoader(serviceLists);
             get('service_list', {
                 doctor_id: kivicareGetSelectedItem('selected-doctor'),
@@ -732,7 +743,7 @@ function kcAppointmentBookJsContent() {
 
                         if(bookAppointmentWidgetData.skip_service_when_single == true && service_data.length !== 0){
                             if(searchKey_in == undefined || searchKey_in == null || searchKey_in == ''){
-                                document.querySelector('[data-step="next"]').click();
+                                ShortcodeElement.querySelector('[data-step="next"]').click();
                             }
                         }
                         
@@ -761,7 +772,7 @@ function kcAppointmentBookJsContent() {
                 }
             }
 
-            let tempElement = $('.' + element);
+            let tempElement = $(elementID+' .' + element);
             if (tempElement.length > 0) {
                 for (let i = 0; i < tempElement.length; i++) {
                     if (tempElement[i].checked == true) {
@@ -773,7 +784,7 @@ function kcAppointmentBookJsContent() {
         }
 
         //get selected service
-        function kivicareGetSelectedServie(type = 'all', value = '') {
+        function kivicareGetSelectedServie(type = 'all', value = '') {   
             var service_id = [];
             var visit_type;
             if(bookAppointmentWidgetData.selected_service_id_data != null){
@@ -791,7 +802,7 @@ function kcAppointmentBookJsContent() {
                 }
                 return service_id;
             }else{
-                var name = $('.selected-service');
+                var name = $(elementID+' .selected-service');
                 if (name.length > 0) {
                     for (var i = 0; i < name.length; i++) {
                         if (name[i].checked == true) {
@@ -800,7 +811,9 @@ function kcAppointmentBookJsContent() {
                                     'id': name[i].value,
                                     'service_id': name[i].attributes.service_id.nodeValue,
                                     'name': name[i].attributes.service_name.nodeValue,
-                                    'charges': name[i].attributes.service_price.nodeValue
+                                    'charges': name[i].attributes.service_price.nodeValue,
+                                    'telemed_service': name[i].attributes.telemed_service.nodeValue,
+                                    
                                 }
                                 service_id.push(visit_type)
                             } else {
@@ -817,12 +830,12 @@ function kcAppointmentBookJsContent() {
 
         //show error message
         function kivicareShowErrorMessage(element, message) {
-            document.getElementById(element).style.display = 'block';
+            ShortcodeElement.querySelector("#"+element).style.display = 'block';
             if (message !== '') {
-                document.getElementById(element).innerHTML = message;
+                ShortcodeElement.querySelector("#"+element).innerHTML = message;
             }
             setTimeout(() => {
-                document.getElementById(element).style.display = 'none';
+                ShortcodeElement.querySelector("#"+element).style.display = 'none';
             }, 3000);
         }
 
@@ -842,9 +855,9 @@ function kcAppointmentBookJsContent() {
 
         //get doctor working days array
         function kivicareGetDoctorWeekday(id) {
-            $('#doctor-datepicker-loader').removeClass('d-none');
-            $('.doctor-session-error').addClass('d-none');
-            $('.iq-kivi-calendar-slot').addClass('d-none')
+            $(elementID+' #doctor-datepicker-loader').removeClass('d-none');
+            $(elementID+' .doctor-session-error').addClass('d-none');
+            $(elementID+' .iq-kivi-calendar-slot').addClass('d-none')
             let selected_clinic = kivicareGetSelectedItem('selected-clinic');
             let doctorWorkdayajaxData = {
                 clinic_id: selected_clinic, 
@@ -860,15 +873,15 @@ function kcAppointmentBookJsContent() {
 
                         // If doctor does not have any working days, show message and hide date picker
                         if ([0, 1, 2, 3, 4, 5, 6].every(r => days.includes(r))) {
-                            $('.doctor-session-error').removeClass('d-none');
-                            $('.doctor-session-loader').addClass('d-none');
-                            $('#doctor-datepicker-loader').addClass('d-none');
-                            $('.iq-kivi-calendar-slot').addClass('d-none');
+                            $(elementID+' .doctor-session-error').removeClass('d-none');
+                            $(elementID+' .doctor-session-loader').addClass('d-none');
+                            $(elementID+' #doctor-datepicker-loader').addClass('d-none');
+                            $(elementID+' .iq-kivi-calendar-slot').addClass('d-none');
                         } else {
-                            $('.iq-kivi-calendar-slot').removeClass('d-none');
-                            $('.doctor-session-loader').addClass('d-none');
-                            $('.doctor-session-error').addClass('d-none');
-                            $('#doctor-datepicker-loader').addClass('d-none');
+                            $(elementID+' .iq-kivi-calendar-slot').removeClass('d-none');
+                            $(elementID+' .doctor-session-loader').addClass('d-none');
+                            $(elementID+' .doctor-session-error').addClass('d-none');
+                            $(elementID+' #doctor-datepicker-loader').addClass('d-none');
 
                             // Initialize datepicker
                             flatpickr(".iq-inline-datepicker", {
@@ -894,13 +907,13 @@ function kcAppointmentBookJsContent() {
                                 locale: bookAppointmentWidgetData.message.full_calendar,
                                 shorthandCurrentMonth: true,
                                 onChange: function (selectedDates, dateStr, instance) { // Event when date selected in calendar
-                                    let timeSlotListsElement = document.getElementById("timeSlotLists");
+                                    let timeSlotListsElement = ShortcodeElement.querySelector("#timeSlotLists");
                                     timeSlotListsElement.classList.remove('d-grid');
                                     kivicareAddLoader(timeSlotListsElement);
                                     let selected_clinic = kivicareGetSelectedItem('selected-clinic');
                                     let selected_doctor = kivicareGetSelectedItem('selected-doctor');
-                                    $('#timeSlotLists').css('height', '100%');
-                                    $('#timeSlotLists').parent().css('height', '400px');
+                                    $(elementID+' #timeSlotLists').css('height', '100%');
+                                    $(elementID+' #timeSlotLists').parent().css('height', '400px');
                                     appointmentDate = dateStr;
                                     var visit_type_data = kivicareGetSelectedServie('all', '');
                                     let timeSlotAjaxData = {
@@ -914,8 +927,8 @@ function kcAppointmentBookJsContent() {
                                     get('get_time_slots', timeSlotAjaxData)
                                         .then((res) => {
                                             if (res.data.status !== undefined && res.data.status) {
-                                                $('#timeSlotLists').css('height', '');
-                                                $('#timeSlotLists').parent().css('height', '');
+                                                $(elementID+' #timeSlotLists').css('height', '');
+                                                $(elementID+' #timeSlotLists').parent().css('height', '');
                                                 timeSlotListsElement.classList.add('d-grid');
                                                 timeSlotListsElement.innerHTML = validateDOMData(res.data.html);
                                             } else if (res.data.status !== undefined && !res.data.status) {
@@ -927,7 +940,7 @@ function kcAppointmentBookJsContent() {
                                             kivicareShowErrorMessage('kivicare_error_msg', bookAppointmentWidgetData.message.internal_server_msg);
                                         });
 
-                                    $('.iq-inline-datepicker').addClass('d-none');
+                                    $(elementID+' .iq-inline-datepicker').addClass('d-none');
                                 },
                             });
                         }
@@ -947,11 +960,11 @@ function kcAppointmentBookJsContent() {
         }
 
         //appointment file upload
-        $(document).off('change', '#kivicareaddMedicalReport');
-        $(document).on('change', '#kivicareaddMedicalReport', function (e) {
-            document.getElementById('kivicare_file_upload_review').innerHTML = '';
+        $(elementID).off('change', '#kivicareaddMedicalReport');
+        $(elementID).on('change', '#kivicareaddMedicalReport', function (e) {
+            ShortcodeElement.querySelector('#kivicare_file_upload_review').innerHTML = '';
             appointmentUploadFiles = [];
-            let form_id = document.getElementById('kivicare-file-upload-form')
+            let form_id = ShortcodeElement.querySelector('#kivicare-file-upload-form')
             let formData = new FormData(form_id);
             kivicareButtonDisableChangeText('#kivicare-file-upload-form', true, bookAppointmentWidgetData.message.loading)
             //api to upload files and get upload files attachment ids
@@ -962,7 +975,7 @@ function kcAppointmentBookJsContent() {
                         if (response.data.data.length > 0) {
                             kivicareShowErrorMessage('kivicare_success_msg', response.data.message);
                             appointmentUploadFiles = response.data.data
-                            document.getElementById('kivicare_file_upload_review').innerHTML = validateDOMData(response.data.html);
+                            ShortcodeElement.querySelector('#kivicare_file_upload_review').innerHTML = validateDOMData(response.data.html);
                         }
                     } else {
                         kivicareShowErrorMessage('kivicare_error_msg', response.data.message);
@@ -977,12 +990,12 @@ function kcAppointmentBookJsContent() {
         //get custom fields data
         function kivicareCustomFieldsData(ele) {
             var custom_fields = {};
-            $.each($('#' + ele).find('select, textarea, :input:not(:checkbox)').serializeArray(), function () {
+            $.each($(elementID+' #' + ele).find('select, textarea, :input:not(:checkbox)').serializeArray(), function () {
                 custom_fields[this.name] = this.value;
             });
             var temp = [];
             var temp2 = '';
-            $.each($('#' + ele).find(':input:checkbox').serializeArray(), function (key, value) {
+            $.each($(elementID+' #' + ele).find(':input:checkbox').serializeArray(), function (key, value) {
                 if (temp2 !== value.name) {
                     temp = [];
                 }
@@ -990,7 +1003,7 @@ function kcAppointmentBookJsContent() {
                 custom_fields[value.name] = temp;
                 temp2 = value.name;
             });
-            $('#'+ele).find('.appointment_widget_multiselect').each(function() {
+            $(elementID+' #'+ele).find('.appointment_widget_multiselect').each(function() {
                 custom_fields[$(this).attr('name')] = $(this).val().map((index)=>{
                     return { 'id': index, 'text' : index}
                 });                                                 
@@ -1002,7 +1015,7 @@ function kcAppointmentBookJsContent() {
         function kivicareBookAppointment(_this, payment_mode, result = []) {
             payment_select_mode = payment_mode;
             var visit_type_data = kivicareGetSelectedServie('all', '');
-            let description = document.getElementById('appointment-descriptions-field');
+            let description = ShortcodeElement.querySelector('#appointment-descriptions-field');
             description = description !== null ? description.value : ''
 
             let formElement = $(_this).parents('form');
@@ -1016,7 +1029,9 @@ function kcAppointmentBookJsContent() {
             kivicareButtonDisableChangeText(formElement, true, bookAppointmentWidgetData.message.loading);
             kivicareButtonDisableBackButton(formElement, true);
             $(overlaySpinElement).removeClass('d-none');
-            document.getElementById(messageSpanElementId).style.display = 'none';
+            console.log(messageSpanElementId);
+            
+            ShortcodeElement.querySelector("#"+messageSpanElementId).style.display = 'none';
 
             post('save_appointment', {
                 appointment_start_date: appointmentDate,
@@ -1094,7 +1109,7 @@ function kcAppointmentBookJsContent() {
                 kivicareButtonDisableChangeText(formElement, false, bookAppointmentWidgetData.message.confirm);
                 jQuery(formElement).css('opacity', '');
                 jQuery(formElement).find('.kivi-overlay-spinner').addClass('d-none');
-                tabShow('#payment_error');
+                tabShow(elementID+' '+'#payment_error');
             }
         }
 
@@ -1106,7 +1121,7 @@ function kcAppointmentBookJsContent() {
         }
 
         //focus child window on loader click
-        $(document).on('click', '#payment_mode_confirm_loader', function (e) {
+        $(elementID).on('click', '#payment_mode_confirm_loader', function (e) {
             e.preventDefault();
             if (child !== '') {
                 child.focus()
@@ -1116,25 +1131,25 @@ function kcAppointmentBookJsContent() {
         //get appointment payment page content
         function showPaymentPage(target, currentTab) {
             var selectedService = kivicareGetSelectedServie('all', '');
-            let description = document.getElementById('appointment-descriptions-field');
+            let description = ShortcodeElement.querySelector('#appointment-descriptions-field');
             description = description !== null ? description.value : ''
             post('get_widget_payment_options', { clinic_id: kivicareGetSelectedItem('selected-clinic'), doctor_id: kivicareGetSelectedItem('selected-doctor'), service_list: selectedService, time: kivicareGetSelectedItem('selected-time'), date: appointmentDate, description: description, file: appointmentUploadFiles, custom_field: appointment_custom_fields })
                 .then((response) => {
-                    $('#kivi_confirm_payment_page').removeClass('d-none')
-                    $('#confirm_loader').addClass('d-none')
+                    $(elementID+' #kivi_confirm_payment_page').removeClass('d-none')
+                    $(elementID+' #confirm_loader').addClass('d-none')
                     if (response.data.status) {
-                        document.getElementById('kivi_confirm_payment_page').innerHTML = validateDOMData(response.data.data);
+                        ShortcodeElement.querySelector('#kivi_confirm_payment_page').innerHTML = validateDOMData(response.data.data);
                     }
                 }).catch((error) => {
-                    $('#kivi_confirm_payment_page').removeClass('d-none')
-                    $('#confirm_loader').addClass('d-none')
+                    $(elementID+' #kivi_confirm_payment_page').removeClass('d-none')
+                    $(elementID+' #confirm_loader').addClass('d-none')
                     console.log(error);
                     kivicareShowErrorMessage('kivicare_error_msg_confirm', bookAppointmentWidgetData.message.internal_server_msg);
                 })
 
-            $(`[href="#${currentTab}"]`).closest('.tab-item').attr('data-check', true)
-            $(`[href="${target}"]`).closest('.tab-item').addClass('active')
-            tabShow(target);
+            $(elementID+` [href="#${currentTab}"]`).closest('.tab-item').attr('data-check', true)
+            $(elementID+` [href="${target}"]`).closest('.tab-item').addClass('active')
+            tabShow(elementID+' '+target);
         }
 
     })(window.jQuery)

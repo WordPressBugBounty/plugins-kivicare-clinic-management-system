@@ -8,8 +8,10 @@
 </div>
 <div class="card-widget-footer">
     <div class="d-flex justify-content-end gap-1-5 " style="margin-left: auto;">
-        <button type="button" class="iq-button iq-button-primary"
-                data-step="prev"><?php echo esc_html__('Try Again', 'kc-lang'); ?>
-        </button>
+        <a href="<?php echo esc_url(get_permalink()); ?>">
+            <button type="button" class="iq-button iq-button-primary"
+                    ><?php echo esc_html__('Try Again', 'kc-lang'); ?>
+            </button>
+        </a>
     </div>
 </div>

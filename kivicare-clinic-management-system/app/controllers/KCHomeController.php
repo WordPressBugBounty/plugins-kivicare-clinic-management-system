@@ -204,6 +204,17 @@ class KCHomeController extends KCBase
                     }
                     $user->is_enable_doctor_zoom_telemed = get_user_meta($user_id, KIVI_CARE_PREFIX . 'zoom_telemed_connect', true) == 'on' ? 'on' : 'off';
                     $user->is_zoom_config_enabled = get_option(KIVI_CARE_PREFIX . 'zoom_telemed_setting')['enableCal'] == 'Yes' ? 'on' :  'off';
+                    $user->is_zoom_server_to_server_oauth_enabled = get_option( KIVI_CARE_PREFIX . 'zoom_telemed_server_to_server_oauth_status');
+
+                    $user->is_enable_doctor_zoom_server_to_server_config = false;
+
+                    $doctor_zoom_server_to_server_oauth_config = get_user_meta( $user_id, 'zoom_server_to_server_oauth_config_data', true );
+                   
+                    if ( !empty($doctor_zoom_server_to_server_oauth_config) ) {
+                        $doctor_zoom_server_to_server_oauth_config = json_decode( $doctor_zoom_server_to_server_oauth_config );
+                        $user->is_enable_doctor_zoom_server_to_server_config = $doctor_zoom_server_to_server_oauth_config->enableServerToServerOauthconfig;
+                    }
+                    
 
                     if($user->is_enable_doctor_zoom_telemed == 'on'){
                         $zoomWarningStatus =  true;

@@ -204,7 +204,7 @@ class KCBookAppointmentWidgetController extends KCBase {
 
 		global $wpdb;
 
-		$formData = $this->request->getInputs();
+		$formData = $this->request->getInputs();       
         $proPluginActive = isKiviCareProActive();
         $telemedZoomPluginActive = isKiviCareTelemedActive();
         $telemedGooglemeetPluginActive = isKiviCareGoogleMeetActive();
@@ -294,27 +294,30 @@ class KCBookAppointmentWidgetController extends KCBase {
                 })->toArray();
                 foreach ($formData['visit_type'] as $key => $value) {
                     $service = strtolower($value['name']);
-                    $all_appointment_service_name[] = $service;
-                    if (in_array('yes',$telemed_service_in_appointment_service)) {
+                    $all_appointment_service_name[] = $service;            
+                    if ($value['telemed_service'] === 'yes') {
                         if ($telemedZoomPluginActive || $telemedGooglemeetPluginActive) {
                             $formData['appointment_id'] = $patient_appointment_id;
 							$formData['time_slot'] = $time_slot;
-                            if($doctorTelemedType == 'googlemeet'){
-                                $telemed_res_data = apply_filters('kcgm_save_appointment_event',['appoinment_id' => $patient_appointment_id,'service' => kcServiceListFromRequestData($formData)]);
-                            }else{
-                                $telemed_res_data = apply_filters('kct_create_appointment_meeting', $formData);
+                            
+                            if($formData['payment_mode'] !== 'paymentWoocommerce'){
+                                if($doctorTelemedType == 'googlemeet'){
+                                    $telemed_res_data = apply_filters('kcgm_save_appointment_event',['appoinment_id' => $patient_appointment_id,'service' => kcServiceListFromRequestData($formData)]);
+                                }else{
+                                    $telemed_res_data = apply_filters('kct_create_appointment_meeting', $formData);
+                                }
+                                if(empty($telemed_res_data['status'])) {
+                                    ( new KCAppointmentServiceMapping() )->delete( [ 'appointment_id' =>  (int)$patient_appointment_id] );
+                                    ( new KCAppointment() )->delete( [ 'id' =>  (int)$patient_appointment_id] );
+                                    do_action('kc_appointment_cancel',$patient_appointment_id);
+                                    wp_send_json([
+                                        'status'  => false,
+                                        'message' => __('Failed to generate Video Meeting.', 'kc-lang'),
+                                    ]);
+                                }
+                                // send zoom link
+                                $telemed_service_include = true;
                             }
-                            if(empty($telemed_res_data['status'])) {
-                                ( new KCAppointmentServiceMapping() )->delete( [ 'appointment_id' =>  (int)$patient_appointment_id] );
-                                ( new KCAppointment() )->delete( [ 'id' =>  (int)$patient_appointment_id] );
-                                do_action('kc_appointment_cancel',$patient_appointment_id);
-	                            wp_send_json([
-                                    'status'  => false,
-                                    'message' => __('Failed to generate Video Meeting.', 'kc-lang'),
-                                ]);
-                            }
-                            // send zoom link
-                            $telemed_service_include = true;
                         }
                     }
 
@@ -326,7 +329,7 @@ class KCBookAppointmentWidgetController extends KCBase {
 							'status' => 1
                         ]);
                     }
-                }
+                }      
             }
 
 			if ( in_array((string)$formData['status'],['2','4'])) {

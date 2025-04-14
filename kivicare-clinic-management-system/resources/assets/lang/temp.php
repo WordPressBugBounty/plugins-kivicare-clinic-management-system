@@ -453,6 +453,9 @@ $data = [
         "total_amount" => __("Total AMOUNT", "kc-lang"),
         "total_appointment" => __("Total Appointment", "kc-lang"),
         "update_appointment_status" => __("Press yes to update appointment status", "kc-lang"),
+        "zoom_confirmation_lbl" => __("Press yes to connect to Zoom. Connecting to Zoom will disconnect Google Meet.", "kc-lang"),
+        "zoom_server_to_server_confirmation_lbl" => __("Press Yes to save sever to server oauth congiguration. and will disconnect Google Meet.", "kc-lang"),
+        "google_meet_confirmation_lbl" => __("Press yes to connect to Google Meet. Connecting to Google Meet will disconnect Zoom.", "kc-lang"),
         "update_system" => __("Press yes to update payment status", "kc-lang"),
         "video_consultation" => __("Video Consultation", "kc-lang"),
         "weekly" => __("Weekly", "kc-lang"),
@@ -616,6 +619,7 @@ $data = [
         "image_details"  => __("Image Details", "kc-lang"),
         "delete_form"  => __("Delete", "kc-lang"),
         "no_result_found" => __("No Result Found", "kc-lang"),
+        "are_you_sure_lbl" => __("Are you sure ?", "kc-lang"),
     ],
     "paypal" => [
         "paypal_setting" => __("Paypal Settings", "kc-lang"),
@@ -1906,6 +1910,8 @@ $data = [
         "redirect_url_required" => __("Redirect URL is Required", "kc-lang"),
         "deprecated_notice" => __("The Zoom JWT app type is being deprecated. Please switch to OAuth for your Zoom app to continue your Telemed Service.", "kc-lang"),
         "deprecated_notice_btn" => __("Click Here To Goto Settings", "kc-lang"),
+        "zoom_telemed_server_to_server_oauth" => __("Zoom Telemed Server To Server Oauth", 'kc-lang'),
+
     ],
     "serverToserverAuth" =>[
         "server_to_server_auth" => __("Server to Server Auth", "kc-lang"),
@@ -1929,6 +1935,15 @@ $data = [
         "zoom_step5" => __("Step 5: Copy and Paste Account Id, Client Id and Client Secret here and click on save button and you are ready to go.", "kc-lang"),
         "zoom_market_place_portal" => __("Zoom market Place portal", "kc-lang"),
         "create_app" => __("Create app", "kc-lang"),
+        "zoom_telemed_server_to_server_oauth_config" => __("Zoom Telemed Server To Server Oauth Configuration", "kc-lang"),
+        "zoom_s2s_configuration_guide" => __("Zoom Server-to-Server Configuration Guide", "kc-lang"),
+        "zoom_s2s_step1" => __("Step 1: Sign up or Sign in here", "kc-lang"),
+        "zoom_s2s_step2" => __("Step 2: Click/Hover on Develop button at the right in navigation bar and click on build app", "kc-lang"),
+        "zoom_s2s_step3" => __("Step 3: Select Server-to-Server OAuth and click Create", "kc-lang"),
+        "zoom_s2s_step4" => __("Step 4: Fill the mandatory information and in the App Credentials tab you can see Account ID, Client ID and Client Secret.", "kc-lang"),
+        "zoom_s2s_step5" => __("Step 5: Copy and paste Account ID, Client ID and Client Secret here and click on save button and you are ready to go.", "kc-lang"),
+        "create_app" => __("Create App", "kc-lang"),
+        "zoom_market_place_portal" => __("Zoom Marketplace Portal", "kc-lang"),
     ],
     "fullcalendar" => [
         "today" => __("Today", "kc-lang"),

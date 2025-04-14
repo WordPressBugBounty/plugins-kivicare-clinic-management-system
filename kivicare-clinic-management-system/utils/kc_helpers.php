@@ -2960,6 +2960,8 @@ function kcDoctorTelemedServiceEnable($doctor_id)
     $doctor_telemed_enable = false;
     if (isKiviCareTelemedActive()) {
         $zoom_config_data = get_user_meta($doctor_id, 'zoom_config_data', true);
+        $zoom_server_to_server_oauth_config_data = get_user_meta( (int)$doctor_id, 'zoom_server_to_server_oauth_config_data', true );
+
         // Check For zoom JWT On
         if (!empty($zoom_config_data)) {
             $zoom_config_data = json_decode($zoom_config_data);
@@ -2968,6 +2970,12 @@ function kcDoctorTelemedServiceEnable($doctor_id)
         // Check For Zoom Oauth
         if ($doctor_telemed_enable == false) {
             $doctor_telemed_enable = get_user_meta($doctor_id, KIVI_CARE_PREFIX . 'zoom_telemed_connect', true) == "on";
+        }
+
+		if ( !empty($zoom_server_to_server_oauth_config_data) ) {
+            $zoom_server_to_server_oauth_config_data = json_decode( $zoom_server_to_server_oauth_config_data );
+           
+			$doctor_telemed_enable = isset( $zoom_server_to_server_oauth_config_data->enableServerToServerOauthconfig ) && ($zoom_server_to_server_oauth_config_data->enableServerToServerOauthconfig == "true");
         }
     }
 
@@ -4859,10 +4867,14 @@ function kivicareWoocommercePaymentComplete($order_id, $type = 'woocommerce')
         return;
     }
     $appointment_id = (int) $appointment_id;
+    $users_table        = $wpdb->base_prefix . 'users';
+    $clinics_table      = $wpdb->prefix . 'kc_clinics';
     $service_category_table = $wpdb->prefix . 'kc_services';
     $appointment_table = $wpdb->prefix . 'kc_appointments';
     $service_mapping_table = $wpdb->prefix . 'kc_service_doctor_mapping';
     $appointment_mapping_table = $wpdb->prefix . 'kc_appointment_service_mapping';
+    $zoom_mapping_table = $wpdb->prefix . 'kc_appointment_zoom_mappings';
+    $google_meet_mapping_table = $wpdb->prefix . 'kc_appointment_google_meet_mappings';
     $get_service_query = "SELECT {$service_mapping_table}.telemed_service,{$service_category_table}.name 
                                 FROM {$appointment_mapping_table}
                                 JOIN {$appointment_table} 
@@ -4874,12 +4886,69 @@ function kivicareWoocommercePaymentComplete($order_id, $type = 'woocommerce')
                                     ON {$service_category_table}.id = {$appointment_mapping_table}.service_id 
                                 WHERE {$appointment_mapping_table}.appointment_id = {$appointment_id}";
     $appointment_service_details = collect($wpdb->get_results($get_service_query));
+
+    $get_apointment_query = "
+			SELECT {$appointment_table}.*,
+		       doctors.display_name  AS doctor_name,
+		       patients.display_name AS patient_name,
+		       {$clinics_table}.name AS clinic_name
+			FROM  {$appointment_table}
+		       LEFT JOIN {$users_table} doctors
+		              ON {$appointment_table}.doctor_id = doctors.id
+		       LEFT JOIN {$users_table} patients
+		              ON {$appointment_table}.patient_id = patients.id
+		       LEFT JOIN {$clinics_table}
+		              ON {$appointment_table}.clinic_id = {$clinics_table}.id
+            WHERE {$appointment_table}.id = {$appointment_id}";
+
+    $appointment = collect($wpdb->get_row( $get_apointment_query ));
+
+    $current_date = current_time("Y-m-d H:i:s");
+    $appointment_day = esc_sql(strtolower(date('l', strtotime($appointment['appointment_start_date'])))) ;
+    $day_short = esc_sql(substr($appointment_day, 0, 3));
+    $get_timeslot_query = "SELECT time_slot FROM {$wpdb->prefix}kc_clinic_sessions  WHERE `doctor_id` = ".(int)$appointment['doctor_id']." AND `clinic_id` = ".(int)$appointment['clinic_id']."  AND ( `day` = '{$day_short}' OR `day` = '{$appointment_day}') ";
+    $clinic_session_time_slots = $wpdb->get_var($get_timeslot_query);
+    $time_slot = !empty($clinic_session_time_slots) ? $clinic_session_time_slots : 15;
+
+    $appointment_data =  [
+        'appointment_id' => $appointment_id,
+        'doctor_id' => [
+            'id' => $appointment['doctor_id'],
+            'label' => $appointment['doctor_name']
+        ],
+        'patient_id' => [
+            'id' => $appointment['patient_id'],
+            'label' => $appointment['patient_name']
+        ],
+        'description' => $appointment['description'],
+        'appointment_start_date' => $appointment['appointment_start_date'],
+        'appointment_start_time' => $appointment['appointment_start_time'], 
+        'time_slot' => $time_slot,
+    ];
+
     if (!empty($appointment_service_details)) {
         //hook on appointment payment complete
         do_action('kc_appointment_payment_complete', $appointment_id);
         $telemed_service_yes_no = $appointment_service_details->pluck('telemed_service')->toArray();
+        
         $appointmentHaveTelemedService = in_array('yes', $telemed_service_yes_no);
         $serviceName = $appointment_service_details->pluck('name')->implode(',');
+
+        if(($type === 'woocommerce' || ($type === 'status_update' && $appointment['status'] == '1')) && $appointmentHaveTelemedService){
+            if((kcCheckDoctorTelemedType($appointment_id) == 'googlemeet')){
+                $google_meet_data_query = " SELECT * FROM $google_meet_mapping_table WHERE appointment_id = {$appointment_id} ";
+                $google_meet_data= $wpdb->get_row($google_meet_data_query);
+                if(empty($google_meet_data)){
+                    $res_data = apply_filters('kcgm_save_appointment_event', ['appoinment_id' => $appointment_id,'service' => $serviceName]);
+                }
+            }else{
+                $zoom_data_query = " SELECT * FROM $zoom_mapping_table WHERE appointment_id = {$appointment_id} ";
+		        $zoom_data = $wpdb->get_row($zoom_data_query);
+                if(empty($zoom_data)){
+                    $res_data = apply_filters('kct_create_appointment_meeting', $appointment_data);
+                }
+            }
+        }
         kcProAllNotification($appointment_id, $serviceName, $appointmentHaveTelemedService);
     }
     if (in_array($type, ['paypal', 'razorpay', 'stripepay'])) {
@@ -5136,6 +5205,7 @@ function kivicareServiceWooProductTabContent()
 function kivicareCheckoutRedirectWidgetPayment($order_id)
 {
     $order = wc_get_order($order_id);
+
     $appointment_id = get_post_meta($order_id, 'kivicare_appointment_id', true);
     $kivicare_widget_type = get_post_meta($order_id, 'kivicare_widget_type', true);
     if (!empty($appointment_id) && !empty($kivicare_widget_type)) {

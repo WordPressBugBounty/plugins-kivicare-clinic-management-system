@@ -496,4 +496,17 @@ class KCPaymentController extends KCBase
             'status' => true
         ]);
     }
+
+    public function getRazorpayCurrencyList(){
+
+        if ( $this->getLoginUserRole() !== 'administrator' ) {
+	        wp_send_json(kcUnauthorizeAccessResponse(403));
+        }
+
+        $response = apply_filters('kivicare_razorpay_currency_list', []);
+        
+        $response = !empty($response) && is_array($response) ? $response : [];
+
+	    wp_send_json($response);
+    }
 }

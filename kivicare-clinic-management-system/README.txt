@@ -4,15 +4,13 @@ Tags: clinic management, patient management, doctor management, appointment mana
 Requires PHP: 8.0 
 Requires at least: 3.0.1
 Tested up to: 6.7.2
-Stable tag: 3.6.9
+Stable tag: 3.6.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 KiviCare is an impressive clinic and patient management plugin (EHR).
 
 == Description ==
-
-[🏨 KiviCare Best Products Up to **50% OFF** at this March Madness Sale! 💼](https://kivicare.io/?utm_source=referral&utm_medium=wordpress.org&utm_campaign=iqonic-march+madness-sale-2025-wordpress-org-banner-click) 
 
 Launch your  Online Clinic in 60 Seconds! 🚀
 KiviCare is the most simple self-hosted clinic and patient management solution based on WordPress platform. Setup your online clinic instantly.  
@@ -124,7 +122,11 @@ Yes, we’d love to hear from you at hello@iqonic.design.
 
 == Changelog ==
 
-= Version 3.6.9 – 24th Mar 2024 =
+= Version 3.6.10 – 14th Apr 2025 =
+- [Compatibility] Now compatible with WordPress 6.7.2
+- [Fixed] Issue where Google Calendar could not connect.
+
+= Version 3.6.9 – 24th Mar 2025 =
 
 - [Update] Redirected PayPal payment to the payment page instead of opening a popup.
 - [Update] Google migrate FedCM APIs for connect with Google.
@@ -136,13 +138,13 @@ Yes, we’d love to hear from you at hello@iqonic.design.
 - [Fixed] Register/Login shortcode redirection issue when doctors or receptionists register — not redirecting to the login redirect URL.
 - [Fixed] Custom form not displaying properly when conditions are applied.
 
-= Version 3.6.8 – 24th Feb 2024
+= Version 3.6.8 – 24th Feb 2025
 
 - [Security] Fixed security issue.
 - [Fixed] Resolved Shortcode JS conflict.
 
 
-= Version 3.6.7 – 28th Jan 2024
+= Version 3.6.7 – 28th Jan 2025
 
 - [Fixed] Status filter issue in the global search on datatables.
 - [Fixed] Disabled date selection for holidays.
