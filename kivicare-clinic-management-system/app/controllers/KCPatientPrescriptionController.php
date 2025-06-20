@@ -49,8 +49,27 @@ class KCPatientPrescriptionController extends KCBase {
         if(!((new KCPatientEncounter())->encounterPermissionUserWise($encounter_id))){
 	        wp_send_json(kcUnauthorizeAccessResponse(403));
         }
-        //prescription dropdown
-        $prescriptions_name_dropdown_options = collect($this->db->get_results("SELECT `label` as id, label FROM {$this->db->prefix}kc_static_data WHERE status = 1 AND `type`='prescription_medicine'"))->unique('id')->toArray();
+		
+		//prescription dropdown
+		$search_query = isset($request_data['search']) ? sanitize_text_field($request_data['search']) : '';
+		$static_data_table = $this->db->prefix . 'kc_static_data';
+
+		$options_query = "SELECT `label` as id, label FROM {$static_data_table} WHERE status = 1 AND `type`='prescription_medicine'";
+		$query_params = [];
+
+		if (!empty($search_query)) {
+			$options_query .= " AND label LIKE %s";
+			$query_params[] = '%' . $this->db->esc_like($search_query) . '%';
+			$options_query .= " LIMIT 20"; 
+		} else {
+			$options_query .= " LIMIT 20"; 
+		}
+
+		$prescriptions_name_dropdown_options = collect(
+			!empty($query_params)
+				? $this->db->get_results($this->db->prepare($options_query, $query_params), OBJECT)
+				: $this->db->get_results($options_query, OBJECT)
+		)->unique('id')->toArray();
 
 		$query = "SELECT * FROM  {$prescription_table} WHERE encounter_id = {$encounter_id}";
 

@@ -424,11 +424,14 @@ class KCPatientController extends KCBase {
             //send email after patient save
             kcSendEmail($user_email_param);
 
+            $receiver_number = '+' . $request_data['country_calling_code'] . str_replace(' ', '', $request_data['mobile_number']);
+        
             //send sms/whatsapp after patient save
             if(kcCheckSmsOptionEnable() || kcCheckWhatsappOptionEnable()){
                 $sms = apply_filters('kcpro_send_sms', [
                     'type' => 'patient_register',
                     'user_data' => $user_email_param,
+                    'receiver_number' => $receiver_number
                 ]);
             }
 			$message = esc_html__('Patient has been saved successfully', 'kc-lang');

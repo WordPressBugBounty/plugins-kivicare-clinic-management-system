@@ -495,7 +495,7 @@
         "total_visited_patients": "Total visited patients",
         "total_doctors": "Total Doctors",
         "total_clinic_doctors": "Total clinic doctors",
-        "total_appointments": "Total Appointments",
+        "total_appointments": "Total booked appointments",
         "total_clinic_appointments": "Total clinic appointments",
         "latest_appointments": "Latest appointments",
         "reload": "Reload",
@@ -510,7 +510,7 @@
         "total_generated_revenue": "Total generated revenue",
         "filter": "Filter",
         "reset": "Reset",
-        "total_today_appointments": "Total Today Appointments",
+        "total_today_appointments": "Total number of today appointments",
         "total_service": "Total service",
         "patients": "Patients",
         "medical_dashboard": "Medical dashboard"

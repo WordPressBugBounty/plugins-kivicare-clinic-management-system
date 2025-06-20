@@ -392,29 +392,29 @@
                         })
                     }
 
-                    getUserRegistrationFormData();
+                    // getUserRegistrationFormData();
 
 
-                    function getUserRegistrationFormData() {
-                        get('get_user_registration_form_settings_data', {})
-                            .then((response) => {
-                                console.log(response.data.data.userRegistrationFormSettingData);
-                                if (response.data.status !== undefined && response.data.status === true) {
-                                    let userRegistrationFormSettingData = response.data.data.userRegistrationFormSettingData;
-                                    if (userRegistrationFormSettingData === 'on') {                                   
-                                        $('#otherGenderOption').show();
-                                    } else {
+                    // function getUserRegistrationFormData() {
+                    //     get('get_user_registration_form_settings_data', {})
+                    //         .then((response) => {
+                    //             console.log(response.data.data.userRegistrationFormSettingData);
+                    //             if (response.data.status !== undefined && response.data.status === true) {
+                    //                 let userRegistrationFormSettingData = response.data.data.userRegistrationFormSettingData;
+                    //                 if (userRegistrationFormSettingData === 'on') {                                   
+                    //                     $('#otherGenderOption').show();
+                    //                 } else {
                                         
-                                        $('#otherGenderOption').hide();
-                                    }
-                                    return response.data.data.userRegistrationFormSettingData;
-                                }
-                            })
-                            .catch((error) => {
-                                console.log(error);
-                                displayErrorMessage(this.formTranslation.common.internal_server_error);
-                            })
-                    }
+                    //                     $('#otherGenderOption').hide();
+                    //                 }
+                    //                 return response.data.data.userRegistrationFormSettingData;
+                    //             }
+                    //         })
+                    //         .catch((error) => {
+                    //             console.log(error);
+                    //             displayErrorMessage(this.formTranslation.common.internal_server_error);
+                    //         })
+                    // }
 
                     $('#kc_login').on('click', '#togglePassword', function() {
                         var passwordInput = $(this).siblings('input[type="password"], input[type="text"]');

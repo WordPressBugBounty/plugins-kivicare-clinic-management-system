@@ -374,11 +374,14 @@ class KCDoctorController extends KCBase
             //send email after doctor save
             kcSendEmail($user_email_param);
 
+            $receiver_number = '+' . $request_data['country_calling_code'] . str_replace(' ', '', $request_data['mobile_number']);
+
             //send sms/whatsapp after doctor save
             if(!empty(kcCheckSmsOptionEnable() || kcCheckWhatsappOptionEnable())){
                 $sms = apply_filters('kcpro_send_sms', [
                     'type' => 'doctor_registration',
                     'user_data' => $user_email_param,
+                    'receiver_number' => $receiver_number
                 ]);
             }
 
@@ -910,7 +913,7 @@ class KCDoctorController extends KCBase
 	    wp_send_json([
             'status' => $status,
             'data' => $results,
-            'holiday' => $unique_leaves
+            'holiday' => array_values($unique_leaves)
         ]);
     }
 

@@ -1710,22 +1710,7 @@ function kcCommonTemplate($type)
             ]
         ];
     } else {
-        $temp = [
-            [
-                'post_name' => $prefix . 'patient_report',
-                'post_content' => '<p> Welcome to KiviCare ,</p><p> Find your Report in attachment </p><p> Thank you. </p>',
-                'post_title' => 'Patient Report',
-                'post_type' => $mail_template,
-                'post_status' => 'publish',
-            ],
-            [
-                'post_name' => $prefix . 'book_prescription',
-                'post_content' => '<p> Welcome to KiviCare ,</p><p> You Have Medicine Prescription on </p><p> Clinic : {{clinic_name}}</p><p>Doctor : {{doctor_name}}</p><p>Prescription :{{prescription}} </p><p> Thank you. </p>',
-                'post_title' => 'Patient Prescription Reminder',
-                'post_type' => $mail_template,
-                'post_status' => 'publish',
-            ]
-        ];
+        $temp = [];
     }
     $data = apply_filters('kivicare_notification_template_post_array', $data, $mail_template, $prefix);
     return array_merge($data, $temp);
@@ -1991,8 +1976,6 @@ function kcGetNotificationTemplateLists($template_type)
         'kivicare_zoom_link',
         'kivicare_meet_link',
         'kivicare_patient_clinic_check_in_check_out',
-        'kivicare_patient_report',
-        'kivicare_book_prescription',
         'kivicare_encounter_close'
     ];
 
@@ -4939,7 +4922,7 @@ function kivicareWoocommercePaymentComplete($order_id, $type = 'woocommerce')
                 $google_meet_data_query = " SELECT * FROM $google_meet_mapping_table WHERE appointment_id = {$appointment_id} ";
                 $google_meet_data= $wpdb->get_row($google_meet_data_query);
                 if(empty($google_meet_data)){
-                    $res_data = apply_filters('kcgm_save_appointment_event', ['appoinment_id' => $appointment_id,'service' => $serviceName]);
+                    $res_data = apply_filters('kcgm_save_appointment_event', ['appoinment_id' => $appointment_id,'service' => $serviceName, 'type' => $type]);
                 }
             }else{
                 $zoom_data_query = " SELECT * FROM $zoom_mapping_table WHERE appointment_id = {$appointment_id} ";
@@ -5205,11 +5188,15 @@ function kivicareServiceWooProductTabContent()
 function kivicareCheckoutRedirectWidgetPayment($order_id)
 {
     $order = wc_get_order($order_id);
-
     $appointment_id = get_post_meta($order_id, 'kivicare_appointment_id', true);
-    $kivicare_widget_type = get_post_meta($order_id, 'kivicare_widget_type', true);
-    if (!empty($appointment_id) && !empty($kivicare_widget_type)) {
-        if (!$order->has_status('failed')) {
+    
+    // Check if this is a KiviCare appointment order and not a failed order
+    if (!empty($appointment_id) && !$order->has_status('failed')) {
+        // Check if this is a widget booking or a direct booking
+        $kivicare_widget_type = get_post_meta($order_id, 'kivicare_widget_type', true);
+        
+        // If it's a widget booking (from shortcode), use the widget-specific redirect
+        if (!empty($kivicare_widget_type)) {
             global $wpdb;
             if ($kivicare_widget_type === 'phpWidget') {
                 $appointmentPageId = $wpdb->get_var("SELECT ID FROM {$wpdb->posts} WHERE post_status='publish' and post_content LIKE '%[kivicareBookAppointment%'");
@@ -5227,6 +5214,11 @@ function kivicareCheckoutRedirectWidgetPayment($order_id)
                 wp_safe_redirect($pageUrl);
                 exit;
             }
+        } else {
+            // For direct bookings (non-widget), redirect to the appointment list page
+            $appointment_list_url = admin_url('admin.php?page=dashboard#/all-appointment-list');
+            wp_safe_redirect($appointment_list_url);
+            exit;
         }
     }
 }
@@ -7013,8 +7005,8 @@ function kcClinicSession($clinic_sessions, $inactive_doctors = [], $doctors = []
                     $sec_end_time = $sec_end_time !== "" ? explode(":", date('H:i', strtotime($sec_end_time))) : "";
                 }
 
-                $evening_session = !empty($evening_session_start_time && $evening_session_end_time) ? $evening_session_start_time . ' to ' . $evening_session_end_time : "-";
-                $morning_session = (!empty($session->start_time) && !empty($session->end_time) && $session->start_time != $session->end_time) ? kcGetFormatedTime(date('H:i', strtotime($session->start_time))) . ' to ' . kcGetFormatedTime(date('H:i', strtotime($session->end_time))) : "-";
+                $evening_session = !empty($evening_session_start_time && $evening_session_end_time) ? $evening_session_start_time . ' ' . esc_html__('to', 'kc-lang') . ' ' . $evening_session_end_time : "-";
+                $morning_session = (!empty($session->start_time) && !empty($session->end_time) && $session->start_time != $session->end_time) ? kcGetFormatedTime(date('H:i', strtotime($session->start_time))) . ' ' . esc_html__('to', 'kc-lang') . ' ' . kcGetFormatedTime(date('H:i', strtotime($session->end_time))) : "-";
                 $new_session = [
                     'id' => $session->id,
                     'clinic_id' => [

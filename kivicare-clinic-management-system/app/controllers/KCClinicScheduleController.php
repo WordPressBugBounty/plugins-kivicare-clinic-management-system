@@ -115,8 +115,12 @@ class KCClinicScheduleController extends KCBase {
             }
 		}
 
+		$moduleTypeLabels = [
+			'doctor' => esc_html__('Doctor', 'kc-lang'),
+			'clinic' => esc_html__('Clinic', 'kc-lang'),
+		];
 
-         $query = "SELECT {$clinic_schedule_table}.*,{$user_table}.display_name AS doctor_name,{$clinic_table}.name as clinic_name  FROM {$clinic_schedule_table}
+        $query = "SELECT {$clinic_schedule_table}.*,{$user_table}.display_name AS doctor_name,{$clinic_table}.name as clinic_name  FROM {$clinic_schedule_table}
                     LEFT JOIN {$user_table} ON {$user_table}.Id = {$clinic_schedule_table}.module_id
                     AND {$clinic_schedule_table}.module_type = 'doctor'
                     LEFT JOIN {$clinic_table} ON {$clinic_table}.Id = {$clinic_schedule_table}.module_id
@@ -133,6 +137,9 @@ class KCClinicScheduleController extends KCBase {
             $v->name =  $v->module_type === 'clinic' ? $v->clinic_name : $v->doctor_name;
 			$v->start_date = kcGetFormatedDate($v->start_date);
 			$v->end_date = kcGetFormatedDate($v->end_date);
+			if (isset($v->module_type)) {
+				$v->module_type_label = $moduleTypeLabels[$v->module_type] ?? $v->module_type;
+			}
             return $v;
         });
 		
@@ -144,13 +151,12 @@ class KCClinicScheduleController extends KCBase {
             ]);
         }
 
-		wp_send_json( [
+		wp_send_json([
 			'status'  => true,
 			'message' => esc_html__('Schedule list', 'kc-lang'),
 			'data'    => $clinic_schedule,
 			'total_rows' =>  $total_rows
-		] );
-
+		]);
 	}
 
 	public function save() {

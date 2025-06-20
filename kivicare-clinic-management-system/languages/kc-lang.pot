@@ -2,35 +2,40 @@
 # This file is distributed under the same license as the KiviCare - Clinic & Patient Management System (EHR) plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 3.6.10\n"
+"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 3.6.11\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/kivicare-clinic-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-04-14T10:41:41+00:00\n"
+"POT-Creation-Date: 2025-06-20T12:29:20+05:30\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.7.1\n"
+"X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: kc-lang\n"
 
 #. Plugin Name of the plugin
+#: kivicare-clinic-management-system.php
 msgid "KiviCare - Clinic & Patient Management System (EHR)"
 msgstr ""
 
 #. Plugin URI of the plugin
+#: kivicare-clinic-management-system.php
 msgid "https://iqonic.design"
 msgstr ""
 
 #. Description of the plugin
+#: kivicare-clinic-management-system.php
 msgid "KiviCare is an impressive clinic and patient management plugin (EHR)."
 msgstr ""
 
 #. Author of the plugin
+#: kivicare-clinic-management-system.php
 msgid "iqonic"
 msgstr ""
 
 #. Author URI of the plugin
+#: kivicare-clinic-management-system.php
 msgid "http://iqonic.design/"
 msgstr ""
 
@@ -77,7 +82,7 @@ msgstr ""
 #: app/baseClasses/bookAppointment/components/detail-info/tab-panel.php:15
 #: app/baseClasses/registerLogin/registerLogin.php:56
 #: resources/assets/lang/temp.php:1881
-#: utils/kc_helpers.php:6817
+#: utils/kc_helpers.php:6809
 msgid "Register"
 msgstr ""
 
@@ -109,7 +114,7 @@ msgstr ""
 #: app/baseClasses/bookAppointment/components/date-time/tab-panel.php:3
 #: app/baseClasses/bookAppointment/components/date-time/tab.php:2
 #: resources/assets/lang/temp.php:1770
-#: utils/kc_helpers.php:5382
+#: utils/kc_helpers.php:5374
 msgid "Select Date and Time"
 msgstr ""
 
@@ -138,15 +143,15 @@ msgstr ""
 #: app/controllers/KCElementorController.php:270
 #: app/controllers/KCElementorController.php:535
 #: resources/assets/lang/temp.php:1866
-#: utils/kc_helpers.php:6826
-#: utils/kc_helpers.php:6833
+#: utils/kc_helpers.php:6818
+#: utils/kc_helpers.php:6825
 msgid "Next"
 msgstr ""
 
 #: app/baseClasses/bookAppointment/bookAppointment.php:247
 #: resources/assets/lang/temp.php:1790
-#: utils/kc_helpers.php:6828
-#: utils/kc_helpers.php:6831
+#: utils/kc_helpers.php:6820
+#: utils/kc_helpers.php:6823
 msgid "Confirm"
 msgstr ""
 
@@ -370,7 +375,7 @@ msgstr ""
 
 #: app/baseClasses/bookAppointment/components/clinic/tab.php:2
 #: resources/assets/lang/temp.php:1777
-#: utils/kc_helpers.php:5379
+#: utils/kc_helpers.php:5371
 msgid "Choose a Clinic"
 msgstr ""
 
@@ -390,7 +395,7 @@ msgstr ""
 
 #: app/baseClasses/bookAppointment/components/confirm/tab.php:2
 #: resources/assets/lang/temp.php:1774
-#: utils/kc_helpers.php:5385
+#: utils/kc_helpers.php:5377
 msgid "Confirmation"
 msgstr ""
 
@@ -474,8 +479,8 @@ msgstr ""
 #: app/baseClasses/bookAppointment/components/detail-info/tab-panel.php:48
 #: app/baseClasses/registerLogin/registerLogin.php:96
 #: app/controllers/KCBookAppointmentWidgetController.php:738
-#: app/controllers/KCBookAppointmentWidgetController.php:1277
-#: app/controllers/KCBookAppointmentWidgetController.php:1313
+#: app/controllers/KCBookAppointmentWidgetController.php:1278
+#: app/controllers/KCBookAppointmentWidgetController.php:1314
 #: resources/assets/lang/temp.php:228
 #: resources/assets/lang/temp.php:767
 #: resources/assets/lang/temp.php:823
@@ -495,8 +500,8 @@ msgstr ""
 
 #: app/baseClasses/bookAppointment/components/detail-info/tab-panel.php:54
 #: app/baseClasses/registerLogin/registerLogin.php:103
-#: app/controllers/KCBookAppointmentWidgetController.php:1284
-#: app/controllers/KCBookAppointmentWidgetController.php:1300
+#: app/controllers/KCBookAppointmentWidgetController.php:1285
+#: app/controllers/KCBookAppointmentWidgetController.php:1301
 #: resources/assets/lang/temp.php:263
 #: resources/assets/lang/temp.php:1780
 msgid "Contact"
@@ -564,7 +569,7 @@ msgstr ""
 
 #: app/baseClasses/bookAppointment/components/detail-info/tab.php:2
 #: resources/assets/lang/temp.php:1772
-#: utils/kc_helpers.php:5384
+#: utils/kc_helpers.php:5376
 msgid "User Detail Information"
 msgstr ""
 
@@ -575,7 +580,7 @@ msgstr ""
 
 #: app/baseClasses/bookAppointment/components/doctor/tab.php:2
 #: resources/assets/lang/temp.php:1766
-#: utils/kc_helpers.php:5380
+#: utils/kc_helpers.php:5372
 msgid "Choose Your Doctor"
 msgstr ""
 
@@ -714,36 +719,36 @@ msgstr ""
 
 #: app/baseClasses/KCActivate.php:1926
 #: app/baseClasses/KCActivate.php:1933
-#: utils/kc_helpers.php:7939
+#: utils/kc_helpers.php:7931
 msgid "Appointment ID"
 msgstr ""
 
 #: app/baseClasses/KCActivate.php:2146
 #: resources/assets/lang/temp.php:1213
-#: utils/kc_helpers.php:7210
-#: utils/kc_helpers.php:7217
-#: utils/kc_helpers.php:7347
-#: utils/kc_helpers.php:7456
-#: utils/kc_helpers.php:7463
-#: utils/kc_helpers.php:7537
-#: utils/kc_helpers.php:7544
-#: utils/kc_helpers.php:7617
+#: utils/kc_helpers.php:7202
+#: utils/kc_helpers.php:7209
+#: utils/kc_helpers.php:7339
+#: utils/kc_helpers.php:7448
+#: utils/kc_helpers.php:7455
+#: utils/kc_helpers.php:7529
+#: utils/kc_helpers.php:7536
+#: utils/kc_helpers.php:7609
 msgid "Encounters"
 msgstr ""
 
 #: app/baseClasses/KCActivate.php:2153
 #: resources/assets/lang/temp.php:248
-#: utils/kc_helpers.php:7224
-#: utils/kc_helpers.php:7361
-#: utils/kc_helpers.php:7470
-#: utils/kc_helpers.php:7551
-#: utils/kc_helpers.php:7721
+#: utils/kc_helpers.php:7216
+#: utils/kc_helpers.php:7353
+#: utils/kc_helpers.php:7462
+#: utils/kc_helpers.php:7543
+#: utils/kc_helpers.php:7713
 msgid "Encounter Templates"
 msgstr ""
 
 #: app/baseClasses/KCBase.php:37
 #: app/controllers/KCPatientMedicalHistoryController.php:56
-#: utils/kc_helpers.php:7680
+#: utils/kc_helpers.php:7672
 msgid "You do not have permission to access"
 msgstr ""
 
@@ -895,100 +900,100 @@ msgstr ""
 #: app/baseClasses/KCElementor/KCElementorClinicCard.php:273
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:322
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:462
-#: utils/kc_helpers.php:3986
-#: utils/kc_helpers.php:4061
-#: utils/kc_helpers.php:4194
-#: utils/kc_helpers.php:4269
+#: utils/kc_helpers.php:3969
+#: utils/kc_helpers.php:4044
+#: utils/kc_helpers.php:4177
+#: utils/kc_helpers.php:4252
 msgid "solid"
 msgstr ""
 
 #: app/baseClasses/KCElementor/KCElementorClinicCard.php:274
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:323
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:463
-#: utils/kc_helpers.php:3987
-#: utils/kc_helpers.php:4062
-#: utils/kc_helpers.php:4195
-#: utils/kc_helpers.php:4270
+#: utils/kc_helpers.php:3970
+#: utils/kc_helpers.php:4045
+#: utils/kc_helpers.php:4178
+#: utils/kc_helpers.php:4253
 msgid "dashed"
 msgstr ""
 
 #: app/baseClasses/KCElementor/KCElementorClinicCard.php:275
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:324
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:464
-#: utils/kc_helpers.php:3988
-#: utils/kc_helpers.php:4063
-#: utils/kc_helpers.php:4196
-#: utils/kc_helpers.php:4271
+#: utils/kc_helpers.php:3971
+#: utils/kc_helpers.php:4046
+#: utils/kc_helpers.php:4179
+#: utils/kc_helpers.php:4254
 msgid "dotted"
 msgstr ""
 
 #: app/baseClasses/KCElementor/KCElementorClinicCard.php:276
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:325
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:465
-#: utils/kc_helpers.php:3989
-#: utils/kc_helpers.php:4064
-#: utils/kc_helpers.php:4197
-#: utils/kc_helpers.php:4272
+#: utils/kc_helpers.php:3972
+#: utils/kc_helpers.php:4047
+#: utils/kc_helpers.php:4180
+#: utils/kc_helpers.php:4255
 msgid "double"
 msgstr ""
 
 #: app/baseClasses/KCElementor/KCElementorClinicCard.php:277
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:326
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:466
-#: utils/kc_helpers.php:3990
-#: utils/kc_helpers.php:4065
-#: utils/kc_helpers.php:4198
-#: utils/kc_helpers.php:4273
+#: utils/kc_helpers.php:3973
+#: utils/kc_helpers.php:4048
+#: utils/kc_helpers.php:4181
+#: utils/kc_helpers.php:4256
 msgid "groove"
 msgstr ""
 
 #: app/baseClasses/KCElementor/KCElementorClinicCard.php:278
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:327
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:467
-#: utils/kc_helpers.php:3991
-#: utils/kc_helpers.php:4066
-#: utils/kc_helpers.php:4199
-#: utils/kc_helpers.php:4274
+#: utils/kc_helpers.php:3974
+#: utils/kc_helpers.php:4049
+#: utils/kc_helpers.php:4182
+#: utils/kc_helpers.php:4257
 msgid "ridge"
 msgstr ""
 
 #: app/baseClasses/KCElementor/KCElementorClinicCard.php:279
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:328
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:468
-#: utils/kc_helpers.php:3992
-#: utils/kc_helpers.php:4067
-#: utils/kc_helpers.php:4200
-#: utils/kc_helpers.php:4275
+#: utils/kc_helpers.php:3975
+#: utils/kc_helpers.php:4050
+#: utils/kc_helpers.php:4183
+#: utils/kc_helpers.php:4258
 msgid "inset"
 msgstr ""
 
 #: app/baseClasses/KCElementor/KCElementorClinicCard.php:280
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:329
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:469
-#: utils/kc_helpers.php:3993
-#: utils/kc_helpers.php:4068
-#: utils/kc_helpers.php:4201
-#: utils/kc_helpers.php:4276
+#: utils/kc_helpers.php:3976
+#: utils/kc_helpers.php:4051
+#: utils/kc_helpers.php:4184
+#: utils/kc_helpers.php:4259
 msgid "outset"
 msgstr ""
 
 #: app/baseClasses/KCElementor/KCElementorClinicCard.php:281
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:330
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:470
-#: utils/kc_helpers.php:3994
-#: utils/kc_helpers.php:4069
-#: utils/kc_helpers.php:4202
-#: utils/kc_helpers.php:4277
+#: utils/kc_helpers.php:3977
+#: utils/kc_helpers.php:4052
+#: utils/kc_helpers.php:4185
+#: utils/kc_helpers.php:4260
 msgid "none"
 msgstr ""
 
 #: app/baseClasses/KCElementor/KCElementorClinicCard.php:282
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:331
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:471
-#: utils/kc_helpers.php:3995
-#: utils/kc_helpers.php:4070
-#: utils/kc_helpers.php:4203
-#: utils/kc_helpers.php:4278
+#: utils/kc_helpers.php:3978
+#: utils/kc_helpers.php:4053
+#: utils/kc_helpers.php:4186
+#: utils/kc_helpers.php:4261
 msgid "hidden"
 msgstr ""
 
@@ -1129,7 +1134,7 @@ msgstr ""
 
 #: app/baseClasses/KCElementor/KCElementorClinicCard.php:808
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:923
-#: app/baseClasses/popupBookAppointment/bookAppointment.php:26
+#: app/baseClasses/popupBookAppointment/bookAppointment.php:27
 #: resources/assets/lang/temp.php:114
 msgid "Loading..."
 msgstr ""
@@ -1138,10 +1143,10 @@ msgstr ""
 #: app/baseClasses/KCElementor/KCElementorClinicCard.php:831
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:940
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:947
-#: app/baseClasses/popupBookAppointment/bookAppointment.php:7
-#: app/baseClasses/popupBookAppointment/bookAppointment.php:40
-#: app/baseClasses/popupBookAppointment/bookAppointment.php:48
-#: app/baseClasses/popupBookAppointment/bookAppointment.php:68
+#: app/baseClasses/popupBookAppointment/bookAppointment.php:8
+#: app/baseClasses/popupBookAppointment/bookAppointment.php:41
+#: app/baseClasses/popupBookAppointment/bookAppointment.php:49
+#: app/baseClasses/popupBookAppointment/bookAppointment.php:69
 #: app/controllers/KCElementorController.php:249
 #: app/controllers/KCElementorController.php:517
 #: resources/assets/lang/temp.php:1035
@@ -1228,16 +1233,16 @@ msgid "Title Font Typography"
 msgstr ""
 
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:525
-#: utils/kc_helpers.php:3951
-#: utils/kc_helpers.php:4026
-#: utils/kc_helpers.php:4159
-#: utils/kc_helpers.php:4234
+#: utils/kc_helpers.php:3934
+#: utils/kc_helpers.php:4009
+#: utils/kc_helpers.php:4142
+#: utils/kc_helpers.php:4217
 msgid "Font Color"
 msgstr ""
 
 #: app/baseClasses/KCElementor/KCElementorClinicWiseDoctor.php:540
-#: utils/kc_helpers.php:3920
-#: utils/kc_helpers.php:4128
+#: utils/kc_helpers.php:3903
+#: utils/kc_helpers.php:4111
 msgid "Font Typography"
 msgstr ""
 
@@ -1351,7 +1356,8 @@ msgstr ""
 #: app/baseClasses/WidgetHandler.php:259
 #: app/baseClasses/WidgetHandler.php:268
 #: app/controllers/KCBookAppointmentWidgetController.php:754
-#: app/controllers/KCBookAppointmentWidgetController.php:1147
+#: app/controllers/KCBookAppointmentWidgetController.php:1148
+#: app/controllers/KCClinicScheduleController.php:119
 #: resources/assets/lang/temp.php:215
 #: resources/assets/lang/temp.php:1190
 #: resources/assets/lang/temp.php:1349
@@ -1363,18 +1369,18 @@ msgstr ""
 #: app/baseClasses/WidgetHandler.php:269
 #: resources/assets/lang/temp.php:216
 #: resources/assets/lang/temp.php:924
-#: utils/kc_helpers.php:7254
-#: utils/kc_helpers.php:7384
+#: utils/kc_helpers.php:7246
+#: utils/kc_helpers.php:7376
 msgid "Receptionist"
 msgstr ""
 
 #: app/controllers/api/KCApiHomeController.php:47
-#: app/controllers/KCStaticDataController.php:316
+#: app/controllers/KCStaticDataController.php:321
 msgid "Datatype not found"
 msgstr ""
 
 #: app/controllers/api/KCApiHomeController.php:134
-#: app/controllers/KCStaticDataController.php:662
+#: app/controllers/KCStaticDataController.php:667
 msgid "Datatype found"
 msgstr ""
 
@@ -1494,30 +1500,30 @@ msgstr ""
 #: app/controllers/KCAppointmentController.php:673
 #: app/controllers/KCAppointmentController.php:1283
 #: app/controllers/KCAppointmentController.php:1293
-#: app/controllers/KCClinicController.php:439
-#: app/controllers/KCClinicController.php:470
-#: app/controllers/KCClinicController.php:501
-#: app/controllers/KCClinicScheduleController.php:253
-#: app/controllers/KCClinicScheduleController.php:301
-#: app/controllers/KCClinicScheduleController.php:330
-#: app/controllers/KCClinicScheduleController.php:353
+#: app/controllers/KCClinicController.php:444
+#: app/controllers/KCClinicController.php:475
+#: app/controllers/KCClinicController.php:506
+#: app/controllers/KCClinicScheduleController.php:259
+#: app/controllers/KCClinicScheduleController.php:307
+#: app/controllers/KCClinicScheduleController.php:336
+#: app/controllers/KCClinicScheduleController.php:359
 #: app/controllers/KCCustomFieldController.php:212
 #: app/controllers/KCCustomFieldController.php:220
 #: app/controllers/KCCustomFieldController.php:279
 #: app/controllers/KCCustomFieldController.php:324
-#: app/controllers/KCDoctorController.php:532
-#: app/controllers/KCDoctorController.php:674
-#: app/controllers/KCDoctorController.php:705
-#: app/controllers/KCDoctorController.php:763
+#: app/controllers/KCDoctorController.php:535
+#: app/controllers/KCDoctorController.php:677
+#: app/controllers/KCDoctorController.php:708
+#: app/controllers/KCDoctorController.php:766
 #: app/controllers/KCPatientBillController.php:259
 #: app/controllers/KCPatientBillController.php:314
 #: app/controllers/KCPatientBillController.php:475
 #: app/controllers/KCPatientBillController.php:525
 #: app/controllers/KCPatientBillController.php:573
-#: app/controllers/KCPatientController.php:526
-#: app/controllers/KCPatientController.php:622
-#: app/controllers/KCPatientController.php:652
-#: app/controllers/KCPatientController.php:699
+#: app/controllers/KCPatientController.php:529
+#: app/controllers/KCPatientController.php:625
+#: app/controllers/KCPatientController.php:655
+#: app/controllers/KCPatientController.php:702
 #: app/controllers/KCPatientEncounterController.php:339
 #: app/controllers/KCPatientEncounterController.php:401
 #: app/controllers/KCPatientEncounterController.php:436
@@ -1527,20 +1533,20 @@ msgstr ""
 #: app/controllers/KCPatientMedicalRecordsController.php:167
 #: app/controllers/KCPatientMedicalRecordsController.php:222
 #: app/controllers/KCPatientMedicalRecordsController.php:252
-#: app/controllers/KCPatientPrescriptionController.php:171
-#: app/controllers/KCPatientPrescriptionController.php:201
-#: app/controllers/KCPatientPrescriptionController.php:229
+#: app/controllers/KCPatientPrescriptionController.php:190
+#: app/controllers/KCPatientPrescriptionController.php:220
+#: app/controllers/KCPatientPrescriptionController.php:248
 #: app/controllers/KCReceptionistController.php:398
 #: app/controllers/KCReceptionistController.php:486
 #: app/controllers/KCReceptionistController.php:515
 #: app/controllers/KCReceptionistController.php:540
-#: app/controllers/KCServiceController.php:596
-#: app/controllers/KCServiceController.php:693
-#: app/controllers/KCServiceController.php:719
-#: app/controllers/KCStaticDataController.php:198
-#: app/controllers/KCStaticDataController.php:231
-#: app/controllers/KCStaticDataController.php:259
-#: app/controllers/KCStaticDataController.php:275
+#: app/controllers/KCServiceController.php:601
+#: app/controllers/KCServiceController.php:698
+#: app/controllers/KCServiceController.php:724
+#: app/controllers/KCStaticDataController.php:203
+#: app/controllers/KCStaticDataController.php:236
+#: app/controllers/KCStaticDataController.php:264
+#: app/controllers/KCStaticDataController.php:280
 #: app/controllers/KCTaxController.php:119
 #: app/controllers/KCTaxController.php:165
 msgid "Data not found"
@@ -1561,11 +1567,11 @@ msgstr ""
 #: app/controllers/KCAppointmentController.php:1184
 #: app/controllers/KCAppointmentController.php:1257
 #: resources/assets/lang/temp.php:1010
-#: utils/kc_helpers.php:7203
-#: utils/kc_helpers.php:7340
-#: utils/kc_helpers.php:7449
-#: utils/kc_helpers.php:7530
-#: utils/kc_helpers.php:7610
+#: utils/kc_helpers.php:7195
+#: utils/kc_helpers.php:7332
+#: utils/kc_helpers.php:7441
+#: utils/kc_helpers.php:7522
+#: utils/kc_helpers.php:7602
 msgid "Appointments"
 msgstr ""
 
@@ -1680,19 +1686,19 @@ msgstr ""
 msgid "Clinic id is not proper. Please contact admin."
 msgstr ""
 
-#: app/controllers/KCAuthController.php:706
+#: app/controllers/KCAuthController.php:707
 msgid "User registration successfully. Check your email for login credentials."
 msgstr ""
 
-#: app/controllers/KCAuthController.php:709
+#: app/controllers/KCAuthController.php:710
 msgid "User registration not success."
 msgstr ""
 
-#: app/controllers/KCAuthController.php:753
+#: app/controllers/KCAuthController.php:754
 msgid "User id not found"
 msgstr ""
 
-#: app/controllers/KCAuthController.php:788
+#: app/controllers/KCAuthController.php:789
 msgid "User Verified Successfully"
 msgstr ""
 
@@ -1751,7 +1757,7 @@ msgstr ""
 #: resources/assets/lang/temp.php:969
 #: resources/assets/lang/temp.php:1140
 #: resources/assets/lang/temp.php:1243
-#: utils/kc_helpers.php:6373
+#: utils/kc_helpers.php:6365
 msgid "Name"
 msgstr ""
 
@@ -1763,36 +1769,36 @@ msgid "Number"
 msgstr ""
 
 #: app/controllers/KCBookAppointmentWidgetController.php:751
-#: app/controllers/KCBookAppointmentWidgetController.php:1144
+#: app/controllers/KCBookAppointmentWidgetController.php:1145
 #: resources/assets/lang/temp.php:1785
 msgid "Appointment summary"
 msgstr ""
 
 #: app/controllers/KCBookAppointmentWidgetController.php:758
-#: app/controllers/KCBookAppointmentWidgetController.php:1151
+#: app/controllers/KCBookAppointmentWidgetController.php:1152
 msgid "Date "
 msgstr ""
 
 #: app/controllers/KCBookAppointmentWidgetController.php:762
-#: app/controllers/KCBookAppointmentWidgetController.php:1155
+#: app/controllers/KCBookAppointmentWidgetController.php:1156
 msgid "Time "
 msgstr ""
 
 #: app/controllers/KCBookAppointmentWidgetController.php:766
-#: app/controllers/KCBookAppointmentWidgetController.php:1159
+#: app/controllers/KCBookAppointmentWidgetController.php:1160
 #: resources/assets/lang/temp.php:198
 #: resources/assets/lang/temp.php:1413
 #: resources/assets/lang/temp.php:1417
-#: utils/kc_helpers.php:6222
-#: utils/kc_helpers.php:7261
-#: utils/kc_helpers.php:7391
-#: utils/kc_helpers.php:7493
-#: utils/kc_helpers.php:7567
+#: utils/kc_helpers.php:6214
+#: utils/kc_helpers.php:7253
+#: utils/kc_helpers.php:7383
+#: utils/kc_helpers.php:7485
+#: utils/kc_helpers.php:7559
 msgid "Services"
 msgstr ""
 
 #: app/controllers/KCBookAppointmentWidgetController.php:786
-#: app/controllers/KCBookAppointmentWidgetController.php:1178
+#: app/controllers/KCBookAppointmentWidgetController.php:1179
 msgid "Taxes"
 msgstr ""
 
@@ -1810,34 +1816,34 @@ msgstr ""
 msgid "confirm page details"
 msgstr ""
 
-#: app/controllers/KCBookAppointmentWidgetController.php:995
+#: app/controllers/KCBookAppointmentWidgetController.php:996
 #: app/controllers/KCPatientEncounterController.php:771
 msgid " Days"
 msgstr ""
 
-#: app/controllers/KCBookAppointmentWidgetController.php:997
+#: app/controllers/KCBookAppointmentWidgetController.php:998
 #: app/controllers/KCPatientEncounterController.php:773
 msgid " Months"
 msgstr ""
 
-#: app/controllers/KCBookAppointmentWidgetController.php:999
+#: app/controllers/KCBookAppointmentWidgetController.php:1000
 #: app/controllers/KCPatientEncounterController.php:775
 msgid " Years"
 msgstr ""
 
-#: app/controllers/KCBookAppointmentWidgetController.php:1115
+#: app/controllers/KCBookAppointmentWidgetController.php:1116
 msgid "Select Payment"
 msgstr ""
 
-#: app/controllers/KCBookAppointmentWidgetController.php:1257
+#: app/controllers/KCBookAppointmentWidgetController.php:1258
 msgid "Exp : "
 msgstr ""
 
-#: app/controllers/KCBookAppointmentWidgetController.php:1257
+#: app/controllers/KCBookAppointmentWidgetController.php:1258
 msgid "yr"
 msgstr ""
 
-#: app/controllers/KCBookAppointmentWidgetController.php:1334
+#: app/controllers/KCBookAppointmentWidgetController.php:1335
 #: resources/assets/lang/temp.php:1788
 msgid "Total Price"
 msgstr ""
@@ -1850,88 +1856,100 @@ msgstr ""
 msgid "Clinic list"
 msgstr ""
 
-#: app/controllers/KCClinicController.php:256
+#: app/controllers/KCClinicController.php:261
 msgid " clinic "
 msgstr ""
 
-#: app/controllers/KCClinicController.php:256
+#: app/controllers/KCClinicController.php:261
 msgid " clinic admin"
 msgstr ""
 
-#: app/controllers/KCClinicController.php:259
+#: app/controllers/KCClinicController.php:264
 msgid "There already exists an clinic or clinic admin registered with this email address,please use other email address for "
 msgstr ""
 
-#: app/controllers/KCClinicController.php:327
+#: app/controllers/KCClinicController.php:332
 msgid "Clinic id is required to update "
 msgstr ""
 
-#: app/controllers/KCClinicController.php:357
+#: app/controllers/KCClinicController.php:362
 #: app/controllers/KCSetupController.php:83
 msgid "Clinic saved successfully"
 msgstr ""
 
-#: app/controllers/KCClinicController.php:434
+#: app/controllers/KCClinicController.php:439
 msgid "Clinic data"
 msgstr ""
 
-#: app/controllers/KCClinicController.php:476
+#: app/controllers/KCClinicController.php:481
 #: app/controllers/KCHomeController.php:1018
 msgid "You can not delete the default clinic."
 msgstr ""
 
-#: app/controllers/KCClinicController.php:498
+#: app/controllers/KCClinicController.php:503
 msgid "Clinic has been deleted successfully"
 msgstr ""
 
-#: app/controllers/KCClinicController.php:542
+#: app/controllers/KCClinicController.php:547
 msgid "Kivicare Pro is not activated"
 msgstr ""
 
-#: app/controllers/KCClinicScheduleController.php:142
-msgid "No holidays found"
+#: app/controllers/KCClinicScheduleController.php:120
+#: resources/assets/lang/temp.php:387
+#: resources/assets/lang/temp.php:766
+#: resources/assets/lang/temp.php:821
+#: resources/assets/lang/temp.php:918
+#: resources/assets/lang/temp.php:972
+#: resources/assets/lang/temp.php:1156
+#: resources/assets/lang/temp.php:1749
+#: utils/kc_helpers.php:7225
+msgid "Clinic"
 msgstr ""
 
 #: app/controllers/KCClinicScheduleController.php:149
+msgid "No holidays found"
+msgstr ""
+
+#: app/controllers/KCClinicScheduleController.php:156
 msgid "Schedule list"
 msgstr ""
 
-#: app/controllers/KCClinicScheduleController.php:201
+#: app/controllers/KCClinicScheduleController.php:207
 msgid "Doctor holiday scheduled successfully."
 msgstr ""
 
-#: app/controllers/KCClinicScheduleController.php:203
+#: app/controllers/KCClinicScheduleController.php:209
 msgid "Clinic holiday scheduled successfully."
 msgstr ""
 
-#: app/controllers/KCClinicScheduleController.php:207
-#: app/controllers/KCClinicScheduleController.php:226
+#: app/controllers/KCClinicScheduleController.php:213
+#: app/controllers/KCClinicScheduleController.php:232
 msgid "Doctor already has holiday scheduled."
 msgstr ""
 
-#: app/controllers/KCClinicScheduleController.php:210
-#: app/controllers/KCClinicScheduleController.php:229
+#: app/controllers/KCClinicScheduleController.php:216
+#: app/controllers/KCClinicScheduleController.php:235
 msgid "Clinic already has holiday scheduled."
 msgstr ""
 
-#: app/controllers/KCClinicScheduleController.php:220
+#: app/controllers/KCClinicScheduleController.php:226
 msgid "Doctor holiday schedule updated successfully."
 msgstr ""
 
-#: app/controllers/KCClinicScheduleController.php:222
+#: app/controllers/KCClinicScheduleController.php:228
 msgid "Clinic holiday schedule updated successfully."
 msgstr ""
 
-#: app/controllers/KCClinicScheduleController.php:297
-#: app/controllers/KCStaticDataController.php:227
+#: app/controllers/KCClinicScheduleController.php:303
+#: app/controllers/KCStaticDataController.php:232
 msgid "Static data"
 msgstr ""
 
-#: app/controllers/KCClinicScheduleController.php:350
+#: app/controllers/KCClinicScheduleController.php:356
 msgid "Clinic schedule deleted successfully"
 msgstr ""
 
-#: app/controllers/KCClinicScheduleController.php:386
+#: app/controllers/KCClinicScheduleController.php:392
 #: app/controllers/KCHomeController.php:831
 #: app/controllers/KCHomeController.php:870
 msgid "Terms & Condition saved successfully"
@@ -2075,22 +2093,22 @@ msgstr ""
 msgid "Data is not valid"
 msgstr ""
 
-#: app/controllers/KCDoctorController.php:385
+#: app/controllers/KCDoctorController.php:388
 #: app/controllers/KCSetupController.php:333
 msgid "Doctor has been saved successfully"
 msgstr ""
 
-#: app/controllers/KCDoctorController.php:432
+#: app/controllers/KCDoctorController.php:435
 #: app/controllers/KCSetupController.php:358
 msgid "Doctor updated successfully"
 msgstr ""
 
-#: app/controllers/KCDoctorController.php:500
+#: app/controllers/KCDoctorController.php:503
 #: app/controllers/KCSetupController.php:366
 msgid "Failed to save Doctor data."
 msgstr ""
 
-#: app/controllers/KCDoctorController.php:760
+#: app/controllers/KCDoctorController.php:763
 msgid "Doctor has been deleted successfully"
 msgstr ""
 
@@ -2321,7 +2339,7 @@ msgid "Patient status changed successfully"
 msgstr ""
 
 #: app/controllers/KCHomeController.php:1157
-#: app/controllers/KCPatientController.php:696
+#: app/controllers/KCPatientController.php:699
 msgid "Patient deleted successfully"
 msgstr ""
 
@@ -2470,7 +2488,7 @@ msgstr ""
 #: app/controllers/KCPatientEncounterController.php:196
 #: app/controllers/KCPatientMedicalHistoryController.php:117
 #: app/controllers/KCPatientMedicalRecordsController.php:123
-#: app/controllers/KCPatientPrescriptionController.php:115
+#: app/controllers/KCPatientPrescriptionController.php:134
 msgid "No encounter found"
 msgstr ""
 
@@ -2528,24 +2546,24 @@ msgstr ""
 msgid "Patient Unique ID is already used"
 msgstr ""
 
-#: app/controllers/KCPatientController.php:434
+#: app/controllers/KCPatientController.php:437
 msgid "Patient has been saved successfully"
 msgstr ""
 
-#: app/controllers/KCPatientController.php:465
+#: app/controllers/KCPatientController.php:468
 msgid "Patient has been updated successfully"
 msgstr ""
 
-#: app/controllers/KCPatientController.php:493
+#: app/controllers/KCPatientController.php:496
 msgid "Patient save operation has been failed"
 msgstr ""
 
-#: app/controllers/KCPatientController.php:736
+#: app/controllers/KCPatientController.php:739
 msgid "Id Not Found"
 msgstr ""
 
-#: app/controllers/KCPatientController.php:775
-#: app/controllers/KCPatientController.php:791
+#: app/controllers/KCPatientController.php:778
+#: app/controllers/KCPatientController.php:794
 msgid "Patients Details"
 msgstr ""
 
@@ -2667,60 +2685,60 @@ msgstr ""
 msgid "Failed to delete Medical record"
 msgstr ""
 
-#: app/controllers/KCPatientPrescriptionController.php:70
+#: app/controllers/KCPatientPrescriptionController.php:89
 #: resources/assets/lang/temp.php:1228
-#: utils/kc_helpers.php:7819
+#: utils/kc_helpers.php:7811
 msgid "No prescription found"
 msgstr ""
 
-#: app/controllers/KCPatientPrescriptionController.php:78
+#: app/controllers/KCPatientPrescriptionController.php:97
 msgid "Prescription records"
 msgstr ""
 
-#: app/controllers/KCPatientPrescriptionController.php:138
+#: app/controllers/KCPatientPrescriptionController.php:157
 msgid "Prescription has been saved successfully"
 msgstr ""
 
-#: app/controllers/KCPatientPrescriptionController.php:143
+#: app/controllers/KCPatientPrescriptionController.php:162
 msgid "Prescription has been updated successfully"
 msgstr ""
 
-#: app/controllers/KCPatientPrescriptionController.php:197
+#: app/controllers/KCPatientPrescriptionController.php:216
 msgid "Prescription record"
 msgstr ""
 
-#: app/controllers/KCPatientPrescriptionController.php:245
+#: app/controllers/KCPatientPrescriptionController.php:264
 msgid "Prescription has been deleted successfully"
 msgstr ""
 
-#: app/controllers/KCPatientPrescriptionController.php:248
+#: app/controllers/KCPatientPrescriptionController.php:267
 msgid "Failed to delete Prescription"
 msgstr ""
 
-#: app/controllers/KCPatientPrescriptionController.php:270
-#: app/controllers/KCPatientPrescriptionController.php:325
+#: app/controllers/KCPatientPrescriptionController.php:289
+#: app/controllers/KCPatientPrescriptionController.php:344
 msgid "Failed to send email"
 msgstr ""
 
-#: app/controllers/KCPatientPrescriptionController.php:292
+#: app/controllers/KCPatientPrescriptionController.php:311
 msgid "NAME"
 msgstr ""
 
-#: app/controllers/KCPatientPrescriptionController.php:293
+#: app/controllers/KCPatientPrescriptionController.php:312
 msgid "FREQUENCY"
 msgstr ""
 
-#: app/controllers/KCPatientPrescriptionController.php:294
+#: app/controllers/KCPatientPrescriptionController.php:313
 msgid "DAYS"
 msgstr ""
 
-#: app/controllers/KCPatientPrescriptionController.php:295
+#: app/controllers/KCPatientPrescriptionController.php:314
 #: resources/assets/lang/temp.php:1226
-#: utils/kc_helpers.php:6376
+#: utils/kc_helpers.php:6368
 msgid "Instruction"
 msgstr ""
 
-#: app/controllers/KCPatientPrescriptionController.php:325
+#: app/controllers/KCPatientPrescriptionController.php:344
 msgid "Prescription send successfully."
 msgstr ""
 
@@ -2865,44 +2883,44 @@ msgstr ""
 msgid "Service list"
 msgstr ""
 
-#: app/controllers/KCServiceController.php:445
-#: app/controllers/KCServiceController.php:507
+#: app/controllers/KCServiceController.php:450
+#: app/controllers/KCServiceController.php:512
 msgid "Same Service Already Exists,Please select Different category or service name"
 msgstr ""
 
-#: app/controllers/KCServiceController.php:484
+#: app/controllers/KCServiceController.php:489
 msgid "Service saved successfully"
 msgstr ""
 
-#: app/controllers/KCServiceController.php:573
+#: app/controllers/KCServiceController.php:578
 msgid "Service updated successfully"
 msgstr ""
 
-#: app/controllers/KCServiceController.php:665
+#: app/controllers/KCServiceController.php:670
 msgid "yes"
 msgstr ""
 
-#: app/controllers/KCServiceController.php:688
+#: app/controllers/KCServiceController.php:693
 msgid "Service data"
 msgstr ""
 
-#: app/controllers/KCServiceController.php:742
+#: app/controllers/KCServiceController.php:747
 msgid "Service has been deleted successfully"
 msgstr ""
 
-#: app/controllers/KCServiceController.php:745
+#: app/controllers/KCServiceController.php:750
 msgid "Failed to delete Service"
 msgstr ""
 
-#: app/controllers/KCServiceController.php:862
+#: app/controllers/KCServiceController.php:867
 msgid "Base Price: "
 msgstr ""
 
-#: app/controllers/KCServiceController.php:875
+#: app/controllers/KCServiceController.php:880
 msgid "Service Duration: "
 msgstr ""
 
-#: app/controllers/KCServiceController.php:877
+#: app/controllers/KCServiceController.php:882
 msgid " min"
 msgstr ""
 
@@ -2942,19 +2960,19 @@ msgstr ""
 msgid "Demo Service"
 msgstr ""
 
-#: app/controllers/KCStaticDataController.php:164
+#: app/controllers/KCStaticDataController.php:169
 msgid "Listing data already exists."
 msgstr ""
 
-#: app/controllers/KCStaticDataController.php:173
+#: app/controllers/KCStaticDataController.php:178
 msgid "Listing data saved successfully"
 msgstr ""
 
-#: app/controllers/KCStaticDataController.php:176
+#: app/controllers/KCStaticDataController.php:181
 msgid "Listing data updated successfully"
 msgstr ""
 
-#: app/controllers/KCStaticDataController.php:272
+#: app/controllers/KCStaticDataController.php:277
 msgid "Static data deleted successfully"
 msgstr ""
 
@@ -3430,12 +3448,12 @@ msgid "Collections"
 msgstr ""
 
 #: resources/assets/lang/temp.php:107
-#: utils/kc_helpers.php:6271
+#: utils/kc_helpers.php:6263
 msgid "Tax"
 msgstr ""
 
 #: resources/assets/lang/temp.php:108
-#: utils/kc_helpers.php:6280
+#: utils/kc_helpers.php:6272
 msgid "Tax Name"
 msgstr ""
 
@@ -3606,8 +3624,8 @@ msgid "Removed clinics will delete service and session data of this doctor and r
 msgstr ""
 
 #: resources/assets/lang/temp.php:151
-#: utils/kc_helpers.php:5557
-#: utils/kc_helpers.php:6729
+#: utils/kc_helpers.php:5549
+#: utils/kc_helpers.php:6721
 msgid "Razorpay"
 msgstr ""
 
@@ -3813,18 +3831,18 @@ msgid "Quantity"
 msgstr ""
 
 #: resources/assets/lang/temp.php:205
-#: utils/kc_helpers.php:6310
-#: utils/kc_helpers.php:6329
+#: utils/kc_helpers.php:6302
+#: utils/kc_helpers.php:6321
 msgid "Total"
 msgstr ""
 
 #: resources/assets/lang/temp.php:206
-#: utils/kc_helpers.php:5948
-#: utils/kc_helpers.php:5960
-#: utils/kc_helpers.php:6481
-#: utils/kc_helpers.php:6486
-#: utils/kc_helpers.php:6491
-#: utils/kc_helpers.php:6500
+#: utils/kc_helpers.php:5940
+#: utils/kc_helpers.php:5952
+#: utils/kc_helpers.php:6473
+#: utils/kc_helpers.php:6478
+#: utils/kc_helpers.php:6483
+#: utils/kc_helpers.php:6492
 msgid "No records found"
 msgstr ""
 
@@ -3881,9 +3899,9 @@ msgstr ""
 #: resources/assets/lang/temp.php:217
 #: resources/assets/lang/temp.php:1551
 #: resources/assets/lang/temp.php:1743
-#: utils/kc_helpers.php:7247
-#: utils/kc_helpers.php:7377
-#: utils/kc_helpers.php:7486
+#: utils/kc_helpers.php:7239
+#: utils/kc_helpers.php:7369
+#: utils/kc_helpers.php:7478
 msgid "Doctors"
 msgstr ""
 
@@ -3939,7 +3957,7 @@ msgstr ""
 
 #: resources/assets/lang/temp.php:239
 #: resources/assets/lang/temp.php:1744
-#: utils/kc_helpers.php:5735
+#: utils/kc_helpers.php:5727
 msgid "Dr."
 msgstr ""
 
@@ -3956,7 +3974,7 @@ msgid "Close filter"
 msgstr ""
 
 #: resources/assets/lang/temp.php:243
-#: utils/kc_helpers.php:6843
+#: utils/kc_helpers.php:6835
 msgid "Back"
 msgstr ""
 
@@ -4012,10 +4030,10 @@ msgid "Contact information"
 msgstr ""
 
 #: resources/assets/lang/temp.php:257
-#: utils/kc_helpers.php:7296
-#: utils/kc_helpers.php:7426
-#: utils/kc_helpers.php:7507
-#: utils/kc_helpers.php:7581
+#: utils/kc_helpers.php:7288
+#: utils/kc_helpers.php:7418
+#: utils/kc_helpers.php:7499
+#: utils/kc_helpers.php:7573
 msgid "Settings"
 msgstr ""
 
@@ -4487,7 +4505,7 @@ msgstr ""
 
 #: resources/assets/lang/temp.php:375
 #: resources/assets/lang/temp.php:1013
-#: utils/kc_helpers.php:6565
+#: utils/kc_helpers.php:6557
 msgid "Cancelled"
 msgstr ""
 
@@ -4529,17 +4547,6 @@ msgstr ""
 
 #: resources/assets/lang/temp.php:386
 msgid "All the appointment on selected date will be cancelled."
-msgstr ""
-
-#: resources/assets/lang/temp.php:387
-#: resources/assets/lang/temp.php:766
-#: resources/assets/lang/temp.php:821
-#: resources/assets/lang/temp.php:918
-#: resources/assets/lang/temp.php:972
-#: resources/assets/lang/temp.php:1156
-#: resources/assets/lang/temp.php:1749
-#: utils/kc_helpers.php:7233
-msgid "Clinic"
 msgstr ""
 
 #: resources/assets/lang/temp.php:388
@@ -4839,7 +4846,7 @@ msgid "Yes"
 msgstr ""
 
 #: resources/assets/lang/temp.php:464
-#: utils/kc_helpers.php:6574
+#: utils/kc_helpers.php:6566
 msgid "Check In"
 msgstr ""
 
@@ -4856,7 +4863,7 @@ msgid "Selected Doctor or Clinic is not Available"
 msgstr ""
 
 #: resources/assets/lang/temp.php:468
-#: utils/kc_helpers.php:7317
+#: utils/kc_helpers.php:7309
 msgid "Request Features"
 msgstr ""
 
@@ -5111,7 +5118,7 @@ msgstr ""
 
 #: resources/assets/lang/temp.php:532
 #: resources/assets/lang/temp.php:1234
-#: utils/kc_helpers.php:5994
+#: utils/kc_helpers.php:5986
 msgid "Prescription"
 msgstr ""
 
@@ -5220,7 +5227,7 @@ msgid "Documentation"
 msgstr ""
 
 #: resources/assets/lang/temp.php:560
-#: utils/kc_helpers.php:7303
+#: utils/kc_helpers.php:7295
 msgid "Get help"
 msgstr ""
 
@@ -5330,7 +5337,7 @@ msgid "hours"
 msgstr ""
 
 #: resources/assets/lang/temp.php:587
-#: utils/kc_helpers.php:6391
+#: utils/kc_helpers.php:6383
 msgid "day"
 msgid_plural "days"
 msgstr[0] ""
@@ -5526,11 +5533,11 @@ msgid "Note: The PayPal currency must be the same as the service price currency"
 msgstr ""
 
 #: resources/assets/lang/temp.php:648
-#: utils/kc_helpers.php:7196
-#: utils/kc_helpers.php:7333
-#: utils/kc_helpers.php:7442
-#: utils/kc_helpers.php:7523
-#: utils/kc_helpers.php:7603
+#: utils/kc_helpers.php:7188
+#: utils/kc_helpers.php:7325
+#: utils/kc_helpers.php:7434
+#: utils/kc_helpers.php:7515
+#: utils/kc_helpers.php:7595
 msgid "Dashboard"
 msgstr ""
 
@@ -5551,7 +5558,7 @@ msgid "Total clinic doctors"
 msgstr ""
 
 #: resources/assets/lang/temp.php:653
-msgid "Total Appointments"
+msgid "Total booked appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:654
@@ -5617,7 +5624,7 @@ msgid "Reset"
 msgstr ""
 
 #: resources/assets/lang/temp.php:670
-msgid "Total Today Appointments"
+msgid "Total number of today appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:671
@@ -5626,7 +5633,7 @@ msgid "Total Today Appointments"
 msgstr ""
 
 #: resources/assets/lang/temp.php:672
-msgid "Total service"
+msgid "Total services provided"
 msgstr ""
 
 #: resources/assets/lang/temp.php:673
@@ -5635,10 +5642,10 @@ msgid "Total service"
 msgstr ""
 
 #: resources/assets/lang/temp.php:674
-#: utils/kc_helpers.php:7240
-#: utils/kc_helpers.php:7370
-#: utils/kc_helpers.php:7479
-#: utils/kc_helpers.php:7560
+#: utils/kc_helpers.php:7232
+#: utils/kc_helpers.php:7362
+#: utils/kc_helpers.php:7471
+#: utils/kc_helpers.php:7552
 msgid "Patients"
 msgstr ""
 
@@ -6617,13 +6624,13 @@ msgstr ""
 
 #: resources/assets/lang/temp.php:1006
 #: resources/assets/lang/temp.php:1364
-#: utils/kc_helpers.php:5761
+#: utils/kc_helpers.php:5753
 msgid "Paid"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1007
 #: resources/assets/lang/temp.php:1365
-#: utils/kc_helpers.php:5761
+#: utils/kc_helpers.php:5753
 msgid "Unpaid"
 msgstr ""
 
@@ -6636,7 +6643,7 @@ msgid "Appointment"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1012
-#: utils/kc_helpers.php:6568
+#: utils/kc_helpers.php:6560
 msgid "Booked"
 msgstr ""
 
@@ -6744,7 +6751,7 @@ msgid "Appointment visit type is required."
 msgstr ""
 
 #: resources/assets/lang/temp.php:1041
-#: utils/kc_helpers.php:6612
+#: utils/kc_helpers.php:6604
 msgid "Appointment Detail"
 msgstr ""
 
@@ -6826,7 +6833,7 @@ msgstr ""
 
 #: resources/assets/lang/temp.php:1070
 #: resources/assets/lang/temp.php:1245
-#: utils/kc_helpers.php:7942
+#: utils/kc_helpers.php:7934
 msgid "Doctor Name"
 msgstr ""
 
@@ -7003,17 +7010,17 @@ msgstr ""
 
 #: resources/assets/lang/temp.php:1121
 msgctxt "button-label"
-msgid "Booked"
+msgid "To Booked"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1122
 msgctxt "button-label"
-msgid "Check in"
+msgid "To Check in"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1123
 msgctxt "button-label"
-msgid "Check out"
+msgid "To Check out"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1126
@@ -7113,8 +7120,8 @@ msgid "This action may delete your doctor's appointments, sessions and holidays.
 msgstr ""
 
 #: resources/assets/lang/temp.php:1164
-#: utils/kc_helpers.php:7268
-#: utils/kc_helpers.php:7398
+#: utils/kc_helpers.php:7260
+#: utils/kc_helpers.php:7390
 msgid "Doctor Sessions"
 msgstr ""
 
@@ -7288,7 +7295,7 @@ msgid "Select Observation"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1222
-#: utils/kc_helpers.php:6374
+#: utils/kc_helpers.php:6366
 msgid "Frequency"
 msgstr ""
 
@@ -7305,7 +7312,7 @@ msgid "Duration is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1227
-#: utils/kc_helpers.php:6375
+#: utils/kc_helpers.php:6367
 msgid "Duration"
 msgstr ""
 
@@ -7447,9 +7454,9 @@ msgid "Enter Medical Record description"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1291
-#: utils/kc_helpers.php:7289
-#: utils/kc_helpers.php:7419
-#: utils/kc_helpers.php:7631
+#: utils/kc_helpers.php:7281
+#: utils/kc_helpers.php:7411
+#: utils/kc_helpers.php:7623
 msgid "Reports"
 msgstr ""
 
@@ -7540,7 +7547,7 @@ msgstr ""
 
 #: resources/assets/lang/temp.php:1322
 #: resources/assets/lang/temp.php:1348
-#: utils/kc_helpers.php:6283
+#: utils/kc_helpers.php:6275
 msgid "Charges"
 msgstr ""
 
@@ -7634,7 +7641,7 @@ msgid "Patient details"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1367
-#: utils/kc_helpers.php:6348
+#: utils/kc_helpers.php:6340
 msgid "Amount due"
 msgstr ""
 
@@ -7675,7 +7682,7 @@ msgid "Bill total is required"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1378
-#: utils/kc_helpers.php:6339
+#: utils/kc_helpers.php:6331
 msgid "Discount"
 msgstr ""
 
@@ -7724,11 +7731,11 @@ msgid "Print bill"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1390
-#: utils/kc_helpers.php:7282
-#: utils/kc_helpers.php:7412
-#: utils/kc_helpers.php:7500
-#: utils/kc_helpers.php:7574
-#: utils/kc_helpers.php:7624
+#: utils/kc_helpers.php:7274
+#: utils/kc_helpers.php:7404
+#: utils/kc_helpers.php:7492
+#: utils/kc_helpers.php:7566
+#: utils/kc_helpers.php:7616
 msgid "Billing records"
 msgstr ""
 
@@ -7753,7 +7760,7 @@ msgid "Bill Details"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1397
-#: utils/kc_helpers.php:6412
+#: utils/kc_helpers.php:6404
 msgid "Other information"
 msgstr ""
 
@@ -7799,7 +7806,7 @@ msgstr ""
 
 #: resources/assets/lang/temp.php:1409
 #: resources/assets/lang/temp.php:1587
-#: utils/kc_helpers.php:6467
+#: utils/kc_helpers.php:6459
 msgid "Notes"
 msgstr ""
 
@@ -8326,12 +8333,12 @@ msgid "Edit custom form"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1585
-#: utils/kc_helpers.php:6457
+#: utils/kc_helpers.php:6449
 msgid "Problems"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1586
-#: utils/kc_helpers.php:6462
+#: utils/kc_helpers.php:6454
 msgid "Observations"
 msgstr ""
 
@@ -8340,7 +8347,7 @@ msgid "Add Prescription"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1591
-#: utils/kc_helpers.php:6420
+#: utils/kc_helpers.php:6412
 msgid "Clinical Detail"
 msgstr ""
 
@@ -8583,7 +8590,7 @@ msgid "New password and Confirm password doest match"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1697
-#: utils/kc_helpers.php:7596
+#: utils/kc_helpers.php:7588
 msgid "Home"
 msgstr ""
 
@@ -8795,7 +8802,7 @@ msgid "Show service duration"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1768
-#: utils/kc_helpers.php:5381
+#: utils/kc_helpers.php:5373
 msgid "Services from Category"
 msgstr ""
 
@@ -8820,7 +8827,7 @@ msgid "PayPal"
 msgstr ""
 
 #: resources/assets/lang/temp.php:1793
-#: utils/kc_helpers.php:5546
+#: utils/kc_helpers.php:5538
 msgid "Pay Later"
 msgstr ""
 
@@ -9611,442 +9618,447 @@ msgstr ""
 msgid "Invalid file, Please select file size upto "
 msgstr ""
 
-#: utils/kc_helpers.php:2216
+#: utils/kc_helpers.php:2199
 msgid "Doctor Registration"
 msgstr ""
 
-#: utils/kc_helpers.php:2219
+#: utils/kc_helpers.php:2202
 msgid "Patient Registration"
 msgstr ""
 
-#: utils/kc_helpers.php:2222
+#: utils/kc_helpers.php:2205
 msgid "Receptionist Registration"
 msgstr ""
 
-#: utils/kc_helpers.php:2225
+#: utils/kc_helpers.php:2208
 msgid "Patient Appointment Booking"
 msgstr ""
 
-#: utils/kc_helpers.php:2228
+#: utils/kc_helpers.php:2211
 msgid "Doctor Appointment Booking"
 msgstr ""
 
-#: utils/kc_helpers.php:2231
+#: utils/kc_helpers.php:2214
 msgid "Clinic Appointment Booking"
 msgstr ""
 
-#: utils/kc_helpers.php:2235
+#: utils/kc_helpers.php:2218
 msgid "Patient Telemed Appointment Booking"
 msgstr ""
 
-#: utils/kc_helpers.php:2238
+#: utils/kc_helpers.php:2221
 msgid "Clinic Admin Registration"
 msgstr ""
 
-#: utils/kc_helpers.php:2241
+#: utils/kc_helpers.php:2224
 msgid "Patient Appointment Payment"
 msgstr ""
 
-#: utils/kc_helpers.php:2245
+#: utils/kc_helpers.php:2228
 msgid "Doctor Telemed Appointment Booking"
 msgstr ""
 
-#: utils/kc_helpers.php:2248
+#: utils/kc_helpers.php:2231
 msgid "Patient Booked Appointment Reminder"
 msgstr ""
 
-#: utils/kc_helpers.php:2251
+#: utils/kc_helpers.php:2234
 msgid "Patient Booked Appointment Reminder for Doctor"
 msgstr ""
 
-#: utils/kc_helpers.php:2254
+#: utils/kc_helpers.php:2237
 msgid "Patient Prescription"
 msgstr ""
 
-#: utils/kc_helpers.php:2257
+#: utils/kc_helpers.php:2240
 msgid "Patient Appointment Cancel"
 msgstr ""
 
-#: utils/kc_helpers.php:2260
+#: utils/kc_helpers.php:2243
 msgid "Patient Report"
 msgstr ""
 
-#: utils/kc_helpers.php:2263
+#: utils/kc_helpers.php:2246
 msgid "Patient Check In"
 msgstr ""
 
-#: utils/kc_helpers.php:2266
+#: utils/kc_helpers.php:2249
 msgid "Admin New User Register"
 msgstr ""
 
-#: utils/kc_helpers.php:2269
+#: utils/kc_helpers.php:2252
 msgid "Account Verified"
 msgstr ""
 
-#: utils/kc_helpers.php:2272
+#: utils/kc_helpers.php:2255
 msgid "Welcome To Clinic "
 msgstr ""
 
-#: utils/kc_helpers.php:2388
+#: utils/kc_helpers.php:2371
 msgid "There already exists an user registered with this email address,please use other email ID for clinic email"
 msgstr ""
 
-#: utils/kc_helpers.php:2388
+#: utils/kc_helpers.php:2371
 msgid "There already exists an User registered with this email address,please use other email ID"
 msgstr ""
 
-#: utils/kc_helpers.php:2487
+#: utils/kc_helpers.php:2470
 msgid "Meetings has email send"
 msgstr ""
 
-#: utils/kc_helpers.php:2703
+#: utils/kc_helpers.php:2686
 msgid "All Clinic Have Doctor Session"
 msgstr ""
 
-#: utils/kc_helpers.php:2706
+#: utils/kc_helpers.php:2689
 msgid "Clinic "
 msgstr ""
 
 #. translators: clinic name
 #. translators: doctor name
-#: utils/kc_helpers.php:2718
-#: utils/kc_helpers.php:2728
+#: utils/kc_helpers.php:2701
+#: utils/kc_helpers.php:2711
 msgid " do not have a doctor session"
 msgstr ""
 
 #. translators: timezone
-#: utils/kc_helpers.php:3700
+#: utils/kc_helpers.php:3683
 msgid "Current Timezone: "
 msgstr ""
 
 #. translators: timezone
-#: utils/kc_helpers.php:3700
+#: utils/kc_helpers.php:3683
 msgid "Your appointment slots work based on your current time zone."
 msgstr ""
 
-#: utils/kc_helpers.php:3834
+#: utils/kc_helpers.php:3817
 msgid "No clinic Found"
 msgstr ""
 
-#: utils/kc_helpers.php:3854
+#: utils/kc_helpers.php:3837
 msgid "No doctor found"
 msgstr ""
 
-#: utils/kc_helpers.php:3873
-#: utils/kc_helpers.php:4105
+#: utils/kc_helpers.php:3856
+#: utils/kc_helpers.php:4088
 msgid "Button Height"
 msgstr ""
 
-#: utils/kc_helpers.php:3884
-#: utils/kc_helpers.php:4116
+#: utils/kc_helpers.php:3867
+#: utils/kc_helpers.php:4099
 msgid "Button Width"
 msgstr ""
 
-#: utils/kc_helpers.php:3895
-#: utils/kc_helpers.php:4300
-#: utils/kc_helpers.php:4313
+#: utils/kc_helpers.php:3878
+#: utils/kc_helpers.php:4283
+#: utils/kc_helpers.php:4296
 msgid "Button Radius"
 msgstr ""
 
-#: utils/kc_helpers.php:3907
-#: utils/kc_helpers.php:4324
+#: utils/kc_helpers.php:3890
+#: utils/kc_helpers.php:4307
 msgid "Margin"
 msgstr ""
 
-#: utils/kc_helpers.php:3931
-#: utils/kc_helpers.php:4139
+#: utils/kc_helpers.php:3914
+#: utils/kc_helpers.php:4122
 msgid "For hover in Button keep background type classic of button"
 msgstr ""
 
-#: utils/kc_helpers.php:3944
-#: utils/kc_helpers.php:4152
+#: utils/kc_helpers.php:3927
+#: utils/kc_helpers.php:4135
 msgid "Normal"
 msgstr ""
 
-#: utils/kc_helpers.php:3963
-#: utils/kc_helpers.php:4038
-#: utils/kc_helpers.php:4171
-#: utils/kc_helpers.php:4246
+#: utils/kc_helpers.php:3946
+#: utils/kc_helpers.php:4021
+#: utils/kc_helpers.php:4154
+#: utils/kc_helpers.php:4229
 msgid "Button Background"
 msgstr ""
 
-#: utils/kc_helpers.php:3972
-#: utils/kc_helpers.php:4047
-#: utils/kc_helpers.php:4180
-#: utils/kc_helpers.php:4255
+#: utils/kc_helpers.php:3955
+#: utils/kc_helpers.php:4030
+#: utils/kc_helpers.php:4163
+#: utils/kc_helpers.php:4238
 msgid "Button Border"
 msgstr ""
 
-#: utils/kc_helpers.php:3983
-#: utils/kc_helpers.php:4058
-#: utils/kc_helpers.php:4191
-#: utils/kc_helpers.php:4266
+#: utils/kc_helpers.php:3966
+#: utils/kc_helpers.php:4041
+#: utils/kc_helpers.php:4174
+#: utils/kc_helpers.php:4249
 msgid "Button Border style"
 msgstr ""
 
-#: utils/kc_helpers.php:4006
-#: utils/kc_helpers.php:4081
-#: utils/kc_helpers.php:4214
-#: utils/kc_helpers.php:4289
+#: utils/kc_helpers.php:3989
+#: utils/kc_helpers.php:4064
+#: utils/kc_helpers.php:4197
+#: utils/kc_helpers.php:4272
 msgid "Border Color"
 msgstr ""
 
-#: utils/kc_helpers.php:4019
-#: utils/kc_helpers.php:4227
+#: utils/kc_helpers.php:4002
+#: utils/kc_helpers.php:4210
 msgid "Hover"
 msgstr ""
 
-#: utils/kc_helpers.php:4097
+#: utils/kc_helpers.php:4080
 msgid "Pagination Button style"
 msgstr ""
 
-#: utils/kc_helpers.php:4335
+#: utils/kc_helpers.php:4318
 msgid "Padding"
 msgstr ""
 
-#: utils/kc_helpers.php:4358
+#: utils/kc_helpers.php:4341
 msgid "Every 5 Minutes"
 msgstr ""
 
-#: utils/kc_helpers.php:4524
-#: utils/kc_helpers.php:4530
+#: utils/kc_helpers.php:4507
+#: utils/kc_helpers.php:4513
 msgid "appointment successfully booked, Please check your email "
 msgstr ""
 
-#: utils/kc_helpers.php:4527
+#: utils/kc_helpers.php:4510
 msgid "appointment successfully booked, Please check your email for zoom meeting link."
 msgstr ""
 
 #. translators: doctor name
-#: utils/kc_helpers.php:4991
+#: utils/kc_helpers.php:4974
 msgid "Doctor Name : "
 msgstr ""
 
 #. translators: patient name
-#: utils/kc_helpers.php:4999
+#: utils/kc_helpers.php:4982
 msgid "Patient Name  : "
 msgstr ""
 
 #. translators: patient name
-#: utils/kc_helpers.php:5008
+#: utils/kc_helpers.php:4991
 msgid "Service Name  : "
 msgstr ""
 
 #. translators: Appointment
-#: utils/kc_helpers.php:5016
+#: utils/kc_helpers.php:4999
 msgid "Appointment Date : "
 msgstr ""
 
 #. translators: Appointment
-#: utils/kc_helpers.php:5024
+#: utils/kc_helpers.php:5007
 msgid "Appointment Time : "
 msgstr ""
 
 #. translators: Appointment
-#: utils/kc_helpers.php:5033
+#: utils/kc_helpers.php:5016
 msgid "Print Appointment Detail"
 msgstr ""
 
 #. translators: Appointment
-#: utils/kc_helpers.php:5042
+#: utils/kc_helpers.php:5025
 msgid "Loading....."
 msgstr ""
 
-#: utils/kc_helpers.php:5191
+#: utils/kc_helpers.php:5174
 msgid "Doctor Name:"
 msgstr ""
 
-#: utils/kc_helpers.php:5383
+#: utils/kc_helpers.php:5375
 msgid "Appointment Extra Data "
 msgstr ""
 
-#: utils/kc_helpers.php:5550
+#: utils/kc_helpers.php:5542
 msgid "Woocommerce"
 msgstr ""
 
-#: utils/kc_helpers.php:5553
-#: utils/kc_helpers.php:6727
+#: utils/kc_helpers.php:5545
+#: utils/kc_helpers.php:6719
 msgid "Paypal"
 msgstr ""
 
-#: utils/kc_helpers.php:5561
-#: utils/kc_helpers.php:6731
+#: utils/kc_helpers.php:5553
+#: utils/kc_helpers.php:6723
 msgid "Stripe"
 msgstr ""
 
-#: utils/kc_helpers.php:5723
+#: utils/kc_helpers.php:5715
 msgid "Date:"
 msgstr ""
 
-#: utils/kc_helpers.php:5738
+#: utils/kc_helpers.php:5730
 msgid "Contact No: "
 msgstr ""
 
-#: utils/kc_helpers.php:5744
-#: utils/kc_helpers.php:5947
+#: utils/kc_helpers.php:5736
+#: utils/kc_helpers.php:5939
 msgid "Address: "
 msgstr ""
 
-#: utils/kc_helpers.php:5748
-#: utils/kc_helpers.php:5943
+#: utils/kc_helpers.php:5740
+#: utils/kc_helpers.php:5935
 msgid "Email: "
 msgstr ""
 
-#: utils/kc_helpers.php:5755
+#: utils/kc_helpers.php:5747
 msgid "Invoice Id: "
 msgstr ""
 
-#: utils/kc_helpers.php:5759
+#: utils/kc_helpers.php:5751
 msgid "Payment Status: "
 msgstr ""
 
-#: utils/kc_helpers.php:5772
+#: utils/kc_helpers.php:5764
 msgid "Patient Name:"
 msgstr ""
 
-#: utils/kc_helpers.php:5777
+#: utils/kc_helpers.php:5769
 msgid "Age:"
 msgstr ""
 
-#: utils/kc_helpers.php:5785
+#: utils/kc_helpers.php:5777
 msgid "Email:"
 msgstr ""
 
-#: utils/kc_helpers.php:5791
+#: utils/kc_helpers.php:5783
 msgid "Gender:"
 msgstr ""
 
-#: utils/kc_helpers.php:5822
-#: utils/kc_helpers.php:6187
+#: utils/kc_helpers.php:5814
+#: utils/kc_helpers.php:6179
 msgid "Doctor Signature"
 msgstr ""
 
-#: utils/kc_helpers.php:5936
+#: utils/kc_helpers.php:5928
 msgid "Encounter Details"
 msgstr ""
 
-#: utils/kc_helpers.php:5941
+#: utils/kc_helpers.php:5933
 msgid "Name: "
 msgstr ""
 
-#: utils/kc_helpers.php:5945
+#: utils/kc_helpers.php:5937
 msgid "Encounter Date:"
 msgstr ""
 
-#: utils/kc_helpers.php:5953
+#: utils/kc_helpers.php:5945
 msgid "Clinic Name: "
 msgstr ""
 
-#: utils/kc_helpers.php:5955
+#: utils/kc_helpers.php:5947
 msgid "Doctor Name: "
 msgstr ""
 
-#: utils/kc_helpers.php:5958
-#: utils/kc_helpers.php:6647
+#: utils/kc_helpers.php:5950
+#: utils/kc_helpers.php:6639
 msgid "Description: "
 msgstr ""
 
-#: utils/kc_helpers.php:5964
+#: utils/kc_helpers.php:5956
 msgid "ACTIVE"
 msgstr ""
 
-#: utils/kc_helpers.php:5964
+#: utils/kc_helpers.php:5956
 msgid "CLOSED"
 msgstr ""
 
-#: utils/kc_helpers.php:5984
+#: utils/kc_helpers.php:5976
 msgid "Clinical Details"
 msgstr ""
 
-#: utils/kc_helpers.php:6025
+#: utils/kc_helpers.php:6017
 msgid "Other Information"
 msgstr ""
 
-#: utils/kc_helpers.php:6229
+#: utils/kc_helpers.php:6221
 msgid "SR NO"
 msgstr ""
 
-#: utils/kc_helpers.php:6232
+#: utils/kc_helpers.php:6224
 msgid "SERVICE NAME"
 msgstr ""
 
-#: utils/kc_helpers.php:6235
+#: utils/kc_helpers.php:6227
 msgid "PRICE"
 msgstr ""
 
-#: utils/kc_helpers.php:6238
+#: utils/kc_helpers.php:6230
 msgid "QUANTITY"
 msgstr ""
 
-#: utils/kc_helpers.php:6241
+#: utils/kc_helpers.php:6233
 msgid "TOTAL"
 msgstr ""
 
-#: utils/kc_helpers.php:6277
+#: utils/kc_helpers.php:6269
 msgid "Sr No"
 msgstr ""
 
-#: utils/kc_helpers.php:6318
+#: utils/kc_helpers.php:6310
 msgid "Total Tax"
 msgstr ""
 
-#: utils/kc_helpers.php:6365
+#: utils/kc_helpers.php:6357
 msgid "Prescriptions"
 msgstr ""
 
-#: utils/kc_helpers.php:6571
+#: utils/kc_helpers.php:6563
 msgid "Check Out"
 msgstr ""
 
-#: utils/kc_helpers.php:6583
+#: utils/kc_helpers.php:6575
 msgid "Appointment Date: "
 msgstr ""
 
-#: utils/kc_helpers.php:6587
+#: utils/kc_helpers.php:6579
 msgid "Appointment Time: "
 msgstr ""
 
-#: utils/kc_helpers.php:6592
+#: utils/kc_helpers.php:6584
 msgid "Appointment Status: "
 msgstr ""
 
-#: utils/kc_helpers.php:6598
+#: utils/kc_helpers.php:6590
 msgid "Payment Mode: "
 msgstr ""
 
-#: utils/kc_helpers.php:6602
+#: utils/kc_helpers.php:6594
 msgid "Service: "
 msgstr ""
 
-#: utils/kc_helpers.php:6606
+#: utils/kc_helpers.php:6598
 msgid "Total Bill Payment: "
 msgstr ""
 
-#: utils/kc_helpers.php:6638
+#: utils/kc_helpers.php:6630
 msgid "Other Info"
 msgstr ""
 
-#: utils/kc_helpers.php:6672
+#: utils/kc_helpers.php:6664
 msgid "Telemed Meeting Info"
 msgstr ""
 
-#: utils/kc_helpers.php:6679
+#: utils/kc_helpers.php:6671
 msgid "Meeting Start Link: "
 msgstr ""
 
-#: utils/kc_helpers.php:6694
+#: utils/kc_helpers.php:6686
 msgid "Meeting Join Link: "
 msgstr ""
 
-#: utils/kc_helpers.php:6713
+#: utils/kc_helpers.php:6705
 msgid "Manual"
 msgstr ""
 
-#: utils/kc_helpers.php:7310
+#: utils/kc_helpers.php:7008
+#: utils/kc_helpers.php:7009
+msgid "to"
+msgstr ""
+
+#: utils/kc_helpers.php:7302
 msgid "Get Pro"
 msgstr ""
 
-#: utils/kc_helpers.php:7354
-#: utils/kc_helpers.php:7720
+#: utils/kc_helpers.php:7346
+#: utils/kc_helpers.php:7712
 msgid "Encounters List"
 msgstr ""

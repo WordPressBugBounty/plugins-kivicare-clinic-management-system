@@ -521,7 +521,12 @@ $rtl_attr = in_array($theme_mode,['1','true']) ? 'rtl' : '';
                 function kcGetRegisterPageCustomField(type){
                     let customFieldEle  = document.getElementById('kcCustomFieldsList')
                     customFieldEle.classList.add("kivi-center");
-                    customFieldEle.innerHTML = `<div class="double-lines-spinner"></div>`
+                    customFieldEle.innerHTML = '';
+                    //Create spinner element
+                    const spinner = document.createElement('div');
+                    spinner.className = 'double-lines-spinner';
+                    customFieldEle.appendChild(spinner);
+                    
                     get('get_appointment_custom_field', {user_role: type}, true)
                         .then((res) => {
                             customFieldEle.classList.remove("kivi-center");

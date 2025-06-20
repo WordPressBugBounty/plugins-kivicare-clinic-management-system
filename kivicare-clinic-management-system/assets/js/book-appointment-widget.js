@@ -93,6 +93,7 @@ function kcAppointmentBookJsContent(elementID) {
         }
 
         getCountryCodeData();
+        getUserRegistrationFormData();
         jQuery('#CountryCode').select2({
             dropdownParent: jQuery('.contact-box-inline'),
             templateSelection: function(data, container) {
@@ -230,8 +231,6 @@ function kcAppointmentBookJsContent(elementID) {
             removeTabActiveLink($(elementID+` [href="${target}"]`).closest('.tab-item'));
             var currentTab = $(elementID+' .iq-tab-pannel.active').find('form').closest('.iq-tab-pannel').attr('id')
 
-            console.log(perviousTab,currentTab);
-            
 
             switch (currentTab) {
                 case 'clinic':
@@ -600,6 +599,10 @@ function kcAppointmentBookJsContent(elementID) {
                         if (response.data.status) {
                             ShortcodeElement.querySelector('#kivi_confirm_page').innerHTML = validateDOMData(response.data.data);
                             tax_details = response.data.tax_details
+                            if (response.data.service_charges == 0) {
+                                $('#confirm_detail_form button[name="submit"]').text('Confirm');
+                                $('#confirm_detail_form').attr('action', '#confirmed');
+                            };
                         }
                     }).catch((error) => {
                         $(elementID+' #kivi_confirm_page').removeClass('d-none')
@@ -845,6 +848,26 @@ function kcAppointmentBookJsContent(elementID) {
                     if (response.data.status !== undefined && response.data.status === true) {
                         var valueString = '{"countryCallingCode":"+' + response.data.data.country_calling_code + '","countryCode":"' + response.data.data.country_code + '"}';
                         jQuery('#CountryCode').val(valueString).trigger('change');
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                    kivicareShowErrorMessage('kivicare_error_msg', bookAppointmentWidgetData.message.internal_server_msg);
+                })
+        }
+
+        function getUserRegistrationFormData() {
+            get('get_user_registration_form_settings_data', {})
+                .then((response) => {
+                    if (response.data.status !== undefined && response.data.status === true) {
+                        let userRegistrationFormSettingData = response.data.data.userRegistrationFormSettingData;
+                        if (userRegistrationFormSettingData === 'on') {                                   
+                            $('#otherGenderOption').show();
+                        } else {
+                            
+                            $('#otherGenderOption').hide();
+                        }
+                        return response.data.data.userRegistrationFormSettingData;
                     }
                 })
                 .catch((error) => {

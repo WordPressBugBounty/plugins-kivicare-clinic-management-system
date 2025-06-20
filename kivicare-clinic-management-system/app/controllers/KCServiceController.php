@@ -345,6 +345,11 @@ class KCServiceController extends KCBase {
 		}
 
         $request_data = $this->request->getInputs();
+
+        if (isset($request_data['name'])) {
+            $request_data['name'] = html_entity_decode($request_data['name'], ENT_QUOTES, 'UTF-8');
+        }
+        
         $request_data['price'] = round((float)$request_data['price'], 2);
         $doctor_service_table = $this->db->prefix . 'kc_service_doctor_mapping';
         $service_table =  $this->db->prefix .'kc_services';

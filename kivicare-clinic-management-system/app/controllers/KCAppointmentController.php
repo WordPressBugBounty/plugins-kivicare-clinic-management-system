@@ -422,7 +422,7 @@ class KCAppointmentController extends KCBase {
 
             if($beforeUpdateAppointmentData->appointment_start_date == $appointment_start_date
               && $beforeUpdateAppointmentData->appointment_start_time == $appointment_start_time &&
-                $beforeUpdateAppointmentData->status == $appointment_status){
+                $beforeUpdateAppointmentData->status == $appointment_status && (!isset($request_data['custom_fields_data']) && $request_data['custom_fields_data'] == [])){
                 wp_send_json([
                     'status'  => true,
                     'message' => $message,
@@ -561,7 +561,7 @@ class KCAppointmentController extends KCBase {
             KCBillItem::createAppointmentBillItem($appointment_id);
         }
 
-        if(!empty($appointment_id) && $appointment_id !== 0) {
+        if(empty( $request_data['id'] )) {
             // hook for appointment booked
             do_action( 'kc_appointment_book', $appointment_id );
         }

@@ -892,6 +892,7 @@ class KCBookAppointmentWidgetController extends KCBase {
             'status' => true,
             'message' => __('confirm page details', 'kc-lang'),
             'data' => $htmldata,
+            'service_charges' => ($request_data['service_total_charge'] ?? 0),
             'tax_details' => !empty($request_data['tax_details']['data']) ? $request_data['tax_details']['data'] : []
         ]);
     }

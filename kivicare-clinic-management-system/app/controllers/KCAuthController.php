@@ -611,6 +611,7 @@ class KCAuthController extends KCBase {
                     $this->db->insert($this->db->prefix.'kc_patient_clinic_mappings',$new_temp);
                     $user_email_param['patient_name'] = $parameters['first_name'] . ' ' .$parameters['last_name'];
                     $templateType = 'patient_register';
+                    $redirect =  kcGetLogoinRedirectSetting('patient');
                     if(kcGetUserRegistrationShortcodeSetting('patient') !== 'on'){
                         $this->db->update($user_table,['user_status' => 1],['ID' => $u->ID]);
                     }

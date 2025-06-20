@@ -143,6 +143,11 @@ class KCStaticDataController extends KCBase {
         $insert_id = '';
 		$request_data = $this->request->getInputs();
 
+        // Decode HTML entities 
+        if (isset($request_data['label'])) {
+            $request_data['label'] = html_entity_decode($request_data['label'], ENT_QUOTES, 'UTF-8');
+        }
+
 		$value = str_replace(' ', '_', strtolower($request_data['label']));
 
 		$temp = [

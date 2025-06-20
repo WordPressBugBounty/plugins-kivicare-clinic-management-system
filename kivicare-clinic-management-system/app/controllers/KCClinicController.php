@@ -191,6 +191,11 @@ class KCClinicController extends KCBase {
         
         $requestData = $this->request->getInputs();
 
+        // Decode HTML entities 
+        if (isset($requestData['name'])) {
+            $requestData['name'] = html_entity_decode($requestData['name'], ENT_QUOTES, 'UTF-8');
+        }
+
         $rules=[
             'name' => 'required',
             'email' => 'required',

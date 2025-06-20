@@ -554,7 +554,7 @@ class KCElementorController extends KCBase
         $page = ($pageNo - 1) * $perPage;
         $limit = ' limit ' . $perPage;
         $offset = ' OFFSET ' . $page;
-        $conditions = ' WHERE 0=0 ';
+        $conditions = ' WHERE 0=0 && status = 1';
         global $wpdb;
         $clinic_table = $wpdb->prefix . 'kc_clinics';
         $exclude_clinic_service_table_condition = " ";
