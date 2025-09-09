@@ -232,7 +232,7 @@ $rtl_attr = in_array($theme_mode,['1','true']) ? 'rtl' : '';
                                         <input type="checkbox" id="remember-me" name="Remember Me">
                                         <label class="custom-control-label" for="remember-me"><?php echo esc_html__('Remember Me', 'kc-lang'); ?></label>
                                     </div>
-                                    <a href="<?php echo esc_url(wp_lostpassword_url()); ?>" target="_blank"
+                                    <a href="<?php echo esc_url( apply_filters( 'kivicare_custom_lost_password_url', wp_lostpassword_url() ) ); ?>" target="_blank"
                                     class="iq-color-secondary forgot-password"><i><?php echo esc_html__('Forgot Password ?', 'kc-lang'); ?></i></a>
                                 </div>
                                 <div>

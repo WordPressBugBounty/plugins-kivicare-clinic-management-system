@@ -28,69 +28,77 @@ class KCAuthController extends KCBase {
 	}
 
     //login patient by vue appointment shortcode and patient dashboard shortcode
-	public function patientLogin() {
+    public function patientLogin()
+    {
 
-		$parameters = $this->request->getInputs();
+        $parameters = $this->request->getInputs();
 
-		try {
+        try {
 
-			$errors = kcValidateRequest( [
-				'username' => 'required',
-				'password' => 'required',
-			], $parameters );
+            $errors = kcValidateRequest([
+                'username' => 'required',
+                'password' => 'required',
+            ], $parameters);
 
 
-			if ( count( $errors ) ) {
-				wp_send_json(kcThrowExceptionResponse( $errors[0], 422 ));
-			}
+            if (count($errors)) {
+                wp_send_json(kcThrowExceptionResponse($errors[0], 422));
+            }
 
-            $auth_success = wp_authenticate( $parameters['username'], $parameters['password'] );
+            $auth_success = wp_authenticate($parameters['username'], $parameters['password']);
 
-            if ( is_wp_error($auth_success) ) {
-                wp_send_json( [
-                    'status'  => false,
+            if (is_wp_error($auth_success)) {
+                wp_send_json([
+                    'status' => false,
                     'message' => $auth_success->get_error_message(),
-                ] );
+                ]);
             }
 
-            $user_meta = get_userdata((int)$auth_success->data->ID);
+            $user_meta = get_userdata((int) $auth_success->data->ID);
 
-            if($this->getPatientRole() !== $user_meta->roles[0] ) {
-                wp_send_json( [
-                    'status'  => false,
-                    'message' => esc_html__( 'User not found user must be a patient.', 'kc-lang' ),
-                ] );
+            if ($this->getPatientRole() !== $user_meta->roles[0]) {
+                wp_send_json([
+                    'status' => false,
+                    'message' => esc_html__('User not found user must be a patient.', 'kc-lang'),
+                ]);
             }
 
-            wp_set_current_user( $auth_success->data->ID, $auth_success->data->user_login );
-            wp_set_auth_cookie( $auth_success->data->ID );
-            do_action( 'wp_login', $auth_success->data->user_login, $auth_success );
+            // Set WordPress auth
+            wp_set_current_user($auth_success->data->ID, $auth_success->data->user_login);
+            wp_set_auth_cookie($auth_success->data->ID);
+            do_action('wp_login', $auth_success->data->user_login, $auth_success);
 
-            wp_send_json( [
-				'status'  => true,
-				'message' => esc_html__( 'Logged in successfully', 'kc-lang' ),
-                'data'    => $auth_success,
-				'token' => [
-					'get' => wp_create_nonce('ajax_get'),
-					'post' => wp_create_nonce('ajax_post'),
-				]
-			] );
+            $login_redirect_url = kcGetLogoinRedirectSetting('patient');
 
-		} catch ( Exception $e ) {
+            wp_send_json([
+                'status' => true,
+                'message' => esc_html__('Logged in successfully', 'kc-lang'),
+                'data' => $auth_success,
+                'token' => [
+                    'get' => wp_create_nonce('ajax_get'),
+                    'post' => wp_create_nonce('ajax_post'),
+                ],
+                'login_redirect_url' => apply_filters(
+                    'kivicare_login_redirect_url',
+                    !empty($login_redirect_url)
+                    ? esc_url($login_redirect_url)
+                    : esc_url(admin_url('admin.php?page=dashboard')),
+                    $auth_success
+                ),
+            ]);
 
-			$code    = $e->getCode();
-			$message = $e->getMessage();
+        } catch (Exception $e) {
+            $code = $e->getCode();
+            $message = $e->getMessage();
 
-			header( "Status: $code $message" );
+            header("Status: $code $message");
 
-			wp_send_json( [
-				'status'  => false,
-				'message' => $message
-			] );
-			
-		}
-
-	}
+            wp_send_json([
+                'status' => false,
+                'message' => $message
+            ]);
+        }
+    }
 
     //login patient by php appointment shortcode
     public function appointmentPatientLogin() {
@@ -303,7 +311,7 @@ class KCAuthController extends KCBase {
                 // hook for patient save
                 do_action( 'kc_patient_save', $u->ID );
 
-                $auth_success = wp_authenticate( $u->user_email, $u->user_pass );
+                $auth_success = wp_authenticate( $u->user_email, $password );
                 wp_set_current_user( $u->ID, $u->user_login );
                 wp_set_auth_cookie(  $u->ID );
                 do_action( 'wp_login',$u->user_login, $u );
@@ -325,15 +333,24 @@ class KCAuthController extends KCBase {
 				$status = false ;
 				$message = esc_html__( "Patient registration failed. Please try again." , 'kc-lang' );
 			}
+            
+            $register_redirect_url = kcGetLogoinRedirectSetting('patient');
 
-			wp_send_json([
+            wp_send_json([
 				'status'  => $status,
 				'message' => $message,
                 'data'    => $auth_success,
 				'token' => [
 					'get' => wp_create_nonce('ajax_get'),
 					'post' => wp_create_nonce('ajax_post'),
-				]
+                ],
+                'register_redirect_url' => apply_filters(
+                    'kivicare_register_redirect_url',
+                    !empty($register_redirect_url)
+                    ? esc_url($register_redirect_url)
+                    : esc_url(admin_url('admin.php?page=dashboard')),
+                    $auth_success
+                ),
 			]);
 
 
@@ -419,12 +436,16 @@ class KCAuthController extends KCBase {
                     $login_redirect_url =  kcGetLogoinRedirectSetting('patient');
                 }
             }
-            
-	        wp_send_json( [
+
+            wp_send_json( [
                 'status'  => true,
                 'message' => esc_html__( 'Logged in successfully', 'kc-lang' ),
                 'data'    => $auth_success,
-                'login_redirect_url'    =>  !empty($login_redirect_url) ?  esc_url($login_redirect_url) : esc_url(admin_url('admin.php?page=dashboard')),
+                'login_redirect_url' => apply_filters(
+                    'kivicare_login_redirect_url',
+                    !empty( $login_redirect_url ) ? esc_url( $login_redirect_url ) : esc_url( admin_url( 'admin.php?page=dashboard' ) ),
+                    $auth_success // Pass additional context if needed
+                ),
             ] );
 
         } catch ( Exception $e ) {
@@ -617,6 +638,8 @@ class KCAuthController extends KCBase {
                     }
                     if ( $user && kcGetUserRegistrationShortcodeSetting('patient') === 'on' ) {
                         $this->authenticateAndLogin($u);
+                    } else {
+                        $redirect = apply_filters('kc_register_redirect_url_for_inactive_user', $redirect, $u->ID, $parameters);
                     }
                     do_action( 'kc_patient_save', $u->ID );
                     break;
@@ -645,6 +668,8 @@ class KCAuthController extends KCBase {
                     $redirect =  kcGetLogoinRedirectSetting('doctor');
                     if ( $user && kcGetUserRegistrationShortcodeSetting('doctor') === 'on' ) {
                         $this->authenticateAndLogin($u);
+                    } else {
+                        $redirect = apply_filters('kc_register_redirect_url_for_inactive_user', $redirect, $u->ID, $parameters);
                     }
                     do_action( 'kc_doctor_save', $u->ID );
                     break;
@@ -666,6 +691,8 @@ class KCAuthController extends KCBase {
                     $redirect =  kcGetLogoinRedirectSetting('receptionist');
                     if ( $user && kcGetUserRegistrationShortcodeSetting('receptionist') === 'on' ) {
                         $this->authenticateAndLogin($u);
+                    } else {
+                        $redirect = apply_filters('kc_register_redirect_url_for_inactive_user', $redirect, $u->ID, $parameters);
                     }
                     do_action( 'kc_receptionist_save', $u->ID );
                     break;

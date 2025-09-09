@@ -600,7 +600,7 @@ function kcAppointmentBookJsContent(elementID) {
                             ShortcodeElement.querySelector('#kivi_confirm_page').innerHTML = validateDOMData(response.data.data);
                             tax_details = response.data.tax_details
                             if (response.data.service_charges == 0) {
-                                $('#confirm_detail_form button[name="submit"]').text('Confirm');
+                                $('#confirm_detail_form button[name="submit"]').text(bookAppointmentWidgetData.message.confirm);
                                 $('#confirm_detail_form').attr('action', '#confirmed');
                             };
                         }

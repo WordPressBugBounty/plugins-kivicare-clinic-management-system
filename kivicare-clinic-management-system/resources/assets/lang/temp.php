@@ -620,6 +620,7 @@ $data = [
         "delete_form"  => __("Delete", "kc-lang"),
         "no_result_found" => __("No Result Found", "kc-lang"),
         "are_you_sure_lbl" => __("Are you sure ?", "kc-lang"),
+        "kivicare_test_message_lbl" => __("Welcome to KiviCare, This is test message", "kc-lang"),
     ],
     "paypal" => [
         "paypal_setting" => __("Paypal Settings", "kc-lang"),

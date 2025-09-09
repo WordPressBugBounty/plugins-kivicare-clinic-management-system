@@ -1745,10 +1745,9 @@ class KCActivate extends KCBase {
                 ? wp_get_attachment_url($config_options[KIVI_CARE_PREFIX.'site_logo']) : $this->plugin_url.'assets/images/logo-banner.png';
             $temp = [
                 'site_logo' => $site_logo,
-                'forget_password_page' => wp_lostpassword_url(),
+                'forget_password_page' => apply_filters( 'kivicare_custom_lost_password_url', wp_lostpassword_url() ),
                 'default_clinic_id'   => kcGetDefaultClinicId(),
             ];
-
             $data = array_merge($data,$temp);
         }
 

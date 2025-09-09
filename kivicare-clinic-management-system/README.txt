@@ -3,8 +3,8 @@ Contributors: iqonicdesign
 Tags: clinic management, patient management, doctor management, appointment management, clinic management solution
 Requires PHP: 8.0 
 Requires at least: 3.0.1
-Tested up to: 6.8.1
-Stable tag: 3.6.11
+Tested up to: 6.8.2
+Stable tag: 3.6.12
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,13 +122,18 @@ Yes, we’d love to hear from you at hello@iqonic.design.
 
 == Changelog ==
 
+= Version 3.6.12 – 09th Sep 2025
+- [Fixed] Prescription and patient report email template issue.
+- [Fixed] Register/Login shortcode functionality issue.
+- [Fixed] Patient dashboard redirection issue.
+- [Fixed] Various minor bugs.
+
 = Version 3.6.11 – 20th Jun 2025 =
 
 - [Fixed] Payment tab now hidden in the appointment widget when the service price is set to 0.
 - [Fixed] Patient not redirected to the dashboard after successful registration via the Register/Login shortcode.
 - [Fixed] Issue where the prescription dropdown did not display all available prescriptions.
 - [Fixed] Various minor bugs.
-
 
 = Version 3.6.10 – 14th Apr 2025 =
 - [Compatibility] Now compatible with WordPress 6.7.2

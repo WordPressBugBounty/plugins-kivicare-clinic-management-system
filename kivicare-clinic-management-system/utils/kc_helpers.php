@@ -1710,7 +1710,22 @@ function kcCommonTemplate($type)
             ]
         ];
     } else {
-        $temp = [];
+        $temp = [
+            [
+                'post_name' => $prefix . 'patient_report',
+                'post_content' => '<p> Welcome to KiviCare ,</p><p> Find your Report in attachment </p><p> Thank you. </p>',
+                'post_title' => 'Patient Report',
+                'post_type' => $mail_template,
+                'post_status' => 'publish',
+            ],
+            [
+                'post_name' => $prefix . 'book_prescription',
+                'post_content' => '<p> Welcome to KiviCare ,</p><p> You Have Medicine Prescription on </p><p> Clinic : {{clinic_name}}</p><p>Doctor : {{doctor_name}}</p><p>Prescription :{{prescription}} </p><p> Thank you. </p>',
+                'post_title' => 'Patient Prescription Reminder',
+                'post_type' => $mail_template,
+                'post_status' => 'publish',
+            ]
+        ];
     }
     $data = apply_filters('kivicare_notification_template_post_array', $data, $mail_template, $prefix);
     return array_merge($data, $temp);
@@ -1976,8 +1991,10 @@ function kcGetNotificationTemplateLists($template_type)
         'kivicare_zoom_link',
         'kivicare_meet_link',
         'kivicare_patient_clinic_check_in_check_out',
-        'kivicare_encounter_close'
+        'kivicare_patient_report',
+        'kivicare_book_prescription',
     ];
+
 
     $user_wise_template['doctor'] = [
         'kivicare_doctor_registration',
@@ -1997,7 +2014,9 @@ function kcGetNotificationTemplateLists($template_type)
     $user_wise_template['common'] = [
         'kivicare_resend_user_credential',
         'kivicare_user_verified',
-        'kivicare_admin_new_user_register'
+        'kivicare_admin_new_user_register',
+        'kivicare_payment_pending',
+        'kivicare_patient_invoice'
     ];
 
     foreach ($template_result as $post) {
@@ -2005,7 +2024,31 @@ function kcGetNotificationTemplateLists($template_type)
     }
 
     $user_wise_template = apply_filters('kivicare_user_wise_notification_template', $user_wise_template);
-    $template_result = collect($template_result)->unique('post_name')->sortBy('ID')->map(function ($value) use ($user_wise_template) {
+
+    // Filter out templates that don't follow the correct naming pattern
+    $valid_templates = [];
+    $seen_base_names = [];
+
+    foreach ($template_result as $post) {
+        // Check if the post_name matches the exact pattern (no suffixes)
+        $is_valid_name = in_array($post->post_name, array_merge(
+            $user_wise_template['patient'],
+            $user_wise_template['doctor'],
+            $user_wise_template['clinic'],
+            $user_wise_template['receptionist'],
+            $user_wise_template['common']
+        ));
+        
+        // If it's a valid exact match, add it to results
+        if ($is_valid_name) {
+            if (!in_array($post->post_name, $seen_base_names)) {
+                $seen_base_names[] = $post->post_name;
+                $valid_templates[] = $post;
+            }
+        }
+    }
+
+    $template_result = collect($valid_templates)->sortBy('ID')->map(function ($value) use ($user_wise_template) {
         if (in_array($value->post_name, $user_wise_template['patient'])) {
             $value->user_type = 'patient';
         }
@@ -2027,6 +2070,7 @@ function kcGetNotificationTemplateLists($template_type)
         $value->post_content = wp_kses($value->post_content, kcAllowedHtml());
         return $value;
     });
+
     return $template_result->groupBy('user_type')->sortKeys();
 }
 
@@ -4498,6 +4542,9 @@ function kcWoocommerceRedirect($appointment_id, $data)
             'appointment_id' => $appointment_id,
             'doctor_id' => $data['doctor_id']['id']
         ];
+        if(isset($data['patient_id'])){
+			$temp['patient_id'] =$data['patient_id']; 
+		}
 
         if (!empty($data['widgetType'])) {
             $temp['widgetType'] = $data['widgetType'];
@@ -4917,7 +4964,7 @@ function kivicareWoocommercePaymentComplete($order_id, $type = 'woocommerce')
         $appointmentHaveTelemedService = in_array('yes', $telemed_service_yes_no);
         $serviceName = $appointment_service_details->pluck('name')->implode(',');
 
-        if(($type === 'woocommerce' || ($type === 'status_update' && $appointment['status'] == '1')) && $appointmentHaveTelemedService){
+        if(($type !== 'status_update' || ($type === 'status_update' && $appointment['status'] == '1')) && $appointmentHaveTelemedService){
             if((kcCheckDoctorTelemedType($appointment_id) == 'googlemeet')){
                 $google_meet_data_query = " SELECT * FROM $google_meet_mapping_table WHERE appointment_id = {$appointment_id} ";
                 $google_meet_data= $wpdb->get_row($google_meet_data_query);
@@ -6199,156 +6246,187 @@ function kcEncounterHtml($data, $id, $type = "encounter")
 
 function kcEncounterBillDetailsPrintContent($themeColor, $data, $id, $current_user_role = '')
 {
+    ob_start();
+
     $tax_details = apply_filters('kivicare_calculate_tax', [
         'status' => false,
         'message' => '',
-        'data' => []
+        'data' => [],
+        'tax_total' => 0
     ], [
-        "id" => $id,
-        "type" => 'encounter',
+        'id' => $id,
+        'type' => 'encounter',
     ]);
+
     $clinicCurrencyDetails = kcGetClinicCurrenyPrefixAndPostfix();
-    $prefix = (!empty($clinicCurrencyDetails['prefix']) ? $clinicCurrencyDetails['prefix'] : '');
-    $postfix = (!empty($clinicCurrencyDetails['postfix']) ? $clinicCurrencyDetails['postfix'] : '');
-    if (!empty($data->billItems)) {
+    $prefix = !empty($clinicCurrencyDetails['prefix']) ? $clinicCurrencyDetails['prefix'] : '';
+    $postfix = !empty($clinicCurrencyDetails['postfix']) ? $clinicCurrencyDetails['postfix'] : '';
+
+    $has_bill_items = !empty($data->billItems) && is_array($data->billItems);
+    $has_tax_data = !empty($tax_details['data']) && is_array($tax_details['data']);
+    $has_discount = !empty($data->discount) && floatval($data->discount) > 0;
+    $tax_total = !empty($tax_details['tax_total']) ? floatval($tax_details['tax_total']) : 0;
+    $total_amount = !empty($data->total_amount) ? floatval($data->total_amount) : 0;
+    $actual_amount = !empty($data->actual_amount) ? floatval($data->actual_amount) : 0;
+
+    // Start main container with controlled spacing
+    echo '<div style="width: 100%; margin-top: 20px;">';
+
+    // === 1. SERVICES TABLE ===
+    if ($has_bill_items) {
         kcPrintTitle(esc_html__('Services', 'kc-lang'));
         ?>
-        <div style="width: 100%; margin-top: 20px;">
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-transform: uppercase;">
-                            <?php echo esc_html__('SR NO', 'kc-lang'); ?>
-                        </th>
-                        <th style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-transform: uppercase; text-align: right;">
-                            <?php echo esc_html__('SERVICE NAME', 'kc-lang'); ?>
-                        </th>
-                        <th style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-transform: uppercase; text-align: right;">
-                            <?php echo esc_html__('PRICE', 'kc-lang'); ?>
-                        </th>
-                        <th style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-transform: uppercase; text-align: right;">
-                            <?php echo esc_html__('QUANTITY', 'kc-lang'); ?>
-                        </th>
-                        <th style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-transform: uppercase; text-align: right;">
-                            <?php echo esc_html__('TOTAL', 'kc-lang'); ?>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($data->billItems as $key => $pre) {
-                        ?>
-                        <tr>
-                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px;">
-                                <?php echo esc_html($key + 1); ?>
-                            </td>
-                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
-                                <?php echo esc_html($pre['item_id']['label']); ?>
-                            </td>
-                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
-                                <?php echo esc_html($prefix . $pre['price'] . $postfix); ?>
-                            </td>
-                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
-                                <?php echo esc_html($pre['qty']); ?>
-                            </td>
-                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
-                                <?php echo esc_html($prefix . ($pre['price'] * $pre['qty']) . $postfix); ?>
-                            </td>
-                        </tr>
-                        <?php
-                    } ?>
-                    </tbody>
-            </table>
-        </div>
-        <?php if(!empty($tax_details['data'])): ?>
-        <?php kcPrintTitle(esc_html__('Tax', 'kc-lang')); ?>
-        <div style="width: 100%; margin-top: 20px;">
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-transform: uppercase;">
-                            <?php echo esc_html__('Sr No', 'kc-lang'); ?>
-                        </th>
-                        <th style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-transform: uppercase; text-align: center;">
-                            <?php echo esc_html__('Tax Name', 'kc-lang'); ?>
-                        </th>
-                        <th style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-transform: uppercase; text-align: right;">
-                            <?php echo esc_html__('Charges', 'kc-lang'); ?>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($tax_details['data'] as $key => $tax) :?>
-                        <tr>
-                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px;">
-                                <?php echo esc_html($key + 1); ?>
-                            </td>
-                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: center;">
-                                <?php echo esc_html($tax->name); ?>
-                            </td>
-                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
-                                <?php echo esc_html($prefix . ($tax->charges) . $postfix); ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-            <?php endif; ?>
-            <table style="width: 100%; border-collapse: collapse;">
-                <tbody >
-                    <?php if (!empty($tax_details['tax_total'])) {
-                        ?>
-                        <tr>
-                            <td colspan="4" style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
-                                <strong><?php echo esc_html__('Total', 'kc-lang'); ?></strong>
-                            </td>
-                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right">
-                                <?php echo esc_html($prefix . ($data->total_amount - $tax_details['tax_total']) . $postfix); ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="4" style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
-                                <strong><?php echo esc_html__('Total Tax', 'kc-lang'); ?></strong>
-                            </td>
-                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align:right;">
-                                <?php echo esc_html($prefix . $tax_details['tax_total'] . $postfix); ?>
-                            </td>
-                        </tr>
-                        <?php
-                    } else {
-                        ?>
-                        <tr>
-                            <td colspan="4" style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
-                                <strong><?php echo esc_html__('Total', 'kc-lang'); ?></strong>
-                            </td>
-                            <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align:right;">
-                                <?php echo esc_html($prefix . $data->total_amount . $postfix); ?>
-                            </td>
-                        </tr>
-                        <?php
-                    } ?>
-                    <tr>
-                        <td colspan="4" style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
-                            <strong><?php echo esc_html__('Discount', 'kc-lang'); ?></strong>
-                        </td>
-                        <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align:right;">
-                            <?php echo esc_html($prefix . $data->discount . $postfix); ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="4" style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align: right;">
-                            <div style="float: right;">
-                                <strong><?php echo esc_html__('Amount due', 'kc-lang'); ?></strong>
-                            </div>
-                        </td>
-                        <td style="border-top: 2px solid rgba(0, 0, 0, 0.1); padding: 12px; text-align:right;">
-                            <?php echo esc_html($prefix . $data->actual_amount . $postfix); ?>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+                <tr>
+                    <th style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-transform: uppercase; text-align: left;">
+                        <?php echo esc_html__('SR NO', 'kc-lang'); ?>
+                    </th>
+                    <th style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-transform: uppercase; text-align: right;">
+                        <?php echo esc_html__('SERVICE NAME', 'kc-lang'); ?>
+                    </th>
+                    <th style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-transform: uppercase; text-align: right;">
+                        <?php echo esc_html__('PRICE', 'kc-lang'); ?>
+                    </th>
+                    <th style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-transform: uppercase; text-align: right;">
+                        <?php echo esc_html__('QUANTITY', 'kc-lang'); ?>
+                    </th>
+                    <th style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-transform: uppercase; text-align: right;">
+                        <?php echo esc_html__('TOTAL', 'kc-lang'); ?>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($data->billItems as $key => $item): 
+                    $label = !empty($item['item_id']['label']) ? $item['item_id']['label'] : esc_html__('Service', 'kc-lang');
+                    $price = floatval($item['price']);
+                    $qty = max(1, intval($item['qty']));
+                    $total = $price * $qty;
+                ?>
+                <tr>
+                    <td style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: left;">
+                        <?php echo esc_html($key + 1); ?>
+                    </td>
+                    <td style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: right;">
+                        <?php echo esc_html($label); ?>
+                    </td>
+                    <td style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: right;">
+                        <?php echo esc_html($prefix . number_format($price, 2) . $postfix); ?>
+                    </td>
+                    <td style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: right;">
+                        <?php echo esc_html($qty); ?>
+                    </td>
+                    <td style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: right;">
+                        <?php echo esc_html($prefix . number_format($total, 2) . $postfix); ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
         <?php
     }
+
+    // === 2. TAX TABLE (Only if tax data exists) ===
+    if ($has_tax_data) {
+        kcPrintTitle(esc_html__('Tax', 'kc-lang'));
+        ?>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+                <tr>
+                    <th style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-transform: uppercase; text-align: left;">
+                        <?php echo esc_html__('SR NO', 'kc-lang'); ?>
+                    </th>
+                    <th style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-transform: uppercase; text-align: center;">
+                        <?php echo esc_html__('TAX NAME', 'kc-lang'); ?>
+                    </th>
+                    <th style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-transform: uppercase; text-align: right;">
+                        <?php echo esc_html__('CHARGES', 'kc-lang'); ?>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($tax_details['data'] as $key => $tax): 
+                    $name = !empty($tax->name) ? $tax->name : esc_html__('Tax', 'kc-lang');
+                    $charges = !empty($tax->charges) ? floatval($tax->charges) : 0;
+                ?>
+                <tr>
+                    <td style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: left;">
+                        <?php echo esc_html($key + 1); ?>
+                    </td>
+                    <td style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: center;">
+                        <?php echo esc_html($name); ?>
+                    </td>
+                    <td style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: right;">
+                        <?php echo esc_html($prefix . number_format($charges, 2) . $postfix); ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php
+    }
+
+    // === 3. SUMMARY TABLE (Always show, but conditionally render rows) ===
+    ?>
+    <table style="width: 100%; border-collapse: collapse;">
+        <tbody>
+            <!-- Base Total -->
+            <?php if ($tax_total > 0): ?>
+                <tr>
+                    <td colspan="4" style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: right;">
+                        <strong><?php echo esc_html__('Subtotal', 'kc-lang'); ?></strong>
+                    </td>
+                    <td style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: right;">
+                        <?php echo esc_html($prefix . number_format($total_amount - $tax_total, 2) . $postfix); ?>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: right;">
+                        <strong><?php echo esc_html__('Total Tax', 'kc-lang'); ?></strong>
+                    </td>
+                    <td style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: right;">
+                        <?php echo esc_html($prefix . number_format($tax_total, 2) . $postfix); ?>
+                    </td>
+                </tr>
+            <?php else: ?>
+                <tr>
+                    <td colspan="4" style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: right;">
+                        <strong><?php echo esc_html__('Total', 'kc-lang'); ?></strong>
+                    </td>
+                    <td style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: right;">
+                        <?php echo esc_html($prefix . number_format($total_amount, 2) . $postfix); ?>
+                    </td>
+                </tr>
+            <?php endif; ?>
+
+            <!-- Discount (Only if > 0) -->
+           
+                <tr>
+                    <td colspan="4" style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: right;">
+                        <strong><?php echo esc_html__('Discount', 'kc-lang'); ?></strong>
+                    </td>
+                    <td style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: right;">
+                        <?php echo esc_html($prefix . number_format(floatval($data->discount), 2) . $postfix); ?>
+                    </td>
+                </tr>
+
+            <!-- Amount Due -->
+            <tr>
+                <td colspan="4" style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: right;">
+                    <div style="float: right;"><strong><?php echo esc_html__('Amount Due', 'kc-lang'); ?></strong></div>
+                </td>
+                <td style="border-top: 2px solid rgba(0,0,0,0.1); padding: 12px; text-align: right;">
+                    <?php echo esc_html($prefix . number_format($actual_amount, 2) . $postfix); ?>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    </div>
+    <?php
+
+    $htmlContent = ob_get_clean();
+
+    echo $htmlContent;
 }
 
 function kcEncounterPrintTableContent($themeColor, $data, $id, $current_user_role = '',$title = true)
