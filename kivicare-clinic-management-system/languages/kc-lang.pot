@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the KiviCare - Clinic & Patient Management System (EHR) plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 3.6.12\n"
+"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 3.6.13\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/kivicare-clinic-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-09-09T10:56:59+05:30\n"
+"POT-Creation-Date: 2025-09-19T14:21:03+05:30\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: kc-lang\n"
@@ -1347,6 +1347,8 @@ msgstr ""
 
 #: app/baseClasses/WidgetHandler.php:257
 #: app/baseClasses/WidgetHandler.php:267
+#: app/controllers/KCAuthController.php:516
+#: app/controllers/KCAuthController.php:526
 #: resources/assets/lang/temp.php:218
 #: resources/assets/lang/temp.php:1055
 #: resources/assets/lang/temp.php:1065
@@ -1355,6 +1357,8 @@ msgstr ""
 
 #: app/baseClasses/WidgetHandler.php:259
 #: app/baseClasses/WidgetHandler.php:268
+#: app/controllers/KCAuthController.php:518
+#: app/controllers/KCAuthController.php:527
 #: app/controllers/KCBookAppointmentWidgetController.php:754
 #: app/controllers/KCBookAppointmentWidgetController.php:1148
 #: app/controllers/KCClinicScheduleController.php:119
@@ -1367,6 +1371,8 @@ msgstr ""
 
 #: app/baseClasses/WidgetHandler.php:261
 #: app/baseClasses/WidgetHandler.php:269
+#: app/controllers/KCAuthController.php:520
+#: app/controllers/KCAuthController.php:528
 #: resources/assets/lang/temp.php:216
 #: resources/assets/lang/temp.php:925
 #: utils/kc_helpers.php:7324
@@ -1656,12 +1662,12 @@ msgid "Invalid country code"
 msgstr ""
 
 #: app/controllers/KCAuthController.php:215
-#: app/controllers/KCAuthController.php:525
+#: app/controllers/KCAuthController.php:558
 msgid "Email already exists. Please use a different email."
 msgstr ""
 
 #: app/controllers/KCAuthController.php:249
-#: app/controllers/KCAuthController.php:581
+#: app/controllers/KCAuthController.php:614
 msgid "User already exists with the same mobile number and country calling code."
 msgstr ""
 
@@ -1682,23 +1688,27 @@ msgstr ""
 msgid "Login user is not kivicare user"
 msgstr ""
 
-#: app/controllers/KCAuthController.php:545
+#: app/controllers/KCAuthController.php:535
+msgid "Invalid user role selected."
+msgstr ""
+
+#: app/controllers/KCAuthController.php:578
 msgid "Clinic id is not proper. Please contact admin."
 msgstr ""
 
-#: app/controllers/KCAuthController.php:734
+#: app/controllers/KCAuthController.php:767
 msgid "User registration successfully. Check your email for login credentials."
 msgstr ""
 
-#: app/controllers/KCAuthController.php:737
+#: app/controllers/KCAuthController.php:770
 msgid "User registration not success."
 msgstr ""
 
-#: app/controllers/KCAuthController.php:781
+#: app/controllers/KCAuthController.php:814
 msgid "User id not found"
 msgstr ""
 
-#: app/controllers/KCAuthController.php:816
+#: app/controllers/KCAuthController.php:849
 msgid "User Verified Successfully"
 msgstr ""
 

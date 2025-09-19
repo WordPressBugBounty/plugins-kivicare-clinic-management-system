@@ -504,6 +504,39 @@ class KCAuthController extends KCBase {
             $commonConditionField['g-recaptcha-response'] = 'required';
         }
 
+        $data = get_option(KIVI_CARE_PREFIX . 'user_registration_shortcode_role_setting', true);
+        $data = !empty($data) && is_array($data) ? $data : [];
+
+        $userList = [];
+
+        if(!empty($data)){
+            foreach ($data as $key => $value) {
+                if($value === 'on'){
+                    if($key === 'kiviCare_patient'){
+                        $userList[$key] = __("Patient", "kc-lang");
+                    } elseif($key === 'kiviCare_doctor'){
+                        $userList[$key] = __('Doctor',"kc-lang");
+                    } elseif($key === 'kiviCare_receptionist'){
+                        $userList[$key] = __('Receptionist',"kc-lang");
+                    }
+                }
+            }
+        }else{
+            $userList = [
+                'kiviCare_patient' => __("Patient", "kc-lang"),
+                'kiviCare_doctor'  => __('Doctor',"kc-lang"),
+                'kiviCare_receptionist'  => __('Receptionist',"kc-lang"),
+            ];
+        }
+
+        if (!array_key_exists($parameters['user_role'], $userList)) {
+            wp_send_json([
+                'status' => false,
+                'message' => esc_html__('Invalid user role selected.', 'kc-lang')
+            ]);
+        }
+
+        
         $errors = kcValidateRequest($commonConditionField, $parameters );
 
 

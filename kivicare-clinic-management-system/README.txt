@@ -4,7 +4,7 @@ Tags: clinic management, patient management, doctor management, appointment mana
 Requires PHP: 8.0 
 Requires at least: 3.0.1
 Tested up to: 6.8.2
-Stable tag: 3.6.12
+Stable tag: 3.6.13
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -121,6 +121,9 @@ Support for the Free version is only via Documentation and Video Guides
 Yes, we’d love to hear from you at hello@iqonic.design.
 
 == Changelog ==
+
+= Version 3.6.13 – 19th Sep 2025
+- [Security] Fixed security issue.
 
 = Version 3.6.12 – 09th Sep 2025
 - [Fixed] Prescription and patient report email template issue.
