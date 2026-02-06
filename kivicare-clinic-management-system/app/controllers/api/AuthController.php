@@ -1347,6 +1347,32 @@ class AuthController extends KCBaseController
 
             $user_id = $result;
 
+            // PATIENT UNIQUE ID GENERATION
+            $patientIdSetting = KCOption::get('patient_id_setting', []);
+            $is_id_enabled = isset($patientIdSetting['enable']) && in_array((string)$patientIdSetting['enable'], ['true', '1', 'on'], true);
+
+            if ($is_id_enabled && $user_role === $this->kcbase->getPatientRole()) {
+                $prefix = $patientIdSetting['prefix_value'] ?? '';
+                $postfix = $patientIdSetting['postfix_value'] ?? '';
+                $only_number = isset($patientIdSetting['only_number']) && in_array((string)$patientIdSetting['only_number'], ['true', '1', 'on'], true);
+
+                $generated_id = '';
+
+                if ($only_number) {
+                    // Numeric ID logic
+                    $randomValue = sprintf("%06d", wp_rand(1, 999999));
+                    $generated_id = $prefix . $randomValue . $postfix;
+                } else {
+                    $str_result = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+                    $randomValue = substr(str_shuffle($str_result), 0, 6);
+
+                    $generated_id = $prefix . $randomValue . $postfix;
+                }
+
+                // Save using the correct key 'patient_unique_id'
+                update_user_meta($user_id, 'patient_unique_id', $generated_id);
+            }
+
             /**
              * Mapping creation.
              */
@@ -1367,16 +1393,6 @@ class AuthController extends KCBaseController
             if (!$user_id) {
                 return $this->response(null, __('Failed to create user', 'kivicare-clinic-management-system'), false, 400);
             }
-
-            // Auto-login the user
-            wp_clear_auth_cookie();
-            wp_set_current_user($user_id);
-            wp_set_auth_cookie($user_id);
-
-            // Set cookie for subsequent access if needed in current request
-            add_action('set_logged_in_cookie', function ($logged_in_cookie) {
-                $_COOKIE[LOGGED_IN_COOKIE] = $logged_in_cookie;
-            });
 
             // Send welcome email
             $this->sendWelcomeEmail($user_id, $params['username'], $params['password']);
@@ -1402,7 +1418,7 @@ class AuthController extends KCBaseController
 
             return $this->response(
                 $userData,
-                __('Registration successful.', 'kivicare-clinic-management-system'),
+                __('Registration successful. Please login to continue.', 'kivicare-clinic-management-system'),
                 true,
                 201
             );

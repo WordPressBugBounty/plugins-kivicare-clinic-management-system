@@ -353,7 +353,7 @@ class KCDoctor extends KCBaseModel
             // Count distinct doctors in those clinics using the mapping model
             return (int) KCDoctorClinicMapping::query()
                 ->whereIn('clinicId', $clinic_ids)
-                ->countDistinct('doctorId');
+                ->countDistinct('doctor_id');
         }
 
         return 0;

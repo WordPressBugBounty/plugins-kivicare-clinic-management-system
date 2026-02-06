@@ -789,10 +789,10 @@ class KCQueryBuilder
     /**
      * Build and execute SELECT query
      */
-   public function get(): Collection
+    public function get(): Collection
     {
         // Global Filter: Ensure Patients have valid emails at the query level
-        if (strpos($this->modelClass, 'KCPatient') !== false) {
+        if ($this->modelClass === 'App\models\KCPatient')  {
             // Check if email filter is already set; if not, chain the requirements
             if (!array_filter($this->wheres, fn($w) => ($w['column'] ?? '') === 'user_email')) {
                 $this->whereNotNull('email')
@@ -818,6 +818,7 @@ class KCQueryBuilder
             return $this->hydrateModel($result);
         }, $results ?: []));
     }
+
     /**
      * Build and execute SELECT query for a single record
      */

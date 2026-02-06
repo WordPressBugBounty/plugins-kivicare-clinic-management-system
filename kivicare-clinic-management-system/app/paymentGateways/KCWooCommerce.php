@@ -48,6 +48,7 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
         add_action('woocommerce_payment_complete', [$this,'handle_payment_complete']);
         add_action('woocommerce_order_status_failed', [$this, 'handle_payment_failure'],10, 2);
         add_action('woocommerce_cart_calculate_fees', [$this, 'add_kivicare_taxes_to_cart']);
+        add_filter('woocommerce_order_item_needs_processing', [$this, 'skip_processing_for_appointments'], 10, 3);
 
         // Register the action for Action Scheduler to auto-cancel appointment
         if (function_exists('add_action')) {
@@ -673,7 +674,7 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
         if (!$appointment_id) return;
 
         $status = ['status' => 2];
-        if ($new_status === 'completed') {
+        if ($new_status === 'completed' || $new_status === 'processing') {
             $status = ['status' => 1];
         } elseif ($new_status === 'cancelled' || $new_status === 'failed') {
             $status = ['status' => 0];
@@ -719,5 +720,17 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
             }
         }
     }
-}
 
+    /**
+     * Force WooCommerce to skip 'Processing' and go to 'Completed' for KiviCare products
+     */
+    public function skip_processing_for_appointments($needs_processing, $product, $order_id)
+    {
+        // Check if this product has KiviCare meta data
+        if ($product && $product->get_meta('kivicare_service_id')) {
+            return false; // This item does NOT need processing (it's a service)
+        }
+        
+        return $needs_processing;
+    }
+}

@@ -285,7 +285,7 @@ class KCPatient extends KCBaseModel
                     return 0;
                 }
                 // Get all patient IDs associated with these clinics
-                $patientIds = KCPatientClinicMapping::query()->whereIn('clinicId', $clinic_ids)->select(['patient_id'])->get()->pluck('patient_id')->unique()->toArray();
+                $patientIds = KCPatientClinicMapping::query()->whereIn('clinicId', $clinic_ids)->select(['patient_id'])->get()->pluck('patientId')->unique()->toArray();
                 if (empty($patientIds)) {
                     return 0;
                 }

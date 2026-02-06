@@ -15,6 +15,14 @@ use App\models\KCClinicSchedule;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
+use App\baseClasses\KCTelemedFactory;
+use App\models\KCBill;
+use App\models\KCBillItem;
+use App\models\KCPatientEncounter;
+use App\models\KCAppointmentServiceMapping;
+use App\models\KCPaymentsAppointmentMapping;
+use App\models\KCCustomField;
+
 
 defined('ABSPATH') or die('Something went wrong');
 
@@ -1695,16 +1703,8 @@ class DoctorController extends KCBaseController
                 return $this->response(null, __('Doctor not found', 'kivicare-clinic-management-system'), false, 404);
             }
 
-            // Delete custom field data
-            KCCustomFieldData::query()
-                ->where('module_type', '=', 'doctor_module')
-                ->where('module_id', '=', $id)
-                ->delete();
-
-            // Delete doctor clinic mappings
-            KCDoctorClinicMapping::table('dcm')
-                ->where('doctor_id', '=', $id)
-                ->delete();
+            // Delegate cleanup to helper
+            $this->_deleteDoctorData($id);
 
             // Delete the doctor record
             $result = $doctor->delete();
@@ -1872,25 +1872,8 @@ class DoctorController extends KCBaseController
                     continue;
                 }
 
-                // Check if doctor has appointments
-                $appointmentCount = KCAppointment::table('a')
-                    ->where('a.doctor_id', '=', $id)
-                    ->count();
-
-                if ($appointmentCount > 0) {
-                    $failed_count++;
-                    $failed_ids[] = [
-                        'id' => $id,
-                        'reason' => __('Doctor has existing appointments', 'kivicare-clinic-management-system')
-                    ];
-                    continue;
-                }
-
-                // Delete custom field data
-                KCCustomFieldData::query()
-                    ->where('module_type', '=', 'doctor_module')
-                    ->where('module_id', '=', $id)
-                    ->delete();
+                // Delegate cleanup to helper
+                $this->_deleteDoctorData($id);
 
                 // Delete doctor clinic mappings
                 KCDoctorClinicMapping::table('dcm')
@@ -1937,7 +1920,7 @@ class DoctorController extends KCBaseController
                         'failed_count' => $failed_count,
                         'failed_ids' => $failed_ids
                     ],
-                    __('Failed to delete doctors', 'kivicare-clinic-management-system'),
+                    ($failed_count === 1 && !empty($failed_ids[0]['reason'])) ? $failed_ids[0]['reason'] : __('Failed to delete doctors', 'kivicare-clinic-management-system'),
                     false,
                     400
                 );
@@ -2295,4 +2278,67 @@ class DoctorController extends KCBaseController
         }
     }
 
+    /**
+     * Helper to delete all doctor related data
+     * 
+     * @param int $id
+     * @return void
+     */
+    private function _deleteDoctorData($id)
+    {
+        // Delete appointment-related data
+        $appointments = KCAppointment::table('a')
+            ->where('a.doctor_id', '=', $id)
+            ->get();
+
+        $appointmentIds = $appointments->pluck('id')->toArray();
+
+        if (!empty($appointmentIds)) {
+            KCAppointmentServiceMapping::query()->whereIn('appointment_id', $appointmentIds)->delete();
+            KCPatientEncounter::query()->whereIn('appointment_id', $appointmentIds)->delete();
+
+            $bills = KCBill::query()->whereIn('appointment_id', $appointmentIds)->get();
+            $billIds = $bills->pluck('id')->toArray();
+            if (!empty($billIds)) {
+                KCBillItem::query()->whereIn('bill_id', $billIds)->delete();
+                KCBill::query()->whereIn('id', $billIds)->delete();
+            }
+
+            KCPaymentsAppointmentMapping::query()->whereIn('appointment_id', $appointmentIds)->delete();
+            KCCustomFieldData::query()
+                ->where('module_type', 'appointment_module')
+                ->whereIn('module_id', $appointmentIds)
+                ->delete();
+
+            // Cancel telemed meetings
+            try {
+                $telemed_provider = KCTelemedFactory::get_provider_by_doctor_id($id);
+                foreach ($appointmentIds as $appointmentId) {
+                    $telemed_provider?->cancel_meeting_by_appointment($appointmentId);
+                }
+            } catch (\Exception) {
+            }
+
+            KCAppointment::query()->whereIn('id', $appointmentIds)->delete();
+        }
+
+        // Delete doctor-related data
+        KCClinicSession::query()->where('doctor_id', $id)->delete();
+        KCDoctorClinicMapping::table('dcm')->where('doctor_id', '=', $id)->delete();
+        KCServiceDoctorMapping::query()->where('doctor_id', '=', $id)->delete();
+        KCCustomFieldData::query()->where('module_type', '=', 'doctor_module')->where('module_id', '=', $id)->delete();
+
+        // Delete custom field definitions and their data
+        $customFields = KCCustomField::query()->where('module_id', '=', $id)->get();
+        $fieldIds = $customFields->pluck('id')->toArray();
+        if (!empty($fieldIds)) {
+            KCCustomFieldData::query()->whereIn('field_id', $fieldIds)->delete();
+            KCCustomField::query()->whereIn('id', $fieldIds)->delete();
+        }
+
+        KCCustomFieldData::query()
+            ->where('module_id', '=', $id)
+            ->whereIn('module_type', ['appointment_module'])
+            ->delete();
+    }
 }

@@ -155,10 +155,11 @@ final class KCApp
         }
         $login_redirects = KCOption::get('login_redirect', []);
         $role = $user->roles[0] ?? '';
-        
-        // Redirect to wp-admin if admin
+
+        apply_filters('kc_login_redirect_role', $role, $user, KCDashboardPermalinkHandler::instance()->get_dashboard_url($role));
+        // Redirect admin to WordPress dashboard by default, but allow customization via filter
         if($role == 'administrator'){
-            return home_url('wp-admin');
+            return apply_filters('kc_login_redirect_admin', home_url('wp-admin'), $user);
         }
         // Check if a custom redirect is set for this role
         if (!empty($login_redirects[$role])) {

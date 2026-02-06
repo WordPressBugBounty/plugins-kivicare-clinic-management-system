@@ -1187,9 +1187,11 @@ class AppointmentsController extends KCBaseController
             $is_same_day = in_array($settings['only_same_day_book'] ?? '', [true, 'on', 1, '1'], true);
 
             // 'today' keyword automatically sets time to 00:00:00
-            $today = new DateTime('today');
-            $requested = new DateTime($params['date']);
-            $requested->setTime(0, 0, 0);
+            $today = new DateTime('today', wp_timezone());
+
+            $requested = new DateTime($params['date'] ,     wp_timezone());
+            
+            $requested->setTime(0, 0, 0); 
 
             if ($is_same_day) {
                 if ($requested != $today) {
@@ -2906,8 +2908,10 @@ class AppointmentsController extends KCBaseController
 
         KCAppointmentServiceMapping::query()->where('appointment_id', $id)->delete();
         KCPatientEncounter::query()->where('appointment_id', $id)->delete();
+        if ($bill) {
+            KCBillItem::query()->where('bill_id', $bill->id)->delete();
+        }
         KCBill::query()->where('appointment_id', $id)->delete();
-        KCBillItem::query()->where('bill_id', $bill->id)->delete();
         KCPaymentsAppointmentMapping::query()->where('appointment_id', $id)->delete();
 
         // Delete custom field data
@@ -3581,7 +3585,7 @@ class AppointmentsController extends KCBaseController
                             $innerQ->where('a.appointment_start_date', '=', $currentDate)
                                 ->where('a.appointment_start_time', '>', $currentTime);
                         })->orWhere('a.appointment_start_date', '>', $currentDate);
-                        $q->where('a.status', '=', KCAppointment::STATUS_BOOKED); // Exclude cancelled appointments
+                        // $q->where('a.status', '=', KCAppointment::STATUS_BOOKED); // REMOVED: Caused conflict with status filter
                     });
                 } elseif ($timeFrame === 'past') {
                     // Past: Appointments with dates before today, or today with time already passed
@@ -3599,8 +3603,8 @@ class AppointmentsController extends KCBaseController
                 $query->where("a.clinic_id", '=', (int) $params['clinic']);
             }
 
-            if (!empty($params['status'])) {
-                $query->where("a.status", '=', $params['status']);
+            if (isset($params['status']) && $params['status'] !== '') {
+                $query->where("a.status", '=', (int)$params['status']);
             }
 
             // Apply sorting (default by id desc)
@@ -3625,10 +3629,13 @@ class AppointmentsController extends KCBaseController
                 $query->limit($perPage)->offset($offset);
             }
 
+            // Group by appointment ID to ensure unique rows
+            $query->groupBy('a.id');
+
             // Execute query
             $results = $query->get();
 
-            if (empty($results)) {
+            if ($results->isEmpty()) {
                 return $this->response(
                     ['appointments' => []],
                     __('No appointments found', 'kivicare-clinic-management-system'),
@@ -3636,6 +3643,42 @@ class AppointmentsController extends KCBaseController
                     200
                 );
             }
+
+            // CUSTOM FIELDS PREPARATION
+            $appointmentIds = $results->pluck('id')->toArray();
+
+            // Get all custom field definitions for the appointment module
+            $customFieldDefs = \App\models\KCCustomField::query()
+                ->where('module_type', 'appointment_module')
+                ->where('status', 1)
+                ->get();
+
+            $customFieldHeaders = [];
+            $defaultCustomFields = [];
+
+            foreach ($customFieldDefs as $def) {
+                // Safely handle json fields
+                $fieldMeta = is_string($def->fields) ? json_decode($def->fields, true) : $def->fields;
+
+                if (isset($fieldMeta['label']) && !empty($fieldMeta['label'])) {
+                    $label = $fieldMeta['label'];
+                    $customFieldHeaders[$def->id] = $label;
+                    $defaultCustomFields[$label] = '-';
+                }
+            }
+
+            // Fetch custom field data for these appointments
+            $allCustomData = collect();
+            if (!empty($appointmentIds) && !empty($customFieldHeaders)) {
+                $allCustomData = \App\models\KCCustomFieldData::query()
+                    ->where('module_type', 'appointment_module')
+                    ->whereIn('module_id', $appointmentIds)
+                    ->whereIn('field_id', array_keys($customFieldHeaders))
+                    ->get();
+            }
+
+            // Group data by appointment ID
+            $groupedCustomData = $allCustomData->groupBy('moduleId');
 
             // Process results for export
             $exportData = [];
@@ -3702,7 +3745,33 @@ class AppointmentsController extends KCBaseController
                 // Calculate cancellation buffer (placeholder - would need actual business logic)
                 $cancellationBuffer = ''; // This would need to be implemented based on your cancellation policy
 
-                $exportData[] = [
+                // CUSTOM FIELDS ROW PROCESSING
+                $appointmentCustomData = $defaultCustomFields;
+                if (isset($groupedCustomData[$appointment->id])) {
+                    foreach ($groupedCustomData[$appointment->id] as $customData) {
+                        $header = $customFieldHeaders[$customData->fieldId] ?? null;
+                        if ($header) {
+                            $value = $customData->fieldsData;
+                            $decodedValue = json_decode($value, true);
+
+                            // Handle arrays (from multi-select, etc.) by joining them
+                            if (json_last_error() === JSON_ERROR_NONE && is_array($decodedValue)) {
+                                if (isset($decodedValue['name'])) {
+                                    $appointmentCustomData[$header] = $decodedValue['name'];
+                                } else if (!empty($decodedValue)) {
+                                    $appointmentCustomData[$header] = implode(', ', $decodedValue);
+                                } else {
+                                    $appointmentCustomData[$header] = '-';
+                                }
+                            } else {
+                                $appointmentCustomData[$header] = $value ?: '-';
+                            }
+                        }
+                    }
+                }
+
+                // Create standard data array
+                $standardData = [
                     'id' => $appointment->id,
                     'date' => gmdate('Y-m-d', strtotime($appointment->appointmentStartDate)) ?: '-',
                     'time' => gmdate('h:i A', strtotime($appointment->appointmentStartTime)) ?: '-',
@@ -3724,6 +3793,9 @@ class AppointmentsController extends KCBaseController
                     'services' => !empty($serviceNames) ? implode(', ', $serviceNames) : '-',
                     'service_array' => !empty($serviceNames) ? $serviceNames : [],
                 ];
+
+                // Merge and append
+                $exportData[] = array_merge($standardData, $appointmentCustomData);
             }
 
             return $this->response(

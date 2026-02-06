@@ -327,7 +327,8 @@ class ConfigController extends KCBaseController
                 'restrict_only_same_day_book_appointment',
                 'restrict_appointment',
                 'appointment_description_config_data',
-                'request_helper_status'
+                'request_helper_status',
+                'hide_clinical_detail_in_patient'
             ]);
 
             // Basic configuration
@@ -533,11 +534,32 @@ class ConfigController extends KCBaseController
 
             // Add patient unique ID settings
             $patientIdSetting = $options['patient_id_setting'] ?? [];
+
+            $is_enabled = isset($patientIdSetting['enable']) && in_array((string)$patientIdSetting['enable'], ['true', '1', 'on'], true);
+
+            $generated_id = '';
+            if ($is_enabled) {
+                $prefix = $patientIdSetting['prefix_value'] ?? '';
+                $postfix = $patientIdSetting['postfix_value'] ?? '';
+                $only_number = isset($patientIdSetting['only_number']) && in_array((string)$patientIdSetting['only_number'], ['true', '1', 'on'], true);
+
+                // Calculate next sequence based on existing patient count
+                $patient_count = \App\models\KCPatient::query()->count();
+                $next_sequence = $patient_count + 1;
+
+                if ($only_number) {
+                    $generated_id = (string)$next_sequence;
+                } else {
+                    $generated_id = $prefix . $next_sequence . $postfix;
+                }
+            }
+
             $response['patient_unique_id_setting'] = [
-                'enable' => isset($patientIdSetting['enable']) ? (bool)$patientIdSetting['enable'] : false,
-                'only_number' => isset($patientIdSetting['only_number']) ? (bool)$patientIdSetting['only_number'] : false,
-                'prefix_value' => $patientIdSetting['prefix_value'] ?? '',
-                'postfix_value' => $patientIdSetting['postfix_value'] ?? ''
+                'enable'        => $is_enabled,
+                'only_number'   => isset($patientIdSetting['only_number']) && in_array((string)$patientIdSetting['only_number'], ['true', '1', 'on'], true),
+                'prefix_value'  => $patientIdSetting['prefix_value'] ?? '',
+                'postfix_value' => $patientIdSetting['postfix_value'] ?? '',
+                'generated_id'  => $generated_id
             ];
 
             // Add available language translations
@@ -575,6 +597,7 @@ class ConfigController extends KCBaseController
             $response['appointmentDescription'] = is_bool($options['appointment_description_config_data'])
                 ? 'off'
                 : $options['appointment_description_config_data'];
+            $response['hideClinicalDetailsForPatient'] = $options['hide_clinical_detail_in_patient'] ?? 'false';
 
             // get allow meme types
             $response['allowed_mime_types'] = get_allowed_mime_types();

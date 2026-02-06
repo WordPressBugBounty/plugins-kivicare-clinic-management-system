@@ -26,13 +26,9 @@ wp.blocks.registerBlockType( 'kivi-care/register-login', {
             type: 'string',
             default: '[kivicareRegisterLogin]'
         },
-        loginTab: {
-            type: 'boolean',
-            default: false
-        },
-        registerTab: {
-            type: 'boolean',
-            default: false
+        initial_tab: {
+            type: 'string',
+            default: ''
         },
         userRole: {
             type: 'string',
@@ -43,12 +39,8 @@ wp.blocks.registerBlockType( 'kivi-care/register-login', {
         function getShortCode(props, attributes) {
             var attrs = [];
 
-            if( props.attributes.loginTab ){
-                attrs.push( 'login=' + props.attributes.loginTab )
-            }
-
-            if( props.attributes.registerTab ){
-                attrs.push( 'register=' + props.attributes.registerTab )
+            if (props.attributes.initial_tab !== "") {
+                attrs.push('initial_tab="' + props.attributes.initial_tab + '"')
             }
 
             if( props.attributes.userRole !== "" ){
@@ -62,11 +54,8 @@ wp.blocks.registerBlockType( 'kivi-care/register-login', {
             return short_code;
         }
 
-        function onChangeLoginToggle(value){
-            props.setAttributes({loginTab: value});
-        }
-        function onChangeRegisterToggle(value){
-            props.setAttributes({registerTab: value});
+        function onChangeInitialTab(value) {
+            props.setAttributes({ initial_tab: value });
         }
         function onChangeUserRoleList(value){
             props.setAttributes({userRole: value});
@@ -88,19 +77,16 @@ wp.blocks.registerBlockType( 'kivi-care/register-login', {
                         PanelBody,
                         title='Kivicare Setting',
                         el(
-                            ToggleControl,
+                            SelectControl,
                             {
-                                label: 'Show Login Tab',
-                                checked: props.attributes.loginTab,
-                                onChange: onChangeLoginToggle
-                            }
-                        ),
-                        el(
-                            ToggleControl,
-                            {
-                                label: 'Show Register Tab',
-                                checked: props.attributes.registerTab,
-                                onChange: onChangeRegisterToggle
+                                label: 'Initial Tab',
+                                value: props.attributes.initial_tab,
+                                options: [
+                                    { label: 'Allow Both', value: '' },
+                                    { label: 'Login', value: 'login' },
+                                    { label: 'Register', value: 'register' }
+                                ],
+                                onChange: onChangeInitialTab
                             }
                         ),
                         el(

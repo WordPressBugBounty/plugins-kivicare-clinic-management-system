@@ -730,7 +730,20 @@ class StaticDataController extends KCBaseController
             }
             $clinics = $clinicsQuery->get();
 
-            $result = $clinics->map(function ($clinic) {
+            // Fetch active holidays for clinics
+            $currentDate = current_time('Y-m-d');
+            $holidayClinicIds = \App\models\KCClinicSchedule::query()
+                ->where('module_type', 'clinic')
+                ->where('start_date', '<=', $currentDate)
+                ->where('end_date', '>=', $currentDate)
+                ->where('status', 1)
+                ->get()
+                ->pluck('moduleId') 
+                ->toArray();
+                
+            $holidayClinicIds = array_map('intval', $holidayClinicIds);
+
+            $result = $clinics->map(function ($clinic) use ($holidayClinicIds) {
 
                 // Build full address dynamically
                 $fullAddressParts = [];
@@ -752,13 +765,19 @@ class StaticDataController extends KCBaseController
                     $clinicImageUrl = wp_get_attachment_url($clinic->clinicLogo);
                 }
 
+                $status = $clinic->status;
+                // If clinic is in the holiday list, mark it as inactive (0) in the response
+                if (in_array((int)$clinic->id, $holidayClinicIds, true)) {
+                    $status = '0';
+                }
+
                 return [
                     'id' => $clinic->id,
                     'label' => $clinic->name,
                     'value' => $clinic->id,
                     'address' => $fullAddress,      // full formatted address
                     'clinic_logo' => $clinicImageUrl,
-                    'status' => $clinic->status,
+                    'status' => $status,
                 ];
             })->toArray();
 

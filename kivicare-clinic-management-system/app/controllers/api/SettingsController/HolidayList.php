@@ -301,8 +301,8 @@ class HolidayList extends SettingsController
                 'module_type_label' => $holiday->moduleType,
                 'module_id' => $holiday->moduleId,
                 'description' => $holiday->description,
-                'start_date' => $holiday->startDate,
-                'end_date' => $holiday->endDate,
+                'start_date' => kcGetFormatedDate($holiday->startDate),
+                'end_date' => kcGetFormatedDate($holiday->endDate),
                 'status' => $holiday->status,
                 'name' => $holiday->name
             ];

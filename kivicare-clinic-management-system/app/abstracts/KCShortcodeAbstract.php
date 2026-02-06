@@ -146,6 +146,7 @@ abstract class KCShortcodeAbstract
             'loader_image' => KIVI_CARE_DIR_URI . 'assets/images/loader.gif',
             'place_holder_img' => KIVI_CARE_DIR_URI . 'assets/images/demo-img.png',
             'current_user_id' => get_current_user_id(),
+            'date_format' => get_option('date_format'),
         ]);
         self::$is_localize_enqueued = true;
     }

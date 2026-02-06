@@ -51,8 +51,12 @@ class KCAppointmentNotificationListener
 
         // Other appointment-related hooks
         add_action('kc_appointment_cancelled', [$this, 'handleAppointmentCancelled'], 10, 1);
+        
+        // Added kc_appointment_payment_completed to handle notifications after successful patient payment
         add_action('kivicare_after_payment_processed', [$this, 'handlePaymentProcessed'], 10, 2);
         add_action('kivicare_after_payment_processed', [$this, 'handleAppointmentBooked'], 10, 2);
+        add_action('kc_appointment_payment_completed', [$this, 'handlePaymentProcessed'], 10, 2);
+        add_action('kc_appointment_payment_completed', [$this, 'handleAppointmentBooked'], 10, 2);
 
         // Additional hooks for better integration
         add_action('kivicare_appointment_updated', [$this, 'handleAppointmentUpdated'], 10, 2);
@@ -398,6 +402,11 @@ class KCAppointmentNotificationListener
 
         // Send Meet link if available
         if ($meetLink) {
+            $meetEventLink = $this->getMeetEventLink($appointmentData['appointment']['id']);
+            if ($meetEventLink) {
+                $appointmentData['meet_event_link'] = $meetEventLink;
+            }
+
             // To patient
             $this->emailSender->sendVideoConferenceLink(
                 'meet',
@@ -689,6 +698,32 @@ class KCAppointmentNotificationListener
             }
         } catch (\Exception $e) {
             KCErrorLogger::instance()->error("Error fetching Google Meet link: " . $e->getMessage());
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Get Meet event link for appointment
+     */
+    private function getMeetEventLink(int $appointmentId): ?string
+    {
+        // Check if Google Meet addon is active
+        if (!class_exists('KCGMApp\\models\\KCGMAppointmentGoogleMeetMapping')) {
+            return null;
+        }
+
+        try {
+            $meetMapping = \KCGMApp\models\KCGMAppointmentGoogleMeetMapping::query()
+                ->where('appointmentId', $appointmentId)
+                ->first();
+
+            if ($meetMapping && !empty($meetMapping->eventUrl)) {
+                return $meetMapping->eventUrl;
+            }
+        } catch (\Exception $e) {
+            KCErrorLogger::instance()->error("Error fetching Google Meet event link: " . $e->getMessage());
         }
 
         return null;

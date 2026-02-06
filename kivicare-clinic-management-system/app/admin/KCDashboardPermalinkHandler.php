@@ -195,7 +195,7 @@ class KCDashboardPermalinkHandler
                 global $wp_styles, $wp_scripts;
 
                 $allowed_styles = apply_filters('kc_allowed_styles', ['kc-dashboard-style']);
-                $allowed_scripts = apply_filters('kc_allowed_scripts', ['kc-dashboard-script']);
+                $allowed_scripts = apply_filters('kc_allowed_scripts', ['kc-dashboard-script', 'heartbeat']);
 
                 foreach ($wp_styles->queue as $handle) {
                     if (
@@ -313,12 +313,18 @@ class KCDashboardPermalinkHandler
 
         // Use Vite to enqueue the main dashboard script
         if (function_exists(function: '\Iqonic\Vite\iqonic_enqueue_asset')) {
+            // It's conflict with "speed optimization" plugin so we add prefix to handle
+            $dependencies = ['wp-i18n', 'wp-hooks'];
+            if (wp_script_is('heartbeat', 'registered')) {
+                $dependencies[] = 'heartbeat';
+            }
+
             iqonic_enqueue_asset(
                 KIVI_CARE_DIR . '/dist',
                 'app/dashboard/main.jsx',
                 [
                     'handle' => 'kc-dashboard-' . $dashboard_type,
-                    'dependencies' => apply_filters('kc_dashboard_script_dependencies', ['wp-i18n', 'wp-hooks', 'heartbeat']),
+                    'dependencies' => apply_filters('kc_dashboard_script_dependencies', $dependencies),
                     'css-dependencies' => [],
                     'css-media' => 'all',
                     'css-only' => false,
@@ -342,7 +348,8 @@ class KCDashboardPermalinkHandler
             'dashboard_url' => wp_make_link_relative($this->get_dashboard_url($dashboard_type)),
             'dashboard_uri' => $this->get_dashboard_url($dashboard_type),
             'api_url' => rest_url('kivicare/v1/'),
-            'admin_url' => KCBase::get_instance()->getLoginUserRole() === 'administrator' ? admin_url() : ''
+            'admin_url' => KCBase::get_instance()->getLoginUserRole() === 'administrator' ? admin_url() : '',
+            'date_format' => get_option('date_format'),
         ];
         // Apply filter to dashboard data
         $dashboard_data = apply_filters('kivicare_dashboard_data', $dashboard_data);

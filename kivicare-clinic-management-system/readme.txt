@@ -4,7 +4,7 @@ Tags: clinic management, patient management, doctor management, appointment mana
 Requires PHP: 8.0 
 Requires at least: 3.0.1
 Tested up to: 6.9.0
-Stable tag: 4.0.3
+Stable tag: 4.0.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -217,6 +217,14 @@ Free version support is available through our comprehensive Documentation and Vi
 We'd love to hear from you! Contact us at hello@iqonic.design or submit a feature request through our website.
 
 == Changelog ==
+
+= Version 4.0.4 – 06 Feb 2026
+- [Fixed] Gender other setting issue
+- [Fixed] Default country code issue
+- [Fixed] Calendar translation issue
+- [Fixed] Calendar flatpicker date format issue
+- [Fixed] Dashboard calendar translation issue
+- [Fixed] Refactor login and register tab attributes to a single initial_tab for improved flexibility in gutenberg block
 
 = Version 4.0.3 – 02 Feb 2026
 - [Fixed] Kivicare clinic and doctor list appointment button

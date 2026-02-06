@@ -103,6 +103,7 @@ class AdminMenu
             'locale_data' => $locale_data_kc,
             'prefix' => KIVI_CARE_PREFIX,
             'loader_image' => KIVI_CARE_DIR_URI . 'assets/images/loader.gif',
+            'date_format' => get_option('date_format'),
         ]);
     }
 }

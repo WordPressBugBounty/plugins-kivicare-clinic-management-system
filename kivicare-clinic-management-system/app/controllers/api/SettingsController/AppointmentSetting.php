@@ -76,8 +76,8 @@ class AppointmentSetting extends SettingsController
             'appointment_patient_info_config_data'
         ]);
 
-        $appointmentReminder = is_array($options['email_appointment_reminder']) 
-            ? $options['email_appointment_reminder'] 
+        $appointmentReminder = is_array($options['email_appointment_reminder'])
+            ? $options['email_appointment_reminder']
             : [
                 'status' => 'off',
                 'sms_status' => false,
@@ -93,25 +93,25 @@ class AppointmentSetting extends SettingsController
         // Handle Cancellation Buffer Compatibility
         $bufferData = $options['appointment_cancellation_buffer'];
         $bufferStatus = isset($bufferData['status']) && ($bufferData['status'] === 'on' || $bufferData['status'] === true);
-        
+
         $bufferHours = '';
         if (isset($bufferData['time'])) {
             if (is_array($bufferData['time'])) {
                 $bufferHours = $bufferData['time']['value'] ?? '';
-            } 
+            }
         }
 
         $settings = [
             'only_same_day_book' => $restrict_appointment['only_same_day_book'] ?? 'off',
             'post_book' => $restrict_appointment['post_book'] ?? '',
             'pre_book' => $restrict_appointment['pre_book'] ?? '',
-            'fileUploadEnabled' => ($options['multifile_appointment'] === 'on' || $options['multifile_appointment'] === true || $options['multifile_appointment'] === 'true') ? 'on' : 'off',
+            'fileUploadEnabled' => (in_array($options['multifile_appointment'], ['on', true, 'true', '1', 1], true)) ? 'on' : 'off',
             'emailReminder' => $appointmentReminder['status'] ?? false,
             'emailReminderHours' => $appointmentReminder['time'] ?? '',
             'smsReminder' => $appointmentReminder['sms_status'] ?? false,
             'whatsappReminder' => $appointmentReminder['whatsapp_status'] ?? false,
-            'appointmentDescription' => is_bool($options['appointment_description_config_data']) 
-                ? 'off' 
+            'appointmentDescription' => is_bool($options['appointment_description_config_data'])
+                ? 'off'
                 : $options['appointment_description_config_data'],
             'cancellationBufferEnabled' => $bufferStatus,
             'cancellationBufferHours'   => $bufferHours,
@@ -185,7 +185,8 @@ class AppointmentSetting extends SettingsController
         $message = esc_html__('Failed to update', 'kivicare-clinic-management-system');
         $status = false;
         if (isset($request_data['fileUploadEnabled'])) {
-            KCOption::set('multifile_appointment', $request_data['fileUploadEnabled']);
+            $value = ($request_data['fileUploadEnabled'] == '1' || $request_data['fileUploadEnabled'] === true || $request_data['fileUploadEnabled'] === 'on') ? 'on' : 'off';
+            KCOption::set('multifile_appointment', $value);
             $message = esc_html__('File Upload Setting Saved.', 'kivicare-clinic-management-system');
             $status = true;
         }

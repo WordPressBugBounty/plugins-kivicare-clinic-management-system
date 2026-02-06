@@ -154,11 +154,12 @@ class KCBill extends KCBaseModel
             }
             $total = $query->first();
         }elseif($user_role === $kcbase->getClinicAdminRole()){
+            $clinic_id = KCClinic::getClinicIdOfClinicAdmin($user_id);
             $query = KCPatientEncounter::table('patient_encounters')
                 ->select(['SUM(bills.actual_amount) as total_revenue'])
                 ->join(KCBill::class, 'bills.encounter_id','=', 'patient_encounters.id','bills')
                 ->where('bills.payment_status', 'paid')
-                ->where('patient_encounters.clinic_id', $user_id);
+                ->where('bills.clinic_id', $clinic_id);
             if ($hasDateRange) {
                 $query = $query->whereBetween('bills.created_at', [$startDate, $endDate]);
             }

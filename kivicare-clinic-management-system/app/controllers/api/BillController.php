@@ -429,7 +429,7 @@ class BillController extends KCBaseController
                 'patient' => [
                     'name' => $bill->patient_name,
                     'email' => $bill->patient_email,
-                    'dob' => $patientBasicData['dob'] ?? null,
+                    'dob' => !empty($patientBasicData['dob']) ? kcGetFormatedDate($patientBasicData['dob']) : null,
                     'gender' => $patientBasicData['gender'] ?? null,
                     'patient_image_url' => $bill->patient_profile_image ? wp_get_attachment_url($bill->patient_profile_image) : '',
                 ],

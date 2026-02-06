@@ -82,13 +82,9 @@ class KCBlocksRegister extends KCBase
                     'type' => 'string',
                     'default' => '[kivicareRegisterLogin]'
                 ],
-                'loginTab' => [
-                    'type' => 'boolean',
-                    'default' => false
-                ],
-                'registerTab' => [
-                    'type' => 'boolean',
-                    'default' => false
+                'initial_tab' => [
+                    'type' => 'string',
+                    'default' => ''
                 ],
                 'userRole' => [
                     'type' => 'string',
