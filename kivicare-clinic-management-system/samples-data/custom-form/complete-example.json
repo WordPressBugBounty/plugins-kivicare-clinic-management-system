@@ -1,0 +1,137 @@
+{
+  "name": "Complete Custom Form Example",
+  "moduleType": "appointment_module",
+  "status": "active",
+  "fields": [
+    {
+      "id": "full_name",
+      "type": "text",
+      "label": "Full Name <strong>(Required)</strong>",
+      "placeholder": "Enter your full name",
+      "required": true,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "age",
+      "type": "number",
+      "label": "Age <em>(in years)</em>",
+      "placeholder": "Enter age",
+      "required": true,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "label": "Email Address <span class='text-primary'>*</span>",
+      "placeholder": "your.email@example.com",
+      "required": true,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "phone",
+      "type": "text",
+      "label": "Phone Number",
+      "placeholder": "+1 (555) 123-4567",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "gender",
+      "type": "select",
+      "label": "Gender <strong>Selection</strong>",
+      "placeholder": "Choose your gender",
+      "required": true,
+      "columnClass": "col-md-6 col-12",
+      "options": ["Male", "Female", "Non-binary", "Prefer not to say"]
+    },
+    {
+      "id": "blood_type",
+      "type": "radio",
+      "label": "Blood Type <em>Radio Selection</em>",
+      "placeholder": "",
+      "required": true,
+      "columnClass": "col-md-6 col-12",
+      "options": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
+    },
+    {
+      "id": "symptoms",
+      "type": "textarea",
+      "label": "Symptoms Description <strong>Detailed</strong>",
+      "placeholder": "Please describe your symptoms in detail...",
+      "required": true,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "appointment_date",
+      "type": "date",
+      "label": "Preferred Appointment Date",
+      "placeholder": "",
+      "required": true,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "has_insurance",
+      "type": "checkbox",
+      "label": "Do you have health insurance? <em>Check if yes</em>",
+      "placeholder": "Health insurance available",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "medical_records",
+      "type": "file",
+      "label": "Medical Records <span class='text-warning'>Upload</span>",
+      "placeholder": "",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "emergency_contact",
+      "type": "text",
+      "label": "Emergency Contact Name",
+      "placeholder": "Full name of emergency contact",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "relationship",
+      "type": "select",
+      "label": "Relationship to Patient",
+      "placeholder": "Select relationship",
+      "required": false,
+      "columnClass": "col-md-6 col-12",
+      "options": ["Parent", "Spouse", "Child", "Sibling", "Friend", "Other"]
+    },
+    {
+      "id": "additional_notes",
+      "type": "textarea",
+      "label": "Additional Notes <em>Optional</em>",
+      "placeholder": "Any additional information...",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "preferred_language",
+      "type": "radio",
+      "label": "Preferred Language",
+      "placeholder": "",
+      "required": false,
+      "columnClass": "col-12",
+      "options": ["English", "Spanish", "French", "German", "Chinese", "Other"]
+    },
+    {
+      "id": "newsletter_subscription",
+      "type": "checkbox",
+      "label": "Subscribe to newsletter <span class='text-success'>Get updates</span>",
+      "placeholder": "Subscribe to health tips newsletter",
+      "required": false,
+      "columnClass": "col-12"
+    }
+  ],
+  "conditions": {
+    "appointment_status": [{"id": "1"}, {"id": "4"}],
+    "show_mode": [{"id": "appointment"}, {"id": "encounter"}],
+    "clinics": [],
+    "roles": ["administrator", "clinic_admin", "doctor", "receptionist", "patient"]
+  }
+}

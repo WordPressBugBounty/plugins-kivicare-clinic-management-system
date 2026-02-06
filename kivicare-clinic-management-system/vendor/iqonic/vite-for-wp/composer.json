@@ -1,0 +1,27 @@
+{
+	"name": "iqonic/vite-for-wp",
+	"description": "Private fork of Vite for WordPress",
+	"type": "library",
+	"license": "GPL-2.0-only",
+	"autoload": {
+		"files": [
+			"iqonic-vite-for-wp.php"
+		]
+	},
+	"authors": [
+		{
+			"name": "Dzikri Aziz"
+		}
+	],
+	"scripts": {
+		"lint": "phpcs"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
+	"require-dev": {
+		"wp-coding-standards/wpcs": "^3.0"
+	}
+}

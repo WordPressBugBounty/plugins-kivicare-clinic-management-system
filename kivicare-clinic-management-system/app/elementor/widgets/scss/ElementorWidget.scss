@@ -1,0 +1,522 @@
+/* KiviCare Widget Styles */
+
+/* Main Container */
+.kivi-widget-container {
+  --kivi-primary-color: #5670CC;
+  --kivi-secondary-color: #f68685;
+  --kivi-title-color: #3F414D;
+  --kivi-text-color: #828A90;
+  --kivi-border-color: #dbdfe7;
+  --kivi-white-color: #ffffff;
+
+  /* gray shades */
+  --kivi-gray-100: #f8f9fa;
+  --kivi-gray-200: #e9ecef;
+  --kivi-gray-300: #dee2e6;
+  --kivi-gray-400: #ced4da;
+  --kivi-gray-500: #adb5bd;
+  --kivi-gray-600: #6c757d;
+  --kivi-gray-700: #6E8192;
+  --kivi-gray-800: #343a40;
+  --kivi-gray-900: #ffffff;
+
+  /* other utility */
+  --kivi-border-radius: .375rem;
+  --kivi-box-shadow: 0 .063rem 1.875rem 0 rgba(0, 0, 0, .08);
+
+  font-size: 1rem;
+  color: var(--kivi-text-color);
+  width: 100%;
+  margin: 0 auto;
+}
+
+.kivi-widget-container * {
+  box-sizing: border-box;
+}
+
+.kivi-widget-container h1,
+.kivi-widget-container h2,
+.kivi-widget-container h3,
+.kivi-widget-container h4,
+.kivi-widget-container h5,
+.kivi-widget-container h6 {
+  color: var(--kivi-title-color);
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.kivi-widget-container h1 {
+  font-size: 2.488rem;
+}
+
+.kivi-widget-container h2 {
+  font-size: 2.074rem;
+}
+
+.kivi-widget-container h3 {
+  font-size: 1.728rem;
+}
+
+.kivi-widget-container h4 {
+  font-size: 1.44rem;
+}
+
+.kivi-widget-container h5 {
+  font-size: 1.2rem;
+}
+
+.kivi-widget-container h6 {
+  font-size: 1rem;
+}
+
+.kivicare-clinic-label {
+  text-transform: none !important;
+}
+
+/* Filter Container */
+.kivi-filter-container {
+  display: flex;
+  gap: 0.625rem;
+  padding: 0.625rem 0;
+}
+
+.kivi-filter-container .kivi-filter-item {
+  flex: 1;
+}
+
+.kivi-filter-container .kivi-filter-item .kivi-button {
+  width: 100%;
+  height: 100%;
+}
+
+.kivi-widget-container .kivi-select,
+.kivi-widget-container .kivi-input {
+  width: 100%;
+  font-size: .875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  background-color: var(--kivi-gray-900);
+  color: var(--kivi-text-color);
+  border: 1px solid var(--kivi-border-color);
+  border-radius: var(--kivi-border-radius);
+  box-shadow: none;
+  transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+.kivi-widget-container .kivi-select:focus,
+.kivi-widget-container .kivi-input:focus {
+  border-color: var(--kivi-primary-color);
+  box-shadow: none;
+  outline: none;
+}
+
+.kivi-widget-container .kivi-input {
+  padding: .782rem 1rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.kivi-widget-container .kivi-select {
+  padding: .782rem 3rem .782rem 1rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='20' width='20' viewBox='0 0 20 20' aria-hidden='true' focusable='false' class='css-8mmkcg'%3E%3Cpath d='M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .75rem center;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.kivi-widget-container .kivi-button {
+  display: inline-block;
+  border-radius: var(--kivi-border-radius);
+  padding: .5rem 1.5rem;
+  font-size: .875rem;
+  font-weight: 600;
+  line-height: 1.75rem;
+  vertical-align: middle;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.kivi-widget-container .kivi-button.kivi-button-primary {
+  background-color: var(--kivi-primary-color);
+  color: var(--kivi-white-color);
+}
+
+.kivi-widget-container .kivi-button.kivi-button-secondary {
+  background-color: var(--kivi-secondary-color);
+  color: var(--kivi-white-color);
+}
+
+/* Clinic List */
+.kivi-clinic-list {
+  margin-top: 4.375rem;
+}
+
+.kivi-clinic-list .kivi-clinic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3.125rem;
+  margin-bottom: 4.375rem;
+}
+
+.kivi-clinic-list .kivi-clinic .kivi-clinic-image .clinic-image {
+  height: 18.75rem;
+  width: 18.75rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.kivi-clinic-list .kivi-clinic .kivi-clinic-image {
+  flex-shrink: 0;
+}
+
+.kivi-clinic-list .kivi-clinic .kivi-clinic-content {
+  flex-grow: 1;
+}
+
+.kivi-clinic-list .kivi-clinic .kivi-clinic-content .kivi-clinic-designation {
+  font-weight: 700;
+  color: var(--kivi-secondary-color);
+}
+
+.kivi-clinic-list .kivi-clinic .kivi-clinic-content .kivi-clinic-information {
+  margin-top: 3.125rem;
+}
+
+.kivi-clinic-list .kivi-clinic .kivi-clinic-content .kivi-clinic-information-item {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.kivi-clinic-list .kivi-clinic .kivi-clinic-content .kivi-clinic-information-item .kivi-clinic-information-title {
+  width: 30%;
+}
+
+.kivi-clinic-list .kivi-clinic .kivi-clinic-content .kivi-clinic-information-item .kivi-clinic-information-title .info-title {
+  margin-bottom: 0;
+}
+
+.kivi-clinic-list .kivi-clinic .kivi-clinic-content .kivi-clinic-information-item .kivi-clinic-information-content {
+  width: 70%;
+}
+
+.kivi-clinic-list .kivi-clinic .kivi-clinic-content .kivi-clinic-information-item:not(:last-child) {
+  margin-bottom: 1.25rem;
+}
+
+.kivi-clinic-list .kivi-clinic .kivi-clinic-content .kivi-administrator-title {
+  text-align: center;
+  margin-top: 3.125rem;
+}
+
+.kivi-clinic-list .kivi-clinic .kivi-clinic-bookaction {
+  margin-top: 3.125rem;
+  text-align: center;
+}
+
+.kivi-clinic-list .kivi-clinic .kivi-clinic-bookaction button {
+  width: 100%;
+}
+
+
+/* Doctor List */
+.kivi-doctor-list {
+  margin-top: 4.375rem;
+}
+
+.kivi-doctor-list .kivi-doctor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative; 
+  gap: 3.125rem;
+  margin-bottom: 4.375rem;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-image .doctor-image {
+  height: 18.75rem;
+  width: 18.75rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-image {
+  flex-shrink: 0;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-content {
+  flex-grow: 1;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-image,
+.kivi-doctor-list .kivi-doctor .kivi-doctor-content {
+  position: relative;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-content .kivi-doctor-designation {
+  font-weight: 700;
+  color: var(--kivi-secondary-color);
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-content .kivi-doctor-information {
+  margin-top: 3.125rem;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-content .kivi-doctor-information-item {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-content .kivi-doctor-information-item .kivi-doctor-information-title {
+  width: 30%;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-content .kivi-doctor-information-item .kivi-doctor-information-title .info-title {
+  margin-bottom: 0;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-content .kivi-doctor-information-item .kivi-doctor-information-content {
+  width: 70%;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-content .kivi-doctor-information-item:not(:last-child) {
+  margin-bottom: 1.25rem;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-content .kivi-appointment-information {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 0.625rem;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-content .kivi-appointment-item {
+  padding: .5rem 1rem;
+  background-color: var(--kivi-gray-100);
+  border-radius: var(--kivi-border-radius);
+  border: 1px solid var(--kivi-border-color);
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-content .kivi-appointment-item span {
+  display: block;
+  text-align: center;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-content .kivi-appointment-item span.day {
+  color: var(--kivi-secondary-color);
+  text-transform: capitalize;
+  font-size: .875rem;
+  margin-bottom: .25rem;
+}
+
+.kivicare-doctor-label {
+  text-transform: none !important;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-content .kivi-appointment-item span.time {
+  font-size: .75rem;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-content .kivi-administrator-title {
+  text-align: center;
+  margin-top: 3.125rem;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-bookaction {
+  margin-top: 3.125rem;
+  text-align: center;
+}
+
+.kivi-doctor-list .kivi-doctor .kivi-doctor-bookaction button {
+  width: 100%;
+}
+
+
+/* Pagination Styles */
+.kivicare-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  padding: 15px 0;
+
+  .kivicare-pagination-btn {
+    background-color: var(--kivi-primary-color);
+    color: var(--kivi-white-color);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+
+    &:hover:not(:disabled) {
+      background-color: var(--kivi-primary-color);
+    }
+
+    &:disabled {
+      background-color: var(--kivi-gray-500);
+      cursor: not-allowed;
+      opacity: 0.6;
+      color: var(--kivi-title-color);
+    }
+  }
+
+  .kivicare-pagination-info {
+    font-size: 14px;
+    color: var(--kivi-text-color);
+    font-weight: 500;
+  }
+}
+
+/* No Results Messages */
+.kivicare-no-doctors,
+.kivicare-no-clinics {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--kivi-text-color);
+  font-size: 16px;
+  background: var(--kivi-gray-100);
+  border-radius: 8px;
+  border: 1px solid var(--kivi-border-color);
+}
+
+/* Modal Styles */
+.kivicare-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.kivicare-modal-content {
+  background: var(--kivi-white-color);
+  border-radius: 12px;
+  max-width: 1024px;
+  width: min(96vw, 1024px);
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease;
+  margin: 0 auto;
+  display: block;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kivicare-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--kivi-gray-600);
+  cursor: pointer;
+  z-index: 10;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: var(--kivi-text-color);
+  }
+}
+
+/* Loading State */
+.kivicare-loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--kivi-text-color);
+  font-size: 16px;
+  
+  &::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--kivi-border-color);
+    border-top: 2px solid var(--kivi-primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 767.98px) {
+  .kivi-filter-container {
+    flex-wrap: wrap;
+  }
+
+  .kivi-filter-container .kivi-filter-item {
+    width: 48%;
+    flex: auto;
+  }
+
+
+  .kivi-clinic-list .kivi-clinic,
+  .kivi-doctor-list .kivi-doctor {
+    flex-direction: column;
+    align-items: inherit;
+  }
+
+
+  .kivi-clinic-list .kivi-clinic .kivi-clinic-image,
+  .kivi-doctor-list .kivi-doctor .kivi-doctor-image{
+    text-align: center;
+  }
+
+  .kivi-clinic-list .kivi-clinic .kivi-clinic-title,
+  .kivi-clinic-list .kivi-clinic .kivi-clinic-content .kivi-clinic-designation,
+  .kivi-doctor-list .kivi-doctor .kivi-doctor-title,
+  .kivi-doctor-list .kivi-doctor .kivi-doctor-content .kivi-doctor-designation {
+    text-align: center;
+  }
+
+  .kivi-clinic-list .kivi-clinic .kivi-clinic-image .clinic-image,
+  .kivi-doctor-list .kivi-doctor .kivi-doctor-image .doctor-image {
+    height: 15rem;
+    width: 15rem;
+  }
+
+
+  .kivi-doctor-list .kivi-doctor .kivi-doctor-content .kivi-appointment-information {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .kivi-filter-container .kivi-filter-item {
+    width: 100%;
+  }
+
+  .kivi-doctor-list .kivi-doctor .kivi-doctor-content .kivi-appointment-information {
+    grid-template-columns: 1fr;
+  }
+}
+

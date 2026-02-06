@@ -22,4 +22,4 @@ if (PHP_VERSION_ID < 50600) {
 
 require_once __DIR__ . '/composer/autoload_real.php';
 
-return ComposerAutoloaderInit1c99b802a4eed5ad7527f12446ec99ff::getLoader();
+return ComposerAutoloaderInitKiviCareLite::getLoader();

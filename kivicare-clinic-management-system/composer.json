@@ -1,35 +1,34 @@
 {
-    "name": "iqonic/kivi-care",
-    "authors": [{
-        "name": "Iqonic.design",
-        "email": "dev@goldenmace.com"
-    }],
-    "require": {
-        "symfony/http-foundation": "^5.1",
-        "illuminate/collections": "^9",
-        "ext-json": "*",
-        "nesbot/carbon": "^2.45",
-        "league/omnipay": "^3",
-        "omnipay/paypal": "^3",
-        "10quality/wp-query-builder": "^1.0",
-        "dompdf/dompdf": "^3.0"
-    },
+    "name": "iqonic/kivicare-clinic-management-system",
+    "authors": [
+        {
+            "name": "Iqonic.design",
+            "email": "hello@iqonic.design"
+        }
+    ],
     "license": "GPL-3.0",
     "autoload": {
         "psr-4": {
             "App\\": "./app"
         },
         "files": [
-            "utils/kc_helpers.php"
+            "includes/functions.php"
         ]
     },
+    "require": {
+        "iqonic/vite-for-wp": "dev-dev",
+        "illuminate/collections": "^12.12",
+        "woocommerce/action-scheduler": "^3.9",
+        "dompdf/dompdf": "^3.1"
+    },
     "config": {
-        "allow-plugins": {
-            "php-http/discovery": true,
-            "platform-check": false
-        },
-        "platform": {
-            "php": "^8.0"
-         }
-    }
+        "autoloader-suffix": "KiviCareLite",
+        "platform-check": false
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://gitlab.com/dharmil_gmits/iqonic-vite-for-wp.git"
+        }
+    ]
 }

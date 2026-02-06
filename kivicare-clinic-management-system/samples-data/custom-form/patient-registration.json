@@ -1,0 +1,144 @@
+{
+  "name": "Patient Registration Form",
+  "moduleType": "patient_module",
+  "status": "active",
+  "fields": [
+    {
+      "id": "first_name",
+      "type": "text",
+      "label": "First Name <strong>(Required)</strong>",
+      "placeholder": "Enter first name",
+      "required": true,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "last_name",
+      "type": "text",
+      "label": "Last Name <strong>(Required)</strong>",
+      "placeholder": "Enter last name",
+      "required": true,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "date_of_birth",
+      "type": "date",
+      "label": "Date of Birth <span class='text-primary'>*</span>",
+      "placeholder": "",
+      "required": true,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "gender",
+      "type": "select",
+      "label": "Gender <strong>Selection</strong>",
+      "placeholder": "Choose gender",
+      "required": true,
+      "columnClass": "col-md-6 col-12",
+      "options": ["Male", "Female", "Non-binary", "Prefer not to say"]
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "label": "Email Address",
+      "placeholder": "patient.email@example.com",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "phone",
+      "type": "text",
+      "label": "Phone Number",
+      "placeholder": "+1 (555) 123-4567",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "address",
+      "type": "textarea",
+      "label": "Address <strong>Detailed</strong>",
+      "placeholder": "Enter complete address...",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "emergency_contact_name",
+      "type": "text",
+      "label": "Emergency Contact Name",
+      "placeholder": "Full name of emergency contact",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "emergency_contact_phone",
+      "type": "text",
+      "label": "Emergency Contact Phone",
+      "placeholder": "+1 (555) 987-6543",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "blood_type",
+      "type": "select",
+      "label": "Blood Type",
+      "placeholder": "Select blood type",
+      "required": false,
+      "columnClass": "col-md-6 col-12",
+      "options": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "Unknown"]
+    },
+    {
+      "id": "allergies",
+      "type": "textarea",
+      "label": "Known Allergies <em>Important</em>",
+      "placeholder": "List any known allergies...",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "medical_conditions",
+      "type": "textarea",
+      "label": "Pre-existing Medical Conditions",
+      "placeholder": "List any pre-existing conditions...",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "insurance_provider",
+      "type": "text",
+      "label": "Insurance Provider",
+      "placeholder": "Insurance company name",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "insurance_policy_number",
+      "type": "text",
+      "label": "Insurance Policy Number",
+      "placeholder": "Policy/Plan number",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "preferred_language",
+      "type": "select",
+      "label": "Preferred Language",
+      "placeholder": "Select preferred language",
+      "required": false,
+      "columnClass": "col-md-6 col-12",
+      "options": ["English", "Spanish", "French", "German", "Chinese", "Hindi", "Arabic", "Other"]
+    },
+    {
+      "id": "consent_forms",
+      "type": "checkbox",
+      "label": "I agree to the terms and conditions <span class='text-danger'>*</span>",
+      "placeholder": "Patient consent required",
+      "required": true,
+      "columnClass": "col-12"
+    }
+  ],
+  "conditions": {
+    "appointment_status": [],
+    "show_mode": [{"id": "patient"}],
+    "clinics": [],
+    "roles": ["administrator", "clinic_admin", "doctor", "receptionist"]
+  }
+}

@@ -1,0 +1,240 @@
+{
+  "_ElementorWidget-BVn3uFWy.css": {
+    "file": "assets/ElementorWidget-BVn3uFWy.css",
+    "src": "_ElementorWidget-BVn3uFWy.css"
+  },
+  "_TransitionRoutes-C0fDr2wa.js": {
+    "file": "assets/TransitionRoutes-C0fDr2wa.js",
+    "name": "TransitionRoutes",
+    "imports": [
+      "_index-B30RaB2y.js"
+    ],
+    "dynamicImports": [
+      "node_modules/@stripe/stripe-js/lib/index.mjs",
+      "node_modules/@stripe/react-stripe-js/dist/react-stripe.esm.mjs",
+      "node_modules/@stripe/react-stripe-js/dist/react-stripe.esm.mjs",
+      "app/dashboard/views/encounter/tabs/bodyChart/BodyChartEditor.jsx"
+    ],
+    "css": [
+      "assets/TransitionRoutes-DFa-Q_tj.css"
+    ]
+  },
+  "_TransitionRoutes-DFa-Q_tj.css": {
+    "file": "assets/TransitionRoutes-DFa-Q_tj.css",
+    "src": "_TransitionRoutes-DFa-Q_tj.css"
+  },
+  "_custom-BYHSTd17.css": {
+    "file": "assets/custom-BYHSTd17.css",
+    "src": "_custom-BYHSTd17.css"
+  },
+  "_index-B30RaB2y.js": {
+    "file": "assets/index-B30RaB2y.js",
+    "name": "index",
+    "css": [
+      "assets/index-lCWIDpmK.css"
+    ]
+  },
+  "_index-CQXckJez.js": {
+    "file": "assets/index-CQXckJez.js",
+    "name": "index"
+  },
+  "_index-lCWIDpmK.css": {
+    "file": "assets/index-lCWIDpmK.css",
+    "src": "_index-lCWIDpmK.css"
+  },
+  "_queryClient-D6Y6MySy.js": {
+    "file": "assets/queryClient-D6Y6MySy.js",
+    "name": "queryClient",
+    "imports": [
+      "_index-B30RaB2y.js"
+    ]
+  },
+  "_useFrontendBookAppointment-CtM5RZgN.js": {
+    "file": "assets/useFrontendBookAppointment-CtM5RZgN.js",
+    "name": "useFrontendBookAppointment",
+    "imports": [
+      "_index-B30RaB2y.js"
+    ]
+  },
+  "app/dashboard/assets/fonts/Inter18pt-Bold.woff2": {
+    "file": "assets/fonts/Inter18pt-Bold.woff2",
+    "src": "app/dashboard/assets/fonts/Inter18pt-Bold.woff2"
+  },
+  "app/dashboard/assets/fonts/Inter18pt-Italic.woff2": {
+    "file": "assets/fonts/Inter18pt-Italic.woff2",
+    "src": "app/dashboard/assets/fonts/Inter18pt-Italic.woff2"
+  },
+  "app/dashboard/assets/fonts/Inter18pt-Regular.woff2": {
+    "file": "assets/fonts/Inter18pt-Regular.woff2",
+    "src": "app/dashboard/assets/fonts/Inter18pt-Regular.woff2"
+  },
+  "app/dashboard/assets/fonts/Inter24pt-Bold.woff2": {
+    "file": "assets/fonts/Inter24pt-Bold.woff2",
+    "src": "app/dashboard/assets/fonts/Inter24pt-Bold.woff2"
+  },
+  "app/dashboard/assets/fonts/Inter24pt-BoldItalic.woff2": {
+    "file": "assets/fonts/Inter24pt-BoldItalic.woff2",
+    "src": "app/dashboard/assets/fonts/Inter24pt-BoldItalic.woff2"
+  },
+  "app/dashboard/assets/fonts/Inter24pt-Italic.woff2": {
+    "file": "assets/fonts/Inter24pt-Italic.woff2",
+    "src": "app/dashboard/assets/fonts/Inter24pt-Italic.woff2"
+  },
+  "app/dashboard/assets/fonts/Inter24pt-Regular.woff2": {
+    "file": "assets/fonts/Inter24pt-Regular.woff2",
+    "src": "app/dashboard/assets/fonts/Inter24pt-Regular.woff2"
+  },
+  "app/dashboard/assets/fonts/Inter28pt-Bold.woff2": {
+    "file": "assets/fonts/Inter28pt-Bold.woff2",
+    "src": "app/dashboard/assets/fonts/Inter28pt-Bold.woff2"
+  },
+  "app/dashboard/assets/fonts/Inter28pt-Italic.woff2": {
+    "file": "assets/fonts/Inter28pt-Italic.woff2",
+    "src": "app/dashboard/assets/fonts/Inter28pt-Italic.woff2"
+  },
+  "app/dashboard/assets/fonts/Inter28pt-Regular.woff2": {
+    "file": "assets/fonts/Inter28pt-Regular.woff2",
+    "src": "app/dashboard/assets/fonts/Inter28pt-Regular.woff2"
+  },
+  "app/dashboard/assets/fonts/Phosphor-Fill.woff2": {
+    "file": "assets/fonts/Phosphor-Fill.woff2",
+    "src": "app/dashboard/assets/fonts/Phosphor-Fill.woff2"
+  },
+  "app/dashboard/assets/fonts/Phosphor.woff2": {
+    "file": "assets/fonts/Phosphor.woff2",
+    "src": "app/dashboard/assets/fonts/Phosphor.woff2"
+  },
+  "app/dashboard/assets/scss/kivicare-design-system/components/payment-gateway-model/_payment-gateway-model.scss": {
+    "file": "assets/_payment-gateway-model-BiLTufOy.css",
+    "src": "app/dashboard/assets/scss/kivicare-design-system/components/payment-gateway-model/_payment-gateway-model.scss"
+  },
+  "app/dashboard/main.jsx": {
+    "file": "assets/dashboard-VkNLjtB5.js",
+    "name": "dashboard",
+    "src": "app/dashboard/main.jsx",
+    "isEntry": true,
+    "imports": [
+      "_index-B30RaB2y.js",
+      "_TransitionRoutes-C0fDr2wa.js",
+      "_queryClient-D6Y6MySy.js",
+      "_index-CQXckJez.js"
+    ],
+    "css": [
+      "assets/dashboard-ARut2yzk.css",
+      "assets/custom-BYHSTd17.css"
+    ],
+    "assets": [
+      "assets/fonts/Inter18pt-Regular.woff2",
+      "assets/fonts/Inter18pt-Bold.woff2",
+      "assets/fonts/Inter24pt-Regular.woff2",
+      "assets/fonts/Inter28pt-Bold.woff2",
+      "assets/fonts/Inter28pt-Regular.woff2",
+      "assets/fonts/Inter24pt-Bold.woff2",
+      "assets/fonts/Inter18pt-Italic.woff2",
+      "assets/fonts/Inter24pt-BoldItalic.woff2",
+      "assets/fonts/Inter24pt-Italic.woff2",
+      "assets/fonts/Inter28pt-Italic.woff2",
+      "assets/fonts/Phosphor-Fill.woff2",
+      "assets/fonts/Phosphor.woff2"
+    ]
+  },
+  "app/dashboard/views/encounter/tabs/bodyChart/BodyChartEditor.jsx": {
+    "file": "assets/BodyChartEditor-CBWtT9Ff.js",
+    "name": "BodyChartEditor",
+    "src": "app/dashboard/views/encounter/tabs/bodyChart/BodyChartEditor.jsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_index-B30RaB2y.js",
+      "_TransitionRoutes-C0fDr2wa.js"
+    ],
+    "css": [
+      "assets/BodyChartEditor-UXLNUaJU.css"
+    ]
+  },
+  "app/elementor/widgets/js/ClinicWidget.jsx": {
+    "file": "assets/clinicwidget-CdKDRa3u.js",
+    "name": "clinicwidget",
+    "src": "app/elementor/widgets/js/ClinicWidget.jsx",
+    "isEntry": true,
+    "imports": [
+      "_index-B30RaB2y.js",
+      "_TransitionRoutes-C0fDr2wa.js"
+    ],
+    "css": [
+      "assets/ElementorWidget-BVn3uFWy.css"
+    ]
+  },
+  "app/elementor/widgets/js/DoctorWidget.jsx": {
+    "file": "assets/doctorwidget-BgvJ3Hqh.js",
+    "name": "doctorwidget",
+    "src": "app/elementor/widgets/js/DoctorWidget.jsx",
+    "isEntry": true,
+    "imports": [
+      "_index-B30RaB2y.js",
+      "_TransitionRoutes-C0fDr2wa.js"
+    ],
+    "css": [
+      "assets/ElementorWidget-BVn3uFWy.css"
+    ]
+  },
+  "app/shortcodes/assets/js/KCBookAppointment.jsx": {
+    "file": "assets/appointment-Ci-DMkzR.js",
+    "name": "appointment",
+    "src": "app/shortcodes/assets/js/KCBookAppointment.jsx",
+    "isEntry": true,
+    "imports": [
+      "_index-B30RaB2y.js",
+      "_TransitionRoutes-C0fDr2wa.js",
+      "_index-CQXckJez.js",
+      "_useFrontendBookAppointment-CtM5RZgN.js",
+      "_queryClient-D6Y6MySy.js"
+    ],
+    "css": [
+      "assets/appointment-iuivH0W7.css"
+    ]
+  },
+  "app/shortcodes/assets/js/KCRegisterLogin.jsx": {
+    "file": "assets/registerLogin-HtWkAwJc.js",
+    "name": "registerLogin",
+    "src": "app/shortcodes/assets/js/KCRegisterLogin.jsx",
+    "isEntry": true,
+    "imports": [
+      "_index-B30RaB2y.js",
+      "_useFrontendBookAppointment-CtM5RZgN.js",
+      "_queryClient-D6Y6MySy.js"
+    ],
+    "css": [
+      "assets/custom-BYHSTd17.css"
+    ],
+    "assets": [
+      "assets/fonts/Inter18pt-Regular.woff2",
+      "assets/fonts/Inter18pt-Bold.woff2",
+      "assets/fonts/Inter24pt-Regular.woff2",
+      "assets/fonts/Inter28pt-Bold.woff2",
+      "assets/fonts/Inter28pt-Regular.woff2",
+      "assets/fonts/Inter24pt-Bold.woff2",
+      "assets/fonts/Inter18pt-Italic.woff2",
+      "assets/fonts/Inter24pt-BoldItalic.woff2",
+      "assets/fonts/Inter24pt-Italic.woff2",
+      "assets/fonts/Inter28pt-Italic.woff2",
+      "assets/fonts/Phosphor-Fill.woff2",
+      "assets/fonts/Phosphor.woff2"
+    ]
+  },
+  "node_modules/@stripe/react-stripe-js/dist/react-stripe.esm.mjs": {
+    "file": "assets/react-stripe.esm-Ch39iZEQ.js",
+    "name": "react-stripe.esm",
+    "src": "node_modules/@stripe/react-stripe-js/dist/react-stripe.esm.mjs",
+    "isDynamicEntry": true,
+    "imports": [
+      "_index-B30RaB2y.js",
+      "_TransitionRoutes-C0fDr2wa.js"
+    ]
+  },
+  "node_modules/@stripe/stripe-js/lib/index.mjs": {
+    "file": "assets/index-B0HAhLET.js",
+    "name": "index",
+    "src": "node_modules/@stripe/stripe-js/lib/index.mjs",
+    "isDynamicEntry": true
+  }
+}

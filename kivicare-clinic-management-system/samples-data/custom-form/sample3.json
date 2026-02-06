@@ -1,0 +1,36 @@
+{
+  "name": "Patient Profile Update",
+  "moduleType": "patient_module",
+  "status": "active",
+  "fields": [
+    {
+      "id": "blood_type",
+      "type": "radio",
+      "label": "Blood Type",
+      "placeholder": "",
+      "required": true,
+      "columnClass": "col-12",
+      "options": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
+    },
+    {
+      "id": "allergies",
+      "type": "textarea",
+      "label": "Allergies",
+      "placeholder": "List any allergies",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "medical_history",
+      "type": "file",
+      "label": "Medical History Document",
+      "placeholder": "",
+      "required": false,
+      "columnClass": "col-12"
+    }
+  ],
+  "conditions": {
+    "clinics": [],
+    "roles": ["patient", "doctor"]
+  }
+}

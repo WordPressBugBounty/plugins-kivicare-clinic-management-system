@@ -1,0 +1,44 @@
+{
+  "name": "Encounter Notes",
+  "moduleType": "patient_encounter_module",
+  "status": "active",
+  "fields": [
+    {
+      "id": "symptoms",
+      "type": "textarea",
+      "label": "Symptoms",
+      "placeholder": "Describe symptoms",
+      "required": true,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "diagnosis",
+      "type": "textarea",
+      "label": "Diagnosis",
+      "placeholder": "Enter diagnosis",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "follow_up",
+      "type": "date",
+      "label": "Follow-up Date",
+      "placeholder": "",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "prescription_needed",
+      "type": "checkbox",
+      "label": "Prescription Needed",
+      "placeholder": "Prescription Needed",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    }
+  ],
+  "conditions": {
+    "show_mode": [{"id": "encounter"}],
+    "clinics": [],
+    "roles": ["doctor"]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "name": "Doctor Availability",
+  "moduleType": "doctor_module",
+  "status": "active",
+  "fields": [
+    {
+      "id": "available_days",
+      "type": "select",
+      "label": "Available Days",
+      "placeholder": "Select days",
+      "required": true,
+      "columnClass": "col-12",
+      "options": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    },
+    {
+      "id": "start_time",
+      "type": "text",
+      "label": "Start Time",
+      "placeholder": "09:00",
+      "required": true,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "end_time",
+      "type": "text",
+      "label": "End Time",
+      "placeholder": "17:00",
+      "required": true,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "max_patients",
+      "type": "number",
+      "label": "Max Patients per Day",
+      "placeholder": "20",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    }
+  ],
+  "conditions": {
+    "clinics": [],
+    "roles": ["clinic_admin", "doctor"]
+  }
+}

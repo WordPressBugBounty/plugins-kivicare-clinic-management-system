@@ -1,0 +1,160 @@
+{
+  "name": "Patient Encounter Form",
+  "moduleType": "patient_encounter_module",
+  "status": "active",
+  "fields": [
+    {
+      "id": "visit_reason",
+      "type": "select",
+      "label": "Primary Reason for Visit <strong>(Required)</strong>",
+      "placeholder": "Select main reason",
+      "required": true,
+      "columnClass": "col-12",
+      "options": ["Routine Checkup", "Follow-up", "New Symptoms", "Emergency", "Consultation", "Vaccination", "Lab Results", "Prescription Refill", "Other"]
+    },
+    {
+      "id": "chief_complaint",
+      "type": "textarea",
+      "label": "Chief Complaint <strong>Detailed Description</strong>",
+      "placeholder": "Describe the main problem or symptoms...",
+      "required": true,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "symptom_onset",
+      "type": "select",
+      "label": "When did symptoms start?",
+      "placeholder": "Select timeframe",
+      "required": false,
+      "columnClass": "col-md-6 col-12",
+      "options": ["Today", "Yesterday", "2-3 days ago", "This week", "Last week", "2-4 weeks ago", "1-3 months ago", "Over 3 months ago", "Unknown"]
+    },
+    {
+      "id": "pain_level",
+      "type": "radio",
+      "label": "Pain Level (if applicable)",
+      "placeholder": "",
+      "required": false,
+      "columnClass": "col-md-6 col-12",
+      "options": ["1 - Mild", "2", "3", "4", "5 - Moderate", "6", "7", "8", "9", "10 - Severe", "No Pain"]
+    },
+    {
+      "id": "vital_signs_taken",
+      "type": "checkbox",
+      "label": "Vital Signs Recorded",
+      "placeholder": "Check if vitals were taken",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "blood_pressure",
+      "type": "text",
+      "label": "Blood Pressure",
+      "placeholder": "120/80 mmHg",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "heart_rate",
+      "type": "number",
+      "label": "Heart Rate (BPM)",
+      "placeholder": "72",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "temperature",
+      "type": "text",
+      "label": "Temperature",
+      "placeholder": "98.6°F or 37°C",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "weight",
+      "type": "number",
+      "label": "Weight (lbs)",
+      "placeholder": "150",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "height",
+      "type": "text",
+      "label": "Height",
+      "placeholder": "5'10\" or 178 cm",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "oxygen_saturation",
+      "type": "number",
+      "label": "Oxygen Saturation (%)",
+      "placeholder": "98",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "current_medications",
+      "type": "textarea",
+      "label": "Current Medications",
+      "placeholder": "List all current medications and dosages...",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "recent_changes",
+      "type": "textarea",
+      "label": "Recent Changes in Health",
+      "placeholder": "Any recent changes in symptoms, medications, or lifestyle...",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "physical_examination",
+      "type": "textarea",
+      "label": "Physical Examination Notes",
+      "placeholder": "Doctor's examination findings...",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "diagnostic_tests",
+      "type": "textarea",
+      "label": "Diagnostic Tests Ordered",
+      "placeholder": "List any tests ordered (blood work, imaging, etc.)...",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "treatment_plan",
+      "type": "textarea",
+      "label": "Treatment Plan",
+      "placeholder": "Prescribed treatment, medications, follow-up instructions...",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "follow_up_date",
+      "type": "date",
+      "label": "Follow-up Appointment Date",
+      "placeholder": "",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "patient_education",
+      "type": "textarea",
+      "label": "Patient Education Provided",
+      "placeholder": "Information given to patient about condition and care...",
+      "required": false,
+      "columnClass": "col-12"
+    }
+  ],
+  "conditions": {
+    "appointment_status": [{"id": "2"}, {"id": "3"}, {"id": "4"}],
+    "show_mode": [{"id": "encounter"}],
+    "clinics": [],
+    "roles": ["administrator", "clinic_admin", "doctor", "nurse"]
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "name": "Quick Appointment Form",
+  "moduleType": "appointment_module",
+  "status": "active",
+  "fields": [
+    {
+      "id": "appointment_type",
+      "type": "select",
+      "label": "Appointment Type <strong>(Required)</strong>",
+      "placeholder": "Select appointment type",
+      "required": true,
+      "columnClass": "col-12",
+      "options": ["Consultation", "Follow-up", "Check-up", "Emergency", "Vaccination", "Lab Results Review", "Prescription Consultation"]
+    },
+    {
+      "id": "preferred_date",
+      "type": "date",
+      "label": "Preferred Date <span class='text-primary'>*</span>",
+      "placeholder": "",
+      "required": true,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "preferred_time",
+      "type": "select",
+      "label": "Preferred Time",
+      "placeholder": "Select time slot",
+      "required": false,
+      "columnClass": "col-md-6 col-12",
+      "options": ["Morning (9AM-12PM)", "Afternoon (12PM-5PM)", "Evening (5PM-8PM)", "Anytime"]
+    },
+    {
+      "id": "urgency_level",
+      "type": "radio",
+      "label": "Urgency Level",
+      "placeholder": "",
+      "required": false,
+      "columnClass": "col-12",
+      "options": ["Routine", "Semi-urgent", "Urgent", "Emergency"]
+    },
+    {
+      "id": "brief_description",
+      "type": "textarea",
+      "label": "Brief Description <em>Optional</em>",
+      "placeholder": "Briefly describe the reason for appointment...",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "insurance_info",
+      "type": "checkbox",
+      "label": "I have health insurance information ready",
+      "placeholder": "Insurance details available",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "telemedicine_preference",
+      "type": "radio",
+      "label": "Consultation Method Preference",
+      "placeholder": "",
+      "required": false,
+      "columnClass": "col-12",
+      "options": ["In-person only", "Telemedicine preferred", "Either is fine"]
+    }
+  ],
+  "conditions": {
+    "appointment_status": [{"id": "1"}],
+    "show_mode": [{"id": "appointment"}],
+    "clinics": [],
+    "roles": ["administrator", "clinic_admin", "doctor", "receptionist", "patient"]
+  }
+}

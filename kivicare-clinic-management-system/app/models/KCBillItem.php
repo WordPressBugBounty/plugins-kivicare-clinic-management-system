@@ -1,68 +1,92 @@
 <?php
 
-
 namespace App\models;
 
-use App\baseClasses\KCModel;
+use App\baseClasses\KCBaseModel;
 
-class KCBillItem extends KCModel {
+defined('ABSPATH') or die('Something went wrong');
 
-	public function __construct()
-	{
-		parent::__construct('bill_items');
-	}
-	public static function createAppointmentBillItem($appointment_id) {
-		$appointment_doctor_id = (new KCAppointment())->get_var([ 'id' => (int)$appointment_id], 'doctor_id');
-		if(!empty($appointment_doctor_id)){
-			$appointment_service = (new KCAppointmentServiceMapping())->get_by([ 'appointment_id' => (int)$appointment_id], '=', false);
-            if(!empty($appointment_service)){
-				$total_amount = 0;
-				foreach ( $appointment_service  as $data ) {
-                    $get_mapping_services = (new KCServiceDoctorMapping())->get_by([ 'service_id' => (int)$data->service_id, 'doctor_id'=>(int)$appointment_doctor_id],'=',true);
-                    $data->service_charges = (int)$get_mapping_services->charges;
-                    $total_amount = $total_amount + (int)$get_mapping_services->charges;
-				}
-				
-				$tax = apply_filters('kivicare_calculate_tax',[
-                    'status' => false,
-                    'message' => '',
-                    'data' => []
-                ], [
-                    "id" => $appointment_id,
-                    "type" => 'appointment',
-                ]);
-				if(is_array($tax)){
-					$total_amount = $tax['tax_total'] + $total_amount;
-				}
-                $patient_encounter_id = (new KCPatientEncounter())->get_var([ 'appointment_id' => (int)$appointment_id], 'id');
-				if(empty($patient_encounter_id)){
-                    return;
-                }
-                $patient_bill = (new KCBill())->insert([
-					'encounter_id' =>(int)$patient_encounter_id,
-					'appointment_id'=> (int)$appointment_id,
-					'total_amount'=>$total_amount,
-					'discount'=>0,
-					'actual_amount'=>$total_amount,
-					'status'=>0,
-					'payment_status'=>'unpaid',
-					'created_at'=>current_time( 'Y-m-d H:i:s' )
-				]);
+class KCBillItem extends KCBaseModel
+{
+    /**
+     * Initialize the schema with validation rules
+     */
+    protected static function initSchema(): array
+    {
+        return [
+            'table_name' => 'kc_bill_items',
+            'primary_key' => 'id',
+            'columns' => [
+                'id' => [
+                    'column' => 'id',
+                    'type' => 'bigint',
+                    'nullable' => false,
+                    'auto_increment' => true,
+                ],
+                'billId' => [
+                    'column' => 'bill_id',
+                    'type' => 'bigint',
+                    'nullable' => false,
+                    'sanitizers' => ['intval'],
+                    'validators' => [
+                        fn($value) => $value > 0 ? true : 'Invalid bill ID'
+                    ],
+                ],
+                'itemId' => [
+                    'column' => 'item_id',
+                    'type' => 'bigint',
+                    'nullable' => false,
+                    'sanitizers' => ['intval'],
+                    'validators' => [
+                        fn($value) => $value > 0 ? true : 'Invalid item ID'
+                    ],
+                ],
+                'qty' => [
+                    'column' => 'qty',
+                    'type' => 'int',
+                    'nullable' => false,
+                    'validators' => [
+                        fn($value) => $value > 0 ? true : 'Quantity must be greater than 0'
+                    ],
+                ],
+                'price' => [
+                    'column' => 'price',
+                    'type' => 'varchar',
+                    'nullable' => true,
+                    'sanitizers' => ['sanitize_text_field'],
+                ],
+                'createdAt' => [
+                    'column' => 'created_at',
+                    'type' => 'datetime',
+                    'nullable' => false,
+                ],
+            ],
+            'timestamps' => false, // We'll handle created_at manually
+            'soft_deletes' => false,
+        ];
+    }
 
-				if($patient_bill){
-                    foreach ( $appointment_service as $key => $data ) {
-                        (new self())->insert([
-                            'bill_id' => (int)$patient_bill,
-                            'price'   => (int)$data->service_charges,
-                            'qty'     => 1,
-                            'item_id' => (int)$data->service_id,
-                            'created_at' => current_time( 'Y-m-d H:i:s' )
-                        ]);
-                    }
-					
-				}
-			
-			}
-		}
-	}
+    /**
+     * Get the bill this item belongs to
+     */
+    public function getBill()
+    {
+        return KCBill::find($this->billId);
+    }
+
+    /**
+     * Get the item associated with this bill item
+     */
+    public function getItem()
+    {
+        return KCService::find($this->itemId);
+    }
+
+    /**
+     * Calculate the total amount for this item
+     */
+    public function getTotal(): float
+    {
+        return floatval($this->price) * $this->qty;
+    }
 }

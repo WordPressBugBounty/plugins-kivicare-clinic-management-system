@@ -1,0 +1,46 @@
+{
+  "name": "Patient Registration",
+  "moduleType": "appointment_module",
+  "status": "active",
+  "fields": [
+    {
+      "id": "name",
+      "type": "text",
+      "label": "Full Name",
+      "placeholder": "Enter full name",
+      "required": true,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "label": "Email",
+      "placeholder": "Enter email",
+      "required": true,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "phone",
+      "type": "text",
+      "label": "Phone",
+      "placeholder": "Enter phone",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "gender",
+      "type": "select",
+      "label": "Gender",
+      "placeholder": "Select gender",
+      "required": true,
+      "columnClass": "col-md-6 col-12",
+      "options": ["Male", "Female", "Other"]
+    }
+  ],
+  "conditions": {
+    "appointment_status": [{"id": "1"}],
+    "show_mode": [{"id": "appointment"}],
+    "clinics": [],
+    "roles": ["doctor", "receptionist"]
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "name": "Doctor Profile Form",
+  "moduleType": "doctor_module",
+  "status": "active",
+  "fields": [
+    {
+      "id": "first_name",
+      "type": "text",
+      "label": "First Name <strong>(Required)</strong>",
+      "placeholder": "Enter first name",
+      "required": true,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "last_name",
+      "type": "text",
+      "label": "Last Name <strong>(Required)</strong>",
+      "placeholder": "Enter last name",
+      "required": true,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "label": "Professional Email <span class='text-primary'>*</span>",
+      "placeholder": "doctor@clinic.com",
+      "required": true,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "phone",
+      "type": "text",
+      "label": "Office Phone",
+      "placeholder": "+1 (555) 123-4567",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "license_number",
+      "type": "text",
+      "label": "Medical License Number <strong>(Required)</strong>",
+      "placeholder": "Enter license number",
+      "required": true,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "license_state",
+      "type": "text",
+      "label": "License State/Province",
+      "placeholder": "State where licensed",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "specialty",
+      "type": "select",
+      "label": "Primary Specialty <strong>Selection</strong>",
+      "placeholder": "Choose specialty",
+      "required": true,
+      "columnClass": "col-md-6 col-12",
+      "options": ["Family Medicine", "Internal Medicine", "Pediatrics", "Cardiology", "Dermatology", "Endocrinology", "Gastroenterology", "Neurology", "Obstetrics & Gynecology", "Ophthalmology", "Orthopedics", "Psychiatry", "Radiology", "Surgery", "Urology", "Other"]
+    },
+    {
+      "id": "subspecialty",
+      "type": "text",
+      "label": "Subspecialty (if applicable)",
+      "placeholder": "Enter subspecialty",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "medical_school",
+      "type": "text",
+      "label": "Medical School",
+      "placeholder": "Name of medical school attended",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "graduation_year",
+      "type": "number",
+      "label": "Graduation Year",
+      "placeholder": "2020",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "residency",
+      "type": "text",
+      "label": "Residency Program",
+      "placeholder": "Residency institution and specialty",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "fellowship",
+      "type": "text",
+      "label": "Fellowship (if applicable)",
+      "placeholder": "Fellowship training details",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "board_certifications",
+      "type": "textarea",
+      "label": "Board Certifications",
+      "placeholder": "List all board certifications...",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "years_experience",
+      "type": "number",
+      "label": "Years of Experience",
+      "placeholder": "10",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "languages_spoken",
+      "type": "select",
+      "label": "Languages Spoken",
+      "placeholder": "Select languages",
+      "required": false,
+      "columnClass": "col-md-6 col-12",
+      "options": ["English", "Spanish", "French", "German", "Chinese", "Hindi", "Arabic", "Russian", "Portuguese", "Italian", "Japanese", "Korean"]
+    },
+    {
+      "id": "office_hours",
+      "type": "textarea",
+      "label": "Office Hours",
+      "placeholder": "Regular office hours and availability...",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "emergency_contact",
+      "type": "text",
+      "label": "Emergency Contact Name",
+      "placeholder": "Emergency contact person",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "emergency_phone",
+      "type": "text",
+      "label": "Emergency Contact Phone",
+      "placeholder": "+1 (555) 987-6543",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    },
+    {
+      "id": "professional_bio",
+      "type": "textarea",
+      "label": "Professional Biography",
+      "placeholder": "Brief professional background and expertise...",
+      "required": false,
+      "columnClass": "col-12"
+    },
+    {
+      "id": "accepting_patients",
+      "type": "radio",
+      "label": "Currently Accepting New Patients",
+      "placeholder": "",
+      "required": true,
+      "columnClass": "col-md-6 col-12",
+      "options": ["Yes", "No", "Waitlist Only"]
+    },
+    {
+      "id": "telemedicine_available",
+      "type": "checkbox",
+      "label": "Telemedicine Services Available",
+      "placeholder": "Check if telemedicine is offered",
+      "required": false,
+      "columnClass": "col-md-6 col-12"
+    }
+  ],
+  "conditions": {
+    "appointment_status": [],
+    "show_mode": [{"id": "doctor"}],
+    "clinics": [],
+    "roles": ["administrator", "clinic_admin"]
+  }
+}

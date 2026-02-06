@@ -1,109 +1,158 @@
 <?php
 
-
 namespace App\models;
 
-use App\baseClasses\KCBase;
-use App\baseClasses\KCModel;
+use App\baseClasses\KCBaseModel;
 
-class KCPatientEncounter extends KCModel {
+defined('ABSPATH') or die('Something went wrong');
 
-	public function __construct()
-	{
-		parent::__construct('patient_encounters');
-	}
-
-	public static function createEncounter($appointment_id) {
-		$appointment = (new KCAppointment())->get_by([ 'id' => (int)$appointment_id], '=', true);
-
-		$encounter = (new self())->get_var(['appointment_id' => (int)$appointment_id], 'id');
-
-		if (!empty($appointment) && empty($encounter)) {
-			$id =  (new self())->insert([
-				'encounter_date' => date('Y-m-d'),
-				'clinic_id' => (int)$appointment->clinic_id,
-				'doctor_id' => (int)$appointment->doctor_id,
-				'patient_id' => (int)$appointment->patient_id,
-				'appointment_id' => (int)$appointment_id,
-				'description' => $appointment->description,
-				'added_by' => get_current_user_id(),
-				'status' => 1,
-				'created_at' => current_time( 'Y-m-d H:i:s' )
-			]);
-            do_action('kc_encounter_save', $id);
-            return $id;
-		} else {
-			return $encounter;
-		}
-
-	}
-	public static function closeEncounter($appointment_id,$appointment_status) {
-
-        $encounter_id = (new self())->get_var(['appointment_id' => $appointment_id], 'id');
-
-		if (!empty($encounter_id)) {
-            $billStatus = 0;
-            $billPayment = 'paid';
-            if($appointment_status === '0'){
-                $billStatus = 1;
-                $billPayment = "unpaid";
-            }
-            ( new KCBill() )->update( [ 'status' => $billStatus ,'payment_status' => $billPayment], [ 'encounter_id' => (int)$encounter_id ] );
-			return (new self())->update( [ 'status' => '0' ], array( 'id' => $encounter_id ) );
-		}
-
-	}
-
-    public static function encounterPermissionUserWise($encounter_id){
-        $encounter_detail = (new KCPatientEncounter())->get_by(['id' => (int)$encounter_id],'=',true);
-        $kcbase = (new KCBase());
-        $login_user_role = $kcbase->getLoginUserRole();
-        $permission = false;
-        switch ($login_user_role){
-            case $kcbase->getReceptionistRole():
-                $clinic_id = kcGetClinicIdOfReceptionist();
-                if(!empty($encounter_detail->clinic_id) && (int)$encounter_detail->clinic_id === $clinic_id ){
-                    $permission = true;
-                }
-                break;
-            case $kcbase->getClinicAdminRole():
-                $clinic_id = kcGetClinicIdOfClinicAdmin();
-                if(!empty($encounter_detail->clinic_id) && (int)$encounter_detail->clinic_id === $clinic_id ){
-                    $permission = true;
-                }
-                break;
-            case 'administrator':
-                $permission = true;
-                break;
-            case $kcbase->getDoctorRole():
-                if(!empty($encounter_detail->doctor_id) && (int)$encounter_detail->doctor_id === get_current_user_id() ){
-                    $permission = true;
-                }
-                break;
-            case $kcbase->getPatientRole():
-                if(!empty($encounter_detail->patient_id) && (int)$encounter_detail->patient_id === get_current_user_id() ){
-                    $permission = true;
-                }
-                break;
-        }
-        return $permission;
+class KCPatientEncounter extends KCBaseModel
+{
+    /**
+     * Initialize the schema with validation rules
+     */
+    protected static function initSchema(): array
+    {
+        return [
+            'table_name' => 'kc_patient_encounters',
+            'primary_key' => 'id',
+            'columns' => [
+                'id' => [
+                    'column' => 'id',
+                    'type' => 'bigint',
+                    'nullable' => false,
+                    'auto_increment' => true,
+                ],
+                'encounterDate' => [
+                    'column' => 'encounter_date',
+                    'type' => 'date',
+                    'nullable' => true,
+                    'sanitizers' => ['sanitize_text_field'],
+                ],
+                'clinicId' => [
+                    'column' => 'clinic_id',
+                    'type' => 'bigint',
+                    'nullable' => false,
+                    'sanitizers' => ['intval'],
+                    'validators' => [
+                        fn($value) => $value > 0 ? true : 'Invalid clinic ID'
+                    ],
+                ],
+                'doctorId' => [
+                    'column' => 'doctor_id',
+                    'type' => 'bigint',
+                    'nullable' => false,
+                    'sanitizers' => ['intval'],
+                    'validators' => [
+                        fn($value) => $value > 0 ? true : 'Invalid doctor ID'
+                    ],
+                ],
+                'patientId' => [
+                    'column' => 'patient_id',
+                    'type' => 'bigint',
+                    'nullable' => false,
+                    'sanitizers' => ['intval'],
+                    'validators' => [
+                        fn($value) => $value > 0 ? true : 'Invalid patient ID'
+                    ],
+                ],
+                'appointmentId' => [
+                    'column' => 'appointment_id',
+                    'type' => 'bigint',
+                    'nullable' => true,
+                    'sanitizers' => ['intval'],
+                ],
+                'description' => [
+                    'column' => 'description',
+                    'type' => 'text',
+                    'nullable' => true,
+                    'sanitizers' => ['sanitize_text_field'],
+                ],
+                'status' => [
+                    'column' => 'status',
+                    'type' => 'tinyint',
+                    'nullable' => true,
+                    'default' => 0,
+                ],
+                'addedBy' => [
+                    'column' => 'added_by',
+                    'type' => 'bigint',
+                    'nullable' => false,
+                    'sanitizers' => ['intval'],
+                    'validators' => [
+                        fn($value) => $value > 0 ? true : 'Invalid added by ID'
+                    ],
+                ],
+                'createdAt' => [
+                    'column' => 'created_at',
+                    'type' => 'datetime',
+                    'nullable' => true,
+                ],
+                'templateId' => [
+                    'column' => 'template_id',
+                    'type' => 'bigint',
+                    'nullable' => true,
+                    'sanitizers' => ['intval'],
+                ],
+            ],
+            'timestamps' => false, // We'll handle created_at manually
+            'soft_deletes' => false,
+        ];
     }
 
-    public function loopAndDelete($condition, $appointment_delete){
-        $instance = (new self());
-        $all_encounters = $instance->get_by($condition);
-        foreach ($all_encounters as $encounter) {
-            $encounterBill = (new KCBill())->get_var(['encounter_id' => $encounter->id],"id");
-            if(!empty($encounterBill)){
-                (new KCBillItem())->delete(['bill_id' => $encounterBill]);
-                (new KCBill())->delete(['id' => $encounterBill]);
-            }
-            if($appointment_delete && !empty($encounter->appointment_id)){
-                (new KCAppointment())->loopAndDelete(['id' => $encounter->appointment_id],false);
-            }
-            do_action('kivicare_custom_form_data_delete', 'patient_encounter_module', $encounter->id);
-            do_action('kc_encounter_delete', $encounter->id);
-        }
-        return $instance->delete($condition);
+    /**
+     * Get the patient this encounter belongs to
+     */
+    public function getPatient()
+    {
+        return KCPatient::find($this->patientId);
+    }
+
+    /**
+     * Get the clinic this encounter belongs to
+     */
+    public function getClinic()
+    {
+        return KCClinic::find($this->clinicId);
+    }
+
+    /**
+     * Get the doctor associated with this encounter
+     */
+    public function getDoctor()
+    {
+        return KCDoctor::find($this->doctorId);
+    }
+
+    /**
+     * Get the appointment associated with this encounter
+     */
+    public function getAppointment()
+    {
+        return KCAppointment::find($this->appointmentId);
+    }
+
+    /**
+     * Get all medical problems for this encounter
+     */
+    public function getMedicalProblems()
+    {
+        return KCMedicalProblem::query()->where('encounterId', $this->id)->get();
+    }
+
+    /**
+     * Get all prescriptions for this encounter
+     */
+    public function getPrescriptions()
+    {
+        return KCPrescription::query()->where('encounterId', $this->id)->get();
+    }
+
+    /**
+     * Get all body charts for this encounter
+     */
+    public function getBodyCharts()
+    {
+        return KCEncounterBodyChart::query()->where('encounterId', $this->id)->get();
     }
 }
