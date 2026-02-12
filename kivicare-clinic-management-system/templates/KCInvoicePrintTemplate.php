@@ -278,7 +278,7 @@ $paymentStatusColor = strtolower($paymentStatus) === 'paid' ? '#219653' : '#dc26
     foreach ($tax_items['tax_data'] as $tax) {
         $tax_total += (float)($tax['tax_amount'] ?? 0);
     }
-    $grand_total += $total_charges + $tax_total;
+    $grand_total = ($sub_total ?? 0) + $tax_total;
     ?>
 
     <!-- Summary Table -->

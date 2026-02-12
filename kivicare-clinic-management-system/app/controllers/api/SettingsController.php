@@ -208,7 +208,7 @@ class SettingsController extends KCBaseController
 
 
     
-    private function getSettingFieldSchema()
+    protected function getSettingFieldSchema()
     {
         return [
             'holiday' => [
@@ -232,6 +232,38 @@ class SettingsController extends KCBaseController
                     'required' => true,
                     'sanitize_callback' => 'kcSanitizeData',
                     'validate_callback' => fn($value) => is_array($value) && isset($value['start']) && isset($value['end']),
+                ],
+                'selectionMode' => [
+                    'description' => 'Date selection mode: single, multiple, or range',
+                    'type' => 'string',
+                    'required' => false,
+                    'sanitize_callback' => 'sanitize_text_field',
+                    'validate_callback' => fn($value) => in_array($value, ['single', 'multiple', 'range']),
+                ],
+                'selectedDates' => [
+                    'description' => 'Array of selected dates for multiple mode',
+                    'type' => 'array',
+                    'required' => false,
+                    'sanitize_callback' => 'kcSanitizeData',
+                    'validate_callback' => fn($value) => is_array($value),
+                ],
+                'timeSpecific' => [
+                    'description' => 'Whether the holiday is time-specific',
+                    'type' => 'boolean',
+                    'required' => false,
+                    'sanitize_callback' => 'rest_sanitize_boolean',
+                ],
+                'start_time' => [
+                    'description' => 'Start time for time-specific holiday',
+                    'type' => 'string',
+                    'required' => false,
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+                'end_time' => [
+                    'description' => 'End time for time-specific holiday',
+                    'type' => 'string',
+                    'required' => false,
+                    'sanitize_callback' => 'sanitize_text_field',
                 ],
             ],
             'holiday_delete' => [

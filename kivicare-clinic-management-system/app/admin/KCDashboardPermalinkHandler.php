@@ -194,8 +194,8 @@ class KCDashboardPermalinkHandler
             add_action('wp_enqueue_scripts', function () use ($dashboard_type) {
                 global $wp_styles, $wp_scripts;
 
-                $allowed_styles = apply_filters('kc_allowed_styles', ['kc-dashboard-style']);
-                $allowed_scripts = apply_filters('kc_allowed_scripts', ['kc-dashboard-script', 'heartbeat']);
+                $allowed_styles = apply_filters('kc_allowed_styles', ['kc-dashboard-style', 'wp-admin', 'wp-components', 'dashicons', 'thickbox', 'imgareaselect', 'media-views', 'media-editor']);
+                $allowed_scripts = apply_filters('kc_allowed_scripts', ['kc-dashboard-script', 'heartbeat', 'wp-util', 'wp-api-request', 'underscore', 'backbone', 'clipboard', 'media-views', 'media-editor', 'media-models', 'thickbox', 'imgareaselect']);
 
                 foreach ($wp_styles->queue as $handle) {
                     if (
@@ -343,6 +343,7 @@ class KCDashboardPermalinkHandler
             'locale_data' => $locale_data_kc,
             'prefix' => defined('KIVI_CARE_PREFIX') ? KIVI_CARE_PREFIX : 'kc_',
             'loader_image' => (defined('KIVI_CARE_DIR_URI') ? KIVI_CARE_DIR_URI : '') . 'assets/images/loader.gif',
+            'site_logo' => !empty(KCOption::get('site_logo')) ? wp_get_attachment_url(KCOption::get('site_logo')) : '',
             'dashboard_type' => $dashboard_type,
             'user_role' => KCBase::get_instance()->KCGetRoles(),
             'dashboard_url' => wp_make_link_relative($this->get_dashboard_url($dashboard_type)),
@@ -350,6 +351,7 @@ class KCDashboardPermalinkHandler
             'api_url' => rest_url('kivicare/v1/'),
             'admin_url' => KCBase::get_instance()->getLoginUserRole() === 'administrator' ? admin_url() : '',
             'date_format' => get_option('date_format'),
+            'start_of_week' => get_option('start_of_week'),
         ];
         // Apply filter to dashboard data
         $dashboard_data = apply_filters('kivicare_dashboard_data', $dashboard_data);

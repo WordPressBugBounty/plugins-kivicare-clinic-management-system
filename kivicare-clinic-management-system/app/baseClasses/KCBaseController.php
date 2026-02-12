@@ -265,4 +265,27 @@ abstract class KCBaseController implements KCIController
 
         return $is_enabled;
     }
+
+    /**
+     * Get translated message based on request locale
+     * 
+     * @param string $message The message to translate
+     * @param WP_REST_Request $request The current request
+     * @param string $domain The text domain
+     * @return string Translated message
+     */
+    protected function getTranslatedMessage($message, $request, $domain = 'kivicare-clinic-management-system')
+    {
+        $params = $request->get_params();
+        $lang = $params['language_code'] ?? $params['lang'] ?? null;
+
+        if (!empty($lang)) {
+            switch_to_locale($lang);
+            $translated = __($message, $domain);
+            restore_previous_locale();
+            return $translated;
+        }
+
+        return __($message, $domain);
+    }
 }

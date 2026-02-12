@@ -99,7 +99,6 @@ class KCAppointmentNotificationListener
                 return;
             }
 
-            // Check if reminder should be sent based on appointment time
             if (!$this->shouldSendReminder($appointment, $reminderSettings)) {
                 return;
             }
@@ -575,6 +574,11 @@ class KCAppointmentNotificationListener
                     'clinic_address' => $this->formatClinicAddress($clinic) // Formatted address
                 ],
                 'services' => $services,
+                
+                // Video Links (Available for all notifications)
+                'zoom_link' => $this->getZoomLink($appointmentId) ?? '',
+                'meet_link' => $this->getMeetLink($appointmentId) ?? '',
+                'meet_event_link' => $this->getMeetEventLink($appointmentId) ?? '',
 
                 // Additional dynamic keys that might be needed
                 'current_date' => current_time('Y-m-d'),

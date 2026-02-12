@@ -95,6 +95,9 @@ class KCNotificationDynamicKeys
                 '{{doctor_contact_number}}',
                 '{{current_date}}',
                 '{{current_date_time}}',
+                '{{meet_link}}',
+                '{{meet_event_link}}',
+                '{{zoom_link}}',
             ],
             'kivicare_book_appointment_reminder_for_doctor' => [
                 '{{appointment_date}}',
@@ -109,6 +112,9 @@ class KCNotificationDynamicKeys
                 '{{doctor_contact_number}}',
                 '{{current_date}}',
                 '{{current_date_time}}',
+                '{{meet_link}}',
+                '{{meet_event_link}}',
+                '{{zoom_link}}',
             ],
             'kivicare_patient_register' => [
                 '{{user_email}}',

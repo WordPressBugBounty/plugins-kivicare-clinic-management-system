@@ -9,8 +9,7 @@ import { Controller } from 'react-hook-form';
 import { PhoneNumberUtil } from 'google-libphonenumber';
 
 // Import styles
-import '@app/assets/scss/kivicare.scss';
-import '@app/assets/scss/custom.scss';
+import '@shortcodes/assets/scss/KCRegisterLogin.scss';
 
 // Import auth hooks and role utils
 import { useLogin, useRegister } from '../../../dashboard/api/hooks/useAuth';
@@ -59,6 +58,17 @@ export function RegisterLoginForm({ containerId }) {
     } catch (e) {
         enabledUserRoles = [];
     }
+
+    let allowedLoginRoles = [];
+    try {
+        if (container?.dataset?.allowedLoginRoles) {
+            allowedLoginRoles = JSON.parse(container.dataset.allowedLoginRoles);
+        }
+    } catch (e) {
+        allowedLoginRoles = [];
+    }
+
+    const disableRegistration = container?.dataset?.disableRegistration === 'true';
 
     // Apply widget colors
     useEffect(() => {
@@ -117,14 +127,14 @@ export function RegisterLoginForm({ containerId }) {
     // Filter roles based on enabledUserRoles
     useEffect(() => {
         if (Array.isArray(enabledUserRoles)) {
-            const filtered = availableRoles.filter(role => 
+            const filtered = availableRoles.filter(role =>
                 enabledUserRoles.some(enabledRole => {
                     const lowerEnabled = enabledRole.toLowerCase();
                     const lowerRole = role.value.toLowerCase();
                     const lowerPrefix = KIVI_CARE_PREFIX.toLowerCase();
-                    
-                    return lowerEnabled === lowerRole || 
-                           (lowerPrefix + lowerEnabled) === lowerRole;
+
+                    return lowerEnabled === lowerRole ||
+                        (lowerPrefix + lowerEnabled) === lowerRole;
                 })
             );
             setRoles(filtered.length > 0 ? filtered : [{ value: getPatientRole(), label: __('Patient', 'kivicare-clinic-management-system') }]);
@@ -268,6 +278,7 @@ export function RegisterLoginForm({ containerId }) {
                 password: data.password,
                 remember: data.rememberMe || false,
                 recaptchaToken,
+                allowed_roles: allowedLoginRoles
             };
 
             const response = await loginMutation.mutateAsync(loginData);
@@ -280,11 +291,12 @@ export function RegisterLoginForm({ containerId }) {
                 setMessage({ type: 'error', text: response.message || __('Invalid username or password.', 'kivicare-clinic-management-system') });
             }
         } catch (error) {
-            setMessage({ type: 'error', text: error?.message || __('Invalid username or password.', 'kivicare-clinic-management-system') });
+            const errorMessage = error?.response?.data?.message || error?.message || __('Invalid username or password.', 'kivicare-clinic-management-system');
+            setMessage({ type: 'error', text: errorMessage });
         } finally {
             setIsLoading(false);
         }
-    }, [recaptchaEnabled, getRecaptchaToken, redirectUrl, loginMutation]);
+    }, [recaptchaEnabled, getRecaptchaToken, redirectUrl, loginMutation, allowedLoginRoles]);
 
     // Register mutation
     const registerMutation = useRegister();
@@ -335,10 +347,6 @@ export function RegisterLoginForm({ containerId }) {
             setIsLoading(false);
         }
     }, [recaptchaEnabled, getRecaptchaToken, registerMutation, resetRegisterForm, switchTab]);
-
-    if (clinicsLoading) {
-        return <div>{__('Loading...', 'kivicare-clinic-management-system')}</div>;
-    }
 
     return (
         <div className="kc-register-login-form">
@@ -436,7 +444,7 @@ export function RegisterLoginForm({ containerId }) {
                                     </span>
                                 </button>
 
-                                {!isSingleFormMode && (
+                                {!isSingleFormMode && !disableRegistration && (
                                     <div className="d-flex align-items-center justify-content-center mt-3">
                                         <p className="text-center mb-0 fw-medium">
                                             <span className="signup-rtl-space">{__("Don't have an account?", 'kivicare-clinic-management-system')} </span>
@@ -590,7 +598,7 @@ export function RegisterLoginForm({ containerId }) {
 
                             <div className="custom-form-field mb-3">
                                 <label className="mb-2">
-                                    {__('Contact Number', 'kivicare-clinic-management-system')} *
+                                    {__('Contact Number', 'kivicare-clinic-management-system')} <span className="text-danger">*</span>
                                 </label>
                                 <Controller
                                     name="mobile_number"
@@ -603,8 +611,8 @@ export function RegisterLoginForm({ containerId }) {
                                             if (/^\+\d{1,4}$/.test(value)) return true;
 
                                             return (
-                                            isPhoneValid(value) ||
-                                            __('Please enter a valid contact number', 'kivicare-clinic-management-system')
+                                                isPhoneValid(value) ||
+                                                __('Please enter a valid contact number', 'kivicare-clinic-management-system')
                                             );
                                         },
                                     }}
@@ -637,7 +645,7 @@ export function RegisterLoginForm({ containerId }) {
                             </div>
 
                             <div className="custom-form-field mb-3">
-                                <label className="mb-2" htmlFor="register-gender">{__('Gender', 'kivicare-clinic-management-system')} *</label>
+                                <label className="mb-2" htmlFor="register-gender">{__('Gender', 'kivicare-clinic-management-system')} <span className="text-danger">*</span></label>
                                 <select
                                     id="register-gender"
                                     className={`form-select ${registerErrors.gender ? 'is-invalid' : ''}`}
@@ -659,7 +667,7 @@ export function RegisterLoginForm({ containerId }) {
 
                             <div className="custom-form-field mb-3">
                                 <label className="mb-2" htmlFor="register-user-role">
-                                    {__('Select Role', 'kivicare-clinic-management-system')} *
+                                    {__('Select Role', 'kivicare-clinic-management-system')} <span className="text-danger">*</span>
                                 </label>
                                 <select
                                     id="register-user-role"
@@ -687,7 +695,7 @@ export function RegisterLoginForm({ containerId }) {
 
                             {preselectClinicId === 0 && (
                                 <div className="custom-form-field mb-4">
-                                    <label className="mb-2" htmlFor="register-clinic">{__('Select Clinic', 'kivicare-clinic-management-system')} *</label>
+                                    <label className="mb-2" htmlFor="register-clinic">{__('Select Clinic', 'kivicare-clinic-management-system')} <span className="text-danger">*</span></label>
                                     <select
                                         id="register-clinic"
                                         className={`form-select ${registerErrors.user_clinic ? 'is-invalid' : ''}`}

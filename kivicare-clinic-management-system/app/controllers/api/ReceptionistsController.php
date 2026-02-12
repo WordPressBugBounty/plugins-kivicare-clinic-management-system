@@ -770,7 +770,7 @@ class ReceptionistsController extends KCBaseController
             // Create new KCReceptionist instance
             $receptionist = new KCReceptionist();
 
-            $username = kcGenerateUsername($params['first_name']);
+            $username = kcGenerateUsername($params['first_name'], $params['email']);
             $password = wp_generate_password(12, true, true);
 
             $receptionist->username = $username;
@@ -1253,6 +1253,7 @@ class ReceptionistsController extends KCBaseController
                     "c.email as clinic_email",
                     "c.id as clinic_id",
                     "c.profile_image as clinic_profile_image",
+                    "c.status as clinic_status",
                 ])
                 ->leftJoin(KCUserMeta::class, function ($join) {
                     $join->on('r.ID', '=', 'um_first.user_id')
@@ -1306,6 +1307,8 @@ class ReceptionistsController extends KCBaseController
                     'clinic_email' => $receptionistData->clinic_email,
                     'clinic_image_url' => $clinicProfileImageUrl,
                     'clinic_image_id' => $receptionistData->clinic_profile_image,
+                    'status' => (int) $receptionistData->clinic_status,
+                    'is_holiday' => in_array((int)$receptionistData->clinic_id, \App\models\KCClinicSchedule::getActiveHolidaysByModule('clinic'), true),
                 ] : null,
                 'status' => (int) $receptionistData->status,
                 'contact_number' => $basicData['mobile_number'] ?? '',

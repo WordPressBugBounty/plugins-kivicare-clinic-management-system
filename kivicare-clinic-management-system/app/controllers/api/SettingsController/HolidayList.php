@@ -68,14 +68,14 @@ class HolidayList extends SettingsController
             'methods' => ['PUT', 'POST'],
             'callback' => [$this, 'dataDelete'],
             'permission_callback' => [$this, 'checkUpdatePermission'],
-            //  'args'     => $this->getSettingFieldSchema()['holiday_delete']
+            'args' => $this->getSettingFieldSchema()['holiday_delete']
         ]);
         // Update Data
         $this->registerRoute('/' . $this->route . '/update', [
             'methods' => ['PUT', 'POST'],
             'callback' => [$this, 'dataUpdate'],
             'permission_callback' => [$this, 'checkUpdatePermission'],
-            //'args'     => $this->getSettingFieldSchema()['holiday']
+            'args' => $this->getSettingFieldSchema()['holiday']
         ]);
         // Export Holidays
         $this->registerRoute('/' . $this->route . '/export', [
@@ -83,6 +83,13 @@ class HolidayList extends SettingsController
             'callback' => [$this, 'exportHolidays'],
             'permission_callback' => [$this, 'checkPermission'],
             'args' => $this->getExportEndpointArgs()
+        ]);
+        // Get Disabled Dates (dates already having holidays for a module)
+        $this->registerRoute('/' . $this->route . '/disabled-dates', [
+            'methods' => 'GET',
+            'callback' => [$this, 'getDisabledDates'],
+            'permission_callback' => [$this, 'checkPermission'],
+            'args' => $this->getDisabledDatesEndpointArgs(),
         ]);
     }
 
@@ -301,10 +308,17 @@ class HolidayList extends SettingsController
                 'module_type_label' => $holiday->moduleType,
                 'module_id' => $holiday->moduleId,
                 'description' => $holiday->description,
+                'start_date_raw' => $holiday->startDate,
+                'end_date_raw' => $holiday->endDate,
                 'start_date' => kcGetFormatedDate($holiday->startDate),
                 'end_date' => kcGetFormatedDate($holiday->endDate),
                 'status' => $holiday->status,
-                'name' => $holiday->name
+                'name' => $holiday->name,
+                'selection_mode' => $holiday->selectionMode ?? 'range',
+                'selected_dates' => $holiday->selectedDates ? json_decode($holiday->selectedDates, true) : null,
+                'time_specific' => (bool) ($holiday->timeSpecific ?? false),
+                'start_time' => $holiday->startTime ?? null,
+                'end_time' => $holiday->endTime ?? null,
             ];
 
             if ($holiday->moduleType === 'clinic') {
@@ -437,19 +451,60 @@ class HolidayList extends SettingsController
             $status = true;
             $message = '';
 
+            // Extract new enhanced fields
+            $selectionMode = isset($request_data['selectionMode']) ? sanitize_text_field($request_data['selectionMode']) : 'range';
+            $selectedDates = isset($request_data['selectedDates']) ? $request_data['selectedDates'] : null;
+            $timeSpecific = isset($request_data['timeSpecific']) ? (bool) $request_data['timeSpecific'] : false;
+            $startTime = isset($request_data['start_time']) ? sanitize_text_field($request_data['start_time']) : null;
+            $endTime = isset($request_data['end_time']) ? sanitize_text_field($request_data['end_time']) : null;
+
             $temp = [
                 'moduleType' => $moduleType,
                 'startDate' => gmdate('Y-m-d', strtotime($request_data['scheduleDate']['start'])),
                 'endDate' => gmdate('Y-m-d', strtotime($request_data['scheduleDate']['end'])),
                 'moduleId' => $moduleId,
                 'description' => !empty($request_data['description']) ? $request_data['description'] : '',
-                'status' => 1
+                'status' => 1,
+                'selectionMode' => $selectionMode,
+                'selectedDates' => $selectionMode === 'multiple' && !empty($selectedDates) ? json_encode($selectedDates) : null,
+                'timeSpecific' => $timeSpecific ? 1 : 0,
+                'startTime' => $timeSpecific && $startTime ? $startTime : null,
+                'endTime' => $timeSpecific && $endTime ? $endTime : null,
             ];
 
             $data = [
                 'start_date' => $temp['startDate'],
                 'end_date' => $temp['endDate']
             ];
+
+            // Validate time-specific holidays
+            if ($timeSpecific) {
+                if (empty($startTime) || empty($endTime)) {
+                    return $this->response(
+                        null,
+                        __('Start time and end time are required for time-specific holidays.', 'kivicare-clinic-management-system'),
+                        false
+                    );
+                }
+
+                // Validate time format and range
+                if ($startTime >= $endTime) {
+                    return $this->response(
+                        null,
+                        __('End time must be after start time.', 'kivicare-clinic-management-system'),
+                        false
+                    );
+                }
+            }
+
+            // Validate selection mode
+            if (!in_array($selectionMode, ['single', 'multiple', 'range'])) {
+                return $this->response(
+                    null,
+                    __('Invalid selection mode.', 'kivicare-clinic-management-system'),
+                    false
+                );
+            }
 
             if ($temp['moduleType'] === 'doctor') {
                 $data['doctor_id'] = $temp['moduleId'];
@@ -779,6 +834,130 @@ class HolidayList extends SettingsController
             return $this->response(
                 ['error' => $e->getMessage()],
                 __('Failed to export holidays data', 'kivicare-clinic-management-system'),
+                false,
+                500
+            );
+        }
+    }
+
+    /**
+     * Get endpoint args for the disabled-dates route.
+     * Defines validation and sanitization the WordPress REST way.
+     *
+     * @return array
+     */
+    private function getDisabledDatesEndpointArgs(): array
+    {
+        return [
+            'module_type' => [
+                'description' => __('Module type (doctor or clinic)', 'kivicare-clinic-management-system'),
+                'type' => 'string',
+                'required' => true,
+                'validate_callback' => function ($param) {
+                    if (!in_array($param, ['doctor', 'clinic'], true)) {
+                        return new WP_Error(
+                            'invalid_module_type',
+                            __('Module type must be doctor or clinic.', 'kivicare-clinic-management-system')
+                        );
+                    }
+                    return true;
+                },
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'module_id' => [
+                'description' => __('Module ID (doctor or clinic ID)', 'kivicare-clinic-management-system'),
+                'type' => 'integer',
+                'required' => true,
+                'validate_callback' => function ($param) {
+                    if (!is_numeric($param) || (int) $param <= 0) {
+                        return new WP_Error(
+                            'invalid_module_id',
+                            __('Module ID must be a positive integer.', 'kivicare-clinic-management-system')
+                        );
+                    }
+                    return true;
+                },
+                'sanitize_callback' => 'absint',
+            ],
+            'exclude_id' => [
+                'description' => __('Holiday ID to exclude (used when editing)', 'kivicare-clinic-management-system'),
+                'type' => 'integer',
+                'required' => false,
+                'validate_callback' => function ($param) {
+                    if (!empty($param) && (!is_numeric($param) || (int) $param <= 0)) {
+                        return new WP_Error(
+                            'invalid_exclude_id',
+                            __('Exclude ID must be a positive integer.', 'kivicare-clinic-management-system')
+                        );
+                    }
+                    return true;
+                },
+                'sanitize_callback' => 'absint',
+            ],
+        ];
+    }
+
+    /**
+     * Get disabled dates for a specific module type and module ID.
+     * Returns all individual dates that are already covered by existing holidays,
+     * so the frontend calendar can disable/block them.
+     *
+     * Args are validated and sanitized by WordPress REST via getDisabledDatesEndpointArgs().
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public function getDisabledDates(WP_REST_Request $request): WP_REST_Response
+    {
+        try {
+            $moduleType = $request->get_param('module_type');
+            $moduleId   = $request->get_param('module_id');
+            $excludeId  = $request->get_param('exclude_id');
+
+            // Fetch all holidays for this module type + module id
+            $query = KCClinicSchedule::query()
+                ->where('module_type', '=', $moduleType)
+                ->where('module_id', '=', $moduleId)
+                ->where('status', '=', 1);
+
+            // Exclude current holiday when editing
+            if (!empty($excludeId)) {
+                $query->where('id', '!=', $excludeId);
+            }
+
+            $holidays = $query->get();
+
+            // Expand all date ranges into individual Y-m-d date strings
+            $disabledDates = [];
+
+            foreach ($holidays as $holiday) {
+                $startDate = new \DateTime($holiday->startDate);
+                $endDate   = new \DateTime($holiday->endDate);
+
+                // Include end date by adding 1 day to the period end
+                $endDate->modify('+1 day');
+
+                $interval = new \DateInterval('P1D');
+                $period   = new \DatePeriod($startDate, $interval, $endDate);
+
+                foreach ($period as $date) {
+                    $disabledDates[] = $date->format('Y-m-d');
+                }
+            }
+
+            // Remove duplicates and sort
+            $disabledDates = array_values(array_unique($disabledDates));
+            sort($disabledDates);
+
+            return $this->response(
+                ['disabled_dates' => $disabledDates],
+                __('Disabled dates retrieved successfully.', 'kivicare-clinic-management-system'),
+                true
+            );
+        } catch (\Exception $e) {
+            return $this->response(
+                ['error' => $e->getMessage()],
+                __('Failed to retrieve disabled dates.', 'kivicare-clinic-management-system'),
                 false,
                 500
             );

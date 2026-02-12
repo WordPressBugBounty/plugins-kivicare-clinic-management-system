@@ -801,6 +801,10 @@ class ClinicController extends KCBaseController
 
             // Prepare the clinic data
             $clinicsData = [];
+           
+            // Fetch active holidays for all clinics once
+            $holidayClinicIds = \App\models\KCClinicSchedule::getActiveHolidaysByModule('clinic');
+
             foreach ($clinics as $clinic) {
 
                 // Get clinic admin data from joined query
@@ -834,12 +838,11 @@ class ClinicController extends KCBaseController
                     'country' => $clinic->country,
                     'specialty' => $clinic->specialties,
                     'status' => (int) $clinic->status,
+                    'is_holiday' => in_array((int)$clinic->id, $holidayClinicIds, true),
                     'clinic_image_url' => $clinic->profileImage ? wp_get_attachment_url($clinic->profileImage) : '',
-
                     'clinic_admin_image_url' => $clinic_admin_image_url,
                     'clinic_admin_name' => $clinic_admin_name,
                     'clinic_admin_email' => $clinic_admin_email,
-
                     'created_at' => $clinic->createdAt,
                     'updated_at' => $clinic->updatedAt
                 ];
@@ -918,6 +921,7 @@ class ClinicController extends KCBaseController
             $clinicServices = [];
             $serviceMappings = KCServiceDoctorMapping::table('sdm')
                 ->select([
+                    'sdm.id',
                     'sdm.clinic_id',
                     'sdm.service_id',
                     'sdm.charges',
@@ -933,7 +937,6 @@ class ClinicController extends KCBaseController
                 ->where('sdm.status', '=', 1)
                 ->get();
 
-            $seenServices = [];
             foreach ($serviceMappings as $service) {
                 $serviceId = (int) ($service->serviceId ?? 0);
 
@@ -941,13 +944,9 @@ class ClinicController extends KCBaseController
                     continue;
                 }
 
-                if (isset($seenServices[$serviceId])) {
-                    continue;
-                }
-                $seenServices[$serviceId] = true;
-
                 $clinicServices[] = [
                     'id' => $serviceId,
+                    'mapping_id' => (int) $service->id,
                     'name' => $service->service_name,
                     'type' => $service->service_type,
                     'service_image_url' => $service->image ? wp_get_attachment_url((int) $service->image) : '',

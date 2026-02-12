@@ -40,9 +40,9 @@ class KCKnitPay extends KCAbstractPaymentGateway
     protected function init()
     {        
         $this->gateway_id          = 'knit_pay';
-        $this->gateway_name        = 'Knit Pay';
+        $this->gateway_name        = __('Knit Pay', 'kivicare-clinic-management-system');
         $this->gateway_logo        = KIVI_CARE_DIR_URI . 'assets/images/knit-pay-logo.png';
-        $this->gateway_description = 'Pay securely using Knit Pay supported gateways.';
+        $this->gateway_description = __('Pay securely using Knit Pay supported gateways.', 'kivicare-clinic-management-system');
 
         // Add Filter to intercept redirect URL
         add_filter('pronamic_payment_redirect_url', [$this, 'filter_redirect_url'], 10, 2);

@@ -190,8 +190,15 @@ class KCBookAppoinmentShortcode extends KCBaseController
 
         // Get services details
         $services = KCServiceDoctorMapping::table('dsm')
+            ->select([
+                'dsm.id',
+                'dsm.charges',
+                'dsm.service_id',
+                'c.name'
+            ])
             ->leftJoin(KCService::class, 'dsm.service_id', '=', 'c.id', 'c')
-            ->whereIn('dsm.id', $request->get_param('service_id'))->get();
+            ->whereIn('dsm.id', $request->get_param('service_id'))
+            ->get();
         if ($services->isEmpty()) {
             return $this->response(
                 ['error' => 'No valid services found'],

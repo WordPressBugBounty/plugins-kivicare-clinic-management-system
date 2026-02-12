@@ -117,31 +117,50 @@ class KCAppointmentDataService
      */
     public static function checkForLeaves(int $doctorId, int $clinicId, string $date): void
     {
-         // Check for doctor leaves/unavailability
-        $doctorLeaves = KCClinicSchedule::query()
-            ->where('module_type', 'doctor')
-            ->where('module_id', $doctorId)
+        // Check for doctor/clinic holidays
+        $holidays = KCClinicSchedule::query()
+            ->where(function ($q) use ($doctorId, $clinicId) {
+                $q->where(function ($sq) use ($doctorId) {
+                    $sq->where('module_type', 'doctor')
+                        ->where('module_id', $doctorId);
+                })->orWhere(function ($sq) use ($clinicId) {
+                    $sq->where('module_type', 'clinic')
+                        ->where('module_id', $clinicId);
+                });
+            })
+            ->where('status', 1)
             ->whereRaw(sprintf('DATE(start_date) <= "%s" AND DATE(end_date) >= "%s"', $date, $date))
-
-            ->where('status', 1) // Assuming status 0 means unavailable/leave
             ->get();
 
-        // Check for clinic leaves/unavailability
-        $clinicLeaves = KCClinicSchedule::query()
-            ->where('module_type', 'clinic')
-            ->where('module_id', $clinicId)
+        foreach ($holidays as $holiday) {
+            // 1. Handle Selection Mode
+            $isDateMatch = false;
+            $selectionMode = $holiday->selectionMode ?? 'range';
 
-            ->whereRaw(sprintf('DATE(start_date) <= "%s" AND DATE(end_date) >= "%s"', $date, $date))
-            ->where('status', 1) // Assuming status 0 means unavailable/leave
-            ->get();
+            if ($selectionMode === 'multiple') {
+                $selectedDates = $holiday->selectedDates ? json_decode($holiday->selectedDates, true) : [];
+                if (is_array($selectedDates) && in_array($date, $selectedDates)) {
+                    $isDateMatch = true;
+                }
+            } else {
+                // 'single' or 'range' - query already handles date bounds
+                $isDateMatch = true;
+            }
 
-        // If either doctor or clinic has leaves on this day, throw exception
-        if ($doctorLeaves->count() > 0) {
-            throw new Exception("Doctor is not available on " . esc_html($date));
-        }
+            if (!$isDateMatch) {
+                continue;
+            }
 
-        if ($clinicLeaves->count() > 0) {
-            throw new Exception("Clinic is not available on " . esc_html($date));
+            // 2. Handle Time-Specific Holidays
+            // If it's time-specific, it doesn't block the WHOLE day, so we don't throw exception here.
+            // These will be handled in prepareSlotGenerationData by injecting virtual appointments.
+            if ((bool) ($holiday->timeSpecific ?? false)) {
+                continue;
+            }
+
+            // If we reach here, it's a full-day holiday on this date
+            $moduleLabel = $holiday->moduleType === 'doctor' ? __('Doctor', 'kivicare-clinic-management-system') : __('Clinic', 'kivicare-clinic-management-system');
+            throw new Exception(sprintf(__("%s is not available on %s", "kivicare-clinic-management-system"), $moduleLabel, esc_html($date)));
         }
     }
 
@@ -196,6 +215,46 @@ class KCAppointmentDataService
         // Fetch sessions and appointments
         $sessions = self::getDoctorSessions($doctorId, $clinicId, $date);
         $appointments = self::getExistingAppointments($doctorId, $clinicId, $date, $appointmentIdToSkip);
+
+        // Inject time-specific holidays as virtual appointments
+        $partialHolidays = KCClinicSchedule::query()
+            ->where(function ($q) use ($doctorId, $clinicId) {
+                $q->where(function ($sq) use ($doctorId) {
+                    $sq->where('module_type', 'doctor')
+                        ->where('module_id', $doctorId);
+                })->orWhere(function ($sq) use ($clinicId) {
+                    $sq->where('module_type', 'clinic')
+                        ->where('module_id', $clinicId);
+                });
+            })
+            ->where('status', 1)
+            ->where('time_specific', 1)
+            ->whereRaw(sprintf('DATE(start_date) <= "%s" AND DATE(end_date) >= "%s"', $date, $date))
+            ->get();
+
+        foreach ($partialHolidays as $holiday) {
+            $isDateMatch = false;
+            $selectionMode = $holiday->selectionMode ?? 'range';
+
+            if ($selectionMode === 'multiple') {
+                $selectedDates = $holiday->selectedDates ? json_decode($holiday->selectedDates, true) : [];
+                if (is_array($selectedDates) && in_array($date, $selectedDates)) {
+                    $isDateMatch = true;
+                }
+            } else {
+                $isDateMatch = true;
+            }
+
+            if ($isDateMatch && $holiday->startTime && $holiday->endTime) {
+                $appointments[] = [
+                    'appointmentStartDate' => $date,
+                    'appointmentStartTime' => $holiday->startTime,
+                    'appointmentEndDate'   => $date,
+                    'appointmentEndTime'   => $holiday->endTime,
+                    'status'               => 'holiday_block', // Custom status for identification
+                ];
+            }
+        }
 
         return [
             'date' => $date,

@@ -240,6 +240,11 @@ class BillController extends KCBaseController
                 ->select(['clinic_id', 'doctor_id', 'patient_id', 'appointment_id', 'id'])
                 ->where('id', $encounter_id)
                 ->first();
+            
+            if (!$encounter) {
+                return $this->response(null, __('Encounter not found', 'kivicare-clinic-management-system'), false, 404);
+            }
+
             $encounterData = [
                 'clinic' => [
                     'id' => (int) $encounter->clinicId,
@@ -518,7 +523,7 @@ class BillController extends KCBaseController
         $wpdb->query('START TRANSACTION');
 
         $bill = new KCBIll();
-        $bill->totalAmount = (float) $params['service_total'] + (float) $params['taxTotal'];
+        $bill->totalAmount = (float) $params['service_total'] + (float) ($params['taxTotal'] ?? 0);
         $bill->actualAmount = (float) $params['total_amount'];
         $bill->encounterId = (int) $encounter->id;
         $bill->discount = (float) $params['discount'];
@@ -664,7 +669,7 @@ class BillController extends KCBaseController
         $wpdb->query('START TRANSACTION');
 
         $bill = KCBIll::find($id);
-        $bill->totalAmount = (float) $params['service_total'] + (float) $params['taxTotal'];
+        $bill->totalAmount = (float) $params['service_total'] + (float) ($params['taxTotal'] ?? 0);
         $bill->actualAmount = (float) $params['total_amount'];
         $bill->discount = (float) $params['discount'];
         $bill->clinicId = (int) $clinic_id;

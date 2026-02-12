@@ -86,6 +86,7 @@ class KCRegisterLogin extends KCShortcodeAbstract
             $enabled_user_roles = ['patient' => 'on'];
         }
         
+        $disable_registration = "false";
         // Filter roles by userroles attribute if provided
         if (!empty($atts['userroles'])) {
             // Remove all whitespace from the string first to handle "kivicare_ doctor"
@@ -97,6 +98,11 @@ class KCRegisterLogin extends KCShortcodeAbstract
             }
             if (!empty($filtered_roles)) {
                 $enabled_user_roles = $filtered_roles;
+            }
+
+            // Check if clinic_admin (short or full name) is present in the requested roles
+            if (in_array('clinic_admin', $requested_roles) || in_array($this->kcbase->getClinicAdminRole(), $requested_roles)) {
+                $disable_registration = "true";
             }
         }
         
@@ -110,6 +116,7 @@ class KCRegisterLogin extends KCShortcodeAbstract
 
 
         $data_attrs = [
+            'data-disable-registration' => $disable_registration,
             'data-show-other-gender' => $show_other_gender,
             'data-default-country' => $default_country_code,
             'data-initial-tab' => $atts['initial_tab'],
@@ -124,6 +131,11 @@ class KCRegisterLogin extends KCShortcodeAbstract
             'data-preselect-clinic-id' => $preselect_clinic_id,
             'data-site-logo' => !empty(KCOption::get('site_logo')) ? wp_get_attachment_url(KCOption::get('site_logo')) : (defined('KIVI_CARE_DIR_URI') ? KIVI_CARE_DIR_URI . 'assets/images/logo.png' : ''),
         ];
+
+        // Only restrict login if userroles attribute is explicitly provided
+        if (!empty($atts['userroles'])) {
+            $data_attrs['data-allowed-login-roles'] = wp_json_encode(array_keys($enabled_user_roles));
+        }
 
         // Get widget settings for colors
         $widgetSettingsOption = KCOption::get('widgetSetting');
@@ -159,9 +171,7 @@ class KCRegisterLogin extends KCShortcodeAbstract
                 </div>
             <?php endif; ?>
 
-            <div class="kc-register-login-forms">
-                <div class="kc-loading"><?php esc_html_e('Loading...', 'kivicare-clinic-management-system'); ?></div>
-            </div>
+            <div class="kc-register-login-forms"></div>
         </div>
         <?php
     }

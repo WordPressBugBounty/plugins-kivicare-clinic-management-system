@@ -332,23 +332,41 @@ class ClinicScheduleController extends KCBaseController
         $unavailable_schedule['off_days'] = $doctor_session;
         
         // Now get specific day off and full booked day date.
-        // get logic from old kivicare
         $leaves = KCClinicSchedule::query()
             ->setTableAlias('clinic_schedule')
-            ->select(['clinic_schedule.*']);
-        $leaves->orWhere(function($q) use ($params) {
-            $q->where('module_type','doctor')
-            ->where('module_id',$params['doctor_id']);
+            ->select(['clinic_schedule.*'])
+            ->where('status', 1);
+
+        $leaves->where(function($q) use ($params, $clinicId) {
+            $q->where(function($sq) use ($params) {
+                $sq->where('module_type','doctor')
+                ->where('module_id',$params['doctor_id']);
+            })->orWhere(function($sq) use ($clinicId){
+                $sq->where('module_type','clinic')
+                ->where('module_id',$clinicId);
+            });
         });
-        $leaves->orWhere(function($q) use ($clinicId){
-            $q->where('module_type','clinic')
-            ->where('module_id',$clinicId);
-        });
+
         $leaves = $leaves->get();
         $all_leaves = [];
         foreach ($leaves as $leave) {
-            $dates = $this->kc_generate_date_range($leave->startDate,$leave->endDate);
-            $all_leaves = array_merge($all_leaves, $dates);
+            // Exclude time-specific holidays from the calendar disabled list
+            // because they only block partial hours, not the entire day.
+            if ((bool) ($leave->timeSpecific ?? false)) {
+                continue;
+            }
+
+            $selectionMode = $leave->selectionMode ?? 'range';
+            if ($selectionMode === 'multiple') {
+                $selectedDates = $leave->selectedDates ? json_decode($leave->selectedDates, true) : [];
+                if (is_array($selectedDates)) {
+                    $all_leaves = array_merge($all_leaves, $selectedDates);
+                }
+            } else {
+                // 'single' or 'range'
+                $dates = $this->kc_generate_date_range($leave->startDate, $leave->endDate);
+                $all_leaves = array_merge($all_leaves, $dates);
+            }
         }
 
         $clinic_sessions = KCClinicSession::query()

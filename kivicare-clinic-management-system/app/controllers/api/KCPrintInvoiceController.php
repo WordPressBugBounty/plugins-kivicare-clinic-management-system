@@ -9,6 +9,8 @@ use App\models\KCAppointmentServiceMapping;
 use App\models\KCServiceDoctorMapping;
 use App\models\KCService;
 use App\models\KCPaymentsAppointmentMapping;
+use App\models\KCPatientEncounter;
+use App\models\KCBill;
 use WP_REST_Request;
 use WP_REST_Response;
 use Dompdf\Dompdf;
@@ -159,13 +161,19 @@ class KCPrintInvoiceController extends KCBaseController
         
         $currency = KCClinic::getClinicCurrencyPrefixAndPostfix();
 
-        $status_mapping = [
-            KCAppointment::STATUS_CANCELLED => __('Cancelled', 'kivicare-clinic-management-system'),
-            KCAppointment::STATUS_BOOKED    => __('Booked', 'kivicare-clinic-management-system'),
-            KCAppointment::STATUS_PENDING   => __('Pending', 'kivicare-clinic-management-system'),
-            KCAppointment::STATUS_CHECK_OUT => __('Check Out', 'kivicare-clinic-management-system'),
-            KCAppointment::STATUS_CHECK_IN  => __('Check In', 'kivicare-clinic-management-system'),
-        ];
+
+
+        $paymentStatus = KCPaymentsAppointmentMapping::getPaymentStatusByAppointmentId($appointment->id);
+
+        if (strtolower($paymentStatus) !== 'paid' && strtolower($paymentStatus) !== 'completed') {
+             $encounter = KCPatientEncounter::query()->where('appointment_id', $appointment->id)->first();
+             if ($encounter) {
+                 $bill = KCBill::query()->where('encounter_id', $encounter->id)->first();
+                 if ($bill && $bill->paymentStatus === 'paid') {
+                     $paymentStatus = __('Paid', 'kivicare-clinic-management-system');
+                 }
+             }
+        }
 
         return [
             'currency_prefix' => $currency['prefix'],
@@ -174,9 +182,9 @@ class KCPrintInvoiceController extends KCBaseController
                 'id' => $appointment->id,
                 'appointmentStartDate' => kcGetFormatedDate($appointment->appointmentStartDate),
                 'appointmentStartTime' => kcGetFormatedTime($appointment->appointmentStartTime),
-                'status' => $status_mapping[$appointment->status] ?? $appointment->status,
+
                 'paymentMode' => $paymentInfo->payment_mode ?? 'Manual',
-                'paymentStatus' => $paymentInfo->payment_status ?? 'pending'
+                'paymentStatus' => $paymentStatus
             ],
             'patient' => $patient ? [
                 'name' => $patient->display_name,
@@ -209,6 +217,7 @@ class KCPrintInvoiceController extends KCBaseController
             'clinic_logo' => $clinicLogo,
             'tax_items' => apply_filters('kivicare_get_tax_data', $appointment->id),
             'total_charges' => number_format($total_charges, 2),
+            'sub_total' => $total_charges,
             'appointmentReport' => $appointmentReport
         ];
     }

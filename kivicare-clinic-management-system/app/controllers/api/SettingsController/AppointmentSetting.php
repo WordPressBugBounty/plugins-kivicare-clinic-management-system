@@ -67,7 +67,7 @@ class AppointmentSetting extends SettingsController
      */
     public function getAppointmentSetting(WP_REST_Request $request): WP_REST_Response
     {
-        $restrict_appointment = $this->kcAppointmentRestrictionData();
+        $restrict_appointment = self::kcAppointmentRestrictionData();
         $options = KCOption::getMultiple([
             'email_appointment_reminder',
             'appointment_cancellation_buffer',
@@ -116,6 +116,20 @@ class AppointmentSetting extends SettingsController
             'cancellationBufferEnabled' => $bufferStatus,
             'cancellationBufferHours'   => $bufferHours,
         ];
+
+        // Check Twilio Configuration
+        $smsConfigData = get_option('sms_config_data', []);
+        if (is_string($smsConfigData)) {
+            $smsConfigData = json_decode($smsConfigData, true) ?: [];
+        }
+        $settings['isTwilioSmsConfigured'] = !empty($smsConfigData['enableSMS']) && ($smsConfigData['enableSMS'] === 'true' || $smsConfigData['enableSMS'] === true) && !empty($smsConfigData['account_id']) && !empty($smsConfigData['auth_token']) && !empty($smsConfigData['to_number']);
+
+        $whatsAppConfigData = get_option('whatsapp_config_data', []);
+        if (is_string($whatsAppConfigData)) {
+            $whatsAppConfigData = json_decode($whatsAppConfigData, true) ?: [];
+        }
+        $settings['isTwilioWhatsAppConfigured'] = !empty($whatsAppConfigData['enableWhatsApp']) && ($whatsAppConfigData['enableWhatsApp'] === 'true' || $whatsAppConfigData['enableWhatsApp'] === true) && !empty($whatsAppConfigData['wa_account_id']) && !empty($whatsAppConfigData['wa_auth_token']) && !empty($whatsAppConfigData['wa_to_number']);
+
 
         return $this->response($settings);
     }
@@ -204,10 +218,10 @@ class AppointmentSetting extends SettingsController
 
         if (isset($request_data['emailReminder'], $request_data['emailReminderHours'])) {
             KCOption::set('email_appointment_reminder', [
-                "status" => $request_data['emailReminder'],
+                "status" => ($request_data['emailReminder'] === 'true' || $request_data['emailReminder'] === true || $request_data['emailReminder'] === 'on') ? 'on' : 'off',
                 "time" => $request_data['emailReminderHours'],
-                "sms_status" => isset($request_data['smsReminder']) ? $request_data['smsReminder'] : false,
-                "whatapp_status" => isset($request_data['whatsappReminder']) ? $request_data['whatsappReminder'] : false
+                "sms_status" => (isset($request_data['smsReminder']) && ($request_data['smsReminder'] === 'true' || $request_data['smsReminder'] === true || $request_data['smsReminder'] === 'on')) ? 'on' : 'off',
+                "whatsapp_status" => (isset($request_data['whatsappReminder']) && ($request_data['whatsappReminder'] === 'true' || $request_data['whatsappReminder'] === true || $request_data['whatsappReminder'] === 'on')) ? 'on' : 'off'
             ]);
 
             $message = esc_html__('Email Appointment Reminder Setting Saved', 'kivicare-clinic-management-system');
@@ -268,7 +282,12 @@ class AppointmentSetting extends SettingsController
         ];
     }
 
-    public function kcAppointmentRestrictionData()
+    /**
+     * Get appointment restriction data
+     * 
+     * @return array
+     */
+    public static function kcAppointmentRestrictionData()
     {
         $data = KCOption::get('restrict_appointment', true);
         $only_same_day_book = KCOption::get('restrict_only_same_day_book_appointment', true);

@@ -19,8 +19,10 @@ use App\models\KCServiceDoctorMapping;
 use App\models\KCAppointmentServiceMapping;
 use App\models\KCPaymentsAppointmentMapping;
 use App\models\KCUserMeta;
+use App\models\KCPatientMedicalReport;
 use App\services\KCAppointmentDataService;
 use App\services\KCTimeSlotService;
+use App\controllers\api\SettingsController\AppointmentSetting;
 use App\models\KCCustomFieldData;
 use DateInterval;
 use DateTime;
@@ -1173,6 +1175,7 @@ class AppointmentsController extends KCBaseController
 
     /**
      * Get appointment slots for a specific date, doctor, and clinic
+     * Supports both single date (Y-m-d) and month format (MM-YYYY or YYYY-MM)
      * 
      * @param \WP_REST_Request $request
      * @return \WP_REST_Response
@@ -1182,6 +1185,54 @@ class AppointmentsController extends KCBaseController
         try {
             // Get and validate parameters
             $params = $request->get_params();
+
+            $settings = AppointmentSetting::kcAppointmentRestrictionData();
+            $is_same_day = in_array($settings['only_same_day_book'] ?? '', [true, 'on', 1, '1'], true);
+
+            // 'today' keyword automatically sets time to 00:00:00
+            $today = new DateTime('today', wp_timezone());
+
+            $requested = new DateTime($params['date'], wp_timezone());
+
+            $requested->setTime(0, 0, 0);
+
+            if ($is_same_day) {
+                if ($requested != $today) {
+                    return $this->response(['error' => 'Only same-day booking is allowed.'], __('Only same-day booking is allowed.', 'kivicare-clinic-management-system'), false, 400);
+                }
+            }
+            
+            // Detect if date is in month format (MM-YYYY, M-YYYY, YYYY-MM, or YYYY-M)
+            if (preg_match('/^(\d{1,4})-(\d{1,4})$/', $params['date'], $matches)) {
+                $first = (int) $matches[1];
+                $second = (int) $matches[2];
+
+                // Determine format based on value ranges
+                if ($first > 12 && $first <= 9999) {
+                    // First part is year (YYYY-MM format)
+                    $year = $first;
+                    $month = $second;
+                } elseif ($second > 12 && $second <= 9999) {
+                    // Second part is year (MM-YYYY format)
+                    $month = $first;
+                    $year = $second;
+                } else {
+                    // Ambiguous or invalid - default to MM-YYYY if both are <= 12
+                    $month = $first;
+                    $year = $second;
+                }
+
+                // Validate month and year
+                if ($month >= 1 && $month <= 12 && $year >= 1000 && $year <= 9999) {
+                    // Handle month-wide slot retrieval
+                    return $this->getMonthSlotAvailability($params, $month, $year);
+                }
+
+            } else {
+                // Not a month format, treat as single date
+                $month = null;
+                $year = null;
+            }
 
             $settings = (new \App\controllers\api\SettingsController\AppointmentSetting())->kcAppointmentRestrictionData();
             $is_same_day = in_array($settings['only_same_day_book'] ?? '', [true, 'on', 1, '1'], true);
@@ -1195,109 +1246,19 @@ class AppointmentsController extends KCBaseController
 
             if ($is_same_day) {
                 if ($requested != $today) {
-                    return $this->response(['error' => 'Only same-day booking is allowed.'], __('Only same-day booking is allowed.', 'kivicare-clinic-management-system'), false, 400);
-                }
-            } else {
-                $pre = (int) ($settings['pre_book'] ?? 0);
-                $post = (int) ($settings['post_book'] ?? 365);
-
-                $start = (clone $today)->modify("+{$pre} days");
-                $end = (clone $today)->modify("+{$post} days");
-
-                if ($requested < $start || $requested > $end) {
-                    return $this->response(['error' => 'Booking is not available for the selected date.'], __('Booking is not available for the selected date.', 'kivicare-clinic-management-system'), false, 400);
+                    return $this->response(['error' => 'Only same-day booking is allowed.'], __('Only same-day booking is allowed.', 'kivicare-clinic-management-system'), false,   400);
                 }
             }
-
-            // Validate doctor and clinic exist and are active
-            $doctor = KCDoctor::find($params['doctor_id']);
-            if (!$doctor) {
-                return $this->response(
-                    ['error' => 'Doctor not found'],
-                    __('Doctor not found', 'kivicare-clinic-management-system'),
-                    false,
-                    404
-                );
+            
+            // Validate month and year
+            if ($month >= 1 && $month <= 12 && $year >= 1000 && $year <= 9999) {
+                // Handle month-wide slot retrieval
+                return $this->getMonthSlotAvailability($params, $month, $year);
             }
+        
+            // Continue with single-date slot retrieval
+            return $this->getSingleDateSlots($params);
 
-            // For non-pro version, always use default clinic if clinic_id is 0 or null
-            if (!isKiviCareProActive() && (empty($params['clinic_id']) || $params['clinic_id'] == 0)) {
-                $params['clinic_id'] = KCClinic::kcGetDefaultClinicId();
-            }
-
-            // For non-pro version, use default clinic if not found
-            $clinic = KCClinic::find($params['clinic_id']);
-            if (!$clinic && !isKiviCareProActive()) {
-                $defaultClinicId = KCClinic::kcGetDefaultClinicId();
-                $clinic = KCClinic::find($defaultClinicId);
-                if ($clinic) {
-                    $params['clinic_id'] = $defaultClinicId;
-                }
-            }
-
-            if (!$clinic) {
-                return $this->response(
-                    ['error' => 'Clinic not found'],
-                    __('Clinic not found', 'kivicare-clinic-management-system'),
-                    false,
-                    404
-                );
-            }
-
-            if (empty($params['service_id'])) {
-                return $this->response(
-                    ['error' => 'service is required'],
-                    __('Missing service data', 'kivicare-clinic-management-system'),
-                    false,
-                    400
-                );
-            }
-
-            // Prepare data for slot generation using the data service
-            $slotData = KCAppointmentDataService::prepareSlotGenerationData($params);
-
-            // Create the slot generator with prepared data
-            $slotGenerator = new KCTimeSlotService($slotData);
-
-            // Generate slots
-            $slots = $slotGenerator->generateSlots();
-
-            // Get additional metadata
-            $debugInfo = $slotGenerator->getDebugInfo();
-            // Format response data
-            $responseData = [
-                'date' => $params['date'],
-                'doctor_id' => (int) $params['doctor_id'],
-                'clinic_id' => (int) $params['clinic_id'],
-                'doctor_name' => $doctor->display_name ?? 'Unknown Doctor',
-                'clinic_name' => $clinic->name ?? 'Unknown Clinic',
-                'total_sessions' => count($slots),
-                'total_slots' => array_sum(array_map('count', $slots)),
-                'service_duration_minutes' => $debugInfo['service_duration_sum'],
-                'slots_by_session' => $slots,
-                'metadata' => [
-                    'weekday' => $debugInfo['weekday'],
-                    'sessions_found' => $debugInfo['sessions_count'],
-                    'existing_appointments' => $debugInfo['appointments_count']
-                ]
-            ];
-
-            // If no slots found, provide helpful message
-            if (empty($slots) || array_sum(array_map('count', $slots)) === 0) {
-                return $this->response(
-                    $responseData,
-                    __('No available slots found for the selected date and doctor', 'kivicare-clinic-management-system'),
-                    true,
-                    200
-                );
-            }
-
-            return $this->response(
-                $responseData,
-                __('Appointment slots retrieved successfully', 'kivicare-clinic-management-system'),
-                true,
-                200
-            );
         } catch (\Exception $e) {
             // Log the error for debugging
             KCErrorLogger::instance()->error('AppointmentSlotGenerator Error: ' . $e->getMessage());
@@ -1310,6 +1271,280 @@ class AppointmentsController extends KCBaseController
                 200
             );
         }
+    }
+
+    /**
+     * Get slot availability for entire month
+     * 
+     * @param array $params
+     * @param int $month Month (1-12)
+     * @param int $year Year (e.g., 2026)
+     * @return \WP_REST_Response
+     */
+    private function getMonthSlotAvailability($params, $month, $year)
+    {
+
+        // Validate doctor and clinic
+        $doctor = KCDoctor::find($params['doctor_id']);
+        if (!$doctor) {
+            return $this->response(
+                ['error' => 'Doctor not found'],
+                __('Doctor not found', 'kivicare-clinic-management-system'),
+                false,
+                404
+            );
+        }
+
+        // Handle clinic ID
+        if (!isKiviCareProActive() && (empty($params['clinic_id']) || $params['clinic_id'] == 0)) {
+            $params['clinic_id'] = KCClinic::kcGetDefaultClinicId();
+        }
+
+        $clinic = KCClinic::find($params['clinic_id']);
+        if (!$clinic && !isKiviCareProActive()) {
+            $defaultClinicId = KCClinic::kcGetDefaultClinicId();
+            $clinic = KCClinic::find($defaultClinicId);
+            if ($clinic) {
+                $params['clinic_id'] = $defaultClinicId;
+            }
+        }
+
+        if (!$clinic) {
+            return $this->response(
+                ['error' => 'Clinic not found'],
+                __('Clinic not found', 'kivicare-clinic-management-system'),
+                false,
+                404
+            );
+        }
+
+        if (empty($params['service_id'])) {
+            return $this->response(
+                ['error' => 'service is required'],
+                __('Missing service data', 'kivicare-clinic-management-system'),
+                false,
+                400
+            );
+        }
+
+        // Get booking restrictions
+        $settings = (new \App\controllers\api\SettingsController\AppointmentSetting())->kcAppointmentRestrictionData();
+        $is_same_day = in_array($settings['only_same_day_book'] ?? '', [true, 'on', 1, '1'], true);
+        $pre = (int) ($settings['pre_book'] ?? 0);
+        $post = (int) ($settings['post_book'] ?? 365);
+
+        $today = new DateTime('today');
+        $start = (clone $today)->modify("+{$pre} days");
+        $end = (clone $today)->modify("+{$post} days");
+
+        // Calculate days in month
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $monthSlots = [];
+
+        // Loop through each day in the month
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $dateString = sprintf('%04d-%02d-%02d', $year, $month, $day);
+            $currentDate = new DateTime($dateString);
+            $currentDate->setTime(0, 0, 0);
+
+            // Skip if outside booking window
+            if ($is_same_day && $currentDate != $today) {
+                continue;
+            }
+
+            if (!$is_same_day && ($currentDate < $start || $currentDate > $end)) {
+                continue;
+            }
+
+            // Skip past dates
+            if ($currentDate < $today) {
+                continue;
+            }
+
+            // Prepare params for this specific date
+            $dateParams = $params;
+            $dateParams['date'] = $dateString;
+            $dateParams['only_available_slots'] = false;
+
+            try {
+                // Prepare data for slot generation
+                $slotData = KCAppointmentDataService::prepareSlotGenerationData($dateParams);
+
+                // Create the slot generator
+                $slotGenerator = new KCTimeSlotService($slotData);
+
+                // Generate slots
+                $slots = $slotGenerator->generateSlots();
+
+                // Count total and available slots
+                // Note: Booked appointment times are already excluded by splitSessionIntoChunks()
+                // The 'available' flag indicates if the slot is in the future (not in the past)
+                $totalSlots = 0;
+                $availableSlots = 0;
+
+                foreach ($slots as $session) {
+                    foreach ($session as $slot) {
+                        $totalSlots++;
+                        // Only count future slots as available
+                        if (isset($slot['available']) && $slot['available'] === true) {
+                            $availableSlots++;
+                        }
+                    }
+                }
+
+                // Only add to response if there are slots
+                if ($totalSlots > 0) {
+                    $monthSlots[$dateString] = [
+                        'total_count' => $totalSlots,
+                        'available_count' => $availableSlots,
+                        'date' => $dateString,
+                        'day_of_week' => (int) $currentDate->format('w')
+                    ];
+                }
+            } catch (\Exception $e) {
+                // Skip this date if it fails
+                KCErrorLogger::instance()->error("Failed to generate slots for {$dateString}: " . $e->getMessage());
+                continue;
+            }
+        }
+
+        return $this->response(
+            [
+                'month' => sprintf('%02d-%04d', $month, $year),
+                'doctor_id' => (int) $params['doctor_id'],
+                'clinic_id' => (int) $params['clinic_id'],
+                'doctor_name' => $doctor->display_name ?? 'Unknown Doctor',
+                'clinic_name' => $clinic->name ?? 'Unknown Clinic',
+                'dates' => $monthSlots,
+                'total_dates_with_slots' => count($monthSlots)
+            ],
+            __('Month slot availability retrieved successfully', 'kivicare-clinic-management-system'),
+            true,
+            200
+        );
+    }
+
+    /**
+     * Get slots for a single date
+     * 
+     * @param array $params
+     * @return \WP_REST_Response
+     */
+    private function getSingleDateSlots($params)
+    {
+        $settings = (new \App\controllers\api\SettingsController\AppointmentSetting())->kcAppointmentRestrictionData();
+        $is_same_day = in_array($settings['only_same_day_book'] ?? '', [true, 'on', 1, '1'], true);
+
+        // 'today' keyword automatically sets time to 00:00:00
+        $today = new DateTime('today');
+        $requested = new DateTime($params['date']);
+        $requested->setTime(0, 0, 0);
+
+        if ($is_same_day) {
+            if ($requested != $today) {
+                return $this->response(['error' => 'Only same-day booking is allowed.'], __('Only same-day booking is allowed.', 'kivicare-clinic-management-system'), false, 400);
+            }
+        } else {
+            $pre = (int) ($settings['pre_book'] ?? 0);
+            $post = (int) ($settings['post_book'] ?? 365);
+
+            $start = (clone $today)->modify("+{$pre} days");
+            $end = (clone $today)->modify("+{$post} days");
+
+            if ($requested < $start || $requested > $end) {
+                return $this->response(['error' => 'Booking is not available for the selected date.'], __('Booking is not available for the selected date.', 'kivicare-clinic-management-system'), false, 400);
+            }
+        }
+
+        // Validate doctor and clinic exist and are active
+        $doctor = KCDoctor::find($params['doctor_id']);
+        if (!$doctor) {
+            return $this->response(
+                ['error' => 'Doctor not found'],
+                __('Doctor not found', 'kivicare-clinic-management-system'),
+                false,
+                404
+            );
+        }
+
+        // For non-pro version, always use default clinic if clinic_id is 0 or null
+        if (!isKiviCareProActive() && (empty($params['clinic_id']) || $params['clinic_id'] == 0)) {
+            $params['clinic_id'] = KCClinic::kcGetDefaultClinicId();
+        }
+
+        // For non-pro version, use default clinic if not found
+        $clinic = KCClinic::find($params['clinic_id']);
+        if (!$clinic && !isKiviCareProActive()) {
+            $defaultClinicId = KCClinic::kcGetDefaultClinicId();
+            $clinic = KCClinic::find($defaultClinicId);
+            if ($clinic) {
+                $params['clinic_id'] = $defaultClinicId;
+            }
+        }
+
+        if (!$clinic) {
+            return $this->response(
+                ['error' => 'Clinic not found'],
+                __('Clinic not found', 'kivicare-clinic-management-system'),
+                false,
+                404
+            );
+        }
+
+        if (empty($params['service_id'])) {
+            return $this->response(
+                ['error' => 'service is required'],
+                __('Missing service data', 'kivicare-clinic-management-system'),
+                false,
+                400
+            );
+        }
+
+        // Prepare data for slot generation using the data service
+        $slotData = KCAppointmentDataService::prepareSlotGenerationData($params);
+
+        // Create the slot generator with prepared data
+        $slotGenerator = new KCTimeSlotService($slotData);
+
+        // Generate slots
+        $slots = $slotGenerator->generateSlots();
+
+        // Get additional metadata
+        $debugInfo = $slotGenerator->getDebugInfo();
+        // Format response data
+        $responseData = [
+            'date' => $params['date'],
+            'doctor_id' => (int) $params['doctor_id'],
+            'clinic_id' => (int) $params['clinic_id'],
+            'doctor_name' => $doctor->display_name ?? 'Unknown Doctor',
+            'clinic_name' => $clinic->name ?? 'Unknown Clinic',
+            'total_sessions' => count($slots),
+            'total_slots' => array_sum(array_map('count', $slots)),
+            'service_duration_minutes' => $debugInfo['service_duration_sum'],
+            'slots_by_session' => $slots,
+            'metadata' => [
+                'weekday' => $debugInfo['weekday'],
+                'sessions_found' => $debugInfo['sessions_count'],
+                'existing_appointments' => $debugInfo['appointments_count']
+            ]
+        ];
+
+        // If no slots found, provide helpful message
+        if (empty($slots) || array_sum(array_map('count', $slots)) === 0) {
+            return $this->response(
+                $responseData,
+                __('No available slots found for the selected date and doctor', 'kivicare-clinic-management-system'),
+                true,
+                200
+            );
+        }
+
+        return $this->response(
+            $responseData,
+            __('Appointment slots retrieved successfully', 'kivicare-clinic-management-system'),
+            true,
+            200
+        );
     }
 
     /**
@@ -2140,7 +2375,7 @@ class AppointmentsController extends KCBaseController
                     $reports = [];
                     foreach ($reportIds as $id) {
                         $url = wp_get_attachment_url((int) $id);
-                        $filename = get_the_title($id);
+                        $filename = get_the_title((int) $id);
                         $reports[] = [
                             'id' => $id,
                             'url' => $url,
@@ -2150,6 +2385,33 @@ class AppointmentsController extends KCBaseController
                     $appointmentsData['appointmentReport'] = $reports;
                 }
             }
+
+            // Fetch Patient Medical Reports (Uploaded Reports)
+            $medicalReports = KCPatientMedicalReport::query()->where('patient_id', $appointment->patientId)->get();
+            $formattedMedicalReports = [];
+
+            foreach ($medicalReports as $report) {
+                $fileUrl = '';
+                $fileId = '';
+                
+                // Handle different storage formats for upload_report (ID or URL)
+                if (is_numeric($report->uploadReport)) {
+                    $fileUrl = wp_get_attachment_url((int) $report->uploadReport);
+                    $fileId = $report->uploadReport;
+                } else {
+                    $fileUrl = $report->uploadReport;
+                }
+
+                $formattedMedicalReports[] = [
+                    'id' => $report->id,
+                    'name' => $report->name,
+                    'date' => $report->date,
+                    'upload_report' => $fileUrl,
+                    'upload_report_id' => $fileId
+                ];
+            }
+
+            $appointmentsData['patient_medical_reports'] = $formattedMedicalReports;
 
             $appointmentsData = apply_filters('kc_appointment_details_data', $appointmentsData, $appointment);
 
@@ -2417,20 +2679,18 @@ class AppointmentsController extends KCBaseController
 
             $appointmentId = $appointment->id ?? $appointment;
 
-            if ($params['tax_data'] && function_exists('isKiviCareProActive') && isKiviCareProActive()) {
+            if (!empty($params['tax_data']) && function_exists('isKiviCareProActive') && isKiviCareProActive()) {
                 // Save tax data
                 do_action('kivicare_save_appointment_tax_data', $appointmentId, $params['tax_data']);
             }
 
             if (!empty($mappingIds)) {
                 foreach ($mappingIds as $serviceId) {
-                    $serviceTableIds = KCServiceDoctorMapping::table('dsm')
-                        ->select(['dsm.service_id'])
-                        ->where('dsm.id', '=', $serviceId)
-                        ->first();
+                    $serviceTableIds = KCServiceDoctorMapping::find($serviceId);
+
                     KCAppointmentServiceMapping::create([
                         'appointmentId' => $appointmentId,
-                        'serviceId' => $serviceTableIds->serviceId
+                        'serviceId' => $serviceTableIds->serviceId ?: $serviceTableIds->service_id
                     ]);
                 }
             }
@@ -2451,11 +2711,12 @@ class AppointmentsController extends KCBaseController
                     throw new Exception(__('Telemed provider not found for the selected doctor', 'kivicare-clinic-management-system'));
                 }
 
+                $appointment_datetime_string = $appointmentStartDate . ' ' . $appointmentStartTime;
 
                 $is_meeting_link = $telemedProvider->create_meeting(array(
                     'topic' => $telemed_services->map(fn($service) => $service->name)->join(', ') ?? 'Telemed Service',
                     'type' => 'scheduled',
-                    'start_time' => current_time('mysql'),
+                    'start_time' => $appointment_datetime_string,
                     'duration' => $slotData['service_duration_sum'],
                     'timezone' => wp_timezone_string(),
                     'password' => '',
@@ -2784,6 +3045,16 @@ class AppointmentsController extends KCBaseController
                     } else {
                         KCErrorLogger::instance()->error('No Google Meet event found for appointment ID: ' . $params['id']);
                     }
+                } elseif ($telemedProvider && $telemedProvider->get_provider_id() === 'zoom') {
+                    $mapping = $telemedProvider->get_meeting_by_appointment($params['id']);
+
+                    if (!empty($mapping->zoomId)) {
+                        $telemedProvider->update_meeting($mapping->zoomId, [
+                            'start_time' => "{$newAppointmentStartDate} {$newAppointmentStartTime}",
+                            'duration'   => $slotData['service_duration_sum'] ?? 30,
+                            'doctor_id'  => $doctorId,
+                        ]);
+                    }
                 }
             }
 
@@ -2804,7 +3075,7 @@ class AppointmentsController extends KCBaseController
 
             $updated = KCAppointment::query()->where('id', $params['id'])->update($updateData);
 
-            if (!$updated) {
+            if ($updated === false) {
                 throw new Exception(__('Failed to update appointment', 'kivicare-clinic-management-system'));
             }
 
@@ -2835,7 +3106,7 @@ class AppointmentsController extends KCBaseController
                         'c.name'
                     ])
                     ->leftJoin(KCService::class, 'dsm.service_id', '=', 'c.id', 'c')
-                    ->whereIn('s.id', $params['serviceId'])->get();
+                    ->whereIn('dsm.id', $params['serviceId'])->get();
                 ;
                 // Create Bill
                 $bill = $this->createBill($params['id'], $appointment->clinicId, $encounterId, $services);
@@ -2844,7 +3115,7 @@ class AppointmentsController extends KCBaseController
                 do_action('kc_appointment_create_tax', $params['id'], $appointment->toArray(), $params, $services, $encounterId, $bill->id);
             }
 
-            if (!$updated) {
+            if ($updated === false) {
                 throw new Exception(__('Failed to update appointment', 'kivicare-clinic-management-system'));
             }
 
@@ -2951,6 +3222,10 @@ class AppointmentsController extends KCBaseController
 
         $appointment = KCAppointment::find($id);
 
+        if (!$appointment) {
+            return $this->response(null, __('Appointment not found', 'kivicare-clinic-management-system'), false, 404);
+        }
+
         $encounter = KCPatientEncounter::table('e')
             ->select([
                 'e.id'
@@ -3001,8 +3276,8 @@ class AppointmentsController extends KCBaseController
                     'clinicId' => $appointment->clinicId,
                     'doctorId' => $appointment->doctorId,
                     'services' => $services,
-                    // When updating status completion via this flow, we only want to create bill and items — skip saving tax data
-                    'save_tax' => false,
+                    // When updating status completion via this flow, we want to create bill and items — also save tax data
+                    'save_tax' => true,
                 ];
 
                 $appointmentData = [
@@ -3604,7 +3879,7 @@ class AppointmentsController extends KCBaseController
             }
 
             if (isset($params['status']) && $params['status'] !== '') {
-                $query->where("a.status", '=', (int)$params['status']);
+                $query->where("a.status", '=', (int) $params['status']);
             }
 
             // Apply sorting (default by id desc)
@@ -3955,7 +4230,7 @@ class AppointmentsController extends KCBaseController
         // Create bill items for each service
         foreach ($services as $service) {
             // Handle different object structures (collection of models vs stdClass from joins)
-            $serviceId = $service->serviceId ?? $service->service_id ?? $service->id;
+            $serviceId = $service->serviceId ?: $service->service_id ?? $service->id;
 
             // For charges, prioritize specific property, fallback to model default if needed
             $price = $service->charges ?? $service->price ?? 0;

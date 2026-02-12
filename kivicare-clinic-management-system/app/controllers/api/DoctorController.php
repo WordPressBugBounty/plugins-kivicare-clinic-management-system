@@ -1101,7 +1101,8 @@ class DoctorController extends KCBaseController
                     "c.id as clinicId",
                     "c.name as clinic_name",
                     "c.email as clinic_email",
-                    "c.profile_image as clinic_profile_image"
+                    "c.profile_image as clinic_profile_image",
+                    "c.status as clinic_status"
                 ])
                 ->leftJoin(KCClinic::class, 'dcm.clinic_id', '=', 'c.id', 'c')
                 ->where('dcm.doctor_id', '=', $id)
@@ -1145,6 +1146,26 @@ class DoctorController extends KCBaseController
                     ->count();
             }
 
+            // Fetch active holidays for clinics once
+            $holidayClinicIds = \App\models\KCClinicSchedule::getActiveHolidaysByModule('clinic');
+
+            // Process clinics data
+            $processedClinics = array_map(function ($clinic) use ($holidayClinicIds) {
+                return [
+                    'clinic_id' => $clinic->clinicId,
+                    'id' => $clinic->clinicId,
+                    'value' => $clinic->clinicId,
+                    'clinic_name' => $clinic->clinic_name,
+                    'label' => $clinic->clinic_name,
+                    'clinic_email' => $clinic->clinic_email,
+                    'clinic_image_url' => !empty($clinic->clinic_profile_image) ?
+                        wp_get_attachment_url($clinic->clinic_profile_image) : '',
+                    'clinic_image_id' => $clinic->clinic_profile_image,
+                    'status' => (int)$clinic->clinic_status,
+                    'is_holiday' => in_array((int)$clinic->clinicId, $holidayClinicIds, true),
+                ];
+            }, $doctorClinics->toArray());
+
             // Build response object using null coalescing operators for cleaner code
             $doctorObj = [
                 'id' => $doctorData->id,
@@ -1155,19 +1176,7 @@ class DoctorController extends KCBaseController
                 'doctor_image_url' => $profileImageUrl,
                 'doctor_image_id' => !empty($doctorData->profile_image_id) ?
                     (int) $doctorData->profile_image_id : null,
-                'clinics' => array_map(function ($clinic) {
-                    return [
-                        'clinic_id' => $clinic->clinicId,
-                        'id' => $clinic->clinicId,
-                        'value' => $clinic->clinicId,
-                        'clinic_name' => $clinic->clinic_name,
-                        'label' => $clinic->clinic_name,
-                        'clinic_email' => $clinic->clinic_email,
-                        'clinic_image_url' => !empty($clinic->clinic_profile_image) ?
-                            wp_get_attachment_url($clinic->clinic_profile_image) : '',
-                        'clinic_image_id' => $clinic->clinic_profile_image,
-                    ];
-                }, $doctorClinics->toArray()),
+                'clinics' => $processedClinics,
                 'status' => (int) $doctorData->status,
                 'contact_number' => $basicData['mobile_number'] ?? '',
                 'gender' => $basicData['gender'] ?? '',
@@ -1260,7 +1269,7 @@ class DoctorController extends KCBaseController
             $doctor = new KCDoctor();
 
             // Set doctor properties directly
-            $doctor->username = kcGenerateUsername($params['first_name']);
+            $doctor->username = kcGenerateUsername($params['first_name'], $params['email']);
             $doctor->password = kcGenerateRandomString(12);
             $doctor->email = sanitize_email($params['email']);
             $doctor->firstName = $params['first_name'];

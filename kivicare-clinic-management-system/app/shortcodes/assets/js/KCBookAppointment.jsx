@@ -12,17 +12,21 @@ import { PhoneInput } from 'react-international-phone';
 import { PhoneNumberUtil } from 'google-libphonenumber';
 import 'react-international-phone/style.css';
 import '@shortcodes/assets/scss/KCBookAppointment.scss';
-import { useFrontendClinics, useFrontendDoctors, useFrontendBookAppointmentServices, useFrontendBookAppointmentConfirmation, useFrontendWidgetSettings } from '@api/hooks/useFrontendBookAppointment';
+import { useFrontendClinics, useFrontendDoctors, useFrontendBookAppointmentServices, useFrontendBookAppointmentConfirmation, useFrontendWidgetSettings, frontendBookAppointmentKeys } from '@api/hooks/useFrontendBookAppointment';
 import { useUnavailableSchedule } from '@api/hooks/useClinicSchedules';
-import { formatDateLocal } from '@app/utils/helper';
-import { useAvailableSlots, useCreateAppointment, usePaymentVerify, usePrintInvoice } from '@api/hooks/useAppointments';
+import { formatDateLocal, GetLocalizedCalendarLabels, convertPhpDateFormatToFlatpickr, getLocalizedNumber } from '@app/utils/helper';
+import dayjs from 'dayjs';
+import { useAvailableSlots, useCreateAppointment, usePaymentVerify, usePrintInvoice, appointmentKeys } from '@api/hooks/useAppointments';
+import appointmentsService from '@app/api/services/appointmentsService';
 import { useLogin, useRegister, useLogout } from '@api/hooks/useAuth';
 import { ToastProvider, useToast, ToastContainer } from '@app/components/KCToast';
 import StripeCheckout from '@app/views/paymentGateways/StripeCheckout';
 import RazorpayCheckout from '@app/views/paymentGateways/RazorpayCheckout';
 import { AddToCalendarButton } from 'add-to-calendar-button-react';
 import { useCustomFieldsByModule, useSaveCustomFieldData, useCustomFieldData } from '@api/hooks/useCustomFields';
+import { useCustomFormsRender } from '@api/hooks/useCustomForms';
 import CustomFieldRenderer from '@app/components/CustomFieldRenderer';
+import CustomFormRenderer from '@app/views/settings/customForm/CustomFormRenderer';
 import MultiFileUploader from '../../../dashboard/components/MultiFileUploader';
 import {
     ClinicSelectionSkeleton,
@@ -54,7 +58,7 @@ const queryClient = new QueryClient({
 });
 
 // Using named export for component to work better with Fast Refresh
-export function BookAppointmentForm({ id, formId, title, isKivicarePro, widgetOrder, userLogin, paymentGateways, currentUserId, pageId, queryParams, selectedDoctorId, selectedClinicId, showPrintButton, doctorId, clinicId, serviceId, timezone, containerId, defaultClinicId }) {
+export function BookAppointmentForm({ id, formId, title, isKivicarePro, widgetOrder, userLogin, paymentGateways, currentUserId, pageId, queryParams, selectedDoctorId, selectedClinicId, showPrintButton, doctorId, clinicId, serviceId, timezone, containerId, defaultClinicId, showOtherGender, defaultCountry }) {
 
     const parsedWidgetOrder = JSON.parse(widgetOrder || '[]');
     const parsedPaymentGateways = JSON.parse(paymentGateways || '[]');
@@ -66,7 +70,7 @@ export function BookAppointmentForm({ id, formId, title, isKivicarePro, widgetOr
     const [isAuthenticated, setIsAuthenticated] = useState(userLogin === '1'); // Track authentication state
     // Handle logout
     const logoutMutation = useLogout();
-   
+
     const [isLogin, setIsLogin] = useState(false); // Track login/register tab state
     const [bookingStatus, setBookingStatus] = useState(null); // Track booking status: 'success', 'payment-failed', null
     const nodeRef = useRef(null);
@@ -80,6 +84,11 @@ export function BookAppointmentForm({ id, formId, title, isKivicarePro, widgetOr
     const [preSelectedDoctor, setPreSelectedDoctor] = useState(null);
     const [preSelectedClinic, setPreSelectedClinic] = useState(null);
     const [preSelectedService, setPreSelectedService] = useState(null);
+
+    // Custom Form Refs & State
+    const customFormRefs = useRef({});
+    const [customFormsDataState, setCustomFormsDataState] = useState({});
+    const [errorTabs, setErrorTabs] = useState([]);
 
     // Initialize React Hook Form
     const methods = useForm({
@@ -102,7 +111,7 @@ export function BookAppointmentForm({ id, formId, title, isKivicarePro, widgetOr
         mode: 'onChange'
     });
     const params = JSON.parse(queryParams || '{}');
-    
+
     // Apply widget colors
     useEffect(() => {
         const container = document.getElementById(containerId);
@@ -262,6 +271,38 @@ export function BookAppointmentForm({ id, formId, title, isKivicarePro, widgetOr
     // Initialize custom field save mutation
     const saveCustomFieldMutation = useSaveCustomFieldData();
 
+    // Fetch custom forms for appointment module
+    const { data: customFormsData } = useCustomFormsRender(
+        { 
+            module_type: 'appointment_module', 
+            status: 1 
+        }, 
+        { enabled: String(isKivicarePro) === "true" }
+    );
+
+    // Filter Custom Forms based on selected clinic
+    const customForms = React.useMemo(() => {
+        const forms = customFormsData?.data?.forms || [];
+
+        const currentClinicValue = watch('selectedClinic');
+        
+        if (!currentClinicValue?.id) {
+            return forms;
+        }
+        
+        const filteredForms = forms.filter(form => {
+            const clinics = form.conditions?.clinics || [];
+            const isMatch = clinics.length === 0 || clinics.includes(parseInt(currentClinicValue.id));
+            return isMatch;
+        });
+        return filteredForms;
+    }, [customFormsData, watch('selectedClinic')]);
+
+    // Helper to get all custom form data
+    const getCustomFormData = () => {
+        return customFormsDataState;
+    };
+
     // Custom validation function for each step
     const validateCurrentStep = async () => {
         const formData = getValues();
@@ -297,6 +338,43 @@ export function BookAppointmentForm({ id, formId, title, isKivicarePro, widgetOr
                     toast.error(__('Please select a time slot to continue.', 'kivicare-clinic-management-system'));
                     return false;
                 }
+                return true;
+
+            case 'file-uploads-custom':
+                // Validate Custom Forms
+                let allFormsValid = true;
+                const newErrorTabs = [];
+
+                // Validate main form fields (specifically custom fields)
+                const isMainFormValid = await trigger();
+                
+                // Check if any custom fields have errors
+                const currentErrors = methods.formState.errors;
+                const hasCustomFieldErrors = Object.keys(currentErrors).some(key => key.startsWith('custom_field_'));
+                
+                if (hasCustomFieldErrors) {
+                    allFormsValid = false;
+                    newErrorTabs.push('custom_field');
+                }
+                
+                for (const form of customForms) {
+                    const formRef = customFormRefs.current[form.id];
+                    if (formRef) {
+                        const validationResult = await formRef.triggerValidation();
+                        if (!validationResult.isValid) {
+                            allFormsValid = false;
+                            newErrorTabs.push(form.id);
+                        }
+                    }
+                }
+                
+                setErrorTabs(newErrorTabs);
+
+                if (!allFormsValid) {
+                     toast.error(__('Please fill all required fields in the form.', 'kivicare-clinic-management-system'));
+                     return false;
+                }
+                
                 return true;
 
             case 'detail-info':
@@ -413,7 +491,7 @@ export function BookAppointmentForm({ id, formId, title, isKivicarePro, widgetOr
                 return shouldInclude;
             })
             .map(orderItem => allSteps[orderItem.att_name]);
-        
+
         return sortedSteps;
     };
 
@@ -630,7 +708,17 @@ export function BookAppointmentForm({ id, formId, title, isKivicarePro, widgetOr
             case 'date-time':
                 return <DateTimeSelection timezone={timezone} doctorId={doctorId} clinicId={clinicIdToFetch} />;
             case 'file-uploads-custom':
-                return <AppointmentExtraData doctorId={doctorId} widgetSettings={widgetSettings} containerId={containerId} isKivicarePro={isKivicarePro} />;
+                return <AppointmentExtraData 
+                    doctorId={doctorId} 
+                    widgetSettings={widgetSettings} 
+                    containerId={containerId} 
+                    isKivicarePro={isKivicarePro}
+                    customForms={customForms}
+                    customFormRefs={customFormRefs} 
+                    customFormsDataState={customFormsDataState}
+                    setCustomFormsDataState={setCustomFormsDataState}
+                    errorTabs={errorTabs}
+                />;
             case 'detail-info':
                 return !isAuthenticated ? (
                     <UserDetailsForm
@@ -641,6 +729,8 @@ export function BookAppointmentForm({ id, formId, title, isKivicarePro, widgetOr
                         onNext={handleNext}
                         clinicId={clinicIdToFetch}
                         containerId={containerId}
+                        showOtherGender={showOtherGender}
+                        defaultCountry={defaultCountry}
                     />
                 ) : (
                     <div className="text-center p-4">
@@ -657,6 +747,8 @@ export function BookAppointmentForm({ id, formId, title, isKivicarePro, widgetOr
                     setGrandTotal={setGrandTotal}
                     grandTotal={grandTotal}
                     isKivicarePro={isKivicarePro}
+                    customForms={customForms}
+                    customFormsDataState={customFormsDataState}
                 />;
             case 'booking-success':
                 return <BookingSuccessStep onBookMore={handleBookMore} appointmentId={finalAppointmentId} showPrintSetting={showPrintButton === 'true'} />;
@@ -727,7 +819,7 @@ export function BookAppointmentForm({ id, formId, title, isKivicarePro, widgetOr
                 appointmentStartDate: formValues.selectedDate,
                 appointmentStartTime: formValues.selectedTime,
                 description: formValues.description || '',
-                patientId: isAuthenticated && currentUserId ? parseInt(currentUserId) : null, // Use current user ID if logged in
+                // patientId: isAuthenticated && currentUserId ? parseInt(currentUserId) : null, // Use current user ID if logged in
                 // Patient details for new patients (when not logged in)
                 patientFirstName: formValues.userDetails?.firstName,
                 patientLastName: formValues.userDetails?.lastName,
@@ -738,7 +830,8 @@ export function BookAppointmentForm({ id, formId, title, isKivicarePro, widgetOr
                 paymentGateway: grandTotal > 0
                     ? (formValues.selectedPaymentGateway?.id || (parsedPaymentGateways.length === 1 ? parsedPaymentGateways[0]?.id : ''))
                     : '',
-                page_id: pageId || null // Pass the current
+                page_id: pageId || null, // Pass the current
+                customForm: getCustomFormData()
             };
             if (formValues.appointmentFiles && formValues.appointmentFiles.length > 0) {
                 appointmentData.appointmentFileId = formValues.appointmentFiles.map(file => file.id);
@@ -920,7 +1013,8 @@ export function BookAppointmentForm({ id, formId, title, isKivicarePro, widgetOr
         <FormProvider {...methods}>
             <div className="kivi-widget" id={`kivi-appointment-widget-${id}`}>
                 <div className="container-fluid" id="kivicare-widget-main-content">
-                    <div className="widget-layout" id="widgetOrders">
+                    <div className="widget-layout" id="widgetOrders" style={{ position: 'relative' }}>
+
                         <div className="iq-card iq-card-lg iq-bg-primary widget-tabs" style={{ overflow: 'hidden' }}>
                             {/* Tab Navigation */}
                             <ul className="tab-list" id="kivicare-animate-ul">
@@ -1001,7 +1095,7 @@ export function BookAppointmentForm({ id, formId, title, isKivicarePro, widgetOr
                                     <CSSTransition
                                         key={currentStep}
                                         nodeRef={nodeRef}
-                                        timeout={350}
+                                        timeout={300}
                                         classNames={{
                                             enter: transitionDirection === 'next' ? 'step-enter-next' : 'step-enter-prev',
                                             enterActive: transitionDirection === 'next' ? 'step-enter-active-next' : 'step-enter-active-prev',
@@ -1032,27 +1126,6 @@ export function BookAppointmentForm({ id, formId, title, isKivicarePro, widgetOr
                             </div>
                         </div>
                     </div>
-
-                    {/* Main Loading Spinner */}
-                    {isLoading && (
-                        <span
-                            id="kivicare-main-page-loader"
-                            style={{
-                                background: '#fff',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                zIndex: 9999
-                            }}
-                        >
-                            <div className="double-lines-spinner"></div>
-                        </span>
-                    )}
                 </div>
             </div>
 
@@ -1120,6 +1193,7 @@ const StepWrapper = ({
                             type="button"
                             className="iq-button iq-button-secondary"
                             onClick={onBack}
+                            disabled={isLoading}
                             data-step="prev"
                         >
                             {__('Back', 'kivicare-clinic-management-system')}
@@ -1152,8 +1226,11 @@ const StepWrapper = ({
                             className={`iq-button iq-button-primary ${(!canProceed || isLoading) ? 'disabled' : ''}`}
                             onClick={onSubmit}
                             disabled={!canProceed || isLoading}
-                            style={{ opacity: (canProceed && !isLoading) ? 1 : 0.6 }}
+                            style={{ opacity: (canProceed && !isLoading) ? 1 : 0.6, position: 'relative' }}
                         >
+                            {isLoading && (
+                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            )}
                             {isLoading ? __('Booking...', 'kivicare-clinic-management-system') : __('Confirm Booking', 'kivicare-clinic-management-system')}
                         </button>
                     ) : null}
@@ -1372,7 +1449,7 @@ const ClinicSelection = ({ selectedDoctor, widgetSettings }) => {
                                                     onChange={() => handleClinicSelect(clinic)}
                                                 />
                                                 <label className="btn-border01 w-100" htmlFor={`clinic_${clinic.id}`}>
-                                                    <div className="iq-card iq-card-lg iq-fancy-design iq-card-border">
+                                                    <div className="iq-card iq-card-lg iq-fancy-design iq-card-border iq-clinic-widget">
 
                                                         {settings.showClinicImage && (
                                                             <div className="d-flex justify-content-center align-items-center">
@@ -1488,11 +1565,14 @@ const StarRating = ({ rating = 0 }) => {
 
 const DoctorSelection = ({ isKivicarePro, widgetSettings, clinicId }) => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [page, setPage] = useState(1);
+    const [allDoctors, setAllDoctors] = useState([]);
     const { setValue, watch } = useFormContext();
     const selectedDoctor = watch('selectedDoctor');
     const selectedClinic = watch('selectedClinic');
     const selectedService = watch('selectedService');
     const finalClinicId = clinicId || selectedClinic?.id;
+    const scrollContainerRef = useRef(null);
 
     // Debounce search term to avoid too many API calls
     const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -1501,7 +1581,9 @@ const DoctorSelection = ({ isKivicarePro, widgetSettings, clinicId }) => {
     const apiParams = {
         ...(isKivicarePro && finalClinicId && { clinic_id: finalClinicId }),
         ...(selectedService && { service_id: selectedService.service_id }),
-        ...(debouncedSearchTerm && { search: debouncedSearchTerm })
+        ...(debouncedSearchTerm.trim() && { search: debouncedSearchTerm.trim() }),
+        page,
+        per_page: 10
     };
 
     // Use the useFrontendDoctors hook to fetch doctors data
@@ -1515,8 +1597,23 @@ const DoctorSelection = ({ isKivicarePro, widgetSettings, clinicId }) => {
         cacheTime: 10 * 60 * 1000, // 10 minutes
     });
 
-    const responseData = doctorsResponse?.data || {};
-    const doctors = responseData.doctors || [];
+    const doctors = doctorsResponse?.data?.doctors || [];
+    const pagination = doctorsResponse?.data?.pagination || {};
+
+    useEffect(() => {
+        setAllDoctors(page === 1 ? doctors : prev => [...prev, ...doctors]);
+    }, [doctors, page]);
+
+    useEffect(() => {
+        setPage(1);
+    }, [debouncedSearchTerm, finalClinicId, selectedService]);
+
+    const handleScroll = useCallback(() => {
+        if (!scrollContainerRef.current || isLoading || !pagination.has_more) return;
+        const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+        if (scrollTop + clientHeight >= scrollHeight - 50) setPage(prev => prev + 1);
+    }, [isLoading, pagination.has_more]);
+
     const settings = widgetSettings?.doctor || {
         showDoctorImage: false,
         showDoctorExperience: false,
@@ -1559,13 +1656,13 @@ const DoctorSelection = ({ isKivicarePro, widgetSettings, clinicId }) => {
             />
 
             <div className="widget-content">
-                {isLoading ? (
+                {isLoading && page === 1 ? (
                     <DoctorSelectionSkeleton />
                 ) : (
-                    <div className="card-list-data text-center pt-2 card-list">
+                    <div className="card-list-data text-center pt-2 card-list" style={{ maxHeight: '500px', overflowY: 'auto' }} ref={scrollContainerRef} onScroll={handleScroll}>
                         <div className="card-list pe-2 pt-1">
                             <div className="kc-card-list">
-                                {doctors.map(doctor => {
+                                {allDoctors.map(doctor => {
                                     const contactDetailsId = Number(settings.doctorContactDetails?.id || 1);
                                     const shouldShowPhoneAndEmail = contactDetailsId === 1;
                                     const shouldShowPhone = contactDetailsId === 2;
@@ -1584,7 +1681,7 @@ const DoctorSelection = ({ isKivicarePro, widgetSettings, clinicId }) => {
                                                 onChange={() => handleDoctorSelect(doctor)}
                                             />
                                             <label className="btn-border01 w-100" htmlFor={`doctor_${doctor.id}`}>
-                                                <div className="iq-card iq-card-border iq-fancy-design iq-doctor-widget">
+                                                <div className="iq-card iq-fancy-design iq-doctor-widget">
                                                     <div className="iq-navbar-header" style={{ height: '100px' }}>
                                                         <div className="profile-bg"></div>
                                                     </div>
@@ -1661,9 +1758,16 @@ const DoctorSelection = ({ isKivicarePro, widgetSettings, clinicId }) => {
                                     )
                                 })}
                             </div>
-                            {doctors.length === 0 && !isLoading && (
+                            {allDoctors.length === 0 && !isLoading && (
                                 <div className="text-center p-4">
                                     <p>{__('No doctors found for the selected criteria.', 'kivicare-clinic-management-system')}</p>
+                                </div>
+                            )}
+                            {isLoading && page > 1 && (
+                                <div className="text-center p-2">
+                                    <div className="spinner-border spinner-border-sm" role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -1848,7 +1952,7 @@ const ServiceSelection = ({ onNext, widgetSettings, doctorId: doctorIdProp }) =>
                                                             onChange={() => handleServiceSelect(service)}
                                                         />
                                                         <label className="btn-border01 service-content" htmlFor={`service_${service.id}`}>
-                                                            <div className="iq-card iq-card-border iq-fancy-design service-content gap-1 kc-service-card">
+                                                            <div className="iq-card iq-fancy-design service-content gap-1 kc-service-card">
                                                                 <div className="iq-top-left-ribbon-service" style={{ display: 'none' }}>
                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" viewBox="0 0 20 20" fill="none">
                                                                         <path fillRule="evenodd" clipRule="evenodd" d="M13.5807 12.9484C13.6481 14.4752 12.416 15.7662 10.8288 15.8311C10.7119 15.836 5.01274 15.8245 5.01274 15.8245C3.43328 15.9444 2.05094 14.8094 1.92636 13.2884C1.91697 13.1751 1.91953 7.06 1.91953 7.06C1.84956 5.53163 3.08002 4.23733 4.66801 4.16998C4.78661 4.16424 10.4781 4.17491 10.4781 4.17491C12.0653 4.05665 13.4519 5.19984 13.5747 6.72821C13.5833 6.83826 13.5807 12.9484 13.5807 12.9484Z" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
@@ -1926,9 +2030,61 @@ const DateTimeSelection = ({ timezone, doctorId: doctorIdProp, clinicId: clinicI
     const watchedService = watch('selectedService');
 
     const [localSelectedDate, setLocalSelectedDate] = useState(null);
+    const calendarSlotDataRef = useRef({});
+    const flatpickrRef = useRef(null);
+    const queryClient = useQueryClient();
 
     const doctorId = doctorIdProp || selectedDoctor?.id;
     const clinicId = clinicIdProp || selectedClinic?.id;
+
+    // Function to fetch and merge month slot data
+    const fetchMonthSlots = useCallback(async (year, month) => {
+        const serviceId = watchedService?.id;
+
+        // Don't fetch if required data is missing
+        if (!doctorId || !serviceId) {
+            return;
+        }
+
+        const monthString = `${year}-${String(month).padStart(2, '0')}`;
+
+        try {
+            // Fetch month slots using appointmentsService
+            const params = {
+                doctor_id: doctorId,
+                clinic_id: clinicId,
+                service_id: [serviceId],
+                date: monthString,
+            };
+
+            // Use queryClient.fetchQuery with proper query keys and service
+            const response = await queryClient.fetchQuery({
+                queryKey: appointmentKeys.availableSlots(params),
+                queryFn: () => appointmentsService.getAvailableSlots(params),
+                staleTime: 1000 * 60 * 5, // 5 minutes
+            });
+
+            // Merge new month data with existing data
+            if (response?.data?.dates) {
+                Object.entries(response.data.dates).forEach(([dateString, slotInfo]) => {
+                    const cacheKey = `${doctorId}-${clinicId}-${dateString}`;
+                    calendarSlotDataRef.current[cacheKey] = {
+                        total_count: slotInfo.total_count,
+                        available_count: slotInfo.available_count,
+                        date: slotInfo.date,
+                        day_of_week: slotInfo.day_of_week
+                    };
+                });
+
+                // Redraw the calendar to reflect new slot data
+                if (flatpickrRef.current?.flatpickr) {
+                    flatpickrRef.current.flatpickr.redraw();
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching month slots:', error);
+        }
+    }, [doctorId, clinicId, watchedService, queryClient]);
 
 
     const handleDateSelect = (selectedDates) => {
@@ -1968,13 +2124,29 @@ const DateTimeSelection = ({ timezone, doctorId: doctorIdProp, clinicId: clinicI
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    // Fetch initial month slot data when doctor or service changes
+    useEffect(() => {
+        if (doctorId && watchedService?.id) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+
+            // Clear previous slot data when doctor/service changes
+            calendarSlotDataRef.current = {};
+
+            // Fetch current month data
+            fetchMonthSlots(year, month);
+        }
+    }, [doctorId, watchedService, fetchMonthSlots]);
+
     return (
         <div>
             <div className="d-flex justify-content-between align-items-center flex-wrap gap-1">
                 <div className="iq-kivi-tab-panel-title-animation">
                     <h3 className="iq-kivi-tab-panel-title">{__('Select Date and Time', 'kivicare-clinic-management-system')}</h3>
                 </div>
-                <div id="iq_kivi_timezone">
+                <div id="iq_kivi_timezone" className="iq-kivi-timezone d-flex align-items-center gap-05">
+                    <i class="ph ph-globe"></i>
                     <span>{__('Time Zone:', 'kivicare-clinic-management-system')} </span>{timezone || 'UTC'}
                 </div>
             </div>
@@ -1982,17 +2154,18 @@ const DateTimeSelection = ({ timezone, doctorId: doctorIdProp, clinicId: clinicI
 
             <div className="widget-content">
                 <div className="card-list-data">
-                    <div className="">
-                        <div className="d-grid grid-template-2 card-list-data iq-kivi-calendar-slot">
-                            <div className="iq-card iq-bg-primary-light text-center">
-                                <h5>{__('Select Date', 'kivicare-clinic-management-system')}</h5>
-                                <div className="grid-template-3 iq-calendar-card mt-2">
+                    <div className="d-grid grid-template-2 card-list-data iq-kivi-calendar-slot">
+                        <div>
+                            <h5 className='mb-2'>{__('Select Date', 'kivicare-clinic-management-system')}</h5>
+                            <div className={["calender-wrap text-center", !selectedDate ? 'error' : ''].join(' ')}>
+                                <div className="iq-calendar-card kc-flatpickr-calendar">
                                     <Flatpickr
                                         options={{
                                             inline: true,
-                                            dateFormat: "Y-m-d",
+                                            dateFormat: convertPhpDateFormatToFlatpickr(window.kc_frontend.date_format),
                                             minDate: today,
                                             disableMobile: true,
+                                            locale: GetLocalizedCalendarLabels(),
                                             disable: [
                                                 function (date) {
                                                     if (!holidaySchedulesData) return false;
@@ -2001,63 +2174,215 @@ const DateTimeSelection = ({ timezone, doctorId: doctorIdProp, clinicId: clinicI
                                                     const dateString = formatDateLocal(date);
                                                     return holidays.includes(dateString);
                                                 }
-                                            ]
+                                            ],
+                                            onMonthChange: (selectedDates, dateStr, instance) => {
+                                                // Fetch slots for the new month
+                                                const month = instance.currentMonth + 1; // 0-indexed, so add 1
+                                                const year = instance.currentYear;
+                                                fetchMonthSlots(year, month);
+                                            },
+                                            onDayCreate: (_dObj, _dStr, fp, dayElem) => {
+                                                const date = dayElem.dateObj;
+                                                if (!date) return;
+
+                                                // ---- Normalize today ----
+                                                const today = new Date();
+                                                today.setHours(0, 0, 0, 0);
+
+                                                // ---- Past date: hard stop ----
+                                                if (date < today) {
+                                                    dayElem.classList.add('past-date');
+                                                    return;
+                                                }
+
+                                                // ---- Localize day number ----
+                                                dayElem.innerHTML = dayElem.innerHTML.replace(
+                                                    /\d+/g,
+                                                    match => getLocalizedNumber(match)
+                                                );
+
+                                                const dateString = formatDateLocal(date);
+
+                                                // ---- Holiday / off-day detection ----
+                                                const { off_days = [], holidays = [] } = holidaySchedulesData || {};
+                                                const holidayList = Array.isArray(holidays) ? holidays : Object.values(holidays);
+
+                                                const isOffDay = off_days.includes(String(date.getDay()));
+                                                const isHoliday = holidayList.includes(dateString);
+
+                                                // ---- Tooltip base ----
+                                                const tooltip = document.createElement('div');
+                                                tooltip.className = 'day-tooltip';
+
+                                                tooltip.innerHTML = `
+                                                    <span class="tooltip-date">
+                                                        ${dayjs(date).format('dddd, MMMM D, YYYY')}
+                                                    </span>
+                                                `;
+
+                                                const tooltipInfo = document.createElement('span');
+                                                tooltipInfo.className = 'tooltip-info';
+
+                                                const icon = document.createElement('span');
+                                                icon.className = 'day-icon';
+
+                                                // ---- Holiday / off-day states ----
+                                                if (isHoliday || isOffDay) {
+                                                    dayElem.classList.add(isHoliday ? 'clinic-holiday' : 'doctor-leave');
+                                                    dayElem.classList.remove('flatpickr-disabled');
+                                                    tooltipInfo.textContent = isHoliday
+                                                        ? __('Clinic Holiday', 'kivicare-clinic-management-system')
+                                                        : __('Doctor Off Day', 'kivicare-clinic-management-system');
+
+                                                    dayElem.append(icon);
+                                                    tooltip.append(tooltipInfo);
+                                                    dayElem.append(tooltip);
+                                                    return;
+                                                }
+
+                                                // ---- Doctor / service guard ----
+                                                if (!doctorId || !watchedService?.id) {
+                                                    tooltipInfo.textContent = __('Select doctor & service first', 'kivicare-clinic-management-system');
+                                                    tooltip.append(tooltipInfo);
+                                                    dayElem.append(tooltip);
+                                                    return;
+                                                }
+
+                                                // ---- Slot availability from ref ----
+                                                const cacheKey = `${doctorId}-${clinicId}-${dateString}`;
+                                                const slotInfo = calendarSlotDataRef.current?.[cacheKey];
+
+                                                if (!slotInfo) {
+                                                    tooltipInfo.textContent = __('Available', 'kivicare-clinic-management-system');
+                                                    tooltip.append(tooltipInfo);
+                                                    dayElem.append(tooltip);
+                                                    return;
+                                                }
+
+                                                const indicator = document.createElement('span');
+                                                indicator.className = 'slot-indicator';
+
+                                                if (slotInfo.available_count > 0) {
+                                                    dayElem.classList.add('available');
+                                                    indicator.textContent = `${slotInfo.available_count} ${__('Slots', 'kivicare-clinic-management-system')}`;
+
+                                                    tooltipInfo.textContent = `${slotInfo.available_count} ${__('slots available', 'kivicare-clinic-management-system')}`;
+
+                                                    const action = document.createElement('span');
+                                                    action.className = 'tooltip-action';
+                                                    action.textContent = __('Click to select', 'kivicare-clinic-management-system');
+
+                                                    tooltip.append(tooltipInfo, action);
+                                                    dayElem.append(indicator);
+                                                } else if (slotInfo.total_count > 0) {
+                                                    dayElem.classList.add('slots-full');
+                                                    indicator.textContent = __('Full', 'kivicare-clinic-management-system');
+
+                                                    tooltipInfo.textContent = __('All slots are booked', 'kivicare-clinic-management-system');
+
+                                                    dayElem.append(indicator);
+                                                    tooltip.append(tooltipInfo);
+                                                } else {
+                                                    tooltipInfo.textContent = __('Available', 'kivicare-clinic-management-system');
+                                                    tooltip.append(tooltipInfo);
+                                                }
+
+                                                dayElem.append(tooltip);
+                                            }
                                         }}
                                         onChange={handleDateSelect}
+                                        ref={(ref) => {
+                                            flatpickrRef.current = ref;
+                                        }}
                                     />
-                                    {!selectedDate && (
-                                        <p className="loader-class my-4">{__('Please Select Date', 'kivicare-clinic-management-system')}</p>
-                                    )}
-                                </div>
-                            </div>
 
-                            {/* Time Slots Section */}
-                            {selectedDate && (
-                                <div className="time-slots" id="time-slot">
-                                    <div className="iq-card iq-bg-primary-light text-center card-list p-3">
-                                        <h5 id="selectedDate" name="selectedDate">
-                                            {__('Available time slots', 'kivicare-clinic-management-system')}
-                                        </h5>
-                                        <div className="" id="timeSlotLists" name="timeSlotLists">
-                                            {isLoadingSlots ? (
-                                                <TimeSlotsSkeleton />
-                                            ) : timeSlots.length > 0 ? (
-                                                timeSlots.map((session, index) => (
-                                                    <React.Fragment key={`session-${index}`}>
-                                                        <h6 className='w-100 text-center my-3'> {__(`Session ${index + 1}`, 'kivicare-clinic-management-system')} </h6>
-                                                        <div className="d-flex align-items-center gap-05 flex-wrap appointments-slot-select">
-                                                            {session.map((timeSlot) => (
-                                                                <div key={timeSlot.time} className="iq-client-widget iq-time-slot">
-                                                                    <input
-                                                                        type="radio"
-                                                                        className="card-checkbox selected-time"
-                                                                        name="time_slot_selection"
-                                                                        id={`time_slot_${timeSlot.time.replace(/[:\s]/g, '_')}`}
-                                                                        value={timeSlot.time}
-                                                                        checked={selectedTime === timeSlot.time}
-                                                                        onChange={() => handleTimeSelect(timeSlot.time)}
-                                                                    />
-                                                                    <label
-                                                                        className="iq-button iq-button-white"
-                                                                        htmlFor={`time_slot_${timeSlot.time.replace(/[:\s]/g, '_')}`}
-                                                                    >
-                                                                        {timeSlot.time}
-                                                                    </label>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </React.Fragment>
-                                                ))
-                                            ) : (
-                                                <div className="text-center p-4">
-                                                    <p>{__('No time slots available for selected date.', 'kivicare-clinic-management-system')}</p>
-                                                </div>
-                                            )}
+
+
+
+                                </div>
+                                {/* Calendar Legend */}
+                                <div className="calendar-legend">
+                                    <div className="calendar-legend-title">{__('Calendar Legend', 'kivicare-clinic-management-system')}</div>
+                                    <div className="calendar-legend-items">
+                                        <div className="calendar-legend-item available">
+                                            <div className="legend-icon"><i className="ph ph-clock"></i></div>
+                                            <span className="legend-label">{__('Available', 'kivicare-clinic-management-system')}</span>
+                                        </div>
+                                        <div className="calendar-legend-item slots-full">
+                                            <div className="legend-icon"><i className="ph ph-clock"></i></div>
+                                            <span className="legend-label">{__('Slots Full', 'kivicare-clinic-management-system')}</span>
+                                        </div>
+                                        <div className="calendar-legend-item clinic-holiday">
+                                            <div className="legend-icon"><i className="ph ph-hospital"></i></div>
+                                            <span className="legend-label">{__('Clinic Holiday', 'kivicare-clinic-management-system')}</span>
+                                        </div>
+                                        <div className="calendar-legend-item doctor-leave">
+                                            <div className="legend-icon"><i className="ph ph-stethoscope"></i></div>
+                                            <span className="legend-label">{__('Doctor Leave', 'kivicare-clinic-management-system')}</span>
+                                        </div>
+                                        <div className="calendar-legend-item past-date">
+                                            <div className="legend-icon"><i className="ph ph-x"></i></div>
+                                            <span className="legend-label">{__('Past Date', 'kivicare-clinic-management-system')}</span>
                                         </div>
                                     </div>
                                 </div>
-                            )}
+
+                                {!selectedDate && (
+                                    <p className="select-date-error">{__('Please Select Date', 'kivicare-clinic-management-system')}</p>
+                                )}
+
+                            </div>
                         </div>
+
+                        {/* Time Slots Section */}
+                        {selectedDate && (
+                            <div className="time-slots" id="time-slot">
+                                <h5 id="selectedDate" name="selectedDate" className="mb-2">
+                                    {__('Available time slots', 'kivicare-clinic-management-system')}
+                                </h5>
+                                <div className="time-slots-card text-center card-list p-3">
+
+                                    <div className="" id="timeSlotLists" name="timeSlotLists">
+                                        {isLoadingSlots ? (
+                                            <TimeSlotsSkeleton />
+                                        ) : timeSlots.length > 0 ? (
+                                            timeSlots.map((session, index) => (
+                                                <React.Fragment key={`session-${index}`}>
+                                                    <div className="session-divider">
+                                                        <span>{__(`Session ${index + 1}`, 'kivicare-clinic-management-system')}</span>
+                                                    </div>
+                                                    <div className="appointments-slot-select">
+                                                        {session.map((timeSlot) => (
+                                                            <div key={timeSlot.time} className="iq-client-widget iq-time-slot">
+                                                                <input
+                                                                    type="radio"
+                                                                    className="card-checkbox selected-time"
+                                                                    name="time_slot_selection"
+                                                                    id={`time_slot_${timeSlot.time.replace(/[:\s]/g, '_')}`}
+                                                                    value={timeSlot.time}
+                                                                    checked={selectedTime === timeSlot.time}
+                                                                    onChange={() => handleTimeSelect(timeSlot.time)}
+                                                                />
+                                                                <label
+                                                                    className="iq-button iq-button-white"
+                                                                    htmlFor={`time_slot_${timeSlot.time.replace(/[:\s]/g, '_')}`}
+                                                                >
+                                                                    {timeSlot.time}
+                                                                </label>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </React.Fragment>
+                                            ))
+                                        ) : (
+                                            <div className="text-center p-4">
+                                                <p>{__('No time slots available for selected date.', 'kivicare-clinic-management-system')}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -2065,7 +2390,7 @@ const DateTimeSelection = ({ timezone, doctorId: doctorIdProp, clinicId: clinicI
     );
 };
 
-const AppointmentExtraData = ({ doctorId, widgetSettings, containerId, isKivicarePro }) => {
+const AppointmentExtraData = ({ doctorId, widgetSettings, containerId, isKivicarePro, customForms = [], customFormRefs = {}, customFormsDataState = {}, setCustomFormsDataState = () => {}, errorTabs = [] }) => {
     const { setValue, watch, control, formState: { errors } } = useFormContext();
     const description = watch('description');
     const selectedDoctor = watch('selectedDoctor');
@@ -2077,6 +2402,29 @@ const AppointmentExtraData = ({ doctorId, widgetSettings, containerId, isKivicar
     const handleDescriptionChange = (value) => {
         setValue('description', value, { shouldValidate: true });
     };
+
+    // Determine initial tab based on availability
+    const hasCustomForms = customForms.length > 0;
+    const hasCustomFields = isKivicarePro === "true" && finalDoctorId;
+    
+    // Default to 'custom_field' if available, otherwise first custom form
+    const getInitialTab = () => {
+        if (hasCustomFields) {
+            return 'custom_field';
+        }
+        if (hasCustomForms) {
+            return customForms[0].id;
+        }
+        return '';
+    };
+
+    const [activeTab, setActiveTab] = useState(getInitialTab());
+
+    useEffect(() => {
+        if (!activeTab && (hasCustomFields || hasCustomForms)) {
+            setActiveTab(getInitialTab());
+        }
+    }, [hasCustomFields, hasCustomForms, customForms]);
 
     return (
         <div>
@@ -2101,16 +2449,83 @@ const AppointmentExtraData = ({ doctorId, widgetSettings, containerId, isKivicar
                         </div>
                     </div>
                 )}
+                
+                {/* Tab Navigation */}
+                {(hasCustomFields || hasCustomForms) && (
+                    
+                    <div className="kc-extra-data-tabs d-flex gap-3 mb-4 flex-wrap">
+                         {hasCustomFields && (
+                            <button
+                                type="button"
+                                className={`kc-extra-data-tab-btn ${activeTab === 'custom_field' ? 'is-active' : ''}`}
+                                style={errorTabs.includes('custom_field') ? { border: '1px solid red' } : {}}
+                                onClick={() => setActiveTab('custom_field')}
+                            >
+                                {__('Custom Field', 'kivicare-clinic-management-system')}
+                            </button>
+                        )}
+                        {customForms.map(form => (
+                            <button
+                                key={form.id}
+                                type="button"
+                                className={`kc-extra-data-tab-btn ${String(activeTab) === String(form.id) ? 'is-active' : ''}`}
+                                style={errorTabs.includes(form.id) ? { border: '1px solid red' } : {}}
+                                onClick={() => setActiveTab(form.id)}
+                            >
+                                {form.name?.text || form.title || form.name || __('Custom Form', 'kivicare-clinic-management-system')}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
                 {/* Custom Fields for Appointment Module */}
-                {isKivicarePro === "true" && finalDoctorId && (
-                    <CustomFieldRenderer
-                        moduleType="appointment_module"
-                        moduleId={finalDoctorId}
-                        control={control}
-                        errors={errors}
-                        setValue={setValue}
-                        watch={watch}
-                    />
+                {hasCustomFields && (
+                    <div 
+                        className="custom-fields-section animate__animated animate__fadeIn"
+                        style={{ display: activeTab === 'custom_field' ? 'block' : 'none' }}
+                    >
+                        <CustomFieldRenderer
+                            moduleType="appointment_module"
+                            moduleId={finalDoctorId}
+                            control={control}
+                            errors={errors}
+                            setValue={setValue}
+                            watch={watch}
+                        />
+                    </div>
+                )}
+
+                {/* Custom Forms */}
+                {hasCustomForms && (
+                    <div className="custom-forms-section">
+                        {customForms.map(form => {
+                            const isActive = String(activeTab) === String(form.id);
+                            return (
+                                <div 
+                                    key={form.id} 
+                                    className="mb-4 animate__animated animate__fadeIn"
+                                    style={{ display: isActive ? 'block' : 'none' }}
+                                >
+                                    <h6 className="iq-text-uppercase iq-color-secondary iq-letter-spacing-1 mb-2">
+                                        {form.name?.text || form.title || form.name}
+                                    </h6>
+                                    <CustomFormRenderer 
+                                        ref={el => (customFormRefs.current = { ...customFormRefs.current, [form.id]: el })}
+                                        fields={form.fields}
+                                        data={customFormsDataState[form.id] || {}}
+                                        formId={`custom_form_${form.id}`}
+                                        readOnly={false}
+                                        onChange={(data) => {
+                                            setCustomFormsDataState(prev => ({
+                                                ...prev,
+                                                [form.id]: data
+                                            }));
+                                        }}
+                                    />
+                                </div>
+                            );
+                        })}
+                    </div>
                 )}
                 {is_uploadfile_appointment && (
                     <div className="col-12">
@@ -2129,7 +2544,7 @@ const AppointmentExtraData = ({ doctorId, widgetSettings, containerId, isKivicar
     );
 };
 
-const UserDetailsForm = ({ isAuthenticated, setIsAuthenticated, isLogin, setIsLogin, onNext, clinicId, containerId }) => {
+const UserDetailsForm = ({ isAuthenticated, setIsAuthenticated, isLogin, setIsLogin, onNext, clinicId, containerId, showOtherGender, defaultCountry }) => {
     const { setValue, watch } = useFormContext();
     const userDetails = watch('userDetails') || {};
 
@@ -2176,6 +2591,8 @@ const UserDetailsForm = ({ isAuthenticated, setIsAuthenticated, isLogin, setIsLo
                         setIsAuthenticated={setIsAuthenticated}
                         handleNext={onNext}
                         clinicId={clinicId}
+                        showOtherGender={showOtherGender}
+                        defaultCountry={defaultCountry}
                     />
                 ) : (
                     <LoginForm
@@ -2192,10 +2609,11 @@ const UserDetailsForm = ({ isAuthenticated, setIsAuthenticated, isLogin, setIsLo
     );
 };
 
-const RegisterForm = React.memo(({ userDetails, onUpdateDetails, switchTab, setIsAuthenticated, handleNext, clinicId }) => {
+const RegisterForm = React.memo(({ userDetails, onUpdateDetails, switchTab, setIsAuthenticated, handleNext, clinicId, showOtherGender, defaultCountry }) => {
     const registerMutation = useRegister();
     const { setValue: setMainFormValue, control, formState: { errors: mainFormErrors }, watch: mainWatch } = useFormContext(); // For setting main form user details
     const toast = useToast(); // Add toast functionality
+    const queryClient = useQueryClient(); // For invalidating queries after registration
     const selectedDoctor = mainWatch('selectedDoctor');
 
     // Create separate form for register form validation
@@ -2257,6 +2675,11 @@ const RegisterForm = React.memo(({ userDetails, onUpdateDetails, switchTab, setI
 
                 // Set authentication state to true
                 setIsAuthenticated(true);
+
+                // Invalidate confirmation query to refetch with new authentication
+                queryClient.invalidateQueries({
+                    queryKey: frontendBookAppointmentKeys.confirmation()
+                });
 
                 // Update main form with user details
                 setMainFormValue('userDetails.firstName', data.firstName, { shouldValidate: true });
@@ -2447,7 +2870,7 @@ const RegisterForm = React.memo(({ userDetails, onUpdateDetails, switchTab, setI
                         </label>
                         <div className="contact-box-inline">
                             <PhoneInput
-                                defaultCountry="us"
+                                defaultCountry={defaultCountry || "us"}
                                 value={watch('contact')}
                                 onChange={handlePhoneChange}
                                 defaultMenuIsOpen={true}
@@ -2501,18 +2924,20 @@ const RegisterForm = React.memo(({ userDetails, onUpdateDetails, switchTab, setI
                                 />
                                 <label className="custom-control-label" htmlFor="female">{__('Female', 'kivicare-clinic-management-system')}</label>
                             </div>
-                            <div className="custom-control custom-radio custom-control-inline">
-                                <input
-                                    type="radio"
-                                    id="other"
-                                    value="other"
-                                    className="custom-control-input"
-                                    {...register('gender', {
-                                        required: __('Please select your gender', 'kivicare-clinic-management-system')
-                                    })}
-                                />
-                                <label className="custom-control-label" htmlFor="other">{__('Other', 'kivicare-clinic-management-system')}</label>
-                            </div>
+                            {showOtherGender === 'on' && (
+                                <div className="custom-control custom-radio custom-control-inline">
+                                    <input
+                                        type="radio"
+                                        id="other"
+                                        value="other"
+                                        className="custom-control-input"
+                                        {...register('gender', {
+                                            required: __('Please select your gender', 'kivicare-clinic-management-system')
+                                        })}
+                                    />
+                                    <label className="custom-control-label" htmlFor="other">{__('Other', 'kivicare-clinic-management-system')}</label>
+                                </div>
+                            )}
                         </div>
                         {errors.gender && (
                             <small className="text-danger">{errors.gender.message}</small>
@@ -2662,7 +3087,7 @@ const LoginForm = React.memo(({ userDetails, onUpdateDetails, switchTab, setIsAu
                             <small className="text-danger">{errors.password.message}</small>
                         )}
                         <div className="d-flex justify-content-end mt-2">
-                            <a 
+                            <a
                                 href={`${window.kc_frontend?.home_url}/wp-login.php?action=lostpassword`}
                                 className="text-primary"
                                 style={{ textDecoration: 'none', cursor: 'pointer' }}
@@ -2677,7 +3102,27 @@ const LoginForm = React.memo(({ userDetails, onUpdateDetails, switchTab, setIsAu
     );
 });
 
-const ConfirmationStep = ({ paymentGateways = [], ...rest }) => {
+// Helper to render custom field values safely
+const renderCustomFieldValue = (value) => {
+    if (!value) return null;
+
+    const isFile = (item) => item && typeof item === 'object' && item.url;
+    const getFileName = (file) => file.name || file.filename || file.url.split('/').pop();
+    const renderLink = (file, key) => (
+        <a key={key} href={file.url} target="_blank" rel="noopener noreferrer" className="text-primary d-block" style={{ textDecoration: 'underline' }}>
+            {getFileName(file)}
+        </a>
+    );
+
+    if (isFile(value)) return renderLink(value);
+    if (Array.isArray(value) && value.some(isFile)) {
+        return <div className="d-flex flex-column">{value.map((file, i) => isFile(file) ? renderLink(file, i) : null)}</div>;
+    }
+
+    return typeof value === 'object' ? (value.label || value.value || JSON.stringify(value)) : value;
+};
+
+const ConfirmationStep = ({ paymentGateways = [], customForms = [], customFormsDataState = {}, ...rest }) => {
     const { watch, setValue } = useFormContext();
     const formData = watch();
 
@@ -2765,70 +3210,73 @@ const ConfirmationStep = ({ paymentGateways = [], ...rest }) => {
             <StepHeader
                 title={__('Confirmation Detail', 'kivicare-clinic-management-system')}
             />
-            <div className="card-list-data" id="kivi_confirm_page" style={{ height: '470px', position: 'relative' }}>
+            <div className="card-list-data" id="kivi_confirm_page" style={{ height: '470px', position: 'relative', overflowY: 'auto', overflowX: 'hidden' }}>
                 <div className="card-list pe-2 pt-1 w-100">
                     {/* Payment Gateway Selection Column */}
                     <div className="kc-card-list">
-                        {paymentGateways.length > 0 && rest.grandTotal > 0 && (
                             <div className="kc-confirmation-info-section">
-                                <h6 className="iq-text-uppercase iq-color-secondary iq-letter-spacing-1 mb-2">
-                                    {__('Payment Method', 'kivicare-clinic-management-system')}
-                                </h6>
-                                <div className="iq-card iq-preview-details">
-                                    {paymentGateways.length === 1 ? (
-                                        <div className="payment-gateway-single">
-                                            <div className="d-flex align-items-center flex-wrap p-3">
-                                                <img
-                                                    src={paymentGateways[0]?.logo || ''}
-                                                    alt={paymentGateways[0]?.name}
-                                                    className="me-3"
-                                                    style={{ width: '40px', height: '40px', objectFit: 'contain' }}
-                                                    onError={(e) => { e.target.style.display = 'none'; }}
-                                                />
-                                                <div>
-                                                    <h6 className="mb-0">{paymentGateways[0]?.name}</h6>
-                                                    <small className="text-muted">{paymentGateways[0]?.description || ''}</small>
+                            {paymentGateways.length > 0 && rest.grandTotal > 0 && (
+                                <>
+                                    <h6 className="iq-text-uppercase iq-color-secondary iq-letter-spacing-1 mb-2">
+                                        {__('Payment Method', 'kivicare-clinic-management-system')}
+                                    </h6>
+                                    <div className="iq-card iq-preview-details">
+                                        {paymentGateways.length === 1 ? (
+                                            <div className="payment-gateway-single">
+                                                <div className="d-flex align-items-center flex-wrap p-3">
+                                                    <img
+                                                        src={paymentGateways[0]?.logo || ''}
+                                                        alt={paymentGateways[0]?.name}
+                                                        className="me-3"
+                                                        style={{ width: '40px', height: '40px', objectFit: 'contain' }}
+                                                        onError={(e) => { e.target.style.display = 'none'; }}
+                                                    />
+                                                    <div>
+                                                        <h6 className="mb-0">{paymentGateways[0]?.name}</h6>
+                                                        <small className="text-muted">{paymentGateways[0]?.description || ''}</small>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <div className="payment-gateway-selection">
-                                            {paymentGateways.map((gateway) => (
-                                                <div key={gateway.id} className="payment-gateway-option mb-2">
-                                                    <input
-                                                        type="radio"
-                                                        id={`payment_${gateway.id}`}
-                                                        name="payment_gateway"
-                                                        value={gateway.id}
-                                                        checked={formData.selectedPaymentGateway?.id === gateway.id}
-                                                        onChange={() => handlePaymentGatewaySelect(gateway)}
-                                                        className="me-2"
-                                                    />
-                                                    <label
-                                                        htmlFor={`payment_${gateway.id}`}
-                                                        className="d-flex align-items-center p-2 border rounded cursor-pointer w-100"
-                                                        style={{
-                                                            cursor: 'pointer',
-                                                            backgroundColor: formData.selectedPaymentGateway?.id === gateway.id ? '#f8f9fa' : 'transparent'
-                                                        }}
-                                                    >
-                                                        <img
-                                                            src={gateway.logo || ''}
-                                                            alt={gateway.name}
-                                                            className="me-3"
-                                                            style={{ width: '40px', height: '40px', objectFit: 'contain' }}
-                                                            onError={(e) => { e.target.style.display = 'none'; }}
+                                        ) : (
+                                            <div className="payment-gateway-selection">
+                                                {paymentGateways.map((gateway) => (
+                                                    <div key={gateway.id} className="payment-gateway-option mb-2">
+                                                        <input
+                                                            type="radio"
+                                                            id={`payment_${gateway.id}`}
+                                                            name="payment_gateway"
+                                                            value={gateway.id}
+                                                            checked={formData.selectedPaymentGateway?.id === gateway.id}
+                                                            onChange={() => handlePaymentGatewaySelect(gateway)}
+                                                            className="me-2"
                                                         />
-                                                        <div>
-                                                            <h6 className="mb-0">{gateway.name}</h6>
-                                                            <small className="text-muted">{gateway.description || ''}</small>
-                                                        </div>
-                                                    </label>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
+                                                        <label
+                                                            htmlFor={`payment_${gateway.id}`}
+                                                            className="d-flex align-items-center p-2 border rounded cursor-pointer w-100"
+                                                            style={{
+                                                                cursor: 'pointer',
+                                                                backgroundColor: formData.selectedPaymentGateway?.id === gateway.id ? '#f8f9fa' : 'transparent'
+                                                            }}
+                                                        >
+                                                            <img
+                                                                src={gateway.logo || ''}
+                                                                alt={gateway.name}
+                                                                className="me-3"
+                                                                style={{ width: '40px', height: '40px', objectFit: 'contain' }}
+                                                                onError={(e) => { e.target.style.display = 'none'; }}
+                                                            />
+                                                            <div>
+                                                                <h6 className="mb-0">{gateway.name}</h6>
+                                                                <small className="text-muted">{gateway.description || ''}</small>
+                                                            </div>
+                                                        </label>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
+                            )}
                                 {/* Patient Info Section */}
                                 <div className="kc-confirmation-info-section mt-4">
                                     <h6 className="iq-text-uppercase iq-color-secondary iq-letter-spacing-1 mb-2">{__('Patient info', 'kivicare-clinic-management-system')}</h6>
@@ -2871,8 +3319,7 @@ const ConfirmationStep = ({ paymentGateways = [], ...rest }) => {
                                     </div>
                                 </div>
                             </div>
-                        )}
-
+        
                         {/* Clinic Info Section */}
                         <div className="kc-confirmation-info-section">
                             <h6 className="iq-text-uppercase iq-color-secondary iq-letter-spacing-1 mb-2">{__('Clinic info', 'kivicare-clinic-management-system')}</h6>
@@ -3022,7 +3469,7 @@ const ConfirmationStep = ({ paymentGateways = [], ...rest }) => {
                             </div>
                         </div>
 
-  
+
                         {/* other Info Section */}
                         {(() => {
                             const customFieldFormData = {};
@@ -3051,7 +3498,7 @@ const ConfirmationStep = ({ paymentGateways = [], ...rest }) => {
                                             if (!fieldValue) return null;
                                             return (
                                                 <div key={field.id} className="mb-2">
-                                                    <strong>{field.name}:</strong> <span>{fieldValue}</span>
+                                                    <strong>{field.name}:</strong> <div>{renderCustomFieldValue(fieldValue)}</div>
                                                 </div>
                                             );
                                         })}

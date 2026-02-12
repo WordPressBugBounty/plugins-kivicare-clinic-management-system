@@ -661,16 +661,46 @@ function kcGetFormatedDate($date)
  * Generate unique username
  * 
  * @param string $base_name
+ * @param string $email Optional email address to use as fallback
  * @return string
  */
-function kcGenerateUsername($base_name)
+function kcGenerateUsername($base_name, $email = '')
 {
-    $username = sanitize_user($base_name);
-    $counter = 1;
+    // 1. Try to generate from base name
+    // Transliterate to ASCII
+    $username = remove_accents($base_name);
+    // Sanitize strictly (only alphanumeric, _, space, ., -, @) - space is removed by strict=true
+    $username = sanitize_user($username, true);
 
+    // 2. Fallback: Try email prefix if base name is empty
+    if (empty($username) && !empty($email)) {
+        $email_parts = explode('@', $email);
+        $username = remove_accents($email_parts[0]);
+        $username = sanitize_user($username, true);
+    }
+
+    // 3. Fallback: Generate completely random username if still empty
+    if (empty($username)) {
+        // Keep generating until we get a valid sanitized string
+        while (empty($username)) {
+            // Reuse existing helper
+            $random = kcGenerateRandomString(12);
+            $username = sanitize_user($random, true);
+        }
+    }
+
+    // 4. Ensure Uniqueness
+    $original_username = $username;
+    
     while (username_exists($username)) {
-        $username = sanitize_user($base_name . $counter);
-        $counter++;
+        // Append minimal randomness (4 chars) instead of counters
+        // Reuse existing helper
+        $suffix = '';
+        while (empty($suffix)) {
+            $suffix = sanitize_user(kcGenerateRandomString(4), true);
+        }
+        
+        $username = $original_username . $suffix;
     }
 
     return $username;

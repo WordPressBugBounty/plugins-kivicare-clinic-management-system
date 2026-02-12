@@ -141,17 +141,23 @@ class KCTimeSlotService
      */
     private function generateSlotsFromSessions(): void
     {
-        $currentTime = new DateTime('now', wp_timezone() );
+        $currentTime = new DateTime('now', wp_timezone());
+        
         foreach ($this->sessions as $sessionIndex => $session) {
             $sessionSlots = [];
 
-            // Split session into available chunks
-            $availableChunks = $this->splitSessionIntoChunks($session);
-
-            // Generate slots from each chunk
-            foreach ($availableChunks as $chunk) {
-                $chunkSlots = $this->generateSlotsFromChunk($chunk, $session, $currentTime);
-                $sessionSlots = array_merge($sessionSlots, $chunkSlots);
+            if ($this->onlyAvailableSlots) {
+                // Original behavior: Split session into available chunks (excludes booked times)
+                $availableChunks = $this->splitSessionIntoChunks($session);
+                
+                // Generate slots from each chunk
+                foreach ($availableChunks as $chunk) {
+                    $chunkSlots = $this->generateSlotsFromChunk($chunk, $session, $currentTime);
+                    $sessionSlots = array_merge($sessionSlots, $chunkSlots);
+                }
+            } else {
+                // New behavior: Generate ALL possible slots and mark booked ones as unavailable
+                $sessionSlots = $this->generateAllSlotsWithBookingStatus($session, $currentTime);
             }
 
             $this->slots[$sessionIndex] = $sessionSlots;
@@ -263,11 +269,17 @@ class KCTimeSlotService
 
             // Check if slot fits within chunk
             if ($slotEnd <= $chunk['end']) {
-                // Check if slot is in the future
+                // Generate slot based on only_available_slots flag
+                // Note: Booked appointment times never reach here because splitSessionIntoChunks()
+                // creates time chunks that exclude existing appointments
+                // 
+                // The 'only_available_slots' flag controls whether to include PAST slots:
+                // - If true: Only return future slots (slotStart > currentTime)
+                // - If false: Return all slots (future and past), but mark past ones with available=false
                 if (!$this->onlyAvailableSlots || $slotStart > $currentTime) { 
                     $slots[] = [
                         'time' => $this->formatTime($slotStart),
-                        'available' => $slotStart > $currentTime,
+                        'available' => $slotStart > $currentTime, // True only if slot is in the future
                         'datetime' => $slotStart->format('Y-m-d H:i:s'),
                         'session_id' => $session->id ?? null
                     ];
@@ -279,6 +291,81 @@ class KCTimeSlotService
         }
 
         return $slots;
+    }
+
+    /**
+     * Generate all possible slots for a session and mark booked ones as unavailable
+     * Used when only_available_slots is false to get accurate total slot counts
+     * 
+     * @param object $session Session data
+     * @param DateTime $currentTime Current time for future validation
+     * @return array Generated slots with booking status
+     */
+    private function generateAllSlotsWithBookingStatus($session, DateTime $currentTime): array
+    {
+        $slots = [];
+        $slotDuration = $this->serviceDurationSum ?: $session->timeSlot;
+        
+        $slotStart = clone $session->start_datetime;
+        $sessionEnd = clone $session->end_datetime;
+        
+        while ($slotStart < $sessionEnd) {
+            $slotEnd = clone $slotStart;
+            $slotEnd->add(new DateInterval('PT' . $slotDuration . 'M'));
+            
+            // Check if slot fits within session
+            if ($slotEnd <= $sessionEnd) {
+                // Check if this slot overlaps with any booked appointment
+                $isBooked = $this->isSlotBooked($slotStart, $slotEnd);
+                
+                // Determine if slot is available:
+                // - Must be in the future (slotStart > currentTime)
+                // - Must not be booked
+                $isAvailable = ($slotStart > $currentTime) && !$isBooked;
+                
+                $slots[] = [
+                    'time' => $this->formatTime($slotStart),
+                    'available' => $isAvailable,
+                    'booked' => $isBooked,
+                    'datetime' => $slotStart->format('Y-m-d H:i:s'),
+                    'session_id' => $session->id ?? null
+                ];
+            }
+            
+            // Move to next slot
+            $slotStart->add(new DateInterval('PT' . $slotDuration . 'M'));
+        }
+        
+        return $slots;
+    }
+    
+    /**
+     * Check if a specific time slot overlaps with any booked appointment
+     * 
+     * @param DateTime $slotStart Slot start time
+     * @param DateTime $slotEnd Slot end time
+     * @return bool True if slot is booked
+     */
+    private function isSlotBooked(DateTime $slotStart, DateTime $slotEnd): bool
+    {
+        foreach ($this->appointments as $appointment) {
+            $appointment = (object) $appointment;
+            
+            // Skip the appointment we're editing (if any)
+            if ($this->appointmentIdToSkip && isset($appointment->id) && $appointment->id == $this->appointmentIdToSkip) {
+                continue;
+            }
+            
+            $appointmentStart = new DateTime($appointment->appointmentStartDate . ' ' . $appointment->appointmentStartTime, wp_timezone());
+            $appointmentEnd = new DateTime($appointment->appointmentEndDate . ' ' . $appointment->appointmentEndTime, wp_timezone());
+            
+            // Check for overlap
+            if ($slotStart < $appointmentEnd && $slotEnd > $appointmentStart) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     /**

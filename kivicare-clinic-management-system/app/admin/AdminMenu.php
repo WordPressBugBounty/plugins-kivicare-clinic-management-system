@@ -2,6 +2,7 @@
 namespace App\admin;
 
 use App\baseClasses\KCBase;
+use App\models\KCOption;
 use function Iqonic\Vite\iqonic_enqueue_asset;
 
 defined('ABSPATH') or die('Something went wrong');
@@ -103,6 +104,7 @@ class AdminMenu
             'locale_data' => $locale_data_kc,
             'prefix' => KIVI_CARE_PREFIX,
             'loader_image' => KIVI_CARE_DIR_URI . 'assets/images/loader.gif',
+            'site_logo' => !empty(KCOption::get('site_logo')) ? wp_get_attachment_url(KCOption::get('site_logo')) : '',
             'date_format' => get_option('date_format'),
         ]);
     }

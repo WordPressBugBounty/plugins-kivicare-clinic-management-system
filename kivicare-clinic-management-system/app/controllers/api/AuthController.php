@@ -307,6 +307,15 @@ class AuthController extends KCBaseController
                 'sanitize_callback' => 'rest_sanitize_boolean',
             ],
             'recaptchaToken' => $this->getCommonArgs()['recaptchaToken'],
+            'allowed_roles' => [
+                'description' => 'Allowed roles for login restriction',
+                'type' => 'array',
+                'required' => false,
+                'items' => [
+                    'type' => 'string',
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+            ],
         ];
     }
 
@@ -797,6 +806,51 @@ class AuthController extends KCBaseController
             }
             KCErrorLogger::instance()->error("Login - Patient role validated successfully");
         } else {
+            // Check if allowed_roles constraint is provided
+            if (!empty($params['allowed_roles']) && is_array($params['allowed_roles'])) {
+                $allowed_roles = $params['allowed_roles'];
+                $has_allowed_role = false;
+                
+                // Map of short role names to full role names
+                $role_map = [
+                    'doctor' => $this->kcbase->getDoctorRole(),
+                    'patient' => $this->kcbase->getPatientRole(),
+                    'receptionist' => $this->kcbase->getReceptionistRole(),
+                    'clinic_admin' => $this->kcbase->getClinicAdminRole(),
+                ];
+                
+                // Also support passing full role names directly
+                $full_allowed_roles = [];
+                foreach ($allowed_roles as $role) {
+                    $role_lower = strtolower($role);
+                    if (isset($role_map[$role_lower])) {
+                        $full_allowed_roles[] = $role_map[$role_lower];
+                    } else {
+                        $full_allowed_roles[] = $role;
+                        if ($role !== $role_lower) {
+                            $full_allowed_roles[] = $role_lower;
+                        }
+                    }
+                }
+                
+                foreach ($user->roles as $user_role) {
+                    if (in_array($user_role, $full_allowed_roles)) {
+                        $has_allowed_role = true;
+                        break;
+                    }
+                }
+                
+                if (!$has_allowed_role) {
+                    wp_logout();
+                    return $this->response(
+                        null,
+                        __('You do not have permission to login from this form.', 'kivicare-clinic-management-system'),
+                        false,
+                        403
+                    );
+                }
+            }
+
             // Check if user has a valid role for the system (normal login)
             if (!$this->hasValidRole($user)) {
                 wp_logout();
@@ -1305,9 +1359,9 @@ class AuthController extends KCBaseController
                 'username' => $params['username'],
                 'email' => $params['email'],
                 'password' => $params['password'],
-                'firstName' => $params['first_name'] ?? '',
-                'lastName' => $params['last_name'] ?? '',
-                'displayName' => trim(($params['first_name'] ?? '') . ' ' . ($params['last_name'] ?? '')),
+                'firstName' => $params['firstName'] ?? '',
+                'lastName' => $params['lastName'] ?? '',
+                'displayName' => trim(($params['firstName'] ?? '') . ' ' . ($params['lastName'] ?? '')),
                 'contactNumber' => $mobile_number,
                 'gender' => $params['gender'],
                 'status' => $default_status,
@@ -1398,21 +1452,41 @@ class AuthController extends KCBaseController
             $this->sendWelcomeEmail($user_id, $params['username'], $params['password']);
             $this->sendAdminNewUserNotification($user_id);
 
-            // Get user data for response
+            /**
+             * Automatically log in the newly registered user.
+             *
+             * The booking widget (and other frontend flows) expect the user to be
+             * authenticated immediately after registration so that protected
+             * endpoints like the appointment confirmation API can be accessed.
+             */
+            wp_clear_auth_cookie();
+            // Prevent duplicate Set-Cookie headers from multiple auth calls.
+            header_remove('Set-Cookie');
+            wp_set_current_user($user_id);
+            add_action(
+                'set_logged_in_cookie',
+                function ($logged_in_cookie) {
+                    $_COOKIE[LOGGED_IN_COOKIE] = $logged_in_cookie;
+                }
+            );
+            wp_set_auth_cookie($user_id);
+
+            // Get user data for response (now as a logged-in user)
             $wpUser = get_userdata($user_id);
             $userData = [
                 'user_id' => $user_id,
                 'username' => $wpUser->user_login,
                 'email' => $wpUser->user_email,
                 'display_name' => $wpUser->display_name,
-                'first_name' => $wpUser->first_name,
-                'last_name' => $wpUser->last_name,
+                'first_name' => get_user_meta($user_id, 'first_name', true),
+                'last_name' => get_user_meta($user_id, 'last_name', true),
                 'mobile_number' => $mobile_number,
                 'gender' => $params['gender'],
                 'user_role' => $user_role,
                 'clinic_id' => $clinic_id,
                 'roles' => $wpUser->roles,
                 'profileImageUrl' => $this->getUserProfileImageUrl($user_id, $user_role),
+                // Nonce must be generated AFTER the user is authenticated
                 'nonce' => wp_create_nonce('wp_rest')
             ];
 
@@ -1479,11 +1553,11 @@ class AuthController extends KCBaseController
             );
         }
 
-        // $this->sendPasswordResetEmail($user, $key);
+        $this->sendPasswordResetEmail($user, $key);
 
         return $this->response(
             null,
-            __('Password reset email sent successfully', 'kivicare-clinic-management-system'),
+            $this->getTranslatedMessage(__('Password reset email sent successfully', 'kivicare-clinic-management-system'), $request),
             true,
             200
         );

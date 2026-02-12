@@ -7,6 +7,7 @@ use App\baseClasses\KCBaseController;
 use App\baseClasses\KCErrorLogger;
 use App\baseClasses\KCTelemedFactory;
 use App\models\KCDoctorClinicMapping;
+use App\models\KCOption;
 use App\models\KCServiceDoctorMapping;
 use App\models\KCStaticData;
 use App\models\KCClinic;
@@ -585,7 +586,7 @@ class StaticDataController extends KCBaseController
         try {
             $currentUserRole = $this->kcbase->getLoginUserRole();
             $currentUserId = get_current_user_id();
-            $clinicsQuery = KCClinic::query()->where('status', 1);
+            $clinicsQuery = KCClinic::query();
             if (!is_user_logged_in()) {
                 $currentUserRole = 'logged_out_user';
             }
@@ -640,10 +641,17 @@ class StaticDataController extends KCBaseController
                     $clinicsQuery->whereRaw('0=1');
             }
 
+            // Only show inactive clinics if is_app is set to true
+            if (!$request->has_param('is_app') || ($request->get_param('is_app') !== 'true' && $request->get_param('is_app') !== true)) {
+                 $clinicsQuery->where('status', 1);
+            }
+
             // Handle search
             if ($request instanceof WP_REST_Request && !empty($request->get_param('search'))) {
                 $search = $request->get_param('search');
-                $clinicsQuery->where('name', 'LIKE', '%' . $search . '%');
+                if ($search !== 'undefined' && $search !== 'null') {
+                    $clinicsQuery->where('name', 'LIKE', '%' . $search . '%');
+                }
             }
 
             // Filter by service_id
@@ -731,17 +739,7 @@ class StaticDataController extends KCBaseController
             $clinics = $clinicsQuery->get();
 
             // Fetch active holidays for clinics
-            $currentDate = current_time('Y-m-d');
-            $holidayClinicIds = \App\models\KCClinicSchedule::query()
-                ->where('module_type', 'clinic')
-                ->where('start_date', '<=', $currentDate)
-                ->where('end_date', '>=', $currentDate)
-                ->where('status', 1)
-                ->get()
-                ->pluck('moduleId') 
-                ->toArray();
-                
-            $holidayClinicIds = array_map('intval', $holidayClinicIds);
+            $holidayClinicIds = \App\models\KCClinicSchedule::getActiveHolidaysByModule('clinic');
 
             $result = $clinics->map(function ($clinic) use ($holidayClinicIds) {
 
@@ -766,10 +764,8 @@ class StaticDataController extends KCBaseController
                 }
 
                 $status = $clinic->status;
-                // If clinic is in the holiday list, mark it as inactive (0) in the response
-                if (in_array((int)$clinic->id, $holidayClinicIds, true)) {
-                    $status = '0';
-                }
+                // If clinic is in the holiday list, add active holiday key in response
+                $is_holiday = in_array((int)$clinic->id, $holidayClinicIds, true);
 
                 return [
                     'id' => $clinic->id,
@@ -778,6 +774,7 @@ class StaticDataController extends KCBaseController
                     'address' => $fullAddress,      // full formatted address
                     'clinic_logo' => $clinicImageUrl,
                     'status' => $status,
+                    'is_holiday' => $is_holiday,
                 ];
             })->toArray();
 
@@ -1211,7 +1208,24 @@ class StaticDataController extends KCBaseController
     private function getPatientsList($clinicId = 0, ?WP_REST_Request $request = null): array
     {
         try {
-            $query = KCPatient::query()->where('user_status', 0);
+            $query = KCPatient::query()->setTableAlias('user')->where('user.user_status', 0);
+
+            // Add patient unique ID settings check
+            $patientIdSetting = KCOption::get('patient_id_setting', []);
+            $isPatientIdEnabled = isset($patientIdSetting['enable']) && in_array((string)$patientIdSetting['enable'], ['true', '1', 'on'], true);
+
+            if ($isPatientIdEnabled) {
+                // Join usermeta to get patient_unique_id with a unique alias 'puid'
+                $query->leftJoin('usermeta', function ($join) {
+                    $join->on('puid.user_id', '=', 'user.ID')
+                        ->onRaw("puid.meta_key = 'patient_unique_id'");
+                }, null, null, 'puid');
+
+                $query->select(['user.*', 'puid.meta_value as patient_unique_id']);
+            } else {
+                $query->select(['user.*']);
+            }
+
 
             // Convert comma-separated string to array if needed
             if (!empty($clinicId)) {
@@ -1239,8 +1253,11 @@ class StaticDataController extends KCBaseController
             // Handle search
             if ($request instanceof WP_REST_Request && !empty($request->get_param('search'))) {
                 $search = $request->get_param('search');
-                $query->where(function ($q) use ($search) {
-                    $q->orWhere('display_name', 'LIKE', '%' . $search . '%');
+                $query->where(function ($q) use ($search, $isPatientIdEnabled) {
+                    $q->orWhere('user.display_name', 'LIKE', '%' . $search . '%');
+                    if ($isPatientIdEnabled) {
+                        $q->orWhere('puid.meta_value', 'LIKE', '%' . $search . '%');
+                    }
                 });
             }
 
@@ -1259,18 +1276,27 @@ class StaticDataController extends KCBaseController
             }
 
             $patients = $query->get();
-            $result = $patients->map(function ($patient) {
+            $result = $patients->map(function ($patient) use ($isPatientIdEnabled) {
                 $patientImage = '';
                 $profileImageId = get_user_meta($patient->user_id, 'patient_profile_image', true);
                 if ($profileImageId) {
                     $patientImage = wp_get_attachment_url($profileImageId);
                 }
 
+                $displayName = $patient->display_name ?? $patient->first_name . ' ' . $patient->last_name;
+                $uniqueId = $isPatientIdEnabled ? $patient->patient_unique_id : '';
+
+                $label = $displayName;
+                if ($isPatientIdEnabled && !empty($uniqueId)) {
+                    $label .= ' (' . $uniqueId . ')';
+                }
+
                 return [
                     'id' => $patient->user_id,
-                    'label' => $patient->display_name ?? $patient->first_name . ' ' . $patient->last_name,
+                    'label' => $label,
                     'value' => $patient->user_id,
                     'patient_image_url' => $patientImage ?: '',
+                    'patient_unique_id' => $uniqueId,
                 ];
             })->toArray();
 
@@ -1813,7 +1839,12 @@ class StaticDataController extends KCBaseController
             $doctorId = $request ? $request->get_param('doctor_id') : null;
             $search = $request ? $request->get_param('search') : null;
 
-            $clinicsQuery = KCClinic::query()->where('status', 1);
+            $clinicsQuery = KCClinic::query();
+            
+            // Only show inactive clinics if is_app is set to true
+            if (!$request->has_param('is_app') || ($request->get_param('is_app') !== 'true' && $request->get_param('is_app') !== true)) {
+                 $clinicsQuery->where('status', 1);
+            }
 
             if (!empty($clinicId)) {
                 $clinicsQuery->where('id', $clinicId);
@@ -1975,6 +2006,14 @@ class StaticDataController extends KCBaseController
             // Filter by specific doctor ID if provided
             if (!empty($doctorId)) {
                 $doctorsQuery->where('ID', $doctorId);
+            }
+
+            // Handle search BEFORE pagination - search across multiple fields
+            if (!empty($search)) {
+                $doctorsQuery->where(function ($q) use ($search) {
+                    $q->where('display_name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('user_email', 'LIKE', '%' . $search . '%');
+                });
             }
 
             if (!empty($serviceId)) {
@@ -2153,17 +2192,6 @@ class StaticDataController extends KCBaseController
                     ]
                 );
             })->toArray();
-
-            // Apply search filter if provided
-            if (!empty($search)) {
-                $doctors = array_filter($doctors, function ($doctor) use ($search) {
-                    $searchLower = strtolower($search);
-                    return strpos(strtolower($doctor['name']), $searchLower) !== false ||
-                        strpos(strtolower($doctor['email']), $searchLower) !== false ||
-                        strpos(strtolower($doctor['firstName'] . ' ' . $doctor['lastName']), $searchLower) !== false;
-                });
-                $doctors = array_values($doctors); // Re-index array
-            }
 
             $response_data = [
                 'doctors' => $doctors,

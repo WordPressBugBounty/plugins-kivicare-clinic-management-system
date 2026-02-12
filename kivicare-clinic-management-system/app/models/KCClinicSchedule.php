@@ -75,6 +75,43 @@ class KCClinicSchedule extends KCBaseModel
                         fn($value) => in_array($value, [0, 1]) ? true : 'Status must be 0 or 1'
                     ],
                 ],
+                'selectionMode' => [
+                    'column' => 'selection_mode',
+                    'type' => 'string',
+                    'nullable' => false,
+                    'default' => 'range',
+                    'sanitizers' => ['sanitize_text_field'],
+                    'validators' => [
+                        fn($value) => in_array($value, ['single', 'multiple', 'range']) ? true : 'Invalid selection mode'
+                    ],
+                ],
+                'selectedDates' => [
+                    'column' => 'selected_dates',
+                    'type' => 'text',
+                    'nullable' => true,
+                    'sanitizers' => ['sanitize_textarea_field'],
+                ],
+                'timeSpecific' => [
+                    'column' => 'time_specific',
+                    'type' => 'int',
+                    'nullable' => false,
+                    'default' => 0,
+                    'validators' => [
+                        fn($value) => in_array($value, [0, 1]) ? true : 'Time specific must be 0 or 1'
+                    ],
+                ],
+                'startTime' => [
+                    'column' => 'start_time',
+                    'type' => 'time',
+                    'nullable' => true,
+                    'sanitizers' => ['sanitize_text_field'],
+                ],
+                'endTime' => [
+                    'column' => 'end_time',
+                    'type' => 'time',
+                    'nullable' => true,
+                    'sanitizers' => ['sanitize_text_field'],
+                ],
                 'createdAt' => [
                     'column' => 'created_at',
                     'type' => 'datetime',
@@ -208,5 +245,25 @@ class KCClinicSchedule extends KCBaseModel
                 break;
         }
         return $permission;
+    }
+
+    /**
+     * Get active holidays for a specific module type
+     * 
+     * @param string $moduleType 'clinic', 'doctor', etc.
+     * @return array Array of module IDs that are on holiday
+     */
+    public static function getActiveHolidaysByModule($moduleType)
+    {
+        $currentDate = current_time('Y-m-d');
+        return self::query()
+            ->where('module_type', $moduleType)
+            ->where('start_date', '<=', $currentDate)
+            ->where('end_date', '>=', $currentDate)
+            ->where('status', 1)
+            ->get()
+            ->pluck('moduleId') 
+            ->map(fn($id) => (int)$id)
+            ->toArray();
     }
 }

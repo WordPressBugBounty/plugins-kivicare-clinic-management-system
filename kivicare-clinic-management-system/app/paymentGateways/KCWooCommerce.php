@@ -20,8 +20,8 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
      */
     protected function init() {
         $this->gateway_id = 'woocommerce';
-        $this->gateway_name = 'WooCommerce';
-        $this->gateway_description = 'Process payment through WooCommerce';
+        $this->gateway_name = __('WooCommerce', 'kivicare-clinic-management-system');
+        $this->gateway_description = __('Process payment through WooCommerce', 'kivicare-clinic-management-system');
         $this->gateway_logo = KIVI_CARE_DIR_URI . 'assets/images/woo-logo.png';
 
         

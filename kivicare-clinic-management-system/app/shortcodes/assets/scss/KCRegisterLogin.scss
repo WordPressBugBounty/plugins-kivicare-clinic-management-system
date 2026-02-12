@@ -1,0 +1,494 @@
+@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@100;400;500;600;700;800;900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Slab&display=swap");
+@import "../../../dashboard/assets/scss/kivicare-design-system/helper/phosphor-fill";
+@import "../../../dashboard/assets/scss/kivicare-design-system/helper/phosphor-regular";
+
+:root {
+    --iq-primary-light: #F0F4FD;
+    --iq-primary: #7093E5;
+    --iq-primary-dark: #5f84d9;
+    --iq-secondary: #f68685;
+    --iq-success-light: #D2F7F0;
+    --iq-success: #13C39C;
+    --iq-white: #ffffff;
+    --iq-dark: #171C26;
+    --iq-light: #b5b9c4;
+    --iq-body-color: #6E7990;
+    --iq-body-bg: #f5f6fa;
+    --iq-border-color: #e0e0e0;
+    --iq-form-invalid-color: #F54438;
+    --iq-body-font-family: Poppins, sans-serif;
+    --iq-heading-font-family: Heebo, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.kc-register-login-form {
+    font-family: var(--iq-body-font-family);
+    container: kc-register-form / inline-size;
+
+    a {
+        color: var(--iq-primary);
+        outline: none;
+        text-decoration: none !important;
+        transition: color 300ms ease-in-out;
+
+        &:hover,
+        &:focus {
+            color: var(--iq-primary-dark);
+            outline: none;
+        }
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    p {
+        font-size: 12px;
+        font-weight: 500;
+        margin: 0 !important;
+    }
+
+    /* Layout helpers used in JSX */
+    .row {
+        --iq-gutter-x: 1.5rem;
+        --iq-gutter-y: 0;
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: calc(-1 * var(--iq-gutter-y));
+        margin-right: calc(-.5 * var(--iq-gutter-x));
+        margin-left: calc(-.5 * var(--iq-gutter-x));
+    }
+
+    .row>* {
+        flex-shrink: 0;
+        width: 100%;
+        max-width: 100%;
+        padding-right: calc(var(--iq-gutter-x) * .5);
+        padding-left: calc(var(--iq-gutter-x) * .5);
+        margin-top: var(--iq-gutter-y);
+    }
+
+    @container kc-register-form (min-width: 768px) {
+        .col-md-6 {
+            flex: 0 0 auto;
+            width: 50%;
+        }
+
+        .mb-md-0 {
+            margin-bottom: 0 !important;
+        }
+    }
+
+    .d-flex {
+        display: flex !important;
+    }
+
+    .d-block {
+        display: block !important;
+    }
+
+    .d-inline-block {
+        display: inline-block !important;
+    }
+
+    .align-items-center {
+        align-items: center !important;
+    }
+
+    .align-middle {
+        vertical-align: middle !important;
+    }
+
+    .justify-content-between {
+        justify-content: space-between !important;
+    }
+
+    .justify-content-center {
+        justify-content: center !important;
+    }
+
+    .text-center {
+        text-align: center !important;
+    }
+
+    .text-uppercase {
+        text-transform: uppercase !important;
+    }
+
+    .fw-medium {
+        font-weight: 500 !important;
+    }
+
+    .fw-semibold {
+        font-weight: 600 !important;
+    }
+
+    .fst-italic {
+        font-style: italic !important;
+    }
+
+    .text-danger {
+        color: var(--iq-form-invalid-color) !important;
+    }
+
+    .text-secondary {
+        color: var(--iq-body-color) !important;
+    }
+
+    .position-relative {
+        position: relative !important;
+    }
+
+    .position-absolute {
+        position: absolute !important;
+    }
+
+    .w-100 {
+        width: 100% !important;
+    }
+
+    .p-0 {
+        padding: 0 !important;
+    }
+
+    .mb-0 {
+        margin-bottom: 0 !important;
+    }
+
+    .mb-2 {
+        margin-bottom: .5rem !important;
+    }
+
+    .mb-3 {
+        margin-bottom: 1rem !important;
+    }
+
+    .mb-4 {
+        margin-bottom: 1.5rem !important;
+    }
+
+    .mt-2 {
+        margin-top: .5rem !important;
+    }
+
+    .mt-3 {
+        margin-top: 1rem !important;
+    }
+
+    /* Card + alert (used in JSX) */
+    .card {
+        background: var(--iq-white);
+        border-radius: 8px;
+    }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 6px;
+        border: 1px solid var(--iq-border-color);
+    }
+
+    .alert-success {
+        background: var(--iq-success-light);
+        border-color: var(--iq-success);
+        color: var(--iq-dark);
+    }
+
+    .alert-danger {
+        background: var(--iq-primary-light);
+        border-color: var(--iq-form-invalid-color);
+        color: var(--iq-dark);
+    }
+
+    /* Form styles */
+    .form-control {
+        display: block;
+        float: inherit;
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #eee;
+        border-radius: 5px;
+        background-color: var(--iq-primary-light);
+        color: var(--iq-body-color);
+        outline: none;
+        box-shadow: none;
+        transition: border-color 0.15s ease-in-out;
+        margin: 0;
+        text-align: inherit;
+        direction: inherit;
+
+        &:focus {
+            border-color: var(--iq-primary);
+            box-shadow: none;
+        }
+
+        &.is-invalid {
+            border-color: var(--iq-form-invalid-color);
+        }
+
+        &::placeholder {
+            color: var(--iq-light);
+        }
+    }
+
+    .form-select {
+        --iq-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236E7990' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+        display: block;
+        width: 100%;
+        padding: .782rem 3rem .782rem 1rem;
+        font-size: .875rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: var(--iq-body-color);
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-color: var(--iq-primary-light);
+        background-image: var(--iq-form-select-bg-img);
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 16px 12px;
+        border: unset;
+        border-radius: 5px;
+        transition: border-color .15s ease-in-out;
+    }
+
+    .form-select:focus {
+        border-color: var(--iq-primary);
+        outline: 0;
+        box-shadow: none;
+    }
+
+    .form-select.is-invalid {
+        border-color: var(--iq-form-invalid-color);
+    }
+
+    .form-check {
+        display: block;
+        min-height: 1.5rem;
+        padding-left: 1.5em;
+        margin-bottom: .125rem;
+    }
+
+    .form-check .form-check-input {
+        float: left;
+        margin-left: -1.5em;
+    }
+
+    .form-check-input {
+        flex-shrink: 0;
+        width: 1em;
+        height: 1em;
+        margin-top: .25em;
+        vertical-align: top;
+        appearance: none;
+        background-color: var(--iq-body-bg);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+        border: 1px solid var(--iq-border-color);
+        print-color-adjust: exact;
+    }
+
+    .form-check-input[type=checkbox] {
+        border-radius: .25em;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--iq-primary);
+        border-color: var(--iq-primary);
+        --iq-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+        background-image: var(--iq-form-check-bg-image);
+    }
+
+    .form-check-label {
+        cursor: pointer;
+    }
+
+    .text-secondary {
+        color: var(--iq-secondary) !important;
+    }
+
+    /* react-international-phone (Contact Number field) */
+    .react-international-phone-input-container {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        background-color: var(--iq-primary-light);
+        border: 1px solid #eee;
+        border-radius: 5px;
+        /* Important: don't clip the country dropdown */
+        overflow: visible;
+        position: relative;
+    }
+
+    .react-international-phone-country-selector {
+        position: relative;
+        flex: 0 0 auto;
+    }
+
+    .react-international-phone-country-selector-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 45px;
+        padding: 0 12px;
+        border: 0;
+        border-right: 1px solid var(--iq-border-color);
+        background: transparent;
+        cursor: pointer;
+        flex: 0 0 auto;
+    }
+
+    .react-international-phone-input-container .form-control {
+        border: 0;
+        background: transparent;
+        border-radius: 0;
+        height: 45px;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    /* Fallback invalid state (at least color the text field) */
+    .react-international-phone-input-container .form-control.is-invalid {
+        border: 0;
+        outline: 0;
+    }
+
+    /* Preferred invalid state (color the unified container border) */
+    @supports selector(:has(*)) {
+        .react-international-phone-input-container:has(.form-control.is-invalid) {
+            border-color: var(--iq-form-invalid-color);
+        }
+    }
+
+    .react-international-phone-country-selector-dropdown {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        /* Keep it within viewport on small screens */
+        width: min(320px, calc(100vw - 32px));
+        max-width: calc(100vw - 32px);
+        min-width: 260px;
+        max-height: 260px;
+        border: 1px solid var(--iq-border-color);
+        border-radius: 8px;
+        background: var(--iq-white);
+        overflow: auto;
+        z-index: 9999;
+    }
+
+    .invalid-feedback {
+        display: none;
+        width: 100%;
+        margin-top: .25rem;
+        font-size: .75em;
+        color: var(--iq-form-invalid-color);
+    }
+
+    .is-invalid~.invalid-feedback {
+        display: block;
+    }
+
+    .forgot-pwd {
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    /* Buttons */
+    .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 20px;
+        color: var(--iq-white);
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        user-select: none;
+        border: none;
+        border-radius: 4px;
+        background-color: var(--iq-primary);
+        transition: background-color .15s ease-in-out;
+    }
+
+    .btn-primary {
+        background-color: var(--iq-primary);
+        color: var(--iq-white);
+    }
+
+    .btn.btn-link {
+        font-weight: 700;
+        padding: 0;
+        background-color: transparent;
+        color: var(--iq-primary);
+    }
+
+    /* Component-specific */
+    .auth-card {
+        background: var(--iq-white);
+        border-radius: 8px;
+        padding: 3.75rem;
+    }
+
+    .kc-login-form label,
+    .kc-register-form label {
+        display: block;
+        font-size: 14px;
+    }
+
+    .logo-img .logo-normal {
+        width: 150px;
+    }
+
+    /* Mobile responsiveness (kept at the end so it wins in the cascade) */
+    @container kc-register-form (max-width: 575.98px) {
+        .auth-card {
+            padding: 1.25rem;
+        }
+
+        .logo-img .logo-normal {
+            width: 120px;
+        }
+
+        /* Avoid horizontal scroll caused by row negative margins */
+        .row {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .row>* {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .form-control {
+            padding: 10px 12px;
+        }
+
+        .form-select {
+            padding: .70rem 2.5rem .70rem .85rem;
+            background-position: right .85rem center;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            font-size: 13px;
+        }
+
+        .react-international-phone-country-selector-button {
+            padding: 0 10px;
+        }
+
+        .react-international-phone-country-selector-dropdown {
+            min-width: calc(100vw - 24px);
+            max-width: calc(100vw - 24px);
+            max-height: 220px;
+        }
+    }
+}

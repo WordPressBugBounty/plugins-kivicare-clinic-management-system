@@ -30,9 +30,9 @@ class KCPaypal extends KCAbstractPaymentGateway
     protected function init()
     {
         $this->gateway_id = 'paypal';
-        $this->gateway_name = 'PayPal';
+        $this->gateway_name = __('PayPal', 'kivicare-clinic-management-system');
         $this->gateway_logo = KIVI_CARE_DIR_URI . 'assets/images/paypal-logo.png';
-        $this->gateway_description = 'Pay securely using PayPal';
+        $this->gateway_description = __('Pay securely using PayPal', 'kivicare-clinic-management-system');
 
         // Set API credentials
         $this->client_id = $this->get_setting('client_id');

@@ -20,6 +20,8 @@ use App\elementor\widgets\DoctorListWidget;
 use App\services\KCAppointmentReminderService;
 use App\models\KCOption;
 use App\blocks\KCBlocksRegister;
+use App\baseClasses\KCBase;
+use App\models\KCClinic;
 
 /**
  * The code that runs during plugin activation
@@ -60,7 +62,10 @@ final class KCApp
         // Initialize Elementor integration
         add_action('plugins_loaded', [$this, 'init_elementor_integration']);
 
-        add_filter('authenticate', [$this, 'prevent_receptionist_login'], 30, 3);
+        add_filter('authenticate', [$this, 'prevent_inactive_user_login'], 30, 3);
+        
+        // Check user status on every authenticated request (for already logged-in users)
+        add_filter('determine_current_user', [$this, 'validate_current_user_status'], 99);
 
         // WooCommerce integration
         add_filter('woocommerce_rest_check_permissions', function ($permission) {
@@ -245,7 +250,7 @@ final class KCApp
     }
 
     /**
-     * Prevents receptionists from logging in if their module is disabled.
+     * Prevents inactive users from logging in.
      * Hooks into the 'authenticate' filter.
      *
      * @param \WP_User|\WP_Error|null $user
@@ -253,29 +258,87 @@ final class KCApp
      * @param string $password
      * @return \WP_User|\WP_Error|null
      */
-    public function prevent_receptionist_login($user, $username, $password)
+    public function prevent_inactive_user_login($user, $username, $password)
     {
         if (is_wp_error($user) || !$user instanceof \WP_User) {
             return $user;
         }
 
-        $kcbase = new \App\baseClasses\KCBase();
-        $receptionist_role = $kcbase->getReceptionistRole();
+        // Check for inactive user account logic (existing)
+        if (isset($user->data->user_status) && $user->data->user_status == 1) {
+            return new \WP_Error(
+                'kc_account_inactive',
+                __('<strong>ERROR</strong>: Your account is inactive. Please contact the administrator.', 'kivicare-clinic-management-system')
+            );
+        }
 
-        if (in_array($receptionist_role, (array) $user->roles)) {
-
-            $kivicare_settings = get_option('kivicare_settings', []);
-            $module_config = $kivicare_settings['module_config'] ?? [];
-
-            if (($module_config['receptionist'] ?? 'on') !== 'on') {
-                return new \WP_Error(
-                    'kc_receptionist_module_disabled',
-                    __('<strong>ERROR</strong>: Your account access is currently disabled by the administrator.', 'kivicare-clinic-management-system')
-                );
+        // New Logic: Check if Clinic Admin's Clinic is Inactive
+        if (in_array(KCBase::get_instance()->getClinicAdminRole(), $user->roles)) {
+            $clinic_id = KCClinic::getClinicIdOfClinicAdmin($user->ID);
+            if (!empty($clinic_id)) {
+                $clinic = KCClinic::find($clinic_id);
+                // status 0 means Inactive as per KCClinic model
+                if ($clinic && isset($clinic->status) && $clinic->status == 0) {
+                    return new \WP_Error(
+                        'kc_clinic_inactive',
+                        __('<strong>ERROR</strong>: Your clinic is inactive. Please contact the administrator.', 'kivicare-clinic-management-system')
+                    );
+                }
             }
         }
 
         return $user;
+    }
+
+    /**
+     * Validate current user status on every authenticated request
+     * This runs AFTER authentication cookies are validated but BEFORE user is set
+     * If user is inactive, we invalidate their authentication
+     * 
+     * @param int|false $user_id User ID if authenticated, false otherwise
+     * @return int|false User ID if valid, false to invalidate authentication
+     */
+    public function validate_current_user_status($user_id)
+    {
+        // If no user is authenticated, nothing to check
+        if (!$user_id || $user_id < 1) {
+            return $user_id;
+        }
+
+        // Get user object
+        $user = get_userdata($user_id);
+        if (!$user) {
+            return $user_id;
+        }
+
+        // Check if user account is inactive (user_status = 1 means inactive)
+        if (isset($user->data->user_status) && $user->data->user_status == 1) {
+            // Clear auth cookies to force logout
+            // wp_clear_auth_cookie();
+            $sessions = \WP_Session_Tokens::get_instance($user_id);
+            $sessions->destroy_all();
+            // Return false to prevent user from being authenticated
+            return false;
+        }
+
+        // Check if Clinic Admin's Clinic is Inactive
+        if (in_array(KCBase::get_instance()->getClinicAdminRole(), (array)$user->roles)) {
+            $clinic_id = KCClinic::getClinicIdOfClinicAdmin($user_id);
+            if (!empty($clinic_id)) {
+                $clinic = KCClinic::find($clinic_id);
+                // status 0 means Inactive as per KCClinic model
+                if ($clinic && isset($clinic->status) && $clinic->status == 0) {
+                    // Clear auth cookies to force logout
+                    // wp_clear_auth_cookie();
+                    $sessions = \WP_Session_Tokens::get_instance($user_id);
+                    $sessions->destroy_all();
+                    // Return false to prevent user from being authenticated
+                    return false;
+                }
+            }
+        }
+
+        return $user_id;
     }
 
     /**
@@ -287,7 +350,7 @@ final class KCApp
     public function restrict_media_library($query)
     {
         $user_id = get_current_user_id();
-        if ($user_id && \App\baseClasses\KCBase::get_instance()->userHasKivicareRole($user_id)) {
+        if ($user_id && KCBase::get_instance()->userHasKivicareRole($user_id)) {
             $query['author'] = $user_id;
         }
         return $query;

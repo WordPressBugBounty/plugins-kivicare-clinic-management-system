@@ -20,8 +20,8 @@ class KCPayLater extends KCAbstractPaymentGateway {
      */
     protected function init() {
         $this->gateway_id = 'manual'; // Matches the factory key
-        $this->gateway_name = 'Pay Later';
-        $this->gateway_description = 'Allow patients to book now and pay later (manual payment)';
+        $this->gateway_name = __('Pay Later', 'kivicare-clinic-management-system');
+        $this->gateway_description = __('Allow patients to book now and pay later (manual payment)', 'kivicare-clinic-management-system');
         $this->gateway_logo = KIVI_CARE_DIR_URI . 'assets/images/paymentOffline.png';
         // Enable based on settings (default to 'on' if not set)
         $this->is_enabled = isset($this->settings) && $this->settings === 'on';

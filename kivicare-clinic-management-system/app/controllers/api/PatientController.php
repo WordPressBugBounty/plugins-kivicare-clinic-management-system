@@ -749,7 +749,7 @@ class PatientController extends KCBaseController
             $query = KCPatient::table('p')
                 ->select([
                     "p.*",
-                    "GROUP_CONCAT(DISTINCT CONCAT('{\"clinic_id\":', c.id, ',\"clinic_name\":\"', REPLACE(c.name, '\"', '\\\"'), '\",\"clinic_email\":\"', c.email, '\",\"clinic_contact_number\":\"', IFNULL(c.telephone_no, ''), '\",\"clinic_address\":\"', REPLACE(CONCAT_WS(', ', NULLIF(c.address, ''), NULLIF(c.city, ''), NULLIF(c.state, ''), NULLIF(c.country, ''), NULLIF(c.postal_code, '')), '\"', '\\\"'), '\",\"clinic_image_id\":', IFNULL(c.profile_image, 'null'), '}') SEPARATOR '||') as clinic_data",
+                    "GROUP_CONCAT(DISTINCT CONCAT('{\"clinic_id\":', c.id, ',\"clinic_name\":\"', REPLACE(c.name, '\"', '\\\"'), '\",\"clinic_status\":\"', IFNULL(c.status, ''), '\",\"clinic_email\":\"', c.email, '\",\"clinic_contact_number\":\"', IFNULL(c.telephone_no, ''), '\",\"clinic_address\":\"', REPLACE(CONCAT_WS(', ', NULLIF(c.address, ''), NULLIF(c.city, ''), NULLIF(c.state, ''), NULLIF(c.country, ''), NULLIF(c.postal_code, '')), '\"', '\\\"'), '\",\"clinic_image_id\":', IFNULL(c.profile_image, 'null'), '}') SEPARATOR '||') as clinic_data",
                     "bd.meta_value as basic_data",
                     "pi.meta_value as profile_image",
                     "puid.meta_value as patient_unique_id"
@@ -928,6 +928,9 @@ class PatientController extends KCBaseController
             // Get paginated results
             $patients = $query->get();
 
+            // Fetch active holidays for all clinics once
+            $holidayClinicIds = \App\models\KCClinicSchedule::getActiveHolidaysByModule('clinic');
+
             // Prepare the patient data
             $patientsData = [];
             foreach ($patients as $patient) {
@@ -950,6 +953,7 @@ class PatientController extends KCBaseController
                         $clinic = json_decode($clinicStr, true);
                         if ($clinic) {
                             $clinic['clinic_image_url'] = !empty($clinic['clinic_image_id']) ? wp_get_attachment_url($clinic['clinic_image_id']) : '';
+                            $clinic['is_holiday'] = in_array((int)$clinic['clinic_id'], $holidayClinicIds, true);
                             $clinics[] = $clinic;
                         }
                     }
@@ -1052,7 +1056,7 @@ class PatientController extends KCBaseController
                     "bd.meta_value as basic_data",
                     "pi.meta_value as profile_image",
                     "puid.meta_value as patient_unique_id",
-                    "GROUP_CONCAT(DISTINCT CONCAT_WS('::', pcm.clinic_id, c.name) SEPARATOR '||') as clinic_mappings"
+                    "GROUP_CONCAT(DISTINCT CONCAT_WS('::', pcm.clinic_id, c.name, IFNULL(c.status, '')) SEPARATOR '||') as clinic_mappings"
                 ])
                 ->leftJoin(KCUserMeta::class, function ($join) {
                     $join->on('p.ID', '=', 'bd.user_id')
@@ -1089,15 +1093,20 @@ class PatientController extends KCBaseController
                 );
             }
 
+            // Fetch active holidays for all clinics once
+            $holidayClinicIds = \App\models\KCClinicSchedule::getActiveHolidaysByModule('clinic');
+
             $clinicsArray = [];
             if (!empty($patient->clinic_mappings)) {
                 $clinicPairs = explode('||', $patient->clinic_mappings);
                 foreach ($clinicPairs as $pair) {
-                    [$clinicId, $clinicName] = array_pad(explode('::', $pair, 2), 2, null);
+                    [$clinicId, $clinicName, $clinicStatus] = array_pad(explode('::', $pair, 3), 3, null);
                     if ($clinicId !== null && $clinicId !== '') {
                         $clinicsArray[] = [
                             'value' => (int) $clinicId,
                             'label' => $clinicName,
+                            'status' => $clinicStatus,
+                            'is_holiday' => in_array((int)$clinicId, $holidayClinicIds, true)
                         ];
                     }
                 }
@@ -1210,7 +1219,7 @@ class PatientController extends KCBaseController
             $patient = new KCPatient();
 
             // Set patient properties directly
-            $patient->username = kcGenerateUsername($params['first_name']);
+            $patient->username = kcGenerateUsername($params['first_name'], $params['email']);
             $patient->password = kcGenerateRandomString(12);
             $patient->email = sanitize_email($params['email']);
             $patient->firstName = $params['first_name'];
@@ -1232,10 +1241,11 @@ class PatientController extends KCBaseController
             }
 
             // Now call save 
-            if (!$patient->save()) {
+            $saveResult = $patient->save();
+            if (is_wp_error($saveResult)) {
                 return $this->response(
-                    null,
-                    __('Failed to create patient', 'kivicare-clinic-management-system'),
+                    ['error' => $saveResult->get_error_message()],
+                    __('Failed to create patient', 'kivicare-clinic-management-system') . ': ' . $saveResult->get_error_message(),
                     false,
                     500
                 );
