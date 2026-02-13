@@ -1278,7 +1278,7 @@ class StaticDataController extends KCBaseController
             $patients = $query->get();
             $result = $patients->map(function ($patient) use ($isPatientIdEnabled) {
                 $patientImage = '';
-                $profileImageId = get_user_meta($patient->user_id, 'patient_profile_image', true);
+                $profileImageId = get_user_meta($patient->id, 'patient_profile_image', true);
                 if ($profileImageId) {
                     $patientImage = wp_get_attachment_url($profileImageId);
                 }
@@ -1292,9 +1292,9 @@ class StaticDataController extends KCBaseController
                 }
 
                 return [
-                    'id' => $patient->user_id,
+                    'id' => $patient->id,
                     'label' => $label,
-                    'value' => $patient->user_id,
+                    'value' => $patient->id,
                     'patient_image_url' => $patientImage ?: '',
                     'patient_unique_id' => $uniqueId,
                 ];
