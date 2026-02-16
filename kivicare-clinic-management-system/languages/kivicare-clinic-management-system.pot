@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the KiviCare - Clinic & Patient Management System (EHR) plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 4.1.0\n"
+"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 4.1.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/kivicare-clinic-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-02-12T11:52:12+00:00\n"
+"POT-Creation-Date: 2026-02-16T12:20:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
 "X-Domain: kivicare-clinic-management-system\n"
@@ -102,12 +102,12 @@ msgstr ""
 #: app/baseClasses/KCPermissions.php:587
 #: app/services/KCAppointmentDataService.php:162
 #: app/dashboard/utils/roleUtils.js:127
-#: app/dashboard/views/appointments/AppointmentsList.jsx:643
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1081
+#: app/dashboard/views/appointments/AppointmentsList.jsx:652
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1090
 #: app/dashboard/views/billings/BillingsList.jsx:223
-#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:143
-#: app/dashboard/views/dashboard/Dashboard.jsx:576
-#: app/dashboard/views/dashboard/Dashboard.jsx:884
+#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:122
+#: app/dashboard/views/dashboard/Dashboard.jsx:575
+#: app/dashboard/views/dashboard/Dashboard.jsx:883
 #: app/dashboard/views/doctors/DoctorsList.jsx:255
 #: app/dashboard/views/doctors/DoctorsList.jsx:264
 #: app/dashboard/views/doctorService/DoctorServiceForm.jsx:840
@@ -154,12 +154,12 @@ msgstr ""
 #: app/baseClasses/KCPermissions.php:579
 #: app/dashboard/components/ReviewsPanel.jsx:94
 #: app/dashboard/utils/roleUtils.js:128
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1069
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1078
 #: app/dashboard/views/billings/BillingsList.jsx:253
 #: app/dashboard/views/dashboard/components/AppointmentCalendar.jsx:92
-#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:94
-#: app/dashboard/views/dashboard/Dashboard.jsx:564
-#: app/dashboard/views/dashboard/Dashboard.jsx:878
+#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:93
+#: app/dashboard/views/dashboard/Dashboard.jsx:563
+#: app/dashboard/views/dashboard/Dashboard.jsx:877
 #: app/dashboard/views/encounter/EncounterDashbord.jsx:226
 #: app/dashboard/views/encounter/EncounterList.jsx:136
 #: app/dashboard/views/encounter/EncounterList.jsx:144
@@ -215,7 +215,7 @@ msgstr ""
 #: app/controllers/api/PatientController.php:601
 #: app/controllers/api/ReceptionistsController.php:1713
 #: app/controllers/api/SettingsController/CustomFields.php:705
-#: app/controllers/api/SettingsController/ListingData.php:222
+#: app/controllers/api/SettingsController/ListingData.php:226
 msgid "Format must be csv, xls, or pdf"
 msgstr ""
 
@@ -336,10 +336,10 @@ msgstr ""
 #: app/controllers/api/AppointmentsController.php:2897
 #: app/controllers/api/AppointmentsController.php:3226
 #: app/controllers/api/AppointmentsController.php:3335
-#: app/controllers/api/AppointmentsController.php:3513
-#: app/controllers/api/AppointmentsController.php:3627
-#: app/controllers/api/AppointmentsController.php:3684
-#: app/controllers/api/AppointmentsController.php:4115
+#: app/controllers/api/AppointmentsController.php:3514
+#: app/controllers/api/AppointmentsController.php:3628
+#: app/controllers/api/AppointmentsController.php:3685
+#: app/controllers/api/AppointmentsController.php:4116
 #: app/controllers/api/KCPrintInvoiceController.php:59
 #: app/controllers/api/SettingsController/CustomFields.php:982
 msgid "Appointment not found"
@@ -392,7 +392,7 @@ msgid "Failed to create appointment"
 msgstr ""
 
 #: app/controllers/api/AppointmentsController.php:2711
-#: app/controllers/api/AppointmentsController.php:3693
+#: app/controllers/api/AppointmentsController.php:3694
 msgid "Telemed provider not found for the selected doctor"
 msgstr ""
 
@@ -451,72 +451,72 @@ msgstr ""
 msgid "Payment gateway not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3434
-#: app/controllers/api/AppointmentsController.php:3442
-#: app/controllers/api/AppointmentsController.php:3475
+#: app/controllers/api/AppointmentsController.php:3435
+#: app/controllers/api/AppointmentsController.php:3443
+#: app/controllers/api/AppointmentsController.php:3476
 #: app/dashboard/views/paymentGateways/RazorpayCheckout.jsx:162
 #: app/dashboard/views/paymentGateways/StripeCheckout.jsx:95
 msgid "Payment completed successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3559
+#: app/controllers/api/AppointmentsController.php:3560
 #: app/dashboard/views/paymentGateways/RazorpayCheckout.jsx:90
 #: app/dashboard/views/paymentGateways/StripeCheckout.jsx:160
 msgid "Payment was cancelled"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3622
+#: app/controllers/api/AppointmentsController.php:3623
 msgid "Payment verified successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3638
+#: app/controllers/api/AppointmentsController.php:3639
 msgid "Payment status verified"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3647
-#: app/controllers/api/AppointmentsController.php:3658
+#: app/controllers/api/AppointmentsController.php:3648
+#: app/controllers/api/AppointmentsController.php:3659
 msgid "Payment verification failed"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3722
 #: app/controllers/api/AppointmentsController.php:3723
+#: app/controllers/api/AppointmentsController.php:3724
 msgid "Telemed link regenerated successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3734
+#: app/controllers/api/AppointmentsController.php:3735
 msgid "Failed to regenerate telemed link"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3916
+#: app/controllers/api/AppointmentsController.php:3917
 msgid "No appointments found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4078
+#: app/controllers/api/AppointmentsController.php:4079
 msgid "Appointments data retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4086
+#: app/controllers/api/AppointmentsController.php:4087
 msgid "Failed to export appointments data"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4152
+#: app/controllers/api/AppointmentsController.php:4153
 msgid "Failed to delete appointment"
 msgstr ""
 
 #. translators: %d: number of appointments
-#: app/controllers/api/AppointmentsController.php:4176
+#: app/controllers/api/AppointmentsController.php:4177
 msgid "%d appointment has been deleted."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4187
+#: app/controllers/api/AppointmentsController.php:4188
 msgid "Failed to delete appointments"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4276
+#: app/controllers/api/AppointmentsController.php:4277
 msgid "Appointment IDs are required"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4280
+#: app/controllers/api/AppointmentsController.php:4281
 msgid "Invalid appointment ID in array"
 msgstr ""
 
@@ -636,7 +636,7 @@ msgid "Invalid gender value"
 msgstr ""
 
 #: app/controllers/api/AuthController.php:398
-#: app/controllers/api/AuthController.php:1330
+#: app/controllers/api/AuthController.php:1338
 msgid "Invalid user role"
 msgstr ""
 
@@ -667,7 +667,7 @@ msgstr ""
 
 #: app/controllers/api/AuthController.php:511
 #: app/controllers/api/AuthController.php:528
-#: app/controllers/api/AuthController.php:1868
+#: app/controllers/api/AuthController.php:1886
 msgid "Email or contact number is required"
 msgstr ""
 
@@ -690,7 +690,7 @@ msgid "Confirm password is required"
 msgstr ""
 
 #: app/controllers/api/AuthController.php:690
-#: app/controllers/api/AuthController.php:1283
+#: app/controllers/api/AuthController.php:1291
 msgid "Selected user role is not enabled for registration"
 msgstr ""
 
@@ -732,21 +732,21 @@ msgid ""
 "                    You can manage this user from the admin dashboard."
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1131
+#: app/controllers/api/AuthController.php:1133
 msgid "Password Reset Request - KiviCare"
 msgstr ""
 
 #. translators: %s: Password reset URL
-#: app/controllers/api/AuthController.php:1134
+#: app/controllers/api/AuthController.php:1136
 msgid "Someone has requested a password reset for your account.\\n\\nTo reset your password, visit the following address:\\n%s\\n\\nIf this was a mistake, just ignore this email and nothing will happen."
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1225
-#: app/controllers/api/AuthController.php:1922
+#: app/controllers/api/AuthController.php:1233
+#: app/controllers/api/AuthController.php:1940
 msgid "Username already exists"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1233
+#: app/controllers/api/AuthController.php:1241
 #: app/controllers/api/ClinicController.php:1354
 #: app/controllers/api/DoctorController.php:1507
 #: app/controllers/api/PatientController.php:1396
@@ -755,7 +755,7 @@ msgstr ""
 msgid "Email already exists"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1242
+#: app/controllers/api/AuthController.php:1250
 #: app/controllers/api/ClinicController.php:146
 #: app/controllers/api/PatientController.php:152
 #: app/controllers/api/ReceptionistsController.php:151
@@ -777,27 +777,27 @@ msgstr ""
 msgid "Contact number is required"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1253
+#: app/controllers/api/AuthController.php:1261
 msgid "Invalid contact number format"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1269
+#: app/controllers/api/AuthController.php:1277
 msgid "Mobile number already exists"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1297
+#: app/controllers/api/AuthController.php:1305
 msgid "Invalid clinic selected"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1448
+#: app/controllers/api/AuthController.php:1456
 msgid "Failed to create user"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1495
+#: app/controllers/api/AuthController.php:1503
 msgid "Registration successful. Please login to continue."
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1504
+#: app/controllers/api/AuthController.php:1512
 #: app/shortcodes/assets/js/KCBookAppointment.jsx:2696
 #: app/shortcodes/assets/js/KCBookAppointment.jsx:2700
 #: app/shortcodes/assets/js/KCRegisterLogin.jsx:341
@@ -805,62 +805,66 @@ msgstr ""
 msgid "Registration failed. Please try again."
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1539
+#: app/controllers/api/AuthController.php:1547
 msgid "User not found"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1560
+#: app/controllers/api/AuthController.php:1570
+msgid "Failed to send password reset email. Please contact support."
+msgstr ""
+
+#: app/controllers/api/AuthController.php:1578
 msgid "Password reset email sent successfully"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1593
+#: app/controllers/api/AuthController.php:1611
 msgid "Password reset successful"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1613
-#: app/controllers/api/AuthController.php:1702
+#: app/controllers/api/AuthController.php:1631
+#: app/controllers/api/AuthController.php:1720
 msgid "User not authenticated"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1623
+#: app/controllers/api/AuthController.php:1641
 msgid "Current password is incorrect"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1633
+#: app/controllers/api/AuthController.php:1651
 #: app/dashboard/components/profile/ChangePassword.jsx:58
 msgid "New password and confirm password do not match"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1643
+#: app/controllers/api/AuthController.php:1661
 msgid "New password must be different from current password"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1682
+#: app/controllers/api/AuthController.php:1700
 #: app/dashboard/components/profile/ChangePassword.jsx:79
 msgid "Password changed successfully"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1721
+#: app/controllers/api/AuthController.php:1739
 msgid "Your account has been deleted successfully"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1729
+#: app/controllers/api/AuthController.php:1747
 msgid "Something went wrong while deleting your account"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1981
+#: app/controllers/api/AuthController.php:1999
 msgid "User account created successfully via social login"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:2032
+#: app/controllers/api/AuthController.php:2050
 msgid "User logged in successfully via social login"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:2051
+#: app/controllers/api/AuthController.php:2069
 msgid "This account is not a patient account"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:2096
+#: app/controllers/api/AuthController.php:2114
 msgid "Social login failed. Please try again."
 msgstr ""
 
@@ -957,7 +961,7 @@ msgstr ""
 #: app/controllers/api/PatientController.php:171
 #: app/controllers/api/SettingsController/CustomFields.php:360
 #: app/controllers/api/SettingsController/CustomFields.php:731
-#: app/controllers/api/SettingsController/ListingData.php:243
+#: app/controllers/api/SettingsController/ListingData.php:247
 msgid "Status must be 0 (inactive) or 1 (active)"
 msgstr ""
 
@@ -1322,39 +1326,39 @@ msgstr ""
 msgid "Failed to switch language"
 msgstr ""
 
-#: app/controllers/api/DashboardController.php:263
+#: app/controllers/api/DashboardController.php:259
 msgid "General"
 msgstr ""
 
-#: app/controllers/api/DashboardController.php:287
+#: app/controllers/api/DashboardController.php:283
 msgid "Recent payments retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/DashboardController.php:295
+#: app/controllers/api/DashboardController.php:291
 msgid "Error retrieving payment history"
 msgstr ""
 
-#: app/controllers/api/DashboardController.php:359
+#: app/controllers/api/DashboardController.php:355
 msgid "Not assigned"
 msgstr ""
 
-#: app/controllers/api/DashboardController.php:377
+#: app/controllers/api/DashboardController.php:373
 msgid "Top doctors retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/DashboardController.php:385
+#: app/controllers/api/DashboardController.php:381
 msgid "Error retrieving top doctors"
 msgstr ""
 
-#: app/controllers/api/DashboardController.php:558
+#: app/controllers/api/DashboardController.php:556
 msgid "No upcoming appointments found"
 msgstr ""
 
-#: app/controllers/api/DashboardController.php:564
+#: app/controllers/api/DashboardController.php:562
 msgid "Appointments retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/DashboardController.php:572
+#: app/controllers/api/DashboardController.php:570
 msgid "Error retrieving appointments"
 msgstr ""
 
@@ -1658,7 +1662,7 @@ msgid "You do not have permission to access this service resource."
 msgstr ""
 
 #: app/controllers/api/DoctorServiceController.php:1671
-#: app/dashboard/views/appointments/AppointmentsList.jsx:713
+#: app/dashboard/views/appointments/AppointmentsList.jsx:722
 #: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:52
 #: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:58
 #: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:67
@@ -1900,10 +1904,10 @@ msgstr ""
 
 #: app/controllers/api/KCPrintInvoiceController.php:173
 #: app/models/KCPaymentsAppointmentMapping.php:208
-#: app/dashboard/components/EditBillModal.jsx:545
-#: app/dashboard/components/EditBillModal.jsx:926
+#: app/dashboard/components/EditBillModal.jsx:535
+#: app/dashboard/components/EditBillModal.jsx:965
 #: app/dashboard/views/billings/BillingsList.jsx:118
-#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:174
+#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:153
 msgid "Paid"
 msgstr ""
 
@@ -2551,7 +2555,7 @@ msgstr ""
 #: app/controllers/api/SettingsController/CustomFields.php:592
 #: app/controllers/api/SettingsController/EmailTemplate.php:186
 #: app/controllers/api/SettingsController/General.php:508
-#: app/controllers/api/SettingsController/ListingData.php:399
+#: app/controllers/api/SettingsController/ListingData.php:403
 msgid "Failed to update settings"
 msgstr ""
 
@@ -2562,8 +2566,8 @@ msgstr ""
 #: app/controllers/api/SettingsController/CustomFields.php:313
 #: app/controllers/api/SettingsController/CustomFields.php:400
 #: app/controllers/api/SettingsController/CustomFields.php:408
-#: app/controllers/api/SettingsController/ListingData.php:173
-#: app/controllers/api/SettingsController/ListingData.php:189
+#: app/controllers/api/SettingsController/ListingData.php:177
+#: app/controllers/api/SettingsController/ListingData.php:193
 msgid "Data not found"
 msgstr ""
 
@@ -2587,7 +2591,7 @@ msgstr ""
 #: app/dashboard/views/patients/PatientForm.jsx:386
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:321
 #: app/dashboard/views/settings/customField/CustomField.jsx:1176
-#: app/dashboard/views/settings/listings/Listings.jsx:679
+#: app/dashboard/views/settings/listings/Listings.jsx:680
 #: app/dashboard/views/taxes/TaxManageForm.jsx:141
 msgid "Status is required"
 msgstr ""
@@ -2645,8 +2649,8 @@ msgstr ""
 #: app/dashboard/views/settings/customNotification/CustomNotificationTest.jsx:201
 #: app/dashboard/views/settings/generalSettings/GeneralSettingsMain.jsx:266
 #: app/dashboard/views/settings/listings/Listings.jsx:29
-#: app/dashboard/views/settings/listings/Listings.jsx:122
-#: app/dashboard/views/settings/listings/Listings.jsx:398
+#: app/dashboard/views/settings/listings/Listings.jsx:123
+#: app/dashboard/views/settings/listings/Listings.jsx:399
 #: app/dashboard/views/settings/patientSetting/PatientSetting.jsx:36
 #: app/dashboard/views/settings/permissionSetting/PermissionSetting.jsx:1094
 #: app/dashboard/views/settings/proSettings/ProSettings.jsx:171
@@ -2693,8 +2697,8 @@ msgstr ""
 #: app/dashboard/views/settings/customNotification/CustomNotificationTest.jsx:201
 #: app/dashboard/views/settings/generalSettings/GeneralSettingsMain.jsx:266
 #: app/dashboard/views/settings/listings/Listings.jsx:30
-#: app/dashboard/views/settings/listings/Listings.jsx:122
-#: app/dashboard/views/settings/listings/Listings.jsx:400
+#: app/dashboard/views/settings/listings/Listings.jsx:123
+#: app/dashboard/views/settings/listings/Listings.jsx:401
 #: app/dashboard/views/settings/patientSetting/PatientSetting.jsx:36
 #: app/dashboard/views/settings/permissionSetting/PermissionSetting.jsx:1094
 #: app/dashboard/views/settings/proSettings/ProSettings.jsx:172
@@ -3079,186 +3083,186 @@ msgstr ""
 msgid "Template updated successfully"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:343
+#: app/controllers/api/SettingsController/HolidayList.php:345
 msgid "Holiday retrieved successfully."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:360
+#: app/controllers/api/SettingsController/HolidayList.php:362
 msgid "Invalid holiday ID."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:366
-#: app/controllers/api/SettingsController/HolidayList.php:424
+#: app/controllers/api/SettingsController/HolidayList.php:368
+#: app/controllers/api/SettingsController/HolidayList.php:426
 msgid "Holiday not found."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:376
+#: app/controllers/api/SettingsController/HolidayList.php:378
 msgid "You do not have permission to delete clinic holidays."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:380
+#: app/controllers/api/SettingsController/HolidayList.php:382
 msgid "You do not have permission to delete this holiday."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:386
+#: app/controllers/api/SettingsController/HolidayList.php:388
 msgid "Holiday deleted successfully."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:390
+#: app/controllers/api/SettingsController/HolidayList.php:392
 msgid "Failed to delete holiday."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:433
+#: app/controllers/api/SettingsController/HolidayList.php:435
 msgid "You do not have permission to edit clinic holidays."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:436
+#: app/controllers/api/SettingsController/HolidayList.php:438
 msgid "You do not have permission to edit this holiday."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:442
+#: app/controllers/api/SettingsController/HolidayList.php:444
 msgid "You do not have permission to create/update clinic holidays."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:445
+#: app/controllers/api/SettingsController/HolidayList.php:447
 msgid "You cannot create holidays for other users."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:483
+#: app/controllers/api/SettingsController/HolidayList.php:485
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:477
 msgid "Start time and end time are required for time-specific holidays."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:492
+#: app/controllers/api/SettingsController/HolidayList.php:494
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:487
 msgid "End time must be after start time."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:502
+#: app/controllers/api/SettingsController/HolidayList.php:504
 msgid "Invalid selection mode."
 msgstr ""
 
 #. translators: %s: entity type (Doctor or Clinic)
-#: app/controllers/api/SettingsController/HolidayList.php:523
+#: app/controllers/api/SettingsController/HolidayList.php:525
 msgid "%s already has a holiday scheduled for this period."
 msgstr ""
 
 #. translators: %s: entity type (Doctor or Clinic)
-#: app/controllers/api/SettingsController/HolidayList.php:538
+#: app/controllers/api/SettingsController/HolidayList.php:540
 msgid "%s holiday scheduled added successfully."
 msgstr ""
 
 #. translators: %s: entity type (Doctor or Clinic)
-#: app/controllers/api/SettingsController/HolidayList.php:549
+#: app/controllers/api/SettingsController/HolidayList.php:551
 msgid "%s holiday schedule updated successfully."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:556
+#: app/controllers/api/SettingsController/HolidayList.php:558
 msgid "Holiday operation failed."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:620
+#: app/controllers/api/SettingsController/HolidayList.php:622
 msgid "Format must be csv, xls"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:636
+#: app/controllers/api/SettingsController/HolidayList.php:638
 msgid "Module type must be doctor or clinic"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:647
+#: app/controllers/api/SettingsController/HolidayList.php:649
 msgid "Invalid module ID"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:806
+#: app/controllers/api/SettingsController/HolidayList.php:808
 msgid "No holidays found to export"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:827
+#: app/controllers/api/SettingsController/HolidayList.php:829
 msgid "Holidays data retrieved successfully for export"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:834
+#: app/controllers/api/SettingsController/HolidayList.php:836
 msgid "Failed to export holidays data"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:851
+#: app/controllers/api/SettingsController/HolidayList.php:853
 msgid "Module type (doctor or clinic)"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:858
+#: app/controllers/api/SettingsController/HolidayList.php:860
 msgid "Module type must be doctor or clinic."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:866
+#: app/controllers/api/SettingsController/HolidayList.php:868
 msgid "Module ID (doctor or clinic ID)"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:873
+#: app/controllers/api/SettingsController/HolidayList.php:875
 msgid "Module ID must be a positive integer."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:881
+#: app/controllers/api/SettingsController/HolidayList.php:883
 msgid "Holiday ID to exclude (used when editing)"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:888
+#: app/controllers/api/SettingsController/HolidayList.php:890
 msgid "Exclude ID must be a positive integer."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:952
+#: app/controllers/api/SettingsController/HolidayList.php:954
 msgid "Disabled dates retrieved successfully."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:958
+#: app/controllers/api/SettingsController/HolidayList.php:960
 msgid "Failed to retrieve disabled dates."
 msgstr ""
 
-#: app/controllers/api/SettingsController/ListingData.php:145
+#: app/controllers/api/SettingsController/ListingData.php:149
 msgid "No services found"
 msgstr ""
 
-#: app/controllers/api/SettingsController/ListingData.php:156
+#: app/controllers/api/SettingsController/ListingData.php:160
 msgid "Service list"
 msgstr ""
 
-#: app/controllers/api/SettingsController/ListingData.php:164
-#: app/controllers/api/SettingsController/ListingData.php:184
+#: app/controllers/api/SettingsController/ListingData.php:168
+#: app/controllers/api/SettingsController/ListingData.php:188
 msgid "ID is required."
 msgstr ""
 
-#: app/controllers/api/SettingsController/ListingData.php:170
+#: app/controllers/api/SettingsController/ListingData.php:174
 msgid "Static data deleted successfully"
 msgstr ""
 
-#: app/controllers/api/SettingsController/ListingData.php:202
+#: app/controllers/api/SettingsController/ListingData.php:206
 msgid "Static data"
 msgstr ""
 
-#: app/controllers/api/SettingsController/ListingData.php:312
+#: app/controllers/api/SettingsController/ListingData.php:316
 msgid "No listings found to export"
 msgstr ""
 
-#: app/controllers/api/SettingsController/ListingData.php:330
+#: app/controllers/api/SettingsController/ListingData.php:334
 msgid "Listings data retrieved successfully for export"
 msgstr ""
 
-#: app/controllers/api/SettingsController/ListingData.php:337
+#: app/controllers/api/SettingsController/ListingData.php:341
 msgid "Failed to export listings data"
 msgstr ""
 
-#: app/controllers/api/SettingsController/ListingData.php:368
+#: app/controllers/api/SettingsController/ListingData.php:372
 msgid "Listing data already exists."
 msgstr ""
 
-#: app/controllers/api/SettingsController/ListingData.php:381
+#: app/controllers/api/SettingsController/ListingData.php:385
 msgid "Listing data saved successfully"
 msgstr ""
 
-#: app/controllers/api/SettingsController/ListingData.php:385
+#: app/controllers/api/SettingsController/ListingData.php:389
 msgid "Listing data not found."
 msgstr ""
 
-#: app/controllers/api/SettingsController/ListingData.php:394
+#: app/controllers/api/SettingsController/ListingData.php:398
 msgid "Listing data updated successfully"
 msgstr ""
 
@@ -3406,38 +3410,42 @@ msgstr ""
 msgid "Number of items per page (max 100)"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:220
+#: app/controllers/api/StaticDataController.php:199
+msgid "Whether the request is from the mobile app (allows inactive clinics in some cases)"
+msgstr ""
+
+#: app/controllers/api/StaticDataController.php:226
 msgid "staticDataType parameter is required for staticData requests"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:231
+#: app/controllers/api/StaticDataController.php:237
 msgid "Invalid dataType parameter"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:239
+#: app/controllers/api/StaticDataController.php:245
 msgid "Data retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:345
+#: app/controllers/api/StaticDataController.php:351
 msgid "Invalid staticDataType parameter"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:2238
+#: app/controllers/api/StaticDataController.php:2250
 #: app/paymentGateways/KCKnitPay.php:101
 #: app/dashboard/views/settings/customField/CustomField.jsx:993
-#: app/dashboard/views/settings/listings/Listings.jsx:605
+#: app/dashboard/views/settings/listings/Listings.jsx:606
 msgid "Label is required"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:2253
+#: app/controllers/api/StaticDataController.php:2265
 msgid "Specialty already exists"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:2273
+#: app/controllers/api/StaticDataController.php:2285
 msgid "Failed to create specialty"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:2280
+#: app/controllers/api/StaticDataController.php:2292
 #: app/dashboard/views/clinics/ClinicForm.jsx:589
 msgid "Specialty added successfully"
 msgstr ""
@@ -3951,8 +3959,8 @@ msgstr ""
 #: app/dashboard/components/ExampleFilterUsage.jsx:62
 #: app/dashboard/components/ExampleFilterUsage.jsx:63
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1015
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1082
-#: app/dashboard/views/dashboard/Dashboard.jsx:577
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1091
+#: app/dashboard/views/dashboard/Dashboard.jsx:576
 #: app/dashboard/views/doctorSession/DoctorSessionForm.jsx:729
 #: app/dashboard/views/doctorSession/DoctorSessionForm.jsx:745
 #: app/dashboard/views/encounter/components/EncounterForm.jsx:550
@@ -4127,15 +4135,15 @@ msgstr ""
 
 #: app/models/KCPaymentsAppointmentMapping.php:209
 #: app/models/KCPaymentsAppointmentMapping.php:220
-#: app/dashboard/components/EditBillModal.jsx:912
+#: app/dashboard/components/EditBillModal.jsx:951
 #: app/dashboard/components/ExampleFilterUsage.jsx:79
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:44
 #: app/dashboard/views/appointments/AppointmentForm.jsx:393
-#: app/dashboard/views/appointments/AppointmentsList.jsx:730
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1099
+#: app/dashboard/views/appointments/AppointmentsList.jsx:739
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1108
 #: app/dashboard/views/dashboard/components/BookingStatus.jsx:49
-#: app/dashboard/views/dashboard/Dashboard.jsx:412
-#: app/dashboard/views/dashboard/Dashboard.jsx:594
+#: app/dashboard/views/dashboard/Dashboard.jsx:411
+#: app/dashboard/views/dashboard/Dashboard.jsx:593
 #: app/dashboard/views/reports/Reports.jsx:72
 #: app/dashboard/views/settings/webHook/components/EventLogs.jsx:60
 msgid "Pending"
@@ -4154,11 +4162,11 @@ msgstr ""
 #: app/dashboard/components/ExampleFilterUsage.jsx:77
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:42
 #: app/dashboard/views/appointments/AppointmentForm.jsx:394
-#: app/dashboard/views/appointments/AppointmentsList.jsx:728
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1095
+#: app/dashboard/views/appointments/AppointmentsList.jsx:737
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1104
 #: app/dashboard/views/dashboard/components/BookingStatus.jsx:50
-#: app/dashboard/views/dashboard/Dashboard.jsx:408
-#: app/dashboard/views/dashboard/Dashboard.jsx:590
+#: app/dashboard/views/dashboard/Dashboard.jsx:407
+#: app/dashboard/views/dashboard/Dashboard.jsx:589
 #: app/dashboard/views/reports/Reports.jsx:75
 msgid "Cancelled"
 msgstr ""
@@ -4222,7 +4230,7 @@ msgstr ""
 
 #: app/paymentGateways/KCKnitPay.php:97
 #: app/dashboard/views/settings/customForm/Builder.jsx:821
-#: app/dashboard/views/settings/listings/Listings.jsx:608
+#: app/dashboard/views/settings/listings/Listings.jsx:609
 #: app/dashboard/views/settings/sidebarSetting/SidebarSetting.jsx:615
 msgid "Label"
 msgstr ""
@@ -4232,7 +4240,7 @@ msgstr ""
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:188
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:259
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1536
-#: app/dashboard/views/dashboard/Dashboard.jsx:956
+#: app/dashboard/views/dashboard/Dashboard.jsx:955
 #: app/dashboard/views/doctors/DoctorForm.jsx:1196
 #: app/dashboard/views/encounter/components/EncounterForm.jsx:625
 #: app/dashboard/views/encounter/EncounterDashbord.jsx:313
@@ -4356,14 +4364,14 @@ msgid "Enable or disable WooCommerce payment gateway."
 msgstr ""
 
 #: app/services/KCAppointmentDataService.php:162
-#: app/dashboard/views/appointments/AppointmentsList.jsx:661
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1055
+#: app/dashboard/views/appointments/AppointmentsList.jsx:670
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1064
 #: app/dashboard/views/billings/BillingsList.jsx:238
 #: app/dashboard/views/clinics/ClinicsList.jsx:324
 #: app/dashboard/views/clinics/ClinicsList.jsx:332
-#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:148
-#: app/dashboard/views/dashboard/Dashboard.jsx:554
-#: app/dashboard/views/dashboard/Dashboard.jsx:910
+#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:127
+#: app/dashboard/views/dashboard/Dashboard.jsx:553
+#: app/dashboard/views/dashboard/Dashboard.jsx:909
 #: app/dashboard/views/doctors/DoctorsList.jsx:271
 #: app/dashboard/views/doctors/DoctorsList.jsx:843
 #: app/dashboard/views/doctorService/DoctorServiceForm.jsx:721
@@ -4442,6 +4450,33 @@ msgstr ""
 
 #: includes/functions.php:485
 msgid " has invalid date"
+msgstr ""
+
+#: includes/functions.php:761
+#: app/dashboard/views/clinics/ClinicsList.jsx:371
+#: app/dashboard/views/clinics/ClinicsList.jsx:724
+#: app/dashboard/views/doctors/DoctorForm.jsx:1009
+#: app/dashboard/views/doctors/DoctorsList.jsx:347
+#: app/dashboard/views/doctors/DoctorsList.jsx:775
+#: app/dashboard/views/importData/ImportData.jsx:76
+#: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:91
+msgid "Specialization"
+msgstr ""
+
+#: includes/functions.php:762
+msgid "Service Type"
+msgstr ""
+
+#: includes/functions.php:763
+msgid "Clinical Problems"
+msgstr ""
+
+#: includes/functions.php:764
+msgid "Clinical Observations"
+msgstr ""
+
+#: includes/functions.php:765
+msgid "Prescription Medicine"
 msgstr ""
 
 #. translators: 1: Plugin Name, 2: Version number
@@ -4899,18 +4934,18 @@ msgstr ""
 
 #: templates/KCInvoicePrintTemplate.php:225
 #: app/dashboard/components/BillDetails.jsx:24
-#: app/dashboard/components/EditBillModal.jsx:515
+#: app/dashboard/components/EditBillModal.jsx:505
 #: app/dashboard/views/billings/BillingsList.jsx:266
-#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:153
-#: app/dashboard/views/dashboard/Dashboard.jsx:945
+#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:132
+#: app/dashboard/views/dashboard/Dashboard.jsx:944
 #: app/shortcodes/assets/js/KCBookAppointment.jsx:3380
 msgid "Services"
 msgstr ""
 
 #: templates/KCInvoicePrintTemplate.php:228
 #: app/dashboard/components/BillDetails.jsx:50
-#: app/dashboard/components/EditBillModal.jsx:527
-#: app/dashboard/components/EditBillModal.jsx:707
+#: app/dashboard/components/EditBillModal.jsx:517
+#: app/dashboard/components/EditBillModal.jsx:746
 msgid "Price"
 msgstr ""
 
@@ -4939,7 +4974,7 @@ msgid "Filename"
 msgstr ""
 
 #: templates/KCInvoicePrintTemplate.php:334
-#: app/dashboard/views/appointments/AppointmentsList.jsx:788
+#: app/dashboard/views/appointments/AppointmentsList.jsx:797
 #: app/dashboard/views/billings/BillingsList.jsx:301
 #: app/dashboard/views/clinics/ClinicsList.jsx:554
 #: app/dashboard/views/doctors/DoctorForm.jsx:1439
@@ -4952,7 +4987,7 @@ msgstr ""
 #: app/dashboard/views/receptionists/ReceptionistsList.jsx:377
 #: app/dashboard/views/settings/customNotification/CustomNotification.jsx:92
 #: app/dashboard/views/settings/encounterBodyChart/EncounterBodyChart.jsx:447
-#: app/dashboard/views/settings/listings/Listings.jsx:412
+#: app/dashboard/views/settings/listings/Listings.jsx:413
 #: app/dashboard/views/settings/payment/Payments.jsx:96
 #: app/dashboard/views/settings/sidebarSetting/SidebarSetting.jsx:630
 #: app/dashboard/views/taxes/TaxesList.jsx:599
@@ -4992,7 +5027,7 @@ msgstr ""
 #: app/dashboard/views/settings/emailTemplate/EmailTemplateMain.jsx:224
 #: app/dashboard/views/settings/emailTemplate/EmailTest.jsx:96
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:881
-#: app/dashboard/views/settings/listings/Listings.jsx:727
+#: app/dashboard/views/settings/listings/Listings.jsx:728
 #: app/dashboard/views/settings/payment/PaymentGatewayDetails.jsx:112
 #: app/dashboard/views/settings/SMSWhatsappTemplate/SMSEditTemplate.jsx:211
 #: app/dashboard/views/settings/webHook/views/Configuration/add.jsx:39
@@ -5002,20 +5037,20 @@ msgid "Back"
 msgstr ""
 
 #: app/dashboard/components/BillDetails.jsx:18
-#: app/dashboard/components/EditBillModal.jsx:509
+#: app/dashboard/components/EditBillModal.jsx:499
 msgid "Sr. No"
 msgstr ""
 
 #: app/dashboard/components/BillDetails.jsx:30
 #: app/dashboard/components/BillDetails.jsx:172
-#: app/dashboard/components/EditBillModal.jsx:784
-#: app/dashboard/components/EditBillModal.jsx:880
+#: app/dashboard/components/EditBillModal.jsx:823
+#: app/dashboard/components/EditBillModal.jsx:919
 #: app/dashboard/views/billings/BillingsList.jsx:274
 msgid "Discount"
 msgstr ""
 
 #: app/dashboard/components/BillDetails.jsx:56
-#: app/dashboard/components/EditBillModal.jsx:533
+#: app/dashboard/components/EditBillModal.jsx:523
 msgid "Total Amount"
 msgstr ""
 
@@ -5029,8 +5064,8 @@ msgid "Date & Time"
 msgstr ""
 
 #: app/dashboard/components/BillDetails.jsx:105
-#: app/dashboard/components/EditBillModal.jsx:539
-#: app/dashboard/components/EditBillModal.jsx:899
+#: app/dashboard/components/EditBillModal.jsx:529
+#: app/dashboard/components/EditBillModal.jsx:938
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:159
 msgid "Payment Status"
 msgstr ""
@@ -5050,8 +5085,8 @@ msgid "About Clinic"
 msgstr ""
 
 #: app/dashboard/components/BillDetails.jsx:153
-#: app/dashboard/components/EditBillModal.jsx:691
-#: app/dashboard/views/appointments/AppointmentsList.jsx:699
+#: app/dashboard/components/EditBillModal.jsx:681
+#: app/dashboard/views/appointments/AppointmentsList.jsx:708
 #: app/dashboard/views/doctorService/DoctorServiceList.jsx:423
 #: app/dashboard/views/doctorService/DoctorServiceList.jsx:432
 #: app/dashboard/views/settings/permissionSetting/PermissionSetting.jsx:365
@@ -5066,31 +5101,31 @@ msgid "Payment Details"
 msgstr ""
 
 #: app/dashboard/components/BillDetails.jsx:167
-#: app/dashboard/components/EditBillModal.jsx:840
+#: app/dashboard/components/EditBillModal.jsx:879
 #: app/dashboard/views/appointments/components/AppointmentSummery.jsx:78
 msgid "Subtotal"
 msgstr ""
 
 #: app/dashboard/components/BillDetails.jsx:177
-#: app/dashboard/components/EditBillModal.jsx:844
+#: app/dashboard/components/EditBillModal.jsx:883
 #: app/dashboard/views/appointments/components/AppointmentSummery.jsx:87
 #: app/dashboard/views/settings/permissionSetting/PermissionSetting.jsx:281
 msgid "Tax"
 msgstr ""
 
 #: app/dashboard/components/BillDetails.jsx:191
-#: app/dashboard/components/EditBillModal.jsx:859
+#: app/dashboard/components/EditBillModal.jsx:898
 #: app/dashboard/views/appointments/components/AppointmentSummery.jsx:97
 msgid "Applied Tax"
 msgstr ""
 
 #: app/dashboard/components/BillDetails.jsx:193
-#: app/dashboard/components/EditBillModal.jsx:861
+#: app/dashboard/components/EditBillModal.jsx:900
 msgid "No tax applied"
 msgstr ""
 
 #: app/dashboard/components/BillDetails.jsx:212
-#: app/dashboard/components/EditBillModal.jsx:885
+#: app/dashboard/components/EditBillModal.jsx:924
 #: app/dashboard/views/appointments/components/AppointmentSummery.jsx:118
 msgid "Grand Total"
 msgstr ""
@@ -5129,7 +5164,7 @@ msgid "Bulk Actions"
 msgstr ""
 
 #: app/dashboard/components/CardTable.jsx:376
-#: app/dashboard/components/FilterOffcanvas.jsx:508
+#: app/dashboard/components/FilterOffcanvas.jsx:512
 #: app/dashboard/components/Table.jsx:348
 msgid "Apply"
 msgstr ""
@@ -5137,7 +5172,7 @@ msgstr ""
 #: app/dashboard/components/CardTable.jsx:427
 #: app/dashboard/components/ExampleFilterUsage.jsx:76
 #: app/dashboard/components/Table.jsx:441
-#: app/dashboard/views/appointments/AppointmentsList.jsx:265
+#: app/dashboard/views/appointments/AppointmentsList.jsx:274
 #: app/dashboard/views/reports/Reports.jsx:70
 msgid "All"
 msgstr ""
@@ -5252,7 +5287,7 @@ msgstr ""
 #: app/dashboard/views/settings/encounterBodyChart/EncounterBodyChart.jsx:812
 #: app/dashboard/views/settings/generalSettings/GeneralSettingsMain.jsx:845
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:1253
-#: app/dashboard/views/settings/listings/Listings.jsx:737
+#: app/dashboard/views/settings/listings/Listings.jsx:738
 #: app/dashboard/views/settings/payment/PaymentGatewayDetails.jsx:137
 #: app/dashboard/views/settings/permissionSetting/PermissionSetting.jsx:1317
 #: app/dashboard/views/settings/sidebarSetting/SidebarSetting.jsx:662
@@ -5266,7 +5301,7 @@ msgid "Saving..."
 msgstr ""
 
 #: app/dashboard/components/CustomFieldRenderer.jsx:489
-#: app/dashboard/components/EditBillModal.jsx:965
+#: app/dashboard/components/EditBillModal.jsx:1004
 #: app/dashboard/components/profile/ChangePassword.jsx:197
 #: app/dashboard/views/doctors/DoctorForm.jsx:1424
 #: app/dashboard/views/doctorService/DoctorServiceForm.jsx:1048
@@ -5285,7 +5320,7 @@ msgstr ""
 #: app/dashboard/views/settings/googleEventTemplate/GoogleEventTemplate.jsx:174
 #: app/dashboard/views/settings/googleMeet/GoogleMeet.jsx:355
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:1256
-#: app/dashboard/views/settings/listings/Listings.jsx:740
+#: app/dashboard/views/settings/listings/Listings.jsx:741
 #: app/dashboard/views/settings/patientSetting/PatientSetting.jsx:188
 #: app/dashboard/views/settings/permissionSetting/PermissionSetting.jsx:1320
 #: app/dashboard/views/settings/proSettings/ProSettings.jsx:1296
@@ -5423,26 +5458,26 @@ msgstr ""
 msgid "Support: JPG, PNG, JPEG, PDF, Doc"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:135
+#: app/dashboard/components/EditBillModal.jsx:125
 msgid "Discount value is required"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:137
+#: app/dashboard/components/EditBillModal.jsx:127
 msgid "Discount value cannot be negative"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:139
+#: app/dashboard/components/EditBillModal.jsx:129
 msgid "Discount value cannot be greater than subtotal + tax"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:152
-#: app/dashboard/components/EditBillModal.jsx:157
-#: app/dashboard/components/EditBillModal.jsx:186
-#: app/dashboard/components/EditBillModal.jsx:200
-#: app/dashboard/components/EditBillModal.jsx:365
-#: app/dashboard/components/EditBillModal.jsx:409
-#: app/dashboard/components/EditBillModal.jsx:451
-#: app/dashboard/views/appointments/AppointmentsList.jsx:429
+#: app/dashboard/components/EditBillModal.jsx:142
+#: app/dashboard/components/EditBillModal.jsx:147
+#: app/dashboard/components/EditBillModal.jsx:176
+#: app/dashboard/components/EditBillModal.jsx:190
+#: app/dashboard/components/EditBillModal.jsx:355
+#: app/dashboard/components/EditBillModal.jsx:399
+#: app/dashboard/components/EditBillModal.jsx:441
+#: app/dashboard/views/appointments/AppointmentsList.jsx:438
 #: app/dashboard/views/billings/BillingsList.jsx:200
 #: app/dashboard/views/clinics/ClinicsList.jsx:148
 #: app/dashboard/views/doctors/DoctorsList.jsx:577
@@ -5460,46 +5495,46 @@ msgstr ""
 #: app/dashboard/views/settings/customField/CustomField.jsx:636
 #: app/dashboard/views/settings/customForm/CustomForm.jsx:156
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:647
-#: app/dashboard/views/settings/listings/Listings.jsx:302
+#: app/dashboard/views/settings/listings/Listings.jsx:303
 #: app/dashboard/views/taxes/TaxesList.jsx:258
 msgid "Error!"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:152
+#: app/dashboard/components/EditBillModal.jsx:142
 msgid "Please add at least one bill item before saving."
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:181
-#: app/dashboard/components/EditBillModal.jsx:448
+#: app/dashboard/components/EditBillModal.jsx:171
+#: app/dashboard/components/EditBillModal.jsx:438
 msgid "Updated!"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:181
+#: app/dashboard/components/EditBillModal.jsx:171
 msgid "The bill has been updated."
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:186
+#: app/dashboard/components/EditBillModal.jsx:176
 msgid "Failed to update bill."
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:195
+#: app/dashboard/components/EditBillModal.jsx:185
 msgid "Created!"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:195
+#: app/dashboard/components/EditBillModal.jsx:185
 msgid "The bill has been created."
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:200
+#: app/dashboard/components/EditBillModal.jsx:190
 msgid "Failed to create bill."
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:241
-#: app/dashboard/components/EditBillModal.jsx:403
+#: app/dashboard/components/EditBillModal.jsx:231
+#: app/dashboard/components/EditBillModal.jsx:393
 msgid "Price cannot be negative"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:333
+#: app/dashboard/components/EditBillModal.jsx:323
 #: app/dashboard/views/encounter/EncounterDashbord.jsx:70
 #: app/dashboard/views/encounter/EncounterTemplateList.jsx:118
 #: app/dashboard/views/encounter/tabs/bodyChart/BodyChartList.jsx:227
@@ -5516,11 +5551,11 @@ msgstr ""
 msgid "Are you sure?"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:334
+#: app/dashboard/components/EditBillModal.jsx:324
 msgid "This will delete the service item from the bill."
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:337
+#: app/dashboard/components/EditBillModal.jsx:327
 #: app/dashboard/views/encounter/EncounterTemplateList.jsx:122
 #: app/dashboard/views/encounter/tabs/bodyChart/BodyChartList.jsx:300
 #: app/dashboard/views/settings/customForm/Builder.jsx:460
@@ -5531,9 +5566,9 @@ msgstr ""
 msgid "Yes, delete it!"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:338
-#: app/dashboard/components/EditBillModal.jsx:757
-#: app/dashboard/components/EditBillModal.jsx:938
+#: app/dashboard/components/EditBillModal.jsx:328
+#: app/dashboard/components/EditBillModal.jsx:796
+#: app/dashboard/components/EditBillModal.jsx:977
 #: app/dashboard/components/profile/ChangePassword.jsx:189
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1626
 #: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:112
@@ -5601,7 +5636,7 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:362
+#: app/dashboard/components/EditBillModal.jsx:352
 #: app/dashboard/views/doctorService/DoctorServiceList.jsx:628
 #: app/dashboard/views/doctorService/DoctorServiceList.jsx:842
 #: app/dashboard/views/settings/customForm/Builder.jsx:468
@@ -5609,44 +5644,44 @@ msgstr ""
 msgid "Deleted!"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:362
+#: app/dashboard/components/EditBillModal.jsx:352
 msgid "Service item deleted."
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:365
+#: app/dashboard/components/EditBillModal.jsx:355
 msgid "Failed to delete service item."
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:398
+#: app/dashboard/components/EditBillModal.jsx:388
 msgid "Price is required"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:409
+#: app/dashboard/components/EditBillModal.jsx:399
 msgid "Service ID missing."
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:448
+#: app/dashboard/components/EditBillModal.jsx:438
 msgid "Service item updated."
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:451
+#: app/dashboard/components/EditBillModal.jsx:441
 msgid "Failed to update service item."
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:521
-#: app/dashboard/components/EditBillModal.jsx:726
+#: app/dashboard/components/EditBillModal.jsx:511
+#: app/dashboard/components/EditBillModal.jsx:765
 msgid "Quantity"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:551
+#: app/dashboard/components/EditBillModal.jsx:541
 #: app/dashboard/views/billings/BillingsList.jsx:119
-#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:174
+#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:153
 msgid "Unpaid"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:559
+#: app/dashboard/components/EditBillModal.jsx:549
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:318
-#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:182
+#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:161
 #: app/dashboard/views/encounter/components/MedicalReport.jsx:273
 #: app/dashboard/views/encounter/components/PrescriptionModule.jsx:258
 #: app/dashboard/views/encounter/tabs/bodyChart/BodyChartList.jsx:179
@@ -5661,11 +5696,11 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:568
+#: app/dashboard/components/EditBillModal.jsx:558
 msgid "-"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:577
+#: app/dashboard/components/EditBillModal.jsx:567
 #: app/dashboard/router/modules/encounterRoutes.jsx:175
 #: app/dashboard/views/billings/BillingsList.jsx:324
 #: app/dashboard/views/clinics/ClinicsList.jsx:567
@@ -5681,8 +5716,8 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:584
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1584
+#: app/dashboard/components/EditBillModal.jsx:574
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1593
 #: app/dashboard/views/clinics/ClinicsList.jsx:594
 #: app/dashboard/views/clinics/ClinicsList.jsx:1010
 #: app/dashboard/views/doctors/DoctorsList.jsx:535
@@ -5711,92 +5746,92 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:657
-#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:194
+#: app/dashboard/components/EditBillModal.jsx:647
+#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:173
 msgid "Edit Bill"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:657
+#: app/dashboard/components/EditBillModal.jsx:647
 msgid "Generate Invoice"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:669
+#: app/dashboard/components/EditBillModal.jsx:659
 msgid "Add items in billing"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:674
+#: app/dashboard/components/EditBillModal.jsx:664
 #: app/dashboard/views/appointments/components/ReviewModal.jsx:254
-#: app/dashboard/views/dashboard/Dashboard.jsx:985
+#: app/dashboard/views/dashboard/Dashboard.jsx:984
 #: app/dashboard/views/importData/ImportData.jsx:658
 #: app/dashboard/views/settings/SMSWhatsappTemplate/TestMessageModal.jsx:47
 #: app/dashboard/views/settings/webHook/components/EventLogs.jsx:456
 msgid "Close"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:679
+#: app/dashboard/components/EditBillModal.jsx:669
 #: app/dashboard/views/encounter/tabs/bodyChart/BodyChartList.jsx:333
 #: app/dashboard/views/settings/encounterBodyChart/EncounterBodyChart.jsx:719
 msgid "Add New"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:696
-msgid "Create service"
-msgstr ""
-
-#: app/dashboard/components/EditBillModal.jsx:698
+#: app/dashboard/components/EditBillModal.jsx:691
 msgid "Select or create service"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:702
-msgid "Note: Type and press enter to create new service"
-msgstr ""
-
-#: app/dashboard/components/EditBillModal.jsx:714
-#: app/dashboard/components/EditBillModal.jsx:749
-#: app/dashboard/components/EditBillModal.jsx:817
-msgid "eg “$12”"
-msgstr ""
-
-#: app/dashboard/components/EditBillModal.jsx:734
-msgid "eg “1”"
+#: app/dashboard/components/EditBillModal.jsx:737
+msgid "Create service"
 msgstr ""
 
 #: app/dashboard/components/EditBillModal.jsx:741
+msgid "Note: Type and press enter to create new service"
+msgstr ""
+
+#: app/dashboard/components/EditBillModal.jsx:753
+#: app/dashboard/components/EditBillModal.jsx:788
+#: app/dashboard/components/EditBillModal.jsx:856
+msgid "eg “$12”"
+msgstr ""
+
+#: app/dashboard/components/EditBillModal.jsx:773
+msgid "eg “1”"
+msgstr ""
+
+#: app/dashboard/components/EditBillModal.jsx:780
 #: app/dashboard/views/billings/BillingsList.jsx:270
 #: app/dashboard/views/reports/ChartCard.jsx:168
 msgid "Total"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:765
+#: app/dashboard/components/EditBillModal.jsx:804
 #: app/dashboard/views/encounter/components/DynamicSelectList.jsx:132
 #: app/dashboard/views/encounter/components/MedicalHistorySection.jsx:319
 #: app/dashboard/views/encounter/components/MedicalHistorySection.jsx:379
 msgid "Add"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:778
+#: app/dashboard/components/EditBillModal.jsx:817
 msgid "No service data found"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:811
+#: app/dashboard/components/EditBillModal.jsx:850
 msgid "Discount Value"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:836
+#: app/dashboard/components/EditBillModal.jsx:875
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:338
 #: app/dashboard/views/settings/SettingsSideBar.jsx:195
 msgid "Payment"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:933
+#: app/dashboard/components/EditBillModal.jsx:972
 msgid "Note: To close encounter, invoice payment is mandatory"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:947
+#: app/dashboard/components/EditBillModal.jsx:986
 msgid "Close encounter"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:955
+#: app/dashboard/components/EditBillModal.jsx:994
 msgid "Close and checkout"
 msgstr ""
 
@@ -5809,14 +5844,15 @@ msgid "Search appointments..."
 msgstr ""
 
 #: app/dashboard/components/ExampleFilterUsage.jsx:43
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1046
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1055
+#: app/dashboard/views/dashboard/Dashboard.jsx:698
 msgid "Select Date Range"
 msgstr ""
 
 #: app/dashboard/components/ExampleFilterUsage.jsx:44
 #: app/dashboard/components/FilterOffcanvas.jsx:246
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1047
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1476
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1056
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1485
 #: app/dashboard/views/billings/BillingsList.jsx:525
 #: app/dashboard/views/patients/PatientsList.jsx:877
 #: app/dashboard/views/settings/webHook/components/EventLogs.jsx:69
@@ -5825,18 +5861,18 @@ msgstr ""
 
 #: app/dashboard/components/ExampleFilterUsage.jsx:73
 #: app/dashboard/components/ExampleFilterUsage.jsx:74
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1092
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1093
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1101
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1102
 #: app/dashboard/views/clinics/ClinicForm.jsx:538
 #: app/dashboard/views/clinics/ClinicsList.jsx:740
+#: app/dashboard/views/dashboard/Dashboard.jsx:586
 #: app/dashboard/views/dashboard/Dashboard.jsx:587
-#: app/dashboard/views/dashboard/Dashboard.jsx:588
 #: app/dashboard/views/doctors/DoctorForm.jsx:1120
 #: app/dashboard/views/doctorService/DoctorServiceForm.jsx:974
 #: app/dashboard/views/patients/PatientForm.jsx:812
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:600
 #: app/dashboard/views/settings/customField/CustomField.jsx:1187
-#: app/dashboard/views/settings/listings/Listings.jsx:692
+#: app/dashboard/views/settings/listings/Listings.jsx:693
 msgid "Select Status"
 msgstr ""
 
@@ -5845,25 +5881,25 @@ msgstr ""
 #: app/dashboard/views/appointments/AppointmentForm.jsx:153
 #: app/dashboard/views/appointments/AppointmentForm.jsx:390
 #: app/dashboard/views/appointments/AppointmentForm.jsx:577
-#: app/dashboard/views/appointments/AppointmentsList.jsx:729
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1096
+#: app/dashboard/views/appointments/AppointmentsList.jsx:738
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1105
 #: app/dashboard/views/dashboard/components/BookingStatus.jsx:46
-#: app/dashboard/views/dashboard/Dashboard.jsx:410
-#: app/dashboard/views/dashboard/Dashboard.jsx:591
+#: app/dashboard/views/dashboard/Dashboard.jsx:409
+#: app/dashboard/views/dashboard/Dashboard.jsx:590
 #: app/dashboard/views/reports/Reports.jsx:71
 msgid "Booked"
 msgstr ""
 
 #: app/dashboard/components/ExampleFilterUsage.jsx:80
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1098
-#: app/dashboard/views/dashboard/Dashboard.jsx:593
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1107
+#: app/dashboard/views/dashboard/Dashboard.jsx:592
 msgid "Check-Out"
 msgstr ""
 
 #: app/dashboard/components/ExampleFilterUsage.jsx:81
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1097
-#: app/dashboard/views/dashboard/Dashboard.jsx:416
-#: app/dashboard/views/dashboard/Dashboard.jsx:592
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1106
+#: app/dashboard/views/dashboard/Dashboard.jsx:415
+#: app/dashboard/views/dashboard/Dashboard.jsx:591
 msgid "Check-In"
 msgstr ""
 
@@ -5909,12 +5945,12 @@ msgstr ""
 
 #: app/dashboard/components/ExampleFilterUsage.jsx:151
 #: app/dashboard/components/FilterOffcanvas.jsx:23
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1418
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1660
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1427
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1669
 #: app/dashboard/views/billings/BillingsList.jsx:751
 #: app/dashboard/views/clinics/ClinicsList.jsx:861
 #: app/dashboard/views/clinics/ClinicsList.jsx:1243
-#: app/dashboard/views/dashboard/Dashboard.jsx:838
+#: app/dashboard/views/dashboard/Dashboard.jsx:837
 #: app/dashboard/views/doctors/DoctorsList.jsx:822
 #: app/dashboard/views/doctors/DoctorsList.jsx:1201
 #: app/dashboard/views/doctorService/DoctorServiceList.jsx:670
@@ -5973,61 +6009,61 @@ msgid "Remove File"
 msgstr ""
 
 #: app/dashboard/components/FilterOffcanvas.jsx:152
-#: app/dashboard/components/FilterOffcanvas.jsx:452
+#: app/dashboard/components/FilterOffcanvas.jsx:456
 msgid "No options found"
 msgstr ""
 
 #: app/dashboard/components/FilterOffcanvas.jsx:263
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1495
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1504
 #: app/dashboard/views/billings/BillingsList.jsx:542
 #: app/dashboard/views/patients/PatientsList.jsx:896
 msgid "Clear date range"
 msgstr ""
 
-#: app/dashboard/components/FilterOffcanvas.jsx:279
+#: app/dashboard/components/FilterOffcanvas.jsx:283
 #: app/dashboard/views/dashboard/components/AppointmentCalendar.jsx:124
 msgid "Today"
 msgstr ""
 
-#: app/dashboard/components/FilterOffcanvas.jsx:280
+#: app/dashboard/components/FilterOffcanvas.jsx:284
 msgid "Last 30 Days"
 msgstr ""
 
-#: app/dashboard/components/FilterOffcanvas.jsx:281
+#: app/dashboard/components/FilterOffcanvas.jsx:285
 msgid "This Month"
 msgstr ""
 
-#: app/dashboard/components/FilterOffcanvas.jsx:282
+#: app/dashboard/components/FilterOffcanvas.jsx:286
 msgid "Last Month"
 msgstr ""
 
-#: app/dashboard/components/FilterOffcanvas.jsx:283
+#: app/dashboard/components/FilterOffcanvas.jsx:287
 msgid "Last 90 Days"
 msgstr ""
 
-#: app/dashboard/components/FilterOffcanvas.jsx:284
+#: app/dashboard/components/FilterOffcanvas.jsx:288
 msgid "Last 6 Months"
 msgstr ""
 
-#: app/dashboard/components/FilterOffcanvas.jsx:285
+#: app/dashboard/components/FilterOffcanvas.jsx:289
 msgid "Last 1 Year"
 msgstr ""
 
-#: app/dashboard/components/FilterOffcanvas.jsx:326
+#: app/dashboard/components/FilterOffcanvas.jsx:330
 msgid "To"
 msgstr ""
 
-#: app/dashboard/components/FilterOffcanvas.jsx:389
+#: app/dashboard/components/FilterOffcanvas.jsx:393
 #: app/dashboard/views/encounter/components/MedicalReport.jsx:459
 msgid "Select date"
 msgstr ""
 
-#: app/dashboard/components/FilterOffcanvas.jsx:396
+#: app/dashboard/components/FilterOffcanvas.jsx:400
 #: app/dashboard/views/encounter/EncounterList.jsx:467
 msgid "Clear date"
 msgstr ""
 
-#: app/dashboard/components/FilterOffcanvas.jsx:501
+#: app/dashboard/components/FilterOffcanvas.jsx:505
 msgid "Reset"
 msgstr ""
 
@@ -6172,15 +6208,15 @@ msgid "Remove image"
 msgstr ""
 
 #: app/dashboard/components/ImportButton.jsx:21
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1393
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1402
 #: app/dashboard/views/clinics/ClinicsList.jsx:853
 #: app/dashboard/views/doctors/DoctorsList.jsx:814
 #: app/dashboard/views/doctorService/DoctorServiceList.jsx:662
 #: app/dashboard/views/patients/PatientsList.jsx:805
 #: app/dashboard/views/receptionists/ReceptionistsList.jsx:629
 #: app/dashboard/views/settings/customField/CustomField.jsx:780
-#: app/dashboard/views/settings/listings/Listings.jsx:508
-#: app/dashboard/views/settings/listings/Listings.jsx:520
+#: app/dashboard/views/settings/listings/Listings.jsx:509
+#: app/dashboard/views/settings/listings/Listings.jsx:521
 msgid "Import Data"
 msgstr ""
 
@@ -6364,7 +6400,7 @@ msgid "Please wait..."
 msgstr ""
 
 #: app/dashboard/components/SweetAlert.js:79
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1264
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1273
 msgid "Deleting..."
 msgstr ""
 
@@ -6405,7 +6441,7 @@ msgstr ""
 #: app/dashboard/views/settings/googleMeet/GoogleMeetDoctorConfiguration.jsx:52
 #: app/dashboard/views/settings/googleMeet/GoogleMeetDoctorConfiguration.jsx:130
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:543
-#: app/dashboard/views/settings/listings/Listings.jsx:232
+#: app/dashboard/views/settings/listings/Listings.jsx:233
 #: app/dashboard/views/settings/patientSetting/PatientSetting.jsx:70
 #: app/dashboard/views/settings/payment/PaymentGatewayDetails.jsx:47
 #: app/dashboard/views/settings/payment/Payments.jsx:44
@@ -6427,10 +6463,10 @@ msgstr ""
 #: app/dashboard/components/SweetAlert.js:99
 #: app/dashboard/components/SweetAlert.js:141
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:89
-#: app/dashboard/views/appointments/AppointmentsList.jsx:240
-#: app/dashboard/views/appointments/AppointmentsList.jsx:422
+#: app/dashboard/views/appointments/AppointmentsList.jsx:249
 #: app/dashboard/views/appointments/AppointmentsList.jsx:431
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1162
+#: app/dashboard/views/appointments/AppointmentsList.jsx:440
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1171
 #: app/dashboard/views/billings/BillingDetails.jsx:40
 #: app/dashboard/views/billings/BillingDetails.jsx:53
 #: app/dashboard/views/billings/BillingDetails.jsx:61
@@ -6489,9 +6525,9 @@ msgstr ""
 #: app/dashboard/views/settings/googleMeet/GoogleMeetDoctorConfiguration.jsx:148
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:341
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:649
-#: app/dashboard/views/settings/listings/Listings.jsx:206
-#: app/dashboard/views/settings/listings/Listings.jsx:304
-#: app/dashboard/views/settings/listings/Listings.jsx:325
+#: app/dashboard/views/settings/listings/Listings.jsx:207
+#: app/dashboard/views/settings/listings/Listings.jsx:305
+#: app/dashboard/views/settings/listings/Listings.jsx:326
 #: app/dashboard/views/settings/payment/PaymentGatewayDetails.jsx:50
 #: app/dashboard/views/settings/payment/PaymentGatewayDetails.jsx:63
 #: app/dashboard/views/settings/payment/Payments.jsx:67
@@ -6523,7 +6559,7 @@ msgstr ""
 
 #: app/dashboard/components/SweetAlert.js:139
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:86
-#: app/dashboard/views/appointments/AppointmentsList.jsx:238
+#: app/dashboard/views/appointments/AppointmentsList.jsx:247
 #: app/dashboard/views/appointments/components/ReviewModal.jsx:89
 #: app/dashboard/views/appointments/components/ReviewModal.jsx:119
 #: app/dashboard/views/appointments/components/ReviewModal.jsx:170
@@ -6593,9 +6629,9 @@ msgstr ""
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:537
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:567
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:591
-#: app/dashboard/views/settings/listings/Listings.jsx:204
-#: app/dashboard/views/settings/listings/Listings.jsx:226
-#: app/dashboard/views/settings/listings/Listings.jsx:452
+#: app/dashboard/views/settings/listings/Listings.jsx:205
+#: app/dashboard/views/settings/listings/Listings.jsx:227
+#: app/dashboard/views/settings/listings/Listings.jsx:453
 #: app/dashboard/views/settings/patientSetting/PatientSetting.jsx:70
 #: app/dashboard/views/settings/patientSetting/PatientSetting.jsx:89
 #: app/dashboard/views/settings/permissionSetting/PermissionSetting.jsx:1127
@@ -7000,15 +7036,15 @@ msgstr ""
 
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:45
 #: app/dashboard/views/appointments/AppointmentForm.jsx:392
-#: app/dashboard/views/appointments/AppointmentsList.jsx:731
-#: app/dashboard/views/appointments/AppointmentsList.jsx:974
+#: app/dashboard/views/appointments/AppointmentsList.jsx:740
+#: app/dashboard/views/appointments/AppointmentsList.jsx:983
 msgid "Check Out"
 msgstr ""
 
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:46
 #: app/dashboard/views/appointments/AppointmentForm.jsx:391
-#: app/dashboard/views/appointments/AppointmentsList.jsx:732
-#: app/dashboard/views/appointments/AppointmentsList.jsx:959
+#: app/dashboard/views/appointments/AppointmentsList.jsx:741
+#: app/dashboard/views/appointments/AppointmentsList.jsx:968
 msgid "Check In"
 msgstr ""
 
@@ -7016,11 +7052,11 @@ msgstr ""
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:54
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:65
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:69
-#: app/dashboard/views/appointments/AppointmentsList.jsx:734
-#: app/dashboard/views/dashboard/Dashboard.jsx:418
+#: app/dashboard/views/appointments/AppointmentsList.jsx:743
+#: app/dashboard/views/dashboard/Dashboard.jsx:417
 #: app/dashboard/views/settings/customNotification/CustomNotificationEdit.jsx:568
 #: app/dashboard/views/settings/customNotification/CustomNotificationEdit.jsx:661
-#: app/dashboard/views/settings/listings/Listings.jsx:394
+#: app/dashboard/views/settings/listings/Listings.jsx:395
 #: app/dashboard/views/settings/webHook/components/EventLogs.jsx:104
 #: app/dashboard/views/settings/webHook/components/EventLogs.jsx:120
 msgid "Unknown"
@@ -7033,7 +7069,7 @@ msgid "Closed"
 msgstr ""
 
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:87
-#: app/dashboard/views/appointments/AppointmentsList.jsx:239
+#: app/dashboard/views/appointments/AppointmentsList.jsx:248
 #: app/shortcodes/assets/js/KCBookAppointment.jsx:3616
 msgid "Failed to generate invoice PDF."
 msgstr ""
@@ -7066,8 +7102,8 @@ msgid "Booking Status"
 msgstr ""
 
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:180
-#: app/dashboard/views/appointments/AppointmentsList.jsx:712
-#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:162
+#: app/dashboard/views/appointments/AppointmentsList.jsx:721
+#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:141
 msgid "Payment Mode"
 msgstr ""
 
@@ -7183,13 +7219,13 @@ msgid "Appointment slot is required"
 msgstr ""
 
 #: app/dashboard/views/appointments/AppointmentForm.jsx:955
-#: app/dashboard/views/appointments/AppointmentsList.jsx:859
-#: app/dashboard/views/dashboard/Dashboard.jsx:977
+#: app/dashboard/views/appointments/AppointmentsList.jsx:868
+#: app/dashboard/views/dashboard/Dashboard.jsx:976
 msgid "Edit Appointment"
 msgstr ""
 
 #: app/dashboard/views/appointments/AppointmentForm.jsx:955
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1410
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1419
 #: app/dashboard/views/settings/webHook/components/Tabs.jsx:61
 msgid "Add Appointment"
 msgstr ""
@@ -7233,7 +7269,7 @@ msgid "eg \"Checkup\""
 msgstr ""
 
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1125
-#: app/dashboard/views/dashboard/Dashboard.jsx:318
+#: app/dashboard/views/dashboard/Dashboard.jsx:317
 msgid "Telemed"
 msgstr ""
 
@@ -7243,8 +7279,8 @@ msgid "Multiple"
 msgstr ""
 
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1159
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1070
-#: app/dashboard/views/dashboard/Dashboard.jsx:565
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1079
+#: app/dashboard/views/dashboard/Dashboard.jsx:564
 #: app/dashboard/views/encounter/components/EncounterForm.jsx:587
 #: app/dashboard/views/encounter/components/EncounterForm.jsx:604
 #: app/dashboard/views/settings/appConfiguration/PushTemplateForm.jsx:251
@@ -7347,7 +7383,7 @@ msgid "No available slots for the selected date and doctor."
 msgstr ""
 
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1481
-#: app/dashboard/views/appointments/AppointmentsList.jsx:716
+#: app/dashboard/views/appointments/AppointmentsList.jsx:725
 #: app/dashboard/views/billings/BillingsList.jsx:288
 #: app/dashboard/views/billings/BillingsList.jsx:459
 #: app/dashboard/views/billings/BillingsList.jsx:553
@@ -7355,8 +7391,8 @@ msgstr ""
 #: app/dashboard/views/clinics/ClinicsList.jsx:477
 #: app/dashboard/views/clinics/ClinicsList.jsx:739
 #: app/dashboard/views/clinics/ClinicsList.jsx:902
-#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:166
-#: app/dashboard/views/dashboard/Dashboard.jsx:916
+#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:145
+#: app/dashboard/views/dashboard/Dashboard.jsx:915
 #: app/dashboard/views/doctors/DoctorForm.jsx:1105
 #: app/dashboard/views/doctors/DoctorsList.jsx:383
 #: app/dashboard/views/doctors/DoctorsList.jsx:790
@@ -7384,9 +7420,9 @@ msgstr ""
 #: app/dashboard/views/settings/customNotification/CustomNotification.jsx:62
 #: app/dashboard/views/settings/customNotification/CustomNotificationTest.jsx:198
 #: app/dashboard/views/settings/emailTemplate/EmailTemplateMain.jsx:158
-#: app/dashboard/views/settings/listings/Listings.jsx:389
-#: app/dashboard/views/settings/listings/Listings.jsx:546
-#: app/dashboard/views/settings/listings/Listings.jsx:673
+#: app/dashboard/views/settings/listings/Listings.jsx:390
+#: app/dashboard/views/settings/listings/Listings.jsx:547
+#: app/dashboard/views/settings/listings/Listings.jsx:674
 #: app/dashboard/views/settings/payment/Payments.jsx:80
 #: app/dashboard/views/settings/SMSWhatsappTemplate/SMSWhatsAppTemplate.jsx:131
 #: app/dashboard/views/settings/webHook/components/Configuration.jsx:125
@@ -7410,8 +7446,8 @@ msgid "Enter appointment description (optional)"
 msgstr ""
 
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1639
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1177
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1221
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1186
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1230
 #: app/dashboard/views/clinics/ClinicForm.jsx:997
 #: app/dashboard/views/clinics/ClinicsList.jsx:1140
 #: app/dashboard/views/clinics/ClinicsList.jsx:1195
@@ -7429,7 +7465,7 @@ msgstr ""
 #: app/dashboard/views/receptionists/ReceptionistsList.jsx:954
 #: app/dashboard/views/settings/customField/CustomField.jsx:1262
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:1252
-#: app/dashboard/views/settings/listings/Listings.jsx:736
+#: app/dashboard/views/settings/listings/Listings.jsx:737
 #: app/dashboard/views/taxes/TaxesList.jsx:348
 #: app/dashboard/views/taxes/TaxesList.jsx:403
 #: app/dashboard/views/taxes/TaxesList.jsx:543
@@ -7444,15 +7480,15 @@ msgstr ""
 msgid "Save Appointment"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:266
+#: app/dashboard/views/appointments/AppointmentsList.jsx:275
 msgid "Upcoming"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:267
+#: app/dashboard/views/appointments/AppointmentsList.jsx:276
 msgid "Past"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:338
+#: app/dashboard/views/appointments/AppointmentsList.jsx:347
 #: app/dashboard/views/billings/BillingsList.jsx:140
 #: app/dashboard/views/clinics/ClinicsList.jsx:98
 #: app/dashboard/views/doctors/DoctorsList.jsx:641
@@ -7463,17 +7499,17 @@ msgstr ""
 #: app/dashboard/views/patients/PatientsList.jsx:197
 #: app/dashboard/views/receptionists/ReceptionistsList.jsx:447
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:606
-#: app/dashboard/views/settings/listings/Listings.jsx:258
+#: app/dashboard/views/settings/listings/Listings.jsx:259
 #: app/dashboard/views/taxes/TaxesList.jsx:208
 msgid "Exporting..."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:339
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1178
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1222
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1265
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1307
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1355
+#: app/dashboard/views/appointments/AppointmentsList.jsx:348
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1187
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1231
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1274
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1316
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1364
 #: app/dashboard/views/billings/BillingsList.jsx:141
 #: app/dashboard/views/clinics/ClinicsList.jsx:99
 #: app/dashboard/views/clinics/ClinicsList.jsx:629
@@ -7500,7 +7536,7 @@ msgstr ""
 #: app/dashboard/views/receptionists/ReceptionistsList.jsx:900
 #: app/dashboard/views/receptionists/ReceptionistsList.jsx:955
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:607
-#: app/dashboard/views/settings/listings/Listings.jsx:259
+#: app/dashboard/views/settings/listings/Listings.jsx:260
 #: app/dashboard/views/taxes/TaxesList.jsx:209
 #: app/dashboard/views/taxes/TaxesList.jsx:349
 #: app/dashboard/views/taxes/TaxesList.jsx:404
@@ -7508,7 +7544,7 @@ msgstr ""
 msgid "Please wait. This may take a few seconds."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:416
+#: app/dashboard/views/appointments/AppointmentsList.jsx:425
 #: app/dashboard/views/billings/BillingsList.jsx:196
 #: app/dashboard/views/clinics/ClinicsList.jsx:143
 #: app/dashboard/views/doctors/DoctorsList.jsx:690
@@ -7520,20 +7556,20 @@ msgstr ""
 #: app/dashboard/views/receptionists/ReceptionistsList.jsx:498
 #: app/dashboard/views/settings/customField/CustomField.jsx:628
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:642
-#: app/dashboard/views/settings/listings/Listings.jsx:297
+#: app/dashboard/views/settings/listings/Listings.jsx:298
 #: app/dashboard/views/taxes/TaxesList.jsx:254
 msgid "Export completed successfully."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:420
+#: app/dashboard/views/appointments/AppointmentsList.jsx:429
 msgid "No Data to Export"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:421
+#: app/dashboard/views/appointments/AppointmentsList.jsx:430
 msgid "No appointments found to export."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:430
+#: app/dashboard/views/appointments/AppointmentsList.jsx:439
 #: app/dashboard/views/billings/BillingsList.jsx:201
 #: app/dashboard/views/clinics/ClinicsList.jsx:149
 #: app/dashboard/views/doctors/DoctorsList.jsx:696
@@ -7545,93 +7581,93 @@ msgstr ""
 #: app/dashboard/views/receptionists/ReceptionistsList.jsx:504
 #: app/dashboard/views/settings/customField/CustomField.jsx:637
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:648
-#: app/dashboard/views/settings/listings/Listings.jsx:303
+#: app/dashboard/views/settings/listings/Listings.jsx:304
 #: app/dashboard/views/taxes/TaxesList.jsx:259
 msgid "Failed to export data. Please try again."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:599
-#: app/dashboard/views/dashboard/Dashboard.jsx:870
+#: app/dashboard/views/appointments/AppointmentsList.jsx:608
+#: app/dashboard/views/dashboard/Dashboard.jsx:869
 msgid "Appointment Details"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:685
+#: app/dashboard/views/appointments/AppointmentsList.jsx:694
 msgid "Date and Time"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:705
-#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:157
+#: app/dashboard/views/appointments/AppointmentsList.jsx:714
+#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:136
 #: app/dashboard/views/doctorService/DoctorServiceForm.jsx:599
 #: app/dashboard/views/doctorService/DoctorServiceList.jsx:382
 #: app/dashboard/views/doctorService/DoctorServiceList.jsx:479
 msgid "Charges"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:747
+#: app/dashboard/views/appointments/AppointmentsList.jsx:756
 #: app/shortcodes/assets/js/KCBookAppointment.jsx:3583
 msgid "Add To Calendar"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:750
+#: app/dashboard/views/appointments/AppointmentsList.jsx:759
 msgid "Add to Google Calendar"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:755
+#: app/dashboard/views/appointments/AppointmentsList.jsx:764
 msgid "Add to Outlook"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:760
+#: app/dashboard/views/appointments/AppointmentsList.jsx:769
 msgid "Add to Microsoft 365"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:765
+#: app/dashboard/views/appointments/AppointmentsList.jsx:774
 msgid "Add to Apple Calendar"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:770
+#: app/dashboard/views/appointments/AppointmentsList.jsx:779
 msgid "Add to Yahoo Calendar"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:775
+#: app/dashboard/views/appointments/AppointmentsList.jsx:784
 msgid "Download iCal"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:873
+#: app/dashboard/views/appointments/AppointmentsList.jsx:882
 msgid "View Appointment"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:884
+#: app/dashboard/views/appointments/AppointmentsList.jsx:893
 msgid "Print Details"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:900
+#: app/dashboard/views/appointments/AppointmentsList.jsx:909
 msgid "Encounter Dashboard"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:919
+#: app/dashboard/views/appointments/AppointmentsList.jsx:928
 msgid "Start Video Conference"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:937
+#: app/dashboard/views/appointments/AppointmentsList.jsx:946
 msgid "Video Conference Not Available"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:991
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1000
 #: app/dashboard/views/appointments/components/ReviewModal.jsx:192
 msgid "Leave Review"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1009
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1018
 msgid "Delete Appointment"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1023
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1294
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1032
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1303
 msgid "Cancel Appointment"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1057
-#: app/dashboard/views/dashboard/Dashboard.jsx:555
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1066
+#: app/dashboard/views/dashboard/Dashboard.jsx:554
 #: app/dashboard/views/doctors/DoctorsList.jsx:767
 #: app/dashboard/views/patients/PatientsList.jsx:351
 #: app/dashboard/views/receptionists/ReceptionistsList.jsx:595
@@ -7639,12 +7675,12 @@ msgstr ""
 msgid "Select clinic"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1160
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1169
 msgid "Please close the Encounter to checkout patient"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1167
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1211
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1176
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1220
 #: app/dashboard/views/clinics/ClinicsList.jsx:1126
 #: app/dashboard/views/clinics/ClinicsList.jsx:1182
 #: app/dashboard/views/doctors/DoctorsList.jsx:1088
@@ -7661,13 +7697,13 @@ msgstr ""
 msgid "Update Status"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1168
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1212
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1177
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1221
 msgid "Are you sure you want to update the status for this Appointment?"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1170
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1214
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1179
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1223
 #: app/dashboard/views/clinics/ClinicsList.jsx:493
 #: app/dashboard/views/clinics/ClinicsList.jsx:1132
 #: app/dashboard/views/clinics/ClinicsList.jsx:1188
@@ -7687,8 +7723,8 @@ msgstr ""
 msgid "Yes, update"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1171
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1215
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1180
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1224
 #: app/dashboard/views/clinics/ClinicsList.jsx:494
 #: app/dashboard/views/clinics/ClinicsList.jsx:623
 #: app/dashboard/views/doctors/DoctorsList.jsx:403
@@ -7700,26 +7736,26 @@ msgstr ""
 msgid "No, cancel"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1187
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1231
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1196
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1240
 msgid "Appointment status has been updated successfully."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1196
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1240
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1205
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1249
 msgid "Failed to update appointment status. Please try again."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1255
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1264
 msgid "Delete Appointment?"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1256
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1265
 msgid "You're about to delete this appointment. This action cannot be undone."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1257
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1592
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1266
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1601
 #: app/dashboard/views/clinics/ClinicsList.jsx:663
 #: app/dashboard/views/clinics/ClinicsList.jsx:1020
 #: app/dashboard/views/doctors/DoctorsList.jsx:557
@@ -7738,81 +7774,81 @@ msgstr ""
 #: app/dashboard/views/receptionists/ReceptionistsList.jsx:780
 #: app/dashboard/views/settings/customField/CustomField.jsx:527
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:312
-#: app/dashboard/views/settings/listings/Listings.jsx:177
+#: app/dashboard/views/settings/listings/Listings.jsx:178
 #: app/dashboard/views/settings/webHook/components/EventLogs.jsx:311
 #: app/dashboard/views/taxes/TaxesList.jsx:290
 #: app/dashboard/views/taxes/TaxesList.jsx:640
 msgid "Delete permanently"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1258
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1267
 msgid "Keep appointment"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1272
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1281
 msgid "Appointment has been deleted successfully."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1281
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1290
 msgid "Failed to delete appointment. Please try again."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1295
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1304
 msgid "Are you sure you want to cancel this appointment?"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1296
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1305
 #: app/dashboard/views/paymentGateways/RazorpayCheckout.jsx:68
 #: app/dashboard/views/paymentGateways/StripeCheckout.jsx:139
 msgid "Yes, cancel"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1297
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1348
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1306
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1357
 msgid "No, keep it"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1306
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1315
 msgid "Canceling..."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1316
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1325
 msgid "Appointment cancelled successfully."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1325
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1334
 msgid "Failed to cancel appointment. Please try again."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1344
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1353
 msgid "Regenerate Video Conference Link"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1345
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1354
 msgid "Are you sure you want to regenerate the video conference link for this appointment?"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1347
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1356
 msgid "Yes, regenerate"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1354
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1363
 msgid "Regenerating..."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1363
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1372
 msgid "Video conference link has been regenerated successfully."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1372
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1381
 msgid "Failed to regenerate video conference link. Please try again."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1400
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1409
 msgid "All Appointments"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1514
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1523
 #: app/dashboard/views/clinics/ClinicsList.jsx:932
 #: app/dashboard/views/doctors/DoctorsList.jsx:909
 #: app/dashboard/views/doctorService/DoctorServiceList.jsx:754
@@ -7820,11 +7856,11 @@ msgstr ""
 #: app/dashboard/views/encounter/EncounterList.jsx:513
 #: app/dashboard/views/patients/PatientsList.jsx:933
 #: app/dashboard/views/receptionists/ReceptionistsList.jsx:703
-#: app/dashboard/views/settings/listings/Listings.jsx:572
+#: app/dashboard/views/settings/listings/Listings.jsx:573
 msgid "Search Anything"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1527
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1536
 #: app/dashboard/views/billings/BillingsList.jsx:587
 #: app/dashboard/views/clinics/ClinicsList.jsx:943
 #: app/dashboard/views/doctors/DoctorsList.jsx:919
@@ -7836,12 +7872,12 @@ msgstr ""
 #: app/dashboard/views/receptionists/ReceptionistsList.jsx:713
 #: app/dashboard/views/settings/customField/CustomField.jsx:140
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:673
-#: app/dashboard/views/settings/listings/Listings.jsx:350
+#: app/dashboard/views/settings/listings/Listings.jsx:351
 #: app/dashboard/views/taxes/TaxesList.jsx:727
 msgid "Export CSV"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1539
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1548
 #: app/dashboard/views/billings/BillingsList.jsx:593
 #: app/dashboard/views/clinics/ClinicsList.jsx:955
 #: app/dashboard/views/doctors/DoctorsList.jsx:931
@@ -7853,12 +7889,12 @@ msgstr ""
 #: app/dashboard/views/receptionists/ReceptionistsList.jsx:725
 #: app/dashboard/views/settings/customField/CustomField.jsx:152
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:680
-#: app/dashboard/views/settings/listings/Listings.jsx:353
+#: app/dashboard/views/settings/listings/Listings.jsx:354
 #: app/dashboard/views/taxes/TaxesList.jsx:733
 msgid "Export Excel"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1551
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1560
 #: app/dashboard/views/billings/BillingsList.jsx:599
 #: app/dashboard/views/clinics/ClinicsList.jsx:967
 #: app/dashboard/views/doctors/DoctorsList.jsx:943
@@ -7870,36 +7906,36 @@ msgstr ""
 #: app/dashboard/views/receptionists/ReceptionistsList.jsx:737
 #: app/dashboard/views/settings/customField/CustomField.jsx:164
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:687
-#: app/dashboard/views/settings/listings/Listings.jsx:356
+#: app/dashboard/views/settings/listings/Listings.jsx:357
 #: app/dashboard/views/taxes/TaxesList.jsx:739
 msgid "Export PDF"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1589
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1598
 msgid "Delete Appointments?"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1593
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1602
 msgid "Keep appointments"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1599
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1608
 msgid "Deleting Appointments..."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1600
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1609
 msgid "Please wait while we remove the selected appointments.<br>This won't take long."
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1614
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1623
 msgid "Appointment Deleted"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1620
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1629
 msgid "Back to appointments"
 msgstr ""
 
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1629
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1638
 msgid "Failed to delete selected appointments. Please try again."
 msgstr ""
 
@@ -8159,7 +8195,7 @@ msgstr ""
 
 #: app/dashboard/views/billings/BillingsList.jsx:282
 #: app/dashboard/views/billings/BillingsList.jsx:681
-#: app/dashboard/views/dashboard/Dashboard.jsx:893
+#: app/dashboard/views/dashboard/Dashboard.jsx:892
 #: app/dashboard/views/encounter/components/MedicalReport.jsx:268
 #: app/dashboard/views/encounter/components/MedicalReport.jsx:431
 #: app/dashboard/views/encounter/EncounterList.jsx:187
@@ -8411,7 +8447,7 @@ msgstr ""
 #: app/dashboard/views/settings/encounterBodyChart/EncounterBodyChart.jsx:53
 #: app/dashboard/views/settings/encounterBodyChart/EncounterBodyChart.jsx:385
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:366
-#: app/dashboard/views/settings/listings/Listings.jsx:372
+#: app/dashboard/views/settings/listings/Listings.jsx:373
 #: app/dashboard/views/settings/webHook/components/Configuration.jsx:96
 #: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:55
 #: app/dashboard/views/taxes/components/TaxForm.jsx:154
@@ -8635,7 +8671,7 @@ msgstr ""
 #: app/dashboard/views/settings/customField/CustomField.jsx:316
 #: app/dashboard/views/settings/customForm/CustomForm.jsx:67
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:354
-#: app/dashboard/views/settings/listings/Listings.jsx:367
+#: app/dashboard/views/settings/listings/Listings.jsx:368
 #: app/dashboard/views/settings/webHook/components/Configuration.jsx:91
 #: app/dashboard/views/settings/webHook/components/EventLogs.jsx:86
 #: app/dashboard/views/taxes/TaxesList.jsx:445
@@ -8644,16 +8680,6 @@ msgstr ""
 
 #: app/dashboard/views/clinics/ClinicsList.jsx:361
 msgid "Contact No"
-msgstr ""
-
-#: app/dashboard/views/clinics/ClinicsList.jsx:371
-#: app/dashboard/views/clinics/ClinicsList.jsx:724
-#: app/dashboard/views/doctors/DoctorForm.jsx:1009
-#: app/dashboard/views/doctors/DoctorsList.jsx:347
-#: app/dashboard/views/doctors/DoctorsList.jsx:775
-#: app/dashboard/views/importData/ImportData.jsx:76
-#: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:91
-msgid "Specialization"
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicsList.jsx:456
@@ -8815,7 +8841,7 @@ msgstr ""
 #: app/dashboard/views/clinics/ClinicsList.jsx:845
 #: app/dashboard/views/encounter/EncounterTemplateList.jsx:51
 #: app/dashboard/views/settings/customField/CustomField.jsx:571
-#: app/dashboard/views/settings/listings/Listings.jsx:322
+#: app/dashboard/views/settings/listings/Listings.jsx:323
 msgid "Pro Feature"
 msgstr ""
 
@@ -9069,27 +9095,27 @@ msgstr ""
 
 #: app/dashboard/views/dashboard/components/ListCard.jsx:30
 #: app/dashboard/views/dashboard/components/ListCard.jsx:35
-#: app/dashboard/views/dashboard/Dashboard.jsx:814
+#: app/dashboard/views/dashboard/Dashboard.jsx:813
 msgid "View All"
 msgstr ""
 
-#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:113
+#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:112
 msgid "Date and time"
 msgstr ""
 
-#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:190
+#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:169
 msgid "View Bill"
 msgstr ""
 
-#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:208
+#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:187
 msgid "Error loading payment data:"
 msgstr ""
 
-#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:208
+#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:187
 msgid "Unknown error"
 msgstr ""
 
-#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:240
+#: app/dashboard/views/dashboard/components/PaymentHistory.jsx:219
 msgid "No payment records found"
 msgstr ""
 
@@ -9129,71 +9155,67 @@ msgstr ""
 msgid "Today's Appointments"
 msgstr ""
 
-#: app/dashboard/views/dashboard/Dashboard.jsx:304
+#: app/dashboard/views/dashboard/Dashboard.jsx:303
 msgid "By "
 msgstr ""
 
-#: app/dashboard/views/dashboard/Dashboard.jsx:344
+#: app/dashboard/views/dashboard/Dashboard.jsx:343
 #: app/dashboard/views/getHelp/GetHelpList.jsx:77
 #: app/dashboard/views/patients/PatientProfile.jsx:171
 #: app/dashboard/views/patients/PatientsList.jsx:595
 msgid "Appointments"
 msgstr ""
 
-#: app/dashboard/views/dashboard/Dashboard.jsx:414
+#: app/dashboard/views/dashboard/Dashboard.jsx:413
 #: app/dashboard/views/reports/Reports.jsx:73
 msgid "Completed"
 msgstr ""
 
-#: app/dashboard/views/dashboard/Dashboard.jsx:640
+#: app/dashboard/views/dashboard/Dashboard.jsx:639
 msgid "Insights"
 msgstr ""
 
-#: app/dashboard/views/dashboard/Dashboard.jsx:656
+#: app/dashboard/views/dashboard/Dashboard.jsx:655
 msgid "Clear filter"
 msgstr ""
 
-#: app/dashboard/views/dashboard/Dashboard.jsx:699
-msgid "24 May 2023 to 25 June 2023"
-msgstr ""
-
-#: app/dashboard/views/dashboard/Dashboard.jsx:714
+#: app/dashboard/views/dashboard/Dashboard.jsx:713
 msgid "Apply Filter"
 msgstr ""
 
-#: app/dashboard/views/dashboard/Dashboard.jsx:758
+#: app/dashboard/views/dashboard/Dashboard.jsx:757
 msgid "Upcoming Appointments"
 msgstr ""
 
-#: app/dashboard/views/dashboard/Dashboard.jsx:763
+#: app/dashboard/views/dashboard/Dashboard.jsx:762
 msgid "No upcoming appointments"
 msgstr ""
 
-#: app/dashboard/views/dashboard/Dashboard.jsx:779
+#: app/dashboard/views/dashboard/Dashboard.jsx:778
 msgid "Top Doctors"
 msgstr ""
 
-#: app/dashboard/views/dashboard/Dashboard.jsx:784
+#: app/dashboard/views/dashboard/Dashboard.jsx:783
 msgid "No doctor data available"
 msgstr ""
 
-#: app/dashboard/views/dashboard/Dashboard.jsx:812
+#: app/dashboard/views/dashboard/Dashboard.jsx:811
 msgid "Payment History"
 msgstr ""
 
-#: app/dashboard/views/dashboard/Dashboard.jsx:829
+#: app/dashboard/views/dashboard/Dashboard.jsx:828
 msgid "Appointment Calendar"
 msgstr ""
 
-#: app/dashboard/views/dashboard/Dashboard.jsx:858
+#: app/dashboard/views/dashboard/Dashboard.jsx:857
 msgid "Calendar Filters"
 msgstr ""
 
-#: app/dashboard/views/dashboard/Dashboard.jsx:899
+#: app/dashboard/views/dashboard/Dashboard.jsx:898
 msgid "Time"
 msgstr ""
 
-#: app/dashboard/views/dashboard/Dashboard.jsx:965
+#: app/dashboard/views/dashboard/Dashboard.jsx:964
 msgid "Loading appointment details..."
 msgstr ""
 
@@ -11428,8 +11450,8 @@ msgstr ""
 #: app/dashboard/views/settings/customForm/CustomForm.jsx:73
 #: app/dashboard/views/settings/customNotification/CustomNotification.jsx:43
 #: app/dashboard/views/settings/customNotification/CustomNotificationTest.jsx:190
-#: app/dashboard/views/settings/listings/Listings.jsx:381
-#: app/dashboard/views/settings/listings/Listings.jsx:631
+#: app/dashboard/views/settings/listings/Listings.jsx:382
+#: app/dashboard/views/settings/listings/Listings.jsx:632
 msgid "Type"
 msgstr ""
 
@@ -11472,7 +11494,8 @@ msgid "Import failed. Please try again."
 msgstr ""
 
 #: app/dashboard/views/importData/ImportData.jsx:375
-#: app/dashboard/views/settings/listings/Listings.jsx:530
+#: app/dashboard/views/settings/listings/Listings.jsx:531
+#: app/dashboard/views/settings/listings/Listings.jsx:651
 msgid "Select Type"
 msgstr ""
 
@@ -12062,9 +12085,9 @@ msgstr ""
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:545
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:569
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:593
-#: app/dashboard/views/settings/listings/Listings.jsx:228
-#: app/dashboard/views/settings/listings/Listings.jsx:234
-#: app/dashboard/views/settings/listings/Listings.jsx:454
+#: app/dashboard/views/settings/listings/Listings.jsx:229
+#: app/dashboard/views/settings/listings/Listings.jsx:235
+#: app/dashboard/views/settings/listings/Listings.jsx:455
 #: app/dashboard/views/settings/patientSetting/PatientSetting.jsx:72
 #: app/dashboard/views/settings/patientSetting/PatientSetting.jsx:91
 #: app/dashboard/views/settings/permissionSetting/PermissionSetting.jsx:1129
@@ -12116,7 +12139,7 @@ msgstr ""
 #: app/dashboard/views/settings/googleEventTemplate/GoogleEventTemplate.jsx:84
 #: app/dashboard/views/settings/googleMeet/GoogleMeet.jsx:125
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:587
-#: app/dashboard/views/settings/listings/Listings.jsx:448
+#: app/dashboard/views/settings/listings/Listings.jsx:449
 #: app/dashboard/views/settings/patientSetting/PatientSetting.jsx:85
 #: app/dashboard/views/settings/permissionSetting/PermissionSetting.jsx:1183
 #: app/dashboard/views/settings/proSettings/ProSettings.jsx:484
@@ -12635,7 +12658,7 @@ msgstr ""
 
 #: app/dashboard/views/settings/customField/CustomField.jsx:543
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:328
-#: app/dashboard/views/settings/listings/Listings.jsx:193
+#: app/dashboard/views/settings/listings/Listings.jsx:194
 msgid "Data has been deleted successfully."
 msgstr ""
 
@@ -12645,12 +12668,12 @@ msgstr ""
 
 #: app/dashboard/views/settings/customField/CustomField.jsx:550
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:337
-#: app/dashboard/views/settings/listings/Listings.jsx:202
+#: app/dashboard/views/settings/listings/Listings.jsx:203
 msgid "Failed to delete Data. Please try again."
 msgstr ""
 
 #: app/dashboard/views/settings/customField/CustomField.jsx:572
-#: app/dashboard/views/settings/listings/Listings.jsx:323
+#: app/dashboard/views/settings/listings/Listings.jsx:324
 msgid "Exporting data is only available in KiviCare Pro version."
 msgstr ""
 
@@ -12757,7 +12780,7 @@ msgstr ""
 
 #: app/dashboard/views/settings/customField/CustomField.jsx:1265
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:1255
-#: app/dashboard/views/settings/listings/Listings.jsx:739
+#: app/dashboard/views/settings/listings/Listings.jsx:740
 msgid "Update"
 msgstr ""
 
@@ -14444,7 +14467,7 @@ msgid "Failed to save holiday. Please try again."
 msgstr ""
 
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:619
-#: app/dashboard/views/settings/listings/Listings.jsx:274
+#: app/dashboard/views/settings/listings/Listings.jsx:275
 msgid "Failed to retrieve export data"
 msgstr ""
 
@@ -14545,52 +14568,48 @@ msgstr ""
 msgid "Select end time"
 msgstr ""
 
-#: app/dashboard/views/settings/listings/Listings.jsx:174
+#: app/dashboard/views/settings/listings/Listings.jsx:175
 msgid "Delete Listing?"
 msgstr ""
 
-#: app/dashboard/views/settings/listings/Listings.jsx:175
+#: app/dashboard/views/settings/listings/Listings.jsx:176
 msgid "You're about to delete this listing.<br>This action cannot be undone."
 msgstr ""
 
-#: app/dashboard/views/settings/listings/Listings.jsx:178
+#: app/dashboard/views/settings/listings/Listings.jsx:179
 msgid "Keep listing"
 msgstr ""
 
-#: app/dashboard/views/settings/listings/Listings.jsx:183
+#: app/dashboard/views/settings/listings/Listings.jsx:184
 msgid "Deleting Listing..."
 msgstr ""
 
-#: app/dashboard/views/settings/listings/Listings.jsx:184
+#: app/dashboard/views/settings/listings/Listings.jsx:185
 msgid "Please wait while we remove the selected listing.<br>This won't take long."
 msgstr ""
 
-#: app/dashboard/views/settings/listings/Listings.jsx:192
+#: app/dashboard/views/settings/listings/Listings.jsx:193
 msgid "Listing Deleted"
 msgstr ""
 
-#: app/dashboard/views/settings/listings/Listings.jsx:194
+#: app/dashboard/views/settings/listings/Listings.jsx:195
 msgid "Back to listings"
 msgstr ""
 
-#: app/dashboard/views/settings/listings/Listings.jsx:479
+#: app/dashboard/views/settings/listings/Listings.jsx:480
 msgid "Listing Data"
 msgstr ""
 
-#: app/dashboard/views/settings/listings/Listings.jsx:498
+#: app/dashboard/views/settings/listings/Listings.jsx:499
 msgid "Add List"
 msgstr ""
 
-#: app/dashboard/views/settings/listings/Listings.jsx:609
+#: app/dashboard/views/settings/listings/Listings.jsx:610
 msgid "Dummy Data"
 msgstr ""
 
-#: app/dashboard/views/settings/listings/Listings.jsx:637
+#: app/dashboard/views/settings/listings/Listings.jsx:638
 msgid "Type is required"
-msgstr ""
-
-#: app/dashboard/views/settings/listings/Listings.jsx:650
-msgid "Select Service Type"
 msgstr ""
 
 #: app/dashboard/views/settings/patientSetting/PatientSetting.jsx:99

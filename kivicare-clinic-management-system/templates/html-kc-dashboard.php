@@ -81,8 +81,15 @@ if ($theme_mode == 'true') {
 
 
 </head>
-
-<body data-bs-theme="light" <?php body_class('kivicare-dashboard') ?>>
+<?php
+$user_id = get_current_user_id();
+$preferences = get_user_meta($user_id, 'kc_user_preferences', true);
+$dark_mode = false;
+if (is_array($preferences) && isset($preferences['darkMode'])) {
+    $dark_mode = (bool)$preferences['darkMode'];
+}
+?>
+<body data-bs-theme="<?php echo esc_attr($dark_mode ? 'dark' : 'light'); ?>" <?php body_class('kivicare-dashboard') ?>>
 
     <!-- React Dashboard Mount Point -->
     <div id="kc-dashboard">
@@ -90,55 +97,37 @@ if ($theme_mode == 'true') {
        
     </div>
     <style id="kivicare-dashboard-colors-style">
-        [data-bs-theme="light"],
-        :root {
-            <?php
-            $generatedColors = KCOption::get('generated_colors', []);
-            if (!empty($generatedColors) && is_array($generatedColors)) {
-                foreach ($generatedColors as $property => $value) {
-                    echo esc_attr($property) . ': ' . esc_attr($value) . ';' . PHP_EOL . '                ';
-                }
-            } else {
-                // Fallback to default colors if generated colors are not available
-                ?>
-                --bs-primary:
-                    <?php echo esc_attr(KCOption::get('primary_color', '#5670CC')); ?>
-                ;
-                --bs-secondary:
-                    <?php echo esc_attr(KCOption::get('secondary_color', '#f68685')); ?>
-                ;
-                --bs-success:
-                    <?php echo esc_attr(KCOption::get('success_color', '#219653')); ?>
-                ;
-                --bs-warning:
-                    <?php echo esc_attr(KCOption::get('warning_color', '#FAA100')); ?>
-                ;
-                --bs-danger:
-                    <?php echo esc_attr(KCOption::get('danger_color', '#F54438')); ?>
-                ;
-                --bs-info:
-                    <?php echo esc_attr(KCOption::get('info_color', '#007EA7')); ?>
-                ;
-                --bs-body-bg:
-                    <?php echo esc_attr(KCOption::get('body_bg', '#f5f6fa')); ?>
-                ;
-                --bs-body-color:
-                    <?php echo esc_attr(KCOption::get('body_color', '#828A90')); ?>
-                ;
-                --bs-border-color:
-                    <?php echo esc_attr(KCOption::get('border_color', '#dbdfe7')); ?>
-                ;
-                --bs-heading-color:
-                    <?php echo esc_attr(KCOption::get('heading_color', '#3F414D')); ?>
-                ;
-                --bs-card-color:
-                    <?php echo esc_attr(KCOption::get('card_color', '#ffffff')); ?>
-                ;
-                --bs-theme-color:
-                    <?php echo esc_attr(KCOption::get('theme_color', '#007bff')); ?>
-                ;
-            <?php } ?>
-        }
+        <?php
+        $generatedColors = KCOption::get('generated_colors', []);
+        if (!empty($generatedColors) && is_string($generatedColors)) {
+            echo $generatedColors;
+        } else {
+            ?>
+            [data-bs-theme="light"],
+            :root {
+                <?php
+                if (!empty($generatedColors) && is_array($generatedColors)) {
+                    foreach ($generatedColors as $property => $value) {
+                        echo esc_attr($property) . ': ' . esc_attr($value) . ';' . PHP_EOL . '                ';
+                    }
+                } else {
+                    // Fallback to default colors if generated colors are not available
+                    ?>
+                    --bs-primary: <?php echo esc_attr(KCOption::get('primary_color', '#5670CC')); ?>;
+                    --bs-secondary: <?php echo esc_attr(KCOption::get('secondary_color', '#f68685')); ?>;
+                    --bs-success: <?php echo esc_attr(KCOption::get('success_color', '#219653')); ?>;
+                    --bs-warning: <?php echo esc_attr(KCOption::get('warning_color', '#FAA100')); ?>;
+                    --bs-danger: <?php echo esc_attr(KCOption::get('danger_color', '#F54438')); ?>;
+                    --bs-info: <?php echo esc_attr(KCOption::get('info_color', '#007EA7')); ?>;
+                    --bs-body-bg: <?php echo esc_attr(KCOption::get('body_bg', '#f5f6fa')); ?>;
+                    --bs-body-color: <?php echo esc_attr(KCOption::get('body_color', '#828A90')); ?>;
+                    --bs-border-color: <?php echo esc_attr(KCOption::get('border_color', '#dbdfe7')); ?>;
+                    --bs-heading-color: <?php echo esc_attr(KCOption::get('heading_color', '#3F414D')); ?>;
+                    --bs-card-color: <?php echo esc_attr(KCOption::get('card_color', '#ffffff')); ?>;
+                    --bs-theme-color: <?php echo esc_attr(KCOption::get('theme_color', '#007bff')); ?>;
+                <?php } ?>
+            }
+        <?php } ?>
     </style>
 
     <?php

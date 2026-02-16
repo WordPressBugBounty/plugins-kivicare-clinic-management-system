@@ -219,19 +219,15 @@ class DashboardController extends KCBaseController
                     }
                 }
 
-                // Format date and time
+                // Format bill creation date and time using WordPress date/time formatting functions
                 $appointment_datetime = '';
-                if (!empty($bill->appointment_start_date)) {
-                    $date = gmdate('M j, Y', strtotime($bill->appointment_start_date));
-                    $time = '';
-                    if (!empty($bill->appointment_start_time)) {
-                        $time = gmdate('g:i a', strtotime($bill->appointment_start_time));
-                    }
+                // Try both createdAt and created_at property names
+                $bill_created_at = $bill->createdAt ?? $bill->created_at ?? null;
+                
+                if (!empty($bill_created_at)) {
+                    $date = kcGetFormatedDate($bill_created_at);
+                    $time = kcGetFormatedTime($bill_created_at);
                     $appointment_datetime = $date . ($time ? ', ' . $time : '');
-                } elseif (!empty($bill->encounter_date)) {
-                    $appointment_datetime = gmdate('M j, Y', strtotime($bill->encounter_date));
-                } else {
-                     $appointment_datetime = gmdate('M j, Y', strtotime($bill->created_at));
                 }
 
                 // Determine status based on payment_status
@@ -522,7 +518,9 @@ class DashboardController extends KCBaseController
                 $appointmentData = [
                     'id' => absint($appointment->id),
                     'appointmentStartDate' => sanitize_text_field($appointment->appointmentStartDate),
+                    'appointmentStartDateFormated' => kcGetFormatedDate($appointment->appointmentStartDate),
                     'appointmentStartTime' => $appointment_start_time,
+                    'appointmentStartTimeFormated' => kcGetFormatedTime($appointment_start_time),
                     'appointmentEndDate' => sanitize_text_field($appointment->appointmentEndDate),
                     'appointmentEndTime' => sanitize_text_field($appointment->appointmentEndTime),
                     'visitType' => $service_list,

@@ -4,7 +4,7 @@ Tags: clinic management, patient management, doctor management, appointment mana
 Requires PHP: 8.0 
 Requires at least: 3.0.1
 Tested up to: 6.9.1
-Stable tag: 4.1.1
+Stable tag: 4.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -218,9 +218,12 @@ We'd love to hear from you! Contact us at hello@iqonic.design or submit a featur
 
 == Changelog ==
 
+= Version 4.1.2 – 16 Feb 2026
+- [New] Integrated Dark Mode
+
+
 = Version 4.1.1 – 13 Feb 2026
 - [Fixed] Patients Static List ID Not Fetch.
-
 
 = Version 4.1.0 – 12 Feb 2026
 - [New] Added filters in Fullcalendar

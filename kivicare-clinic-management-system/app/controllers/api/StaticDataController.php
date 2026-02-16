@@ -192,6 +192,12 @@ class StaticDataController extends KCBaseController
                     },
                     'description' => __('Number of items per page (max 100)', 'kivicare-clinic-management-system'),
                 ],
+                'is_app' => [
+                    'required' => false,
+                    'type' => 'boolean',
+                    'sanitize_callback' => 'rest_sanitize_boolean',
+                    'description' => __('Whether the request is from the mobile app (allows inactive clinics in some cases)', 'kivicare-clinic-management-system'),
+                ],
             ],
             'permission_callback' => function (WP_REST_Request $request) {
                 // For now, allowing all requests - can be customized later
@@ -389,9 +395,13 @@ class StaticDataController extends KCBaseController
                 }, null, null, 'sd')
                 ->whereRaw('dcm.clinic_id = sdm.clinic_id')
                 ->where('s.status', 1) // Only active services
-                ->where('sdm.status', 1) // Only active service mappings
-                ->where('c.status', 1) // Only active clinics
-                ->orderBy('sdm.id', 'DESC');
+                ->where('sdm.status', 1); // Only active service mappings
+
+            if (!$request->has_param('is_app') || ($request->get_param('is_app') !== 'true' && $request->get_param('is_app') !== true)) {
+                $query->where('c.status', 1); // Only active clinics
+            }
+
+            $query->orderBy('sdm.id', 'DESC');
 
             // Apply filters
             if (!empty($doctorId)) {
@@ -532,7 +542,7 @@ class StaticDataController extends KCBaseController
                 }
 
                 // Format service type
-                $serviceType = !empty($service->service_type) ? str_replace('_', ' ', $service->service_type) : "";
+                $serviceType = !empty($service->service_type) ? kcGetStaticDataTypeLabel($service->service_type) : "";
 
                 // Handle telemed services
                 if (($service->telemed_service ?? 'no') === 'yes') {
@@ -959,7 +969,7 @@ class StaticDataController extends KCBaseController
 
             return array_map(function ($type) {
                 return [
-                    'label' => ucfirst(str_replace('_', ' ', $type)),
+                    'label' => kcGetStaticDataTypeLabel($type),
                     'value' => $type,
                 ];
             }, $types);
@@ -1276,7 +1286,7 @@ class StaticDataController extends KCBaseController
             }
 
             $patients = $query->get();
-            $result = $patients->map(function ($patient) use ($isPatientIdEnabled) {
+            $result = $patients->map(function ($patient) use ($isPatientIdEnabled, $request) {
                 $patientImage = '';
                 $profileImageId = get_user_meta($patient->id, 'patient_profile_image', true);
                 if ($profileImageId) {
@@ -1291,13 +1301,15 @@ class StaticDataController extends KCBaseController
                     $label .= ' (' . $uniqueId . ')';
                 }
 
-                return [
+                $patientData = [
                     'id' => $patient->id,
                     'label' => $label,
                     'value' => $patient->id,
                     'patient_image_url' => $patientImage ?: '',
                     'patient_unique_id' => $uniqueId,
                 ];
+                return apply_filters('kc_patient_list_item_data', $patientData, $patient, $request);
+                
             })->toArray();
 
             // Add pagination metadata if request provided

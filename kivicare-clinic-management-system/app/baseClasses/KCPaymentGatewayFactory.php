@@ -128,7 +128,7 @@ class KCPaymentGatewayFactory
 
             $gateway = self::create_gateway($gateway_id);
 
-            if ($for_frontend && (!$gateway || !$gateway->is_enabled())) {
+            if (!$gateway || ($for_frontend && !$gateway->is_enabled())) {
                 continue;
             }
 

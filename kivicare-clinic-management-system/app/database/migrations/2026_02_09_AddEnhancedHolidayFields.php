@@ -24,32 +24,33 @@ class AddEnhancedHolidayFields extends KCAbstractMigration
         global $wpdb;
         $table_name = $wpdb->prefix . 'kc_clinic_schedule';
 
-        // Check if columns already exist
-        $columns = $wpdb->get_results("SHOW COLUMNS FROM `{$table_name}`");
-        $column_names = wp_list_pluck($columns, 'Field');
-
         // Add selection_mode column if it doesn't exist
-        if (!in_array('selection_mode', $column_names)) {
+        $row = $wpdb->get_row("SHOW COLUMNS FROM `{$table_name}` LIKE 'selection_mode'");
+        if (!$row) {
             $wpdb->query("ALTER TABLE `{$table_name}` ADD COLUMN `selection_mode` VARCHAR(20) DEFAULT 'range' COMMENT 'Date selection mode: single, multiple, or range' AFTER `end_date`");
         }
 
         // Add selected_dates column if it doesn't exist
-        if (!in_array('selected_dates', $column_names)) {
+        $row = $wpdb->get_row("SHOW COLUMNS FROM `{$table_name}` LIKE 'selected_dates'");
+        if (!$row) {
             $wpdb->query("ALTER TABLE `{$table_name}` ADD COLUMN `selected_dates` TEXT NULL COMMENT 'JSON array of selected dates for multiple mode' AFTER `selection_mode`");
         }
 
         // Add time_specific column if it doesn't exist
-        if (!in_array('time_specific', $column_names)) {
+        $row = $wpdb->get_row("SHOW COLUMNS FROM `{$table_name}` LIKE 'time_specific'");
+        if (!$row) {
             $wpdb->query("ALTER TABLE `{$table_name}` ADD COLUMN `time_specific` TINYINT(1) DEFAULT 0 COMMENT 'Whether holiday applies to specific time only' AFTER `selected_dates`");
         }
 
         // Add start_time column if it doesn't exist
-        if (!in_array('start_time', $column_names)) {
+        $row = $wpdb->get_row("SHOW COLUMNS FROM `{$table_name}` LIKE 'start_time'");
+        if (!$row) {
             $wpdb->query("ALTER TABLE `{$table_name}` ADD COLUMN `start_time` TIME NULL COMMENT 'Start time for time-specific holidays' AFTER `time_specific`");
         }
 
         // Add end_time column if it doesn't exist
-        if (!in_array('end_time', $column_names)) {
+        $row = $wpdb->get_row("SHOW COLUMNS FROM `{$table_name}` LIKE 'end_time'");
+        if (!$row) {
             $wpdb->query("ALTER TABLE `{$table_name}` ADD COLUMN `end_time` TIME NULL COMMENT 'End time for time-specific holidays' AFTER `start_time`");
         }
 

@@ -744,6 +744,34 @@ function validate_time_format($time)
     return preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $time);
 }
 
+/**
+ * Get translated label for static data types
+ *
+ * @param string $type The raw type slug
+ * @return string The translated label
+ */
+function kcGetStaticDataTypeLabel($type)
+{
+    if (empty($type)) {
+        return '';
+    }
+
+    // Static mapping for common types to ensure they are extractable by translation tools
+    $labels = [
+        'specialization'        => __('Specialization', 'kivicare-clinic-management-system'),
+        'service_type'          => __('Service Type', 'kivicare-clinic-management-system'),
+        'clinical_problems'     => __('Clinical Problems', 'kivicare-clinic-management-system'),
+        'clinical_observations' => __('Clinical Observations', 'kivicare-clinic-management-system'),
+        'prescription_medicine' => __('Prescription Medicine', 'kivicare-clinic-management-system'),
+    ];
+
+    if (isset($labels[$type])) {
+        return $labels[$type];
+    }
+
+    return __(ucwords(str_replace('_', ' ', $type)), 'kivicare-clinic-management-system');
+}
+
 
 
 
@@ -1090,6 +1118,16 @@ function kcGetWoocommerceOrderIdByAppointmentId($appointment_id)
             $appointment_id
         )
     );
+
+    if (empty($order_id) && class_exists('WooCommerce')) {
+        $orders = wc_get_orders(array(
+            'limit'      => 1,
+            'meta_key'   => 'kivicare_appointment_id',
+            'meta_value' => $appointment_id,
+            'return'     => 'ids',
+        ));
+        $order_id = !empty($orders) ? $orders[0] : null;
+    }
 
     return $order_id ? intval($order_id) : null;
 }

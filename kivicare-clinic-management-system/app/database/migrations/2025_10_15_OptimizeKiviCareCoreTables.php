@@ -647,11 +647,11 @@ class OptimizeKiviCareCoreTables extends KCAbstractMigration
             $esc_index_name = esc_sql($index_name);
             $esc_columns = esc_sql($columns);
             
-            // Check if index exists
+            // Check if index exists using SHOW INDEX which is more reliable than INFORMATION_SCHEMA in some environments
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            $index_exists = $wpdb->get_var(" SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '{$esc_table_name}' AND  = '{$esc_index_name}' ");
+            $existing_indexes = $wpdb->get_results("SHOW INDEX FROM `{$esc_table_name}` WHERE Key_name = '{$esc_index_name}'");
 
-            if (!$index_exists) {
+            if (empty($existing_indexes)) {
                 // Columns often contain commas and simpler chars, hard to simple-escape, assuming trusted input for now
                 // but usually should be safe if hardcoded. For linting, the table/index are key.
                 // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared

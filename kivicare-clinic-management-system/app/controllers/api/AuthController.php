@@ -1127,6 +1127,8 @@ class AuthController extends KCBaseController
 
         // If template email fails, fallback to WordPress default password reset
         if (!$templateSent) {
+            KCErrorLogger::instance()->error("Template email failed, falling back to WP default for user: " . $user->user_email);
+            
             // Use WordPress default password reset email
             $subject = __('Password Reset Request - KiviCare', 'kivicare-clinic-management-system');
             $message = sprintf(
@@ -1135,7 +1137,13 @@ class AuthController extends KCBaseController
                 $reset_url
             );
 
-            return wp_mail($user->user_email, $subject, $message);
+            $result = wp_mail($user->user_email, $subject, $message);
+            
+            if (!$result) {
+                KCErrorLogger::instance()->error("WP default mail also failed for user: " . $user->user_email);
+            }
+            
+            return $result;
         }
 
         return $templateSent;
@@ -1553,7 +1561,17 @@ class AuthController extends KCBaseController
             );
         }
 
-        $this->sendPasswordResetEmail($user, $key);
+        $email_sent = $this->sendPasswordResetEmail($user, $key);
+
+        if (!$email_sent) {
+            KCErrorLogger::instance()->error("Failed to send password reset email to user: " . $user->user_email);
+            return $this->response(
+                null,
+                __('Failed to send password reset email. Please contact support.', 'kivicare-clinic-management-system'),
+                false,
+                500
+            );
+        }
 
         return $this->response(
             null,

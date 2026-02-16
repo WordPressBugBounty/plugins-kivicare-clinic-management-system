@@ -131,15 +131,19 @@ class ListingData extends SettingsController
 
         $query->limit($perPage)->offset($offset);
 
-        $data = $query->get()->map(fn($item) => (object)[
-            'id' => $item->id,
-            'type' => __((is_array($item->type) ? $item->type['type'] : str_replace('_', ' ', $item->type)), 'kivicare-clinic-management-system'), // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
-            'label' => $item->label,
-            'value' => $item->value,
-            'parent_id' => $item->parentId,
-            'status' => $item->status,
-            'created_at' => $item->createdAt,
-        ])->toArray();
+        $data = $query->get()->map(function($item) {
+            $raw_type = is_array($item->type) ? ($item->type['id'] ?? $item->type['type']) : $item->type;
+            return (object)[
+                'id' => $item->id,
+                'type' => kcGetStaticDataTypeLabel($raw_type),
+                'raw_type' => $raw_type,
+                'label' => $item->label,
+                'value' => $item->value,
+                'parent_id' => $item->parentId,
+                'status' => $item->status,
+                'created_at' => $item->createdAt,
+            ];
+        })->toArray();
 
         if (empty($data)) {
             return $this->response([], esc_html__('No services found', 'kivicare-clinic-management-system'), false);
@@ -196,7 +200,7 @@ class ListingData extends SettingsController
 
             $item->type = [
                 'id' => $item->type,
-                'type' => str_replace('_', ' ', $item->type),
+                'type' => kcGetStaticDataTypeLabel($item->type),
             ];
 
             return $this->response($item, esc_html__('Static data', 'kivicare-clinic-management-system'));
@@ -318,7 +322,7 @@ class ListingData extends SettingsController
             $exportData = $results->map(function($item) {
                 return [
                     'id'     => $item->id,
-                    'type'   => __(str_replace('_', ' ', $item->type), 'kivicare-clinic-management-system'), // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+                    'type'   => kcGetStaticDataTypeLabel($item->type),
                     'label'  => $item->label,
                     'value'  => $item->value,
                     'status' => $item->status == 1 ? 'Active' : 'Inactive',

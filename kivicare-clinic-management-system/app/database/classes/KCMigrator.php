@@ -120,6 +120,18 @@ class KCMigrator {
 		usort( $migrations, function( $a, $b ) {
 			$filename_a = basename( $a['file'] );
 			$filename_b = basename( $b['file'] );
+
+			// Check if either file is the optimization migration
+			$is_a_opt = strpos( $filename_a, 'OptimizeKiviCareCoreTables' ) !== false;
+			$is_b_opt = strpos( $filename_b, 'OptimizeKiviCareCoreTables' ) !== false;
+
+			if ( $is_a_opt && ! $is_b_opt ) {
+				return 1; // A comes after B
+			}
+			if ( ! $is_a_opt && $is_b_opt ) {
+				return -1; // A comes before B
+			}
+
 			return strcmp( $filename_a, $filename_b );
 		});
 

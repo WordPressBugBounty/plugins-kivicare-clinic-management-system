@@ -314,7 +314,7 @@ class AppointmentsController extends KCBaseController
                     'validate_callback' => function ($param) {
                         $available_gateways = array_map(function ($gateway) {
                             return $gateway['id'];
-                        }, KCPaymentGatewayFactory::get_available_gateways(true));
+                        }, KCPaymentGatewayFactory::get_available_gateways(false));
                         return in_array($param, $available_gateways) || $param === 'knit_pay';
                     },
                     'sanitize_callback' => 'sanitize_text_field',
@@ -3362,21 +3362,22 @@ class AppointmentsController extends KCBaseController
 
             // update payment mapping
             $paymentData = [
+                'paymentMode' => $gateway,
                 'paymentStatus' => 'completed',
                 'transactionId' => $paymentResult['data']['transaction_id'] ?? null,
                 'paymentId' => $payment_id,
-                'paymentDate' => current_time('mysql'),
-                'createdAt' => current_time('mysql')
+                'updatedAt' => current_time('mysql')
             ];
 
             // Check if payment mapping already exists
             $existingPayment = KCPaymentsAppointmentMapping::query()->where('appointment_id', $appointmentId)->first();
 
             if ($existingPayment) {
-                KCPaymentsAppointmentMapping::query()
-                    ->where('appointment_id', $appointmentId)
-                    ->first()
-                    ->update($paymentData);
+                $existingPayment->update($paymentData);
+            } else {
+                $paymentData['appointmentId'] = $appointmentId;
+                $paymentData['createdAt'] = current_time('mysql');
+                $existingPayment = KCPaymentsAppointmentMapping::create($paymentData);
             }
 
             $telemed_services = KCAppointmentServiceMapping::table('asm')

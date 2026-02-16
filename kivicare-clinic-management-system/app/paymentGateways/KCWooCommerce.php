@@ -659,34 +659,34 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
     public function handle_order_status_change($order_id, $old_status, $new_status, $order) {
 
         // Validate order exists
-        if (empty($order_id) || !get_post_status($order_id)) {
-            $this->log("Invalid order ID: $order_id", 'warning');
+        if (empty($order_id)) {
             return;
         }
 
         // Get appointment ID from order meta
         $appointment_id = get_post_meta($order_id, 'kivicare_appointment_id', true);
+        
+        if (empty($appointment_id) && $order instanceof \WC_Order) {
+            $appointment_id = $order->get_meta('kivicare_appointment_id');
+        }
+
         if (empty($appointment_id)) {
-            $this->log("No appointment found for order #$order_id", 'debug');
             return;
         }
 
-        if (!$appointment_id) return;
-
-        $status = ['status' => 2];
+        $status_map = ['status' => 2]; // Default/Pending
         if ($new_status === 'completed' || $new_status === 'processing') {
-            $status = ['status' => 1];
+            $status_map = ['status' => 1]; // Paid/Booked
         } elseif ($new_status === 'cancelled' || $new_status === 'failed') {
-            $status = ['status' => 0];
+            $status_map = ['status' => 0]; // Cancelled
         }
-
+        
         $appointment = KCAppointment::find($appointment_id);
         if ($appointment) {
-            $appointment->update($status);
+            $appointment->update($status_map);
         }
 
-        do_action('kc_appointment_status_update', $appointment_id, $status['status'], $appointment);
-
+        do_action('kc_appointment_status_update', $appointment_id, $status_map['status'], $appointment);
     }
 
     /**

@@ -312,6 +312,8 @@ class ConfigController extends KCBaseController
             $options = KCOption::getMultiple([
                 'site_logo',
                 'site_mini_logo',
+                'dark_site_logo',
+                'dark_site_mini_logo',
                 'theme_color',
                 'rtl_style',
                 'country_code',
@@ -357,6 +359,12 @@ class ConfigController extends KCBaseController
                 : KIVI_CARE_DIR_URI . 'assets/images/logo.png';
             $response['site_mini_logo'] = !empty($options['site_mini_logo'])
                 ? wp_get_attachment_url($options['site_mini_logo'])
+                : KIVI_CARE_DIR_URI . 'assets/images/logo-mini.png';
+            $response['dark_site_logo'] = !empty($options['dark_site_logo'])
+                ? wp_get_attachment_url($options['dark_site_logo'])
+                : KIVI_CARE_DIR_URI . 'assets/images/logo.png';
+            $response['dark_site_mini_logo'] = !empty($options['dark_site_mini_logo'])
+                ? wp_get_attachment_url($options['dark_site_mini_logo'])
                 : KIVI_CARE_DIR_URI . 'assets/images/logo-mini.png';
             $response['theme_color'] = $options['theme_color'] ?? '#4874dc';
             $response['is_rtl'] = $options['rtl_style'] ?? false;
@@ -501,6 +509,10 @@ class ConfigController extends KCBaseController
 
                 // Add permission module structure
                 $response['permission_module'] = $this->getPermissionModuleStructure($request, $user_id, $user_role_key);
+
+                // Add dark mode preference
+                $preferences = get_user_meta($user_id, 'kc_user_preferences', true);
+                $response['darkMode'] = isset($preferences['darkMode']) ? (bool)$preferences['darkMode'] : false;
             }
 
             // Add home page URL for QR code functionality  
@@ -806,10 +818,18 @@ class ConfigController extends KCBaseController
             $params = $request->get_params();
             $preferences = $params['preferences'];
 
-            $result = update_user_meta($user_id, 'kc_user_preferences', $preferences);
+            // Get existing preferences to merge if they exist
+            $existing_preferences = get_user_meta($user_id, 'kc_user_preferences', true);
+            if (!is_array($existing_preferences)) {
+                $existing_preferences = [];
+            }
+            
+            $updated_preferences = array_merge($existing_preferences, (array)$preferences);
 
-            if ($result !== false) {
-                return $this->response($preferences, __('User preferences updated successfully', 'kivicare-clinic-management-system'));
+            $result = update_user_meta($user_id, 'kc_user_preferences', $updated_preferences);
+
+            if ($result !== false || $updated_preferences === $existing_preferences) {
+                return $this->response($updated_preferences, __('User preferences updated successfully', 'kivicare-clinic-management-system'));
             } else {
                 return $this->response(null, __('Failed to update user preferences', 'kivicare-clinic-management-system'), false, 500);
             }
