@@ -151,6 +151,15 @@ class General extends SettingsController
                     return is_string($value);
                 },
             ],
+            'hideLanguageSwitcher' => [
+                'description' => 'Hide Header Language Switcher',
+                'type' => 'string',
+                'required' => false,
+                'sanitize_callback' => 'kcSanitizeData',
+                'validate_callback' => function ($value) {
+                    return in_array($value, ['on', 'off']);
+                },
+            ],
             'loginRedirects' => [
                 'description' => 'Login Redirect URLs per role',
                 'type' => 'object',
@@ -360,7 +369,8 @@ class General extends SettingsController
                 'loginRedirects' => 'login_redirect',
                 'logoutRedirects' => 'logout_redirect',
                 'allowEncounterEdit' => 'encounter_edit_after_close_status',
-                'enableRecaptcha' => 'google_recaptcha'
+                'enableRecaptcha' => 'google_recaptcha',
+                'hideLanguageSwitcher' => 'hide_language_switcher_status'
             ];
 
             // Get all options in one query
@@ -372,6 +382,7 @@ class General extends SettingsController
 
             // Set default values for missing settings
             $response['hideUtilityLinks'] = $response['hideUtilityLinks'] ?? 'off';
+            $response['hideLanguageSwitcher'] = $response['hideLanguageSwitcher'] ?? 'off';
             $response['countryCode'] = $response['countryCode'] ?? 'us';
             $response['countryDialCode'] = $response['countryDialCode'] ?? '+44';
             $response['status'] = $response['status'] ?? [
@@ -483,7 +494,7 @@ class General extends SettingsController
             $errors = [];
 
             foreach ($settings as $key => $value) {
-                if ($this->validateSettingKey($key) !== true) {
+                if ($this->validateSettingKey($key) !== true && $key !== 'hideLanguageSwitcher') {
                     $errors[$key] = __('Invalid setting key', 'kivicare-clinic-management-system');
                     continue;
                 }
@@ -519,6 +530,7 @@ class General extends SettingsController
     {
         // Update simple options
         $this->updateOption('request_helper_status', strval($settings['hideUtilityLinks'] ?? 'off'), $updated, $errors);
+        $this->updateOption('hide_language_switcher_status', strval($settings['hideLanguageSwitcher'] ?? 'off'), $updated, $errors);
         $this->updateOption('country_code', $settings['countryCode'] ?? 'us', $updated, $errors);
         $this->updateOption('country_calling_code', $settings['countryDialCode'] ?? '+1', $updated, $errors);
         $this->updateOption('user_registration_shortcode_setting', $settings['status'] ?? ['doctor' => 'off', 'receptionist' => 'off', 'patient' => 'on'], $updated, $errors);
@@ -610,7 +622,8 @@ class General extends SettingsController
             'currencyPrefix',
             'enableRecaptcha',
             'recaptchaSecretKey',
-            'recaptchaSiteKey'
+            'recaptchaSiteKey',
+            'hideLanguageSwitcher'
         ];
         return in_array($key, $validKeys);
     }

@@ -109,7 +109,6 @@ class Style
         $class = isset($attributes["class"]) ? preg_split('/\s+/', trim($attributes["class"])) : null;
 
         $stylesheets = $tag->getDocument()->getStyleSheets();
-        $outputFormat = \Sabberworm\CSS\OutputFormat::createCompact();
 
         $styles = array();
 
@@ -128,12 +127,7 @@ class Style
                             if ($_selector === ".$_class") {
                                 /** @var \Sabberworm\CSS\Rule\Rule $_rule */
                                 foreach ($_decl->getRules() as $_rule) {
-                                    $value = $_rule->getValue();
-                                    if ($value instanceof \Sabberworm\CSS\Value\Value) {
-                                        $styles[$_rule->getRule()] = $value->render($outputFormat) . "";
-                                    } else {
-                                        $styles[$_rule->getRule()] = $value . "";
-                                    }
+                                    $styles[$_rule->getRule()] = $_rule->getValue() . "";
                                 }
 
                                 break 2;
@@ -145,12 +139,7 @@ class Style
                     if ($_selector === $tag->tagName) {
                         /** @var \Sabberworm\CSS\Rule\Rule $_rule */
                         foreach ($_decl->getRules() as $_rule) {
-                            $value = $_rule->getValue();
-                            if ($value instanceof \Sabberworm\CSS\Value\Value) {
-                                $styles[$_rule->getRule()] = $value->render($outputFormat) . "";
-                            } else {
-                                $styles[$_rule->getRule()] = $value . "";
-                            }
+                            $styles[$_rule->getRule()] = $_rule->getValue() . "";
                         }
 
                         break;

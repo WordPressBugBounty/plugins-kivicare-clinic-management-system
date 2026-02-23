@@ -161,9 +161,7 @@ class Document extends AbstractTag
         }
         xml_parse($parser, "", true);
 
-        if (PHP_MAJOR_VERSION < 8) {
-            xml_parser_free($parser);
-        }
+        xml_parser_free($parser);
 
         return $this->handleSizeAttributes($rootAttributes);
     }
@@ -259,9 +257,7 @@ class Document extends AbstractTag
 
         xml_parse($parser, "", true);
 
-        if (PHP_MAJOR_VERSION < 8) {
-            xml_parser_free($parser);
-        }
+        xml_parser_free($parser);
     }
 
     protected function svgOffset($attributes)

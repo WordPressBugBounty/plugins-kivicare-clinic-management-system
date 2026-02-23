@@ -511,16 +511,11 @@ class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerabl
     /**
      * Group an associative array by a field or using a callback.
      *
-     * @template TGroupKey of array-key|\UnitEnum|\Stringable
+     * @template TGroupKey of array-key
      *
      * @param  (callable(TValue, TKey): TGroupKey)|array|string  $groupBy
      * @param  bool  $preserveKeys
-     * @return static<
-     *  ($groupBy is (array|string)
-     *      ? array-key
-     *      : (TGroupKey is \UnitEnum ? array-key : (TGroupKey is \Stringable ? string : TGroupKey))),
-     *  static<($preserveKeys is true ? TKey : int), ($groupBy is array ? mixed : TValue)>
-     * >
+     * @return static<($groupBy is string ? array-key : ($groupBy is array ? array-key : TGroupKey)), static<($preserveKeys is true ? TKey : int), ($groupBy is array ? mixed : TValue)>>
      */
     public function groupBy($groupBy, $preserveKeys = false)
     {
@@ -570,10 +565,10 @@ class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerabl
     /**
      * Key an associative array by a field or using a callback.
      *
-     * @template TNewKey of array-key|\UnitEnum
+     * @template TNewKey of array-key
      *
      * @param  (callable(TValue, TKey): TNewKey)|array|string  $keyBy
-     * @return static<($keyBy is (array|string) ? array-key : (TNewKey is \UnitEnum ? array-key : TNewKey)), TValue>
+     * @return static<($keyBy is string ? array-key : ($keyBy is array ? array-key : TNewKey)), TValue>
      */
     public function keyBy($keyBy)
     {
@@ -730,39 +725,14 @@ class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerabl
      *
      * @param  (callable(TValue, TKey): bool)|null  $callback
      * @return bool
-     *
-     * @deprecated 12.49.0 Use the `hasSole()` method instead.
      */
     public function containsOneItem(?callable $callback = null): bool
     {
-        return $this->hasSole($callback);
-    }
-
-    /**
-     * Determine if the collection contains multiple items. If a callback is provided, determine if multiple items match the condition.
-     *
-     * @param  (callable(TValue, TKey): bool)|null  $callback
-     * @return bool
-     */
-    public function containsManyItems(?callable $callback = null): bool
-    {
-        if (! $callback) {
-            return $this->count() > 1;
+        if ($callback) {
+            return $this->filter($callback)->count() === 1;
         }
 
-        $count = 0;
-
-        foreach ($this as $key => $item) {
-            if ($callback($item, $key)) {
-                $count++;
-            }
-
-            if ($count > 1) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->count() === 1;
     }
 
     /**
@@ -895,10 +865,8 @@ class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerabl
     /**
      * Merge the collection with the given items.
      *
-     * @template TMergeValue
-     *
-     * @param  \Illuminate\Contracts\Support\Arrayable<TKey, TMergeValue>|iterable<TKey, TMergeValue>  $items
-     * @return static<TKey, TValue|TMergeValue>
+     * @param  \Illuminate\Contracts\Support\Arrayable<TKey, TValue>|iterable<TKey, TValue>  $items
+     * @return static
      */
     public function merge($items)
     {
@@ -965,15 +933,9 @@ class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerabl
      * @param  int  $step
      * @param  int  $offset
      * @return static
-     *
-     * @throws \InvalidArgumentException
      */
     public function nth($step, $offset = 0)
     {
-        if ($step < 1) {
-            throw new InvalidArgumentException('Step value must be at least 1.');
-        }
-
         $new = [];
 
         $position = 0;
@@ -1389,15 +1351,9 @@ class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerabl
      *
      * @param  int  $numberOfGroups
      * @return static<int, static>
-     *
-     * @throws \InvalidArgumentException
      */
     public function split($numberOfGroups)
     {
-        if ($numberOfGroups < 1) {
-            throw new InvalidArgumentException('Number of groups must be at least 1.');
-        }
-
         if ($this->isEmpty()) {
             return new static;
         }
@@ -1432,15 +1388,9 @@ class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerabl
      *
      * @param  int  $numberOfGroups
      * @return static<int, static>
-     *
-     * @throws \InvalidArgumentException
      */
     public function splitIn($numberOfGroups)
     {
-        if ($numberOfGroups < 1) {
-            throw new InvalidArgumentException('Number of groups must be at least 1.');
-        }
-
         return $this->chunk((int) ceil($this->count() / $numberOfGroups));
     }
 
@@ -1474,26 +1424,6 @@ class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerabl
         }
 
         return $items->first();
-    }
-
-    /**
-     * Determine if the collection contains a single item, optionally matching the given criteria.
-     *
-     * @param  (callable(TValue, TKey): bool)|string|null  $key
-     * @param  mixed  $operator
-     * @param  mixed  $value
-     * @return bool
-     */
-    public function hasSole($key = null, $operator = null, $value = null): bool
-    {
-        $filter = func_num_args() > 1
-            ? $this->operatorForWhere(...func_get_args())
-            : $key;
-
-        return $this
-            ->unless($filter == null)
-            ->filter($filter)
-            ->count() === 1;
     }
 
     /**
@@ -1665,7 +1595,7 @@ class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerabl
                         }
                     } else {
                         $result = match ($options) {
-                            SORT_NUMERIC => (int) $values[0] <=> (int) $values[1],
+                            SORT_NUMERIC => intval($values[0]) <=> intval($values[1]),
                             SORT_STRING => strcmp($values[0], $values[1]),
                             SORT_NATURAL => strnatcmp((string) $values[0], (string) $values[1]),
                             SORT_LOCALE_STRING => strcoll($values[0], $values[1]),
@@ -1933,7 +1863,7 @@ class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerabl
     /**
      * Count the number of items in the collection by a field or using a callback.
      *
-     * @param  (callable(TValue, TKey): (array-key|\UnitEnum))|string|null  $countBy
+     * @param  (callable(TValue, TKey): array-key|\UnitEnum)|string|null  $countBy
      * @return static<array-key, int>
      */
     public function countBy($countBy = null)

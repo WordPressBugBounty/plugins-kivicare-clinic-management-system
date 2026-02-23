@@ -119,7 +119,7 @@ class HolidayList extends SettingsController
         global $wpdb;
 
         $request_data = $request->get_params();
-        $per_page = !empty($request_data['perPage']) && $request_data['perPage'] !== 'all' ? (int) $request_data['perPage'] : 10;
+        $per_page = !empty($request_data['perPage']) ? ($request_data['perPage'] === 'all' ? -1 : (int) $request_data['perPage']) : 10;
         $page = !empty($request_data['page']) ? (int) $request_data['page'] : 1;
         $offset = ($page - 1) * $per_page;
 
@@ -256,6 +256,18 @@ class HolidayList extends SettingsController
         $countQuery = clone $query;
         $total_rows = $countQuery->count();
 
+        $showAll = ($per_page == -1);
+        $per_page = $showAll ? null : (int) $per_page;
+
+        if (!$showAll && $per_page <= 0) {
+            $per_page = 10;
+        }
+
+        if ($showAll) {
+            $per_page = $total_rows > 0 ? $total_rows : 1;
+            $page = 1;
+        }
+
         // Sorting Logic
         $sort_by = $request_data['orderby'] ?? 'id';
         $sort_order = strtoupper($request_data['order'] ?? 'DESC');
@@ -316,6 +328,7 @@ class HolidayList extends SettingsController
                 'name' => $holiday->name,
                 'selection_mode' => $holiday->selectionMode ?? 'range',
                 'selected_dates' => $holiday->selectedDates ? json_decode($holiday->selectedDates, true) : null,
+                'selected_dates_formated' => $holiday->selectedDates ? array_map('kcGetFormatedDate', json_decode($holiday->selectedDates, true)) : null,
                 'time_specific' => (bool) ($holiday->timeSpecific ?? false),
                 'start_time' => $holiday->startTime ?? null,
                 'end_time' => $holiday->endTime ?? null,
@@ -618,8 +631,8 @@ class HolidayList extends SettingsController
                 'type' => 'string',
                 'required' => true,
                 'validate_callback' => function ($param) {
-                    if (!in_array($param, ['csv', 'xls'])) {
-                        return new WP_Error('invalid_format', __('Format must be csv, xls', 'kivicare-clinic-management-system'));
+                    if (!in_array($param, ['csv', 'xls', 'pdf'])) {
+                        return new WP_Error('invalid_format', __('Format must be csv, xls, or pdf', 'kivicare-clinic-management-system'));
                     }
                     return true;
                 },
@@ -813,13 +826,31 @@ class HolidayList extends SettingsController
             // Format Response
             $exportData = [];
             foreach ($holidays as $holiday) {
+                $mode = $holiday->selectionMode ?? 'range';
+                $dateDisplay = '';
+
+                if ($mode === 'single') {
+                    $dateDisplay = $holiday->startDate ? kcGetFormatedDate($holiday->startDate) : '';
+                } elseif ($mode === 'range') {
+                    $start = $holiday->startDate ? kcGetFormatedDate($holiday->startDate) : '';
+                    $end = $holiday->endDate ? kcGetFormatedDate($holiday->endDate) : '';
+                    $dateDisplay = $start && $end ? $start . ' - ' . $end : ($start ?: $end);
+                } elseif ($mode === 'multiple') {
+                    $selectedDates = $holiday->selectedDates ? json_decode($holiday->selectedDates, true) : [];
+                    if (is_array($selectedDates) && !empty($selectedDates)) {
+                        // Sort dates chronologically (Y-m-d format sorts correctly as strings)
+                        sort($selectedDates);
+                        $formatted = array_map('kcGetFormatedDate', $selectedDates);
+                        $dateDisplay = implode(', ', $formatted);
+                    }
+                }
+
                 $exportData[] = [
                     'id' => $holiday->id,
-                    'module_type' => ucfirst($holiday->moduleType),
-                    'name' => $holiday->name,
-                    'description' => $holiday->description ?? '',
-                    'start_date' => $holiday->startDate,
-                    'end_date' => $holiday->endDate,
+                    'Schedule Of' => ucfirst($holiday->moduleType),
+                    'Name' => $holiday->name ?? '',
+                    'Selection Mode' => $holiday->selectionMode ?? '',
+                    'Date' => $dateDisplay,
                     'status' => $holiday->status == 1 ? 'Active' : 'Inactive',
                 ];
             }

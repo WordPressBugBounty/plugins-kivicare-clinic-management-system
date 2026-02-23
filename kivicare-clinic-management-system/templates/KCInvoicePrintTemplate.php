@@ -275,8 +275,10 @@ $paymentStatusColor = strtolower($paymentStatus) === 'paid' ? '#219653' : '#dc26
 
     <?php
     $tax_total = 0;
-    foreach ($tax_items['tax_data'] as $tax) {
-        $tax_total += (float)($tax['tax_amount'] ?? 0);
+    if(isKiviCareProActive()){
+        foreach ($tax_items['tax_data'] as $tax) {
+            $tax_total += (float)($tax['tax_amount'] ?? 0);
+        }
     }
     $grand_total = ($sub_total ?? 0) + $tax_total;
     ?>

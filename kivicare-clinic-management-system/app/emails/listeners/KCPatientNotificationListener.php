@@ -141,7 +141,10 @@ class KCPatientNotificationListener
                 'to_override' => get_option('admin_email'), // Override recipient to admin
                 'custom_data' => [
                     'user_role' => 'Patient',
-                    'registration_date' => $patientData['registration_date'] ?? current_time('mysql'),
+                    'user_email' => $patientData['patient']['email'],
+                    'user_name' => $patientData['patient']['first_name'] . ' ' . $patientData['patient']['last_name'],
+                    'user_contact' => $patientData['patient']['mobile_number'],
+                    'current_date' => $patientData['registration_date'] ?? current_time('mysql'),
                     'site_url' => get_site_url(),
                     'login_url' => wp_login_url()
                 ]

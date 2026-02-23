@@ -67,7 +67,7 @@ class StaticDataController extends KCBaseController
                     'description' => __('Type of static data to retrieve', 'kivicare-clinic-management-system'),
                     'sanitize_callback' => 'sanitize_text_field',
                     'validate_callback' => function ($param, $request, $key) {
-                        return in_array($param, ['clinicList', 'staticData']);
+                        return in_array($param, ['clinicList', 'doctorList', 'patientList', 'staticData']);
                     },
                 ],
                 'staticDataType' => [
@@ -217,6 +217,14 @@ class StaticDataController extends KCBaseController
             switch ($dataType) {
                 case 'clinicList':
                     $response = $this->getClinicList($request);
+                    break;
+
+                case 'doctorList':
+                    $response = $this->getDoctorsList($request->get_param('clinic_id') ?? $request->get_param('clinic_ids') ?? 0, $request);
+                    break;
+
+                case 'patientList':
+                    $response = $this->getPatientsList($request->get_param('clinic_id') ?? $request->get_param('clinic_ids') ?? 0, $request);
                     break;
 
                 case 'staticData':
@@ -1236,7 +1244,7 @@ class StaticDataController extends KCBaseController
                 $query->select(['user.*']);
             }
 
-
+ 
             // Convert comma-separated string to array if needed
             if (!empty($clinicId)) {
                 if (is_string($clinicId)) {
@@ -1258,6 +1266,28 @@ class StaticDataController extends KCBaseController
             if ($request instanceof WP_REST_Request && $request->get_param('patient_id')) {
                 $patientIdsParam = $request->get_param('patient_id');
                 $query->where('user.ID', $patientIdsParam);
+            }
+
+            // Filter by doctor_id if provided
+            if ($request instanceof WP_REST_Request && $request->get_param('doctor_id')) {
+                $doctorId = $request->get_param('doctor_id');
+
+                // Get patients associated with this doctor (via appointments)
+                $associatedPatientIds = KCAppointment::query()
+                    ->where('doctor_id', $doctorId)
+                    ->select(['patient_id'])
+                    ->groupBy('patient_id')
+                    ->get()
+                    ->pluck('patientId')
+                    ->toArray();
+
+                if (!empty($associatedPatientIds)) {
+                    // Filter to include ONLY these patients
+                    $query->whereIn('user.ID', $associatedPatientIds);
+                } else {
+                    // If the doctor has no appointments/patients, return empty result
+                    $query->whereRaw('1 = 0');
+                }
             }
 
             // Handle search

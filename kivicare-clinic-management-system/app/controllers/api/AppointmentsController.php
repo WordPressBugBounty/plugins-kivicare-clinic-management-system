@@ -1995,7 +1995,7 @@ class AppointmentsController extends KCBaseController
             ],
         ];
 
-        return $this->response($data, 'Appointments retrieved successfully');
+        return $this->response($data, __('Appointments retrieved successfully', 'kivicare-clinic-management-system'));
     }
 
     /**
@@ -2415,7 +2415,7 @@ class AppointmentsController extends KCBaseController
 
             $appointmentsData = apply_filters('kc_appointment_details_data', $appointmentsData, $appointment);
 
-            return $this->response($appointmentsData, __('Appointments retrieved successfully.', 'kivicare-clinic-management-system'));
+            return $this->response($appointmentsData, __('Appointments retrieved successfully', 'kivicare-clinic-management-system'));
         } catch (\Exception $e) {
             return $this->response(
                 ['error' => $e->getMessage()],
@@ -3179,6 +3179,7 @@ class AppointmentsController extends KCBaseController
 
         KCAppointmentServiceMapping::query()->where('appointment_id', $id)->delete();
         KCPatientEncounter::query()->where('appointment_id', $id)->delete();
+        
         if ($bill) {
             KCBillItem::query()->where('bill_id', $bill->id)->delete();
         }
@@ -3299,6 +3300,11 @@ class AppointmentsController extends KCBaseController
         KCAppointment::find($id)->update([
             'status' => $status
         ]);
+
+        // Trigger specific hook for cancellation
+        if ($status == 0) {
+            do_action('kc_appointment_cancelled', $id);
+        }
 
         do_action('kc_appointment_status_update', $id, $status, $appointment);
 
@@ -3472,8 +3478,8 @@ class AppointmentsController extends KCBaseController
 
             if ($request->get_method() === 'POST') {
                 return $this->response([
-                    'status' => 'success',
-                    'message' => __('Payment completed successfully', 'kivicare-clinic-management-system'),
+                    'status' => 'failed',
+                    'message' => $e->getMessage(),
                     'data' => [
                         'appointment_id' => $appointmentId,
                         'payment_id' => $existingPayment->paymentId ?? null,
@@ -4124,6 +4130,7 @@ class AppointmentsController extends KCBaseController
 
                     KCAppointmentServiceMapping::query()->where('appointment_id', $id)->delete();
                     KCPatientEncounter::query()->where('appointment_id', $id)->delete();
+                    
                     KCBill::query()->where('appointment_id', $id)->delete();
                     if ($bill) {
                         KCBillItem::query()->where('bill_id', $bill->id)->delete();

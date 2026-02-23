@@ -351,6 +351,10 @@ class KCRestAPI
             }
         }
 
+
+        // Switch to user's locale for translations
+        switch_to_locale(get_user_locale());
+
         /**
          * Action after all controllers are initialized
          *

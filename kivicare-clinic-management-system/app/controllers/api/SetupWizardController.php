@@ -28,7 +28,9 @@ class SetupWizardController extends KCBaseController
         $this->registerRoute('/setup-wizard/clinic', [
             'methods' => 'POST',
             'callback' => [$this, 'setupClinic'],
-            'permission_callback' => '__return_true', // Adjust permission as needed
+            'permission_callback' => function () {
+                return current_user_can('manage_options');
+            },
             'args' => $this->getSetupClinicArgs()
         ]);
 
@@ -36,7 +38,9 @@ class SetupWizardController extends KCBaseController
         $this->registerRoute('/setup-wizard/step-complete', [
             'methods' => 'POST',
             'callback' => [$this, 'updateStepCompletion'],
-            'permission_callback' => '__return_true', // Adjust permission as needed
+            'permission_callback' => function () {
+                return current_user_can('manage_options');
+            },
             'args' => [
                 'step' => [
                     'description' => 'Step number',
@@ -168,6 +172,16 @@ class SetupWizardController extends KCBaseController
      */
     public function setupClinic(WP_REST_Request $request): WP_REST_Response
     {
+        // 🔐 Security Guard: Prevent re-execution if setup is already completed
+        if (get_option('kc_setup_wizard_completed')) {
+            return $this->response(
+                ['error' => 'Forbidden'],
+                __('Setup wizard has already been completed.', 'kivicare-clinic-management-system'),
+                false,
+                403
+            );
+        }
+
         try {
             $params = $request->get_params();
 

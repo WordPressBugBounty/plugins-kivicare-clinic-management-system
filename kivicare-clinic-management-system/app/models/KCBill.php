@@ -144,24 +144,22 @@ class KCBill extends KCBaseModel
 
         if ( $user_role === $kcbase->getReceptionistRole() ){
             $clinic_id = KCReceptionistClinicMapping::getClinicIdByReceptionistId($user_id);
-            $query = KCPatientEncounter::table('patient_encounters')
-                ->select(['SUM(bills.actual_amount) as total_revenue'])
-                ->join(KCBill::class, 'bills.encounter_id','=', 'patient_encounters.id','bills')
-                ->where('bills.payment_status', 'paid')
-                ->where('bills.clinic_id', $clinic_id);
+            $query = KCBill::table('kc_bills')
+                ->select(['SUM(total_amount) as total_revenue'])
+                ->where('paymentStatus', 'paid')
+                ->where('clinic_id', $clinic_id);
             if ($hasDateRange) {
-                $query = $query->whereBetween('bills.created_at', [$startDate, $endDate]);
+                $query = $query->whereBetween('created_at', [$startDate, $endDate]);
             }
             $total = $query->first();
         }elseif($user_role === $kcbase->getClinicAdminRole()){
             $clinic_id = KCClinic::getClinicIdOfClinicAdmin($user_id);
-            $query = KCPatientEncounter::table('patient_encounters')
-                ->select(['SUM(bills.actual_amount) as total_revenue'])
-                ->join(KCBill::class, 'bills.encounter_id','=', 'patient_encounters.id','bills')
-                ->where('bills.payment_status', 'paid')
-                ->where('bills.clinic_id', $clinic_id);
+            $query = KCBill::table('kc_bills')
+                ->select(['SUM(total_amount) as total_revenue'])
+                ->where('paymentStatus', 'paid')
+                ->where('clinic_id', $clinic_id);
             if ($hasDateRange) {
-                $query = $query->whereBetween('bills.created_at', [$startDate, $endDate]);
+                $query = $query->whereBetween('created_at', [$startDate, $endDate]);
             }
             $total = $query->first();
         }else{
@@ -180,7 +178,6 @@ class KCBill extends KCBaseModel
 
         // Format the total with number_format for proper thousand separators
         $formatted_total = $prefix . number_format($total->total_revenue) . $postfix;
-
         return [
             'count' => $total->total_revenue ?? 0,
             'formatted_count' => $formatted_total

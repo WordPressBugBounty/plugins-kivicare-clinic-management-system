@@ -330,6 +330,7 @@ class ConfigController extends KCBaseController
                 'restrict_appointment',
                 'appointment_description_config_data',
                 'request_helper_status',
+                'hide_language_switcher_status',
                 'hide_clinical_detail_in_patient'
             ]);
 
@@ -353,6 +354,7 @@ class ConfigController extends KCBaseController
             $response['module_config'] = $module_config_object;
             $response['countryCode'] = $options['country_code'] ?? 'us';
             $response['hideUtilityLinks'] = $options['request_helper_status'] ?? 'off';
+            $response['hideLanguageSwitcher'] = $options['hide_language_switcher_status'] ?? 'off';
             $response['showOtherGender'] = $options['user_registration_form_setting'] ?? 'off';
             $response['site_logo'] = !empty($options['site_logo'])
                 ? wp_get_attachment_url($options['site_logo'])

@@ -81,7 +81,6 @@ trait EnumeratesValues
         'first',
         'flatMap',
         'groupBy',
-        'hasSole',
         'keyBy',
         'last',
         'map',

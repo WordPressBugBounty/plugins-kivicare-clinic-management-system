@@ -728,7 +728,11 @@ class ClinicController extends KCBaseController
                 $query->where('c.id', '=', $params['id']);
             }
             if (!empty($params['clinicName'])) {
-                $query->where('c.name', 'LIKE', '%' . $params['clinicName'] . '%');
+                if (is_numeric($params['clinicName'])) {
+                    $query->where('c.id', '=', $params['clinicName']);
+                } else {
+                    $query->where('c.name', 'LIKE', '%' . $params['clinicName'] . '%');
+                }
             }
             if (!empty($params['clinicAddress'])) {
                 $query->where(function ($q) use ($params) {

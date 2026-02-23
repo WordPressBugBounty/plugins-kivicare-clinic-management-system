@@ -18,7 +18,6 @@ class KCBookAppointmentButton extends KCShortcodeAbstract
     ];
     protected $assets_dir = KIVI_CARE_DIR . '/dist';
     protected $js_entry = 'app/shortcodes/assets/js/KCBookAppointment.jsx';
-    protected $css_entry = 'app/shortcodes/assets/scss/KCBookAppointmentButton.scss';
     protected $in_footer = true;
 
     protected function render($id, $atts, $content = null)
@@ -79,30 +78,114 @@ class KCBookAppointmentButton extends KCShortcodeAbstract
         }
         ?>
         <div class="kc-appointment-button-wrapper">
-            <button class="iq-button iq-button-primary kc-book-appointment-button <?php echo esc_attr(trim($button_class)); ?>" type="button" onclick="document.getElementById('<?php echo esc_attr($modal_id); ?>').style.display='flex'; document.body.classList.add('kc-modal-open');">
+            <button class="iq-button iq-button-primary kc-book-appointment-button <?php echo esc_attr(trim($button_class)); ?>" type="button" id="kc-open-<?php echo esc_attr($modal_id); ?>">
                 <?php echo esc_html($button_text); ?>
             </button>
         </div>
 
-        <div id="<?php echo esc_attr($modal_id); ?>" class="kc-modal-overlay" style="display:none;">
-            <div class="kc-modal-content">
-                <button class="kc-modal-close" type="button" onclick="document.getElementById('<?php echo esc_attr($modal_id); ?>').style.display='none'; document.body.classList.remove('kc-modal-open');">&times;</button>
-                <div class="kc-appointment-widget-container">
-                    <div class="kc-book-appointment-container kivi-widget" <?php echo $data_attrs_string; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-                        <div class="kc-loading">
-                            <div class="double-lines-spinner"></div>
-                            <p><?php esc_html_e('Loading...', 'kivicare-clinic-management-system'); ?></p>
-                        </div>
+        <!-- Hidden container: JS will move its inner content into the overlay -->
+        <div id="<?php echo esc_attr($modal_id); ?>-content" style="display:none;">
+            <div class="kc-appointment-widget-container">
+                <div class="kc-book-appointment-container kivi-widget" <?php echo $data_attrs_string; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+                    <div class="kc-loading">
+                        <div class="double-lines-spinner"></div>
+                        <p><?php esc_html_e('Loading...', 'kivicare-clinic-management-system'); ?></p>
                     </div>
                 </div>
             </div>
         </div>
+
         <script>
         (function() {
-            setTimeout(function() {
-                if (window.initBookAppointment) {
-                    window.initBookAppointment();
+            var modalId = '<?php echo esc_js($modal_id); ?>';
+            var overlay = null;
+
+            function createOverlay() {
+                // Create overlay div with inline styles — immune to parent CSS
+                overlay = document.createElement('div');
+                overlay.id = modalId + '-overlay';
+                // Use cssText with !important to override any theme CSS
+                overlay.style.cssText = 
+                    'position:fixed !important;' +
+                    'top:0 !important;' +
+                    'left:0 !important;' +
+                    'width:100% !important;' +
+                    'height:100% !important;' +
+                    'z-index:2147483647 !important;' +
+                    'background-color:rgba(0,0,0,0.6) !important;' +
+                    'display:flex !important;' +
+                    'align-items:center !important;' +
+                    'justify-content:center !important;' +
+                    'padding:2rem !important;' +
+                    'margin:0 !important;' +
+                    'box-sizing:border-box !important;' +
+                    'overflow-y:auto !important;' +
+                    'transform:none !important;' +
+                    'filter:none !important;' +
+                    'opacity:1 !important;' +
+                    'visibility:visible !important;'
+                ;
+
+                // Create dialog box
+                var dialog = document.createElement('div');
+                dialog.className = 'kc-modal-dialog';
+
+                // Create close button
+                var closeBtn = document.createElement('button');
+                closeBtn.className = 'kc-modal-close';
+                closeBtn.type = 'button';
+                closeBtn.innerHTML = '&times;';
+                closeBtn.addEventListener('click', closeModal);
+
+                // Move widget content into dialog
+                var contentHolder = document.getElementById(modalId + '-content');
+                if (contentHolder) {
+                    // Move all children
+                    while (contentHolder.firstChild) {
+                        dialog.appendChild(contentHolder.firstChild);
+                    }
                 }
+
+                dialog.insertBefore(closeBtn, dialog.firstChild);
+                overlay.appendChild(dialog);
+
+                // Click on backdrop to close
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) closeModal();
+                });
+
+                // Append directly to body
+                document.body.appendChild(overlay);
+            }
+
+            function openModal() {
+                if (!overlay) createOverlay();
+                overlay.style.setProperty('display', 'flex', 'important');
+                document.body.classList.add('kc-modal-open');
+
+                // Init React widget if not already done
+                setTimeout(function() {
+                    if (window.initBookAppointment) window.initBookAppointment();
+                }, 50);
+            }
+
+            function closeModal() {
+                if (overlay) overlay.style.setProperty('display', 'none', 'important');
+                document.body.classList.remove('kc-modal-open');
+            }
+
+            // Open button
+            var openBtn = document.getElementById('kc-open-' + modalId);
+            if (openBtn) openBtn.addEventListener('click', openModal);
+
+            // Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && overlay && getComputedStyle(overlay).display !== 'none') closeModal();
+            });
+
+            // Init React widget on page load too (for non-button shortcode)
+            setTimeout(function() {
+                if (window.initBookAppointment) window.initBookAppointment();
             }, 100);
         })();
         </script>

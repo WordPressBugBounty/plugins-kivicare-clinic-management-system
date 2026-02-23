@@ -862,6 +862,11 @@ class PatientController extends KCBaseController
                 $query->where("c.id", '=', $params['clinic']);
             }
 
+            if (!empty($params['doctor_id'])) {
+                $query->leftJoin(KCAppointment::class, 'p.ID', '=', 'app_filter.patient_id', 'app_filter')
+                    ->where('app_filter.doctor_id', '=', $params['doctor_id']);
+            }
+
             if (!empty($patientUniqueId)) {
                 $query->where("puid.meta_value", 'LIKE', '%' . $patientUniqueId . '%');
             }

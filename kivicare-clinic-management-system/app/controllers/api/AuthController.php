@@ -279,14 +279,6 @@ class AuthController extends KCBaseController
             'permission_callback' => 'is_user_logged_in',
             'args' => []
         ]);
-
-        // Patient social login endpoint
-        $this->registerRoute('/' . $this->route . '/patient/social-login', [
-            'methods' => WP_REST_Server::CREATABLE,
-            'callback' => [$this, 'patientSocialLogin'],
-            'permission_callback' => '__return_true',
-            'args' => $this->getSocialLoginEndpointArgs()
-        ]);
     }
 
     private function getLoginEndpointArgs()
@@ -473,94 +465,6 @@ class AuthController extends KCBaseController
         ];
 
         return $args;
-    }
-
-    /**
-     * Get arguments for the social login endpoint
-     *
-     * @return array
-     */
-    private function getSocialLoginEndpointArgs()
-    {
-        return [
-            'login_type' => [
-                'description' => 'Social login provider type (google, apple)',
-                'type' => 'string',
-                'required' => true,
-                'validate_callback' => function ($param) {
-                    if (empty($param)) {
-                        return new WP_Error('invalid_login_type', __('Login type is required', 'kivicare-clinic-management-system'));
-                    }
-                    $allowed_types = ['google', 'apple'];
-                    if (!in_array(strtolower($param), $allowed_types)) {
-                        /* translators: %s: List of allowed login types */
-                        return new WP_Error('invalid_login_type', sprintf(__('Invalid login type. Allowed types: %s', 'kivicare-clinic-management-system'), implode(', ', $allowed_types)));
-                    }
-                    return true;
-                },
-                'sanitize_callback' => 'sanitize_text_field',
-            ],
-            'email' => [
-                'description' => 'Email address',
-                'type' => 'string',
-                'required' => false,
-                'validate_callback' => function ($param, $request) {
-                    // Email is optional if contact_number is provided
-                    $contact_number = $request->get_param('contact_number');
-                    if (empty($param) && empty($contact_number)) {
-                        return new WP_Error('invalid_email', __('Email or contact number is required', 'kivicare-clinic-management-system'));
-                    }
-                    if (!empty($param) && !is_email($param)) {
-                        return new WP_Error('invalid_email', __('Please enter a valid email address', 'kivicare-clinic-management-system'));
-                    }
-                    return true;
-                },
-                'sanitize_callback' => 'sanitize_email',
-            ],
-            'contact_number' => [
-                'description' => 'Contact number',
-                'type' => 'string',
-                'required' => false,
-                'validate_callback' => function ($param, $request) {
-                    // Contact number is optional if email is provided
-                    $email = $request->get_param('email');
-                    if (empty($param) && empty($email)) {
-                        return new WP_Error('invalid_contact_number', __('Email or contact number is required', 'kivicare-clinic-management-system'));
-                    }
-                    return true;
-                },
-                'sanitize_callback' => 'sanitize_text_field',
-            ],
-            'password' => [
-                'description' => 'Access token from social provider (used as password)',
-                'type' => 'string',
-                'required' => true,
-                'validate_callback' => function ($param) {
-                    if (empty($param)) {
-                        return new WP_Error('invalid_password', __('Password/access token is required', 'kivicare-clinic-management-system'));
-                    }
-                    return true;
-                },
-            ],
-            'first_name' => [
-                'description' => 'First name',
-                'type' => 'string',
-                'required' => false,
-                'sanitize_callback' => 'sanitize_text_field',
-            ],
-            'last_name' => [
-                'description' => 'Last name',
-                'type' => 'string',
-                'required' => false,
-                'sanitize_callback' => 'sanitize_text_field',
-            ],
-            'username' => [
-                'description' => 'Username (optional, will be generated from email if not provided)',
-                'type' => 'string',
-                'required' => false,
-                'sanitize_callback' => 'sanitize_user',
-            ]
-        ];
     }
 
     /**
@@ -906,7 +810,7 @@ class AuthController extends KCBaseController
     /**
      * Get login redirect URL based on user role
      */
-    private function getLoginRedirectUrl($role): string
+    protected function getLoginRedirectUrl($role): string
     {
         $login_redirects = KCOption::get('login_redirect', []);
 
@@ -950,7 +854,7 @@ class AuthController extends KCBaseController
      * @param array $user_roles
      * @return array
      */
-    private function getUserClinicData($user_id, $user_roles)
+    protected function getUserClinicData($user_id, $user_roles)
     {
         $clinics = [];
 
@@ -1830,7 +1734,7 @@ class AuthController extends KCBaseController
     /**
      * Get profile image URL for a user based on their role
      */
-    private function getUserProfileImageUrl(int $userId, string $userRole = ''): string
+    protected function getUserProfileImageUrl(int $userId, string $userRole = ''): string
     {
         $profileImageMetaKey = '';
         if (empty($userRole)) {
@@ -1859,263 +1763,6 @@ class AuthController extends KCBaseController
         }
 
         return '';
-    }
-
-    /**
-     * Patient social login endpoint handler
-     * 
-     * @param WP_REST_Request $request
-     * @return WP_REST_Response
-     */
-    public function patientSocialLogin(WP_REST_Request $request): WP_REST_Response
-    {
-        $params = $request->get_params();
-        $login_type = strtolower($params['login_type']);
-        $email = !empty($params['email']) ? sanitize_email($params['email']) : '';
-        $contact_number = !empty($params['contact_number']) ? sanitize_text_field($params['contact_number']) : '';
-        $access_token = !empty($params['password']) ? $params['password'] : ''; // Access token from social provider
-        $first_name = !empty($params['first_name']) ? sanitize_text_field($params['first_name']) : '';
-        $last_name = !empty($params['last_name']) ? sanitize_text_field($params['last_name']) : '';
-        $username = !empty($params['username']) ? sanitize_user($params['username']) : '';
-        $profile_image_url = !empty($params['profile_image_url']) ? esc_url_raw($params['profile_image_url']) : '';
-
-        // Validate that at least email or contact_number is provided
-        if (empty($email) && empty($contact_number)) {
-            return $this->response(
-                null,
-                __('Email or contact number is required', 'kivicare-clinic-management-system'),
-                false,
-                400
-            );
-        }
-
-        // Find existing user by email or contact number
-        $user = null;
-        $user_id = null;
-
-        if (!empty($email)) {
-            $user = get_user_by('email', $email);
-        }
-
-        // If not found by email, try contact number
-        if (!$user && !empty($contact_number)) {
-            $users = get_users([
-                'meta_key' => 'mobile_number',
-                'meta_value' => $contact_number,
-                'meta_compare' => '=',
-                'number' => 1
-            ]);
-            if (!empty($users)) {
-                $user = $users[0];
-            }
-        }
-
-        $is_new_user = !$user;
-
-        try {
-            if ($is_new_user) {
-                // Create new patient user
-                $patient = new KCPatient();
-
-                // Generate username if not provided
-                if (empty($username)) {
-                    if (!empty($email)) {
-                        $username = sanitize_user(substr($email, 0, strpos($email, '@')));
-                    } else {
-                        $username = 'patient_' . time() . '_' . wp_generate_password(6, false);
-                    }
-
-                    // Ensure username is unique
-                    $original_username = $username;
-                    $counter = 1;
-                    while (username_exists($username)) {
-                        $username = $original_username . '_' . $counter;
-                        $counter++;
-                    }
-                } else {
-                    // Check if username already exists
-                    if (username_exists($username)) {
-                        return $this->response(
-                            null,
-                            __('Username already exists', 'kivicare-clinic-management-system'),
-                            false,
-                            400
-                        );
-                    }
-                }
-
-                // Generate unique secure password for social login user
-                $generated_password = wp_generate_password(16, true, true);
-
-                // Set patient properties
-                $patient->username = $username;
-                $patient->email = !empty($email) ? $email : $username . '@social.local';
-                $patient->password = $generated_password;
-                $patient->firstName = $first_name;
-                $patient->lastName = $last_name;
-                $patient->displayName = trim($first_name . ' ' . $last_name) ?: $username;
-                $patient->contactNumber = $contact_number;
-                $patient->status = 0; // Active by default
-
-                // Save patient
-                $user_id = $patient->save();
-
-                if (is_wp_error($user_id)) {
-                    return $this->response(
-                        null,
-                        $user_id->get_error_message(),
-                        false,
-                        400
-                    );
-                }
-
-                // Get default clinic ID
-                $clinic_id = KCClinic::kcGetDefaultClinicId();
-
-                // Create patient-clinic mapping
-                if ($clinic_id) {
-                    $mapping = new KCPatientClinicMapping();
-                    $mapping->patientId = $user_id;
-                    $mapping->clinicId = $clinic_id;
-                    $mapping->createdAt = current_time('mysql');
-                    $mapping->save();
-                }
-
-                // Store login type and access token in user meta
-                update_user_meta($user_id, 'login_type', $login_type);
-                if (!empty($access_token)) {
-                    update_user_meta($user_id, 'social_access_token', $access_token);
-                    update_user_meta($user_id, 'social_access_token_updated', current_time('mysql'));
-                }
-
-                // Download and save profile image from social provider if provided
-                if (!empty($profile_image_url)) {
-                    $profile_image_id = $this->downloadImageAndCreateAttachment($profile_image_url, $user_id);
-                    if ($profile_image_id) {
-                        update_user_meta($user_id, 'patient_profile_image', $profile_image_id);
-                    }
-                }
-
-                $message = __('User account created successfully via social login', 'kivicare-clinic-management-system');
-            } else {
-                // Existing user - update profile info (don't change password)
-                $user_id = $user->ID;
-                // Generate new password if user doesn't have one set
-                $wp_user = get_userdata($user_id);
-                if (empty($wp_user->user_pass) || $wp_user->user_pass === '*') {
-                    // User has no password set, generate one
-                    $generated_password = wp_generate_password(16, true, true);
-                    wp_set_password($generated_password, $user_id);
-                }
-
-                // Update user meta
-                if (!empty($first_name)) {
-                    update_user_meta($user_id, 'first_name', $first_name);
-                }
-                if (!empty($last_name)) {
-                    update_user_meta($user_id, 'last_name', $last_name);
-                }
-                if (!empty($contact_number)) {
-                    update_user_meta($user_id, 'mobile_number', $contact_number);
-                }
-
-                // Update display name
-                $display_name = trim($first_name . ' ' . $last_name);
-                if (!empty($display_name)) {
-                    wp_update_user([
-                        'ID' => $user_id,
-                        'display_name' => $display_name
-                    ]);
-                }
-
-                // Store login type and access token in user meta
-                update_user_meta($user_id, 'login_type', $login_type);
-                if (!empty($access_token)) {
-                    update_user_meta($user_id, 'social_access_token', $access_token);
-                    update_user_meta($user_id, 'social_access_token_updated', current_time('mysql'));
-                }
-
-                // Update profile image if provided
-                if (!empty($profile_image_url)) {
-                    $existing_profile_image = get_user_meta($user_id, 'patient_profile_image', true);
-                    // Update profile image if not set, or always update from social provider
-                    if (empty($existing_profile_image)) {
-                        $profile_image_id = $this->downloadImageAndCreateAttachment($profile_image_url, $user_id);
-                        if ($profile_image_id) {
-                            update_user_meta($user_id, 'patient_profile_image', $profile_image_id);
-                        }
-                    }
-                }
-
-                $message = __('User logged in successfully via social login', 'kivicare-clinic-management-system');
-            }
-
-            // Log in the user
-            wp_clear_auth_cookie();
-            header_remove('Set-Cookie');
-            wp_set_current_user($user_id);
-            add_action('set_logged_in_cookie', function ($logged_in_cookie) {
-                $_COOKIE[LOGGED_IN_COOKIE] = $logged_in_cookie;
-            });
-            wp_set_auth_cookie($user_id);
-
-            // Get user data
-            $wp_user = get_userdata($user_id);
-
-            // Check if user has patient role
-            if (!in_array($this->kcbase->getPatientRole(), $wp_user->roles)) {
-                return $this->response(
-                    null,
-                    __('This account is not a patient account', 'kivicare-clinic-management-system'),
-                    false,
-                    403
-                );
-            }
-
-            // Get redirect URL
-            $redirect_url = $this->getLoginRedirectUrl($this->kcbase->getPatientRole());
-
-            // Get clinic data
-            $clinic_data = $this->getUserClinicData($user_id, $wp_user->roles);
-
-            // Build response data (same format as login endpoint)
-            $userData = [
-                'user_id' => $user_id,
-                'username' => $wp_user->user_login,
-                'display_name' => $wp_user->display_name,
-                'user_email' => $wp_user->user_email,
-                'first_name' => get_user_meta($user_id, 'first_name', true),
-                'last_name' => get_user_meta($user_id, 'last_name', true),
-                'mobile_number' => get_user_meta($user_id, 'mobile_number', true),
-                'roles' => $wp_user->roles,
-                'profileImageUrl' => $this->getUserProfileImageUrl($user_id, $this->kcbase->getPatientRole()),
-                'nonce' => wp_create_nonce('wp_rest'),
-                'redirect_url' => $redirect_url,
-                'clinics' => $clinic_data
-            ];
-
-            // Add WooCommerce data if available
-            if (function_exists('kc_woo_generate_client_auth')) {
-                $wc_data = kc_woo_generate_client_auth('kivicare_app', $user_id, 'read_write');
-                $userData = array_merge($userData, $wc_data);
-            }
-
-            return $this->response(
-                $userData,
-                $message,
-                true,
-                200
-            );
-
-        } catch (\Exception $e) {
-            KCErrorLogger::instance()->error('Social login error: ' . $e->getMessage());
-            return $this->response(
-                null,
-                __('Social login failed. Please try again.', 'kivicare-clinic-management-system'),
-                false,
-                500
-            );
-        }
     }
 
 }

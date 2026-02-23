@@ -257,8 +257,14 @@ class CustomFields extends SettingsController
         $total = $query->count();
         // Pagination
         $page = (int) ($request_data['page'] ?? 1);
-        $perPage = (int) ($request_data['perPage'] ?? 10);
-        $offset = ($page - 1) * $perPage;
+        $per_page_param = $request_data['perPage'] ?? 10;
+        $perPage = (int) $per_page_param;
+        // When "all" is selected, (int)"all" becomes 0 — fetch all records
+        if ($per_page_param === 'all' || $perPage <= 0) {
+            $perPage = $total;
+            $page = 1;
+        }
+        $offset = $perPage > 0 ? ($page - 1) * $perPage : 0;
         $query->limit($perPage)->offset($offset);
 
         $customFields = $query->get();

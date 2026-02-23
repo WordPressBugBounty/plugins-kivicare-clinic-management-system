@@ -3,11 +3,11 @@
     "file": "assets/ElementorWidget-BVn3uFWy.css",
     "src": "_ElementorWidget-BVn3uFWy.css"
   },
-  "_TransitionRoutes-BO0tClhM.js": {
-    "file": "assets/TransitionRoutes-BO0tClhM.js",
+  "_TransitionRoutes-B3VF7Cy-.js": {
+    "file": "assets/TransitionRoutes-B3VF7Cy-.js",
     "name": "TransitionRoutes",
     "imports": [
-      "_index-ItgyTBA3.js"
+      "_index-Cty4Gm2O.js"
     ],
     "dynamicImports": [
       "node_modules/@stripe/stripe-js/lib/index.mjs",
@@ -27,29 +27,29 @@
     "file": "assets/index-CQXckJez.js",
     "name": "index"
   },
-  "_index-DvM6SIS3.css": {
-    "file": "assets/index-DvM6SIS3.css",
-    "src": "_index-DvM6SIS3.css"
-  },
-  "_index-ItgyTBA3.js": {
-    "file": "assets/index-ItgyTBA3.js",
+  "_index-Cty4Gm2O.js": {
+    "file": "assets/index-Cty4Gm2O.js",
     "name": "index",
     "css": [
-      "assets/index-DvM6SIS3.css"
+      "assets/index-lCWIDpmK.css"
     ]
   },
-  "_queryClient-nMQh-nWs.js": {
-    "file": "assets/queryClient-nMQh-nWs.js",
+  "_index-lCWIDpmK.css": {
+    "file": "assets/index-lCWIDpmK.css",
+    "src": "_index-lCWIDpmK.css"
+  },
+  "_queryClient-CxBBjupU.js": {
+    "file": "assets/queryClient-CxBBjupU.js",
     "name": "queryClient",
     "imports": [
-      "_index-ItgyTBA3.js"
+      "_index-Cty4Gm2O.js"
     ]
   },
-  "_useFrontendBookAppointment-17WoRcRV.js": {
-    "file": "assets/useFrontendBookAppointment-17WoRcRV.js",
+  "_useFrontendBookAppointment-CsWdku33.js": {
+    "file": "assets/useFrontendBookAppointment-CsWdku33.js",
     "name": "useFrontendBookAppointment",
     "imports": [
-      "_index-ItgyTBA3.js"
+      "_index-Cty4Gm2O.js"
     ]
   },
   "app/dashboard/assets/fonts/Inter18pt-Bold.woff2": {
@@ -105,18 +105,18 @@
     "src": "app/dashboard/assets/scss/kivicare-design-system/components/payment-gateway-model/_payment-gateway-model.scss"
   },
   "app/dashboard/main.jsx": {
-    "file": "assets/dashboard-BffPJmpu.js",
+    "file": "assets/dashboard-Bgx1ltmU.js",
     "name": "dashboard",
     "src": "app/dashboard/main.jsx",
     "isEntry": true,
     "imports": [
-      "_index-ItgyTBA3.js",
-      "_TransitionRoutes-BO0tClhM.js",
-      "_queryClient-nMQh-nWs.js",
+      "_index-Cty4Gm2O.js",
+      "_TransitionRoutes-B3VF7Cy-.js",
+      "_queryClient-CxBBjupU.js",
       "_index-CQXckJez.js"
     ],
     "css": [
-      "assets/dashboard-DvzlEcgM.css"
+      "assets/dashboard-CnDcnYfZ.css"
     ],
     "assets": [
       "assets/fonts/Inter18pt-Regular.woff2",
@@ -134,58 +134,58 @@
     ]
   },
   "app/dashboard/views/encounter/tabs/bodyChart/BodyChartEditor.jsx": {
-    "file": "assets/BodyChartEditor-BQgR7Bsn.js",
+    "file": "assets/BodyChartEditor-CMSxDQ0z.js",
     "name": "BodyChartEditor",
     "src": "app/dashboard/views/encounter/tabs/bodyChart/BodyChartEditor.jsx",
     "isDynamicEntry": true,
     "imports": [
-      "_index-ItgyTBA3.js",
-      "_TransitionRoutes-BO0tClhM.js"
+      "_index-Cty4Gm2O.js",
+      "_TransitionRoutes-B3VF7Cy-.js"
     ],
     "css": [
       "assets/BodyChartEditor-UXLNUaJU.css"
     ]
   },
   "app/elementor/widgets/js/ClinicWidget.jsx": {
-    "file": "assets/clinicwidget-CKD4b8EQ.js",
+    "file": "assets/clinicwidget-D5ivvDlF.js",
     "name": "clinicwidget",
     "src": "app/elementor/widgets/js/ClinicWidget.jsx",
     "isEntry": true,
     "imports": [
-      "_index-ItgyTBA3.js",
-      "_TransitionRoutes-BO0tClhM.js"
+      "_index-Cty4Gm2O.js",
+      "_TransitionRoutes-B3VF7Cy-.js"
     ],
     "css": [
       "assets/ElementorWidget-BVn3uFWy.css"
     ]
   },
   "app/elementor/widgets/js/DoctorWidget.jsx": {
-    "file": "assets/doctorwidget-B3AVpBr9.js",
+    "file": "assets/doctorwidget-D3giDiYu.js",
     "name": "doctorwidget",
     "src": "app/elementor/widgets/js/DoctorWidget.jsx",
     "isEntry": true,
     "imports": [
-      "_index-ItgyTBA3.js",
-      "_TransitionRoutes-BO0tClhM.js"
+      "_index-Cty4Gm2O.js",
+      "_TransitionRoutes-B3VF7Cy-.js"
     ],
     "css": [
       "assets/ElementorWidget-BVn3uFWy.css"
     ]
   },
   "app/shortcodes/assets/js/KCBookAppointment.jsx": {
-    "file": "assets/appointment-CzGGpbZf.js",
+    "file": "assets/appointment-nMDsU6CM.js",
     "name": "appointment",
     "src": "app/shortcodes/assets/js/KCBookAppointment.jsx",
     "isEntry": true,
     "imports": [
-      "_index-ItgyTBA3.js",
-      "_TransitionRoutes-BO0tClhM.js",
+      "_index-Cty4Gm2O.js",
+      "_TransitionRoutes-B3VF7Cy-.js",
       "_index-CQXckJez.js",
-      "_useFrontendBookAppointment-17WoRcRV.js",
-      "_queryClient-nMQh-nWs.js"
+      "_useFrontendBookAppointment-CsWdku33.js",
+      "_queryClient-CxBBjupU.js"
     ],
     "css": [
-      "assets/appointment-Dnt4WpmD.css"
+      "assets/appointment-D00ajh1q.css"
     ],
     "assets": [
       "assets/fonts/Phosphor-Fill.woff2",
@@ -193,14 +193,14 @@
     ]
   },
   "app/shortcodes/assets/js/KCRegisterLogin.jsx": {
-    "file": "assets/registerLogin-BtwNSK93.js",
+    "file": "assets/registerLogin-smuukBBs.js",
     "name": "registerLogin",
     "src": "app/shortcodes/assets/js/KCRegisterLogin.jsx",
     "isEntry": true,
     "imports": [
-      "_index-ItgyTBA3.js",
-      "_useFrontendBookAppointment-17WoRcRV.js",
-      "_queryClient-nMQh-nWs.js"
+      "_index-Cty4Gm2O.js",
+      "_useFrontendBookAppointment-CsWdku33.js",
+      "_queryClient-CxBBjupU.js"
     ],
     "css": [
       "assets/registerLogin-jZ3x1BKd.css"
@@ -211,13 +211,13 @@
     ]
   },
   "node_modules/@stripe/react-stripe-js/dist/react-stripe.esm.mjs": {
-    "file": "assets/react-stripe.esm-wpWIvNa-.js",
+    "file": "assets/react-stripe.esm-CPL41387.js",
     "name": "react-stripe.esm",
     "src": "node_modules/@stripe/react-stripe-js/dist/react-stripe.esm.mjs",
     "isDynamicEntry": true,
     "imports": [
-      "_index-ItgyTBA3.js",
-      "_TransitionRoutes-BO0tClhM.js"
+      "_index-Cty4Gm2O.js",
+      "_TransitionRoutes-B3VF7Cy-.js"
     ]
   },
   "node_modules/@stripe/stripe-js/lib/index.mjs": {

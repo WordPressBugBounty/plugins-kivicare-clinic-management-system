@@ -349,6 +349,8 @@ class ClinicScheduleController extends KCBaseController
 
         $leaves = $leaves->get();
         $all_leaves = [];
+        $doctor_holidays = [];
+        $clinic_holidays = [];
         foreach ($leaves as $leave) {
             // Exclude time-specific holidays from the calendar disabled list
             // because they only block partial hours, not the entire day.
@@ -361,11 +363,21 @@ class ClinicScheduleController extends KCBaseController
                 $selectedDates = $leave->selectedDates ? json_decode($leave->selectedDates, true) : [];
                 if (is_array($selectedDates)) {
                     $all_leaves = array_merge($all_leaves, $selectedDates);
+                    if (($leave->moduleType ?? $leave->module_type ?? null) === 'clinic') {
+                        $clinic_holidays = array_merge($clinic_holidays, $selectedDates);
+                    } else {
+                        $doctor_holidays = array_merge($doctor_holidays, $selectedDates);
+                    }
                 }
             } else {
                 // 'single' or 'range'
                 $dates = $this->kc_generate_date_range($leave->startDate, $leave->endDate);
                 $all_leaves = array_merge($all_leaves, $dates);
+                if (($leave->moduleType ?? $leave->module_type ?? null) === 'clinic') {
+                    $clinic_holidays = array_merge($clinic_holidays, $dates);
+                } else {
+                    $doctor_holidays = array_merge($doctor_holidays, $dates);
+                }
             }
         }
 
@@ -421,6 +433,8 @@ class ClinicScheduleController extends KCBaseController
         $all_leaves = array_merge( $all_leaves, $fully_booked_dates );
 
         $unavailable_schedule['holidays'] = array_unique($all_leaves);
+        $unavailable_schedule['clinic_holidays'] = array_values(array_unique($clinic_holidays));
+        $unavailable_schedule['doctor_holidays'] = array_values(array_unique($doctor_holidays));
 
         return $this->response($unavailable_schedule, __('Clinic schedules retrieved', 'kivicare-clinic-management-system'));
     }
