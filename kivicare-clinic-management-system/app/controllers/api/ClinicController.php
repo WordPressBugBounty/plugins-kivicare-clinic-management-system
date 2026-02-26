@@ -828,6 +828,8 @@ class ClinicController extends KCBaseController
                         }
                     }
                 }
+                // Extract country_code and phone_number from clinic contact
+                $splitContact = $this->splitContactNumber($clinic->telephoneNo);
 
                 // Format clinic data
                 $clinicData = [
@@ -835,6 +837,8 @@ class ClinicController extends KCBaseController
                     'name' => $clinic->name,
                     'email' => $clinic->email,
                     'contact' => $clinic->telephoneNo,
+                    'country_code' => $splitContact['country_code'],
+                    'phone_number' => $splitContact['phone_number'],
                     'address' => $clinic->address,
                     'city' => $clinic->city,
                     'state' => $clinic->state,
@@ -923,7 +927,7 @@ class ClinicController extends KCBaseController
 
             // Get clinic services
             $clinicServices = [];
-            $serviceMappings = KCServiceDoctorMapping::table('sdm')
+            $query = KCServiceDoctorMapping::table('sdm')
                 ->select([
                     'sdm.id',
                     'sdm.clinic_id',
@@ -938,8 +942,13 @@ class ClinicController extends KCBaseController
                 ])
                 ->leftJoin(KCService::class, 'sdm.service_id', '=', 's.id', 's')
                 ->where('sdm.clinic_id', '=', $clinicId)
-                ->where('sdm.status', '=', 1)
-                ->get();
+                ->where('sdm.status', '=', 1);
+
+            if ($this->kcbase->getLoginUserRole() == $this->kcbase->getDoctorRole()) {
+                $query->where('sdm.doctor_id', '=', get_current_user_id());
+            }
+
+            $serviceMappings = $query->get();
 
             foreach ($serviceMappings as $service) {
                 $serviceId = (int) ($service->serviceId ?? 0);
@@ -1047,11 +1056,16 @@ class ClinicController extends KCBaseController
                 }
             }
 
+            // Extract country_code and phone_number from clinic contact
+            $splitContact = $this->splitContactNumber($clinic->telephoneNo);
+
             // Format clinic data according to your structure
             $clinicData = array_merge([
                 'clinic_name' => $clinic->name,
                 'clinic_email' => $clinic->email,
                 'clinic_contact' => $clinic->telephoneNo,
+                'country_code' => $splitContact['country_code'],
+                'phone_number' => $splitContact['phone_number'],
                 'status' => $clinic->status,
                 'specialties' => $specialtyKey,
                 'address' => $clinic->address,

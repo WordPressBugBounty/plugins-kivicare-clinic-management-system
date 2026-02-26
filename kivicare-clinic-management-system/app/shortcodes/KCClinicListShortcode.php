@@ -249,11 +249,13 @@ class KCClinicListShortcode extends KCShortcodeAbstract
                     ->get();
 
                 $services = [];
+                // fix: use correct property name serviceId instead of service_id to display services in dropdown
                 foreach ($doctor_mappings as $mapping) {
-                    if (isset($all_services[$mapping->service_id])) {
-                        $services[] = $all_services[$mapping->service_id];
+                    if (isset($all_services[$mapping->serviceId])) {
+                        $services[] = $all_services[$mapping->serviceId];
                     }
                 }
+                $services = array_values(array_unique($services));
 
                 $admin_basic = json_decode($result->admin_basic_data, true) ?? [];
                 $admin_number = $admin_basic['mobile_number'] ?? '';

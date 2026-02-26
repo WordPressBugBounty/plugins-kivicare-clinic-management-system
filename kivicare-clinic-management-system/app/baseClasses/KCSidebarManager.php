@@ -190,6 +190,7 @@ class KCSidebarManager implements KCSidebarInterface
             // Core Group
             $this->createGroupHeader('Main'),
             $this->createSidebarItem('Dashboard', 'route', '/dashboard', 'ph ph-squares-four', 'dashboard'),
+            $this->createSidebarItem('Calendar', 'route', '/calendar', 'ph ph-calendar-blank', 'calendar'),
             $this->createSidebarItem('Appointments', 'route', '/appointments', 'ph ph-calendar-dots', 'appointment_list'),
             $this->createEncountersParentItem([
                 $this->createSidebarItem('Encounters List', 'route', '/encounter', 'ph ph-list-dashes', 'patient_encounter_list'),
@@ -245,6 +246,7 @@ class KCSidebarManager implements KCSidebarInterface
             // Core Group
             $this->createGroupHeader('Main'),
             $this->createSidebarItem('Dashboard', 'route', '/dashboard', 'ph ph-squares-four', 'dashboard'),
+            $this->createSidebarItem('Calendar', 'route', '/calendar', 'ph ph-calendar-blank', 'calendar'),
             $this->createSidebarItem('Appointments', 'route', '/appointments', 'ph ph-calendar-dots', 'appointment_list'),
             $this->createEncountersParentItem([
                 $this->createSidebarItem('Encounters List', 'route', '/encounter', 'ph ph-list-dashes', 'patient_encounter_list'),

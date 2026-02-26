@@ -195,7 +195,8 @@ class KCDashboardPermalinkHandler
                 global $wp_styles, $wp_scripts;
 
                 $allowed_styles = apply_filters('kc_allowed_styles', ['kc-dashboard-style', 'wp-admin', 'wp-components', 'dashicons', 'thickbox', 'imgareaselect', 'media-views', 'media-editor']);
-                $allowed_scripts = apply_filters('kc_allowed_scripts', ['kc-dashboard-script', 'heartbeat', 'wp-util', 'wp-api-request', 'underscore', 'backbone', 'clipboard', 'media-views', 'media-editor', 'media-models', 'thickbox', 'imgareaselect']);
+                // fix: added 'jquery-ui-core' to prevent deregistration conflict with Qi Addons for Elementor
+                $allowed_scripts = apply_filters('kc_allowed_scripts', ['kc-dashboard-script', 'heartbeat', 'wp-util', 'wp-api-request', 'underscore', 'backbone', 'clipboard', 'media-views', 'media-editor', 'media-models', 'thickbox', 'imgareaselect', 'jquery-ui-core']);
 
                 foreach ($wp_styles->queue as $handle) {
                     if (

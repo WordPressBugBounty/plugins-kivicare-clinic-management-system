@@ -14,6 +14,7 @@ use App\models\KCOption;
 use App\models\KCPatientClinicMapping;
 use App\models\KCDoctorClinicMapping;
 use App\models\KCReceptionistClinicMapping;
+use App\models\KCCustomFieldData;
 use WP_REST_Server;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -461,6 +462,11 @@ class AuthController extends KCBaseController
                 'type' => 'string',
                 'required' => false,
                 'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'custom_fields' => [
+                'description' => 'Custom fields data',
+                'type' => 'object',
+                'required' => false,
             ]
         ];
 
@@ -783,6 +789,10 @@ class AuthController extends KCBaseController
         // Get clinic data based on user role
         $clinic_data = $this->getUserClinicData($user->ID, $user->roles);
 
+        // Extract country_code and phone_number from mobile number
+        $mobileNumber = get_user_meta($user->ID, 'mobile_number', true);
+        $splitContact = $this->splitContactNumber($mobileNumber);
+
         $userData = [
             'user_id' => $user->ID,
             'username' => $user->user_login,
@@ -790,7 +800,9 @@ class AuthController extends KCBaseController
             'user_email' => $user->user_email,
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
-            'mobile_number' => get_user_meta($user->ID, 'mobile_number', true),
+            'mobile_number' => $mobileNumber,
+            'country_code' => $splitContact['country_code'] ?: null,
+            'phone_number' => $splitContact['phone_number'] ?: null,
             'roles' => $user->roles,
             'profileImageUrl' => $this->getUserProfileImageUrl($user->ID, $user->roles[0] ?? ''),
             'nonce' => wp_create_nonce('wp_rest'),
@@ -1365,6 +1377,31 @@ class AuthController extends KCBaseController
             $this->sendAdminNewUserNotification($user_id);
 
             /**
+             * Save custom fields if provided
+             */
+            if (!empty($params['custom_fields']) && is_array($params['custom_fields'])) {
+                // Determine module type from role
+                $role_to_module = [
+                    $this->kcbase->getPatientRole() => 'patient_module',
+                    $this->kcbase->getDoctorRole() => 'doctor_module'
+                ];
+                $module_type = $role_to_module[$user_role] ?? 'patient_module';
+
+                foreach ($params['custom_fields'] as $field_id => $field_value) {
+                    $field_id = (int) $field_id;
+                    if ($field_id > 0) {
+                        KCCustomFieldData::create([
+                            'moduleType' => $module_type,
+                            'moduleId' => $user_id,
+                            'fieldId' => $field_id,
+                            'fieldsData' => is_array($field_value) ? json_encode($field_value) : $field_value,
+                            'createdAt' => current_time('mysql'),
+                        ]);
+                    }
+                }
+            }
+
+            /**
              * Automatically log in the newly registered user.
              *
              * The booking widget (and other frontend flows) expect the user to be
@@ -1385,6 +1422,9 @@ class AuthController extends KCBaseController
 
             // Get user data for response (now as a logged-in user)
             $wpUser = get_userdata($user_id);
+            // Extract country_code and phone_number from mobile number
+            $splitContact = $this->splitContactNumber($mobile_number);
+
             $userData = [
                 'user_id' => $user_id,
                 'username' => $wpUser->user_login,
@@ -1393,6 +1433,8 @@ class AuthController extends KCBaseController
                 'first_name' => get_user_meta($user_id, 'first_name', true),
                 'last_name' => get_user_meta($user_id, 'last_name', true),
                 'mobile_number' => $mobile_number,
+                'country_code' => $splitContact['country_code'] ?: null,
+                'phone_number' => $splitContact['phone_number'] ?: null,
                 'gender' => $params['gender'],
                 'user_role' => $user_role,
                 'clinic_id' => $clinic_id,

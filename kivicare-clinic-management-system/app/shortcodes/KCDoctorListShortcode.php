@@ -10,6 +10,8 @@ use App\models\KCDoctor;
 use App\models\KCClinicSession;
 use App\models\KCDoctorClinicMapping;
 use App\models\KCUserMeta;
+use App\models\KCServiceDoctorMapping;
+use App\models\KCService;
 
 class KCDoctorListShortcode extends KCShortcodeAbstract
 {
@@ -263,24 +265,12 @@ class KCDoctorListShortcode extends KCShortcodeAbstract
                     ? $result->email
                     : ($basic_data['email'] ?? '');
 
-                $services = [];
-                if (!empty($basic_data['services'])) {
-                    if (is_array($basic_data['services'])) {
-                        foreach ($basic_data['services'] as $serviceItem) {
-                            if (is_array($serviceItem)) {
-                                $label = $serviceItem['label'] ?? $serviceItem['name'] ?? '';
-                                if (!empty($label)) {
-                                    $services[] = $label;
-                                }
-                            } elseif (!empty($serviceItem)) {
-                                $services[] = (string) $serviceItem;
-                            }
-                        }
-                    } elseif (is_string($basic_data['services'])) {
-                        $services = array_filter(array_map('trim', explode(',', $basic_data['services'])));
-                    }
-                }
-
+                // fix: use ->values() before ->toArray() and fetch via standard method to ensure service filter dropdown loads correctly in shortcode
+                $services = KCServiceDoctorMapping::getActiveDoctorServices($doctorId, (int) $clinic_id)
+                    ->pluck('service_name')
+                    ->values()
+                    ->toArray();
+                
                 $doctors[] = [
                     'id' => $doctorId,
                     'name' => $result->display_name,

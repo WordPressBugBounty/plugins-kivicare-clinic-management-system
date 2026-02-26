@@ -1046,7 +1046,10 @@ class ReceptionistsController extends KCBaseController
                 // Get basic data (contains contact_number, gender, dob, address, etc.)
                 $basicData = $receptionist->basic_data;
                 $basicData = !empty($basicData) ? json_decode($basicData, true) : [];
-                $attachmentId = $receptionist->profile_image_id;
+                // Extract country_code and phone_number from receptionist contact
+                $mobileNumber = isset($basicData['mobile_number']) ? $basicData['mobile_number'] : '';
+                $splitContact = $this->splitContactNumber($mobileNumber);
+
                 // Build receptionist object with all data
                 $receptionistObj = [
                     'id' => $userId,
@@ -1064,7 +1067,9 @@ class ReceptionistsController extends KCBaseController
                         'clinic_image_id' => $receptionist->clinic_profile_image,
                     ),
                     'status' => $receptionist->status,
-                    'contact_number' => isset($basicData['mobile_number']) ? $basicData['mobile_number'] : '',
+                    'contact_number' => $mobileNumber,
+                    'country_code' => $splitContact['country_code'] ?: null,
+                    'phone_number' => $splitContact['phone_number'] ?: null,
                     'created_at' => $receptionist->user_registered
                 ];
 
@@ -1291,6 +1296,9 @@ class ReceptionistsController extends KCBaseController
             $clinicProfileImageUrl = !empty($receptionistData->clinic_profile_image) ?
                 wp_get_attachment_url($receptionistData->clinic_profile_image) : '';
 
+            // Extract country_code and phone_number from receptionist contact
+            $splitContact = $this->splitContactNumber($basicData['mobile_number'] ?? '');
+
             // Build response object using null coalescing operators for cleaner code
             $receptionistObj = [
                 'id' => $receptionistData->id,
@@ -1312,6 +1320,8 @@ class ReceptionistsController extends KCBaseController
                 ] : null,
                 'status' => (int) $receptionistData->status,
                 'contact_number' => $basicData['mobile_number'] ?? '',
+                'country_code' => $splitContact['country_code'] ?: null,
+                'phone_number' => $splitContact['phone_number'] ?: null,
                 'gender' => $basicData['gender'] ?? '',
                 'dob' => $basicData['dob'] ?? '',
                 'address' => $basicData['address'] ?? '',

@@ -963,12 +963,16 @@ class PatientController extends KCBaseController
                         }
                     }
                 }
+                // Extract country_code and phone_number from patient contact
+                $splitContact = $this->splitContactNumber($basicData['mobile_number'] ?? '');
 
                 $patientData = [
                     'id' => $patient->id,
                     'name' => $patient->display_name,
                     'email' => $patient->email,
                     'mobileNumber' => $basicData['mobile_number'] ?? null,
+                    'country_code' => $splitContact['country_code'] ?: null,
+                    'phone_number' => $splitContact['phone_number'] ?: null,
                     'dob' => $basicData['dob'] ?? null,
                     'gender' => $basicData['gender'] ?? null,
                     'bloodGroup' => $basicData['blood_group'] ?? null,
@@ -1123,6 +1127,9 @@ class PatientController extends KCBaseController
                 $basicData = json_decode($patient->basic_data, true);
             }
 
+            // Extract country_code and phone_number from patient contact
+            $splitContact = $this->splitContactNumber($basicData['mobile_number'] ?? '');
+
             // Get total encounters count for this patient
             $totalEncounters = KCPatientEncounter::query()
                 ->where('patient_id', '=', $patient->id)
@@ -1136,9 +1143,11 @@ class PatientController extends KCBaseController
                 'last_name' => $patient->last_name,
                 'email' => $patient->email,
                 'contact_number' => $basicData['mobile_number'] ?? null,
+                'country_code' => $splitContact['country_code'] ?: null,
+                'phone_number' => $splitContact['phone_number'] ?: null,
                 'dob' => $basicData['dob'] ?? null,
                 'gender' => $basicData['gender'] ?? null,
-                'blood_group' => $basicData['blood_group'] ?? null,
+                'bloodGroup' => $basicData['blood_group'] ?? null,
                 'address' => $basicData['address'] ?? null,
                 'city' => $basicData['city'] ?? null,
                 'country' => $basicData['country'] ?? null,

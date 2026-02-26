@@ -4,7 +4,7 @@ Tags: clinic management, patient management, doctor management, appointment mana
 Requires PHP: 8.0 
 Requires at least: 3.0.1
 Tested up to: 6.9.1
-Stable tag: 4.1.3
+Stable tag: 4.1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,6 +26,7 @@ After 3+ years of development and refinement, KiviCare now features a completely
 **A WordPress plugin that doesn't feel like one.**  
 
 ---
+
 
 ## What's New in Version 4.0 (The Big Redesign!)
 
@@ -217,6 +218,10 @@ Free version support is available through our comprehensive Documentation and Vi
 We'd love to hear from you! Contact us at hello@iqonic.design or submit a feature request through our website.
 
 == Changelog ==
+
+= Version 4.1.4 – 26 Feb 2026
+- [New] Added appointment calendar support for Admin and Clinic Admin roles
+- [Fixed] Minor bug fixes
 
 = Version 4.1.3 – 23 Feb 2026
 - [Fixed] Security fixes

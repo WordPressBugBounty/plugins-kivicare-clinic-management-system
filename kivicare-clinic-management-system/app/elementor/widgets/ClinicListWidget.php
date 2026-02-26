@@ -818,10 +818,11 @@ class ClinicListWidget extends KCElementorWidgetAbstract
                 }
                 $specialty_str = implode(', ', $specialties);
 
+                // fix: use ->values() before ->toArray() to ensure JSON array output isn't associative for clinic services dropdown
                 $services = KCServiceDoctorMapping::getServices([
                     'clinic_id' => $result->id,
                     'status' => 1
-                ])->pluck('service_name')->unique()->toArray();
+                ])->pluck('service_name')->unique()->values()->toArray();
                 $admin_basic = json_decode($result->admin_basic_data, true) ?? [];
                 $admin_number = $admin_basic['mobile_number'] ?? '';
 

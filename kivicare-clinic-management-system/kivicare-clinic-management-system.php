@@ -3,7 +3,7 @@
  * Plugin Name: KiviCare - Clinic & Patient Management System (EHR)
  * Plugin URI: https://kivicare.io
  * Description: KiviCare is an impressive clinic and patient management plugin (EHR). It comes with powerful shortcodes for appointment booking and patient registration.
- * Version: 4.1.3
+ * Version: 4.1.4
  * Author: iqonic design
  * Text Domain: kivicare-clinic-management-system
  * Domain Path: /languages
@@ -46,7 +46,7 @@ if (!defined('KIVI_CARE_PREFIX')) {
 }
 
 if (!defined('KIVI_CARE_VERSION')) {
-	define('KIVI_CARE_VERSION', "4.1.3");
+	define('KIVI_CARE_VERSION', "4.1.4");
 }
 
 if (!defined('KIVI_CARE_API_VERSION')) {
@@ -120,6 +120,11 @@ add_action('plugins_loaded', function () {
 				'name' => 'KiviCare Webhooks Addon',
 				'version' => '4.0.0',
 				'constant' => 'KIVICARE_WEBHOOKS_ADDON_VERSION'
+			],
+			'kivicare-api/kivicare-api.php' => [
+				'name' => 'KiviCare API',
+				'version' => '10.0.0',
+				'constant' => 'KIVICARE_API_VERSION'
 			],
 		];
 

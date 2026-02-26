@@ -863,6 +863,11 @@ class DoctorServiceController extends KCBaseController
                     'sd.value as category_value',
                     'c.name as clinic_name',
                     'c.profile_image as clinic_profile_image',
+                    'c.address as clinic_address',
+                    'c.city as clinic_city',
+                    'c.state as clinic_state',
+                    'c.country as clinic_country',
+                    'c.postal_code as clinic_postal_code',
                     'u.display_name as doctor_name'
                 ])
                 ->leftJoin(KCService::class, 'sdm.service_id', '=', 's.id', 's')
@@ -886,11 +891,22 @@ class DoctorServiceController extends KCBaseController
             $clinicImageId = $service->clinic_profile_image ?: null;
             $clinicImageUrl = $clinicImageId ? wp_get_attachment_url($clinicImageId) : '';
 
+            // Build full clinic address from individual parts
+            $clinicAddressParts = array_filter([
+                $service->clinic_address ?? '',
+                $service->clinic_city ?? '',
+                $service->clinic_state ?? '',
+                $service->clinic_country ?? '',
+                $service->clinic_postal_code ?? '',
+            ]);
+            $clinicFullAddress = implode(', ', $clinicAddressParts);
+
             $clinicsArray = [
                 [
                     'value' => $service->clinicId,
                     'label' => $service->clinic_name,
                     'clinic_image' => $clinicImageUrl,
+                    'address' => $clinicFullAddress,
                 ]
             ];
 

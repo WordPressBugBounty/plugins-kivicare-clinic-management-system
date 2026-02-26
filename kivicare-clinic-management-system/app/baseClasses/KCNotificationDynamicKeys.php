@@ -281,6 +281,18 @@ class KCNotificationDynamicKeys
                 '{{doctor_contact_number}}',
                 '{{current_date}}',
                 '{{current_date_time}}',
+            ],
+            'kiviCare_default_event_template' => [
+                '{{appointment_date}}',
+                '{{appointment_time}}',
+                '{{service_name}}',
+                '{{patient_name}}',
+                '{{patient_email}}',
+                '{{doctor_name}}',
+                '{{doctor_email}}',
+                '{{clinic_name}}',
+                '{{clinic_email}}',
+                '{{clinic_address}}',
             ]
         ];
 

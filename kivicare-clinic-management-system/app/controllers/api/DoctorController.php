@@ -970,11 +970,16 @@ class DoctorController extends KCBaseController
                         }
                     }
                 }
+                // Extract country_code and phone_number from doctor contact
+                $splitContact = $this->splitContactNumber($basicData['mobile_number'] ?? '');
+
                 $doctorData = [
                     'id' => $doctor->id,
                     'name' => $doctor->display_name,
                     'email' => $doctor->email,
                     'mobile_number' => $basicData['mobile_number'] ?? '',
+                    'country_code' => $splitContact['country_code'] ?: null,
+                    'phone_number' => $splitContact['phone_number'] ?: null,
                     'doctor_image_url' => $profileImageUrl,
                     'doctor_image_id' => !empty($doctor->profile_image_id) ?
                         (int) $doctor->profile_image_id : null,
@@ -1166,6 +1171,9 @@ class DoctorController extends KCBaseController
                 ];
             }, $doctorClinics->toArray());
 
+            // Extract country_code and phone_number from doctor contact
+            $splitContact = $this->splitContactNumber($basicData['mobile_number'] ?? '');
+
             // Build response object using null coalescing operators for cleaner code
             $doctorObj = [
                 'id' => $doctorData->id,
@@ -1179,6 +1187,8 @@ class DoctorController extends KCBaseController
                 'clinics' => $processedClinics,
                 'status' => (int) $doctorData->status,
                 'contact_number' => $basicData['mobile_number'] ?? '',
+                'country_code' => $splitContact['country_code'] ?: null,
+                'phone_number' => $splitContact['phone_number'] ?: null,
                 'gender' => $basicData['gender'] ?? '',
                 'dob' => $basicData['dob'] ?? '',
                 'address' => $basicData['address'] ?? '',

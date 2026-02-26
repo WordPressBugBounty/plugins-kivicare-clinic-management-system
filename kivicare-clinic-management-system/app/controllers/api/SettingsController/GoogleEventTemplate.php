@@ -4,6 +4,7 @@ namespace App\controllers\api\SettingsController;
 
 use App\controllers\api\SettingsController;
 use App\emails\KCEmailTemplateManager;
+use App\baseClasses\KCNotificationDynamicKeys;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
@@ -104,10 +105,14 @@ class GoogleEventTemplate extends SettingsController
 
         $template = $template_posts[0];
 
+        $dynamicKeysClass = new KCNotificationDynamicKeys();
+        $dynamicKeys = $dynamicKeysClass->getDynamicKeys($post_name);
+
         $data = [
             'ID' => $template->ID,
             'post_title' => $template->post_title,
-            'post_content' => $template->post_content
+            'post_content' => $template->post_content,
+            'dynamic_keys' => $dynamicKeys
         ];
 
         return $this->response([
