@@ -50,7 +50,7 @@ if (!defined('KIVI_CARE_VERSION')) {
 }
 
 if (!defined('KIVI_CARE_API_VERSION')) {
-	define('KIVI_CARE_API_VERSION', "9.6.8");
+	define('KIVI_CARE_API_VERSION', "10.0.0");
 }
 
 if (!defined('KIVI_CARE_NAME')) {
