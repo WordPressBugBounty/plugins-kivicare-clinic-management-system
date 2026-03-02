@@ -40,6 +40,7 @@ $doctor_sidebar_group_headers = [
 // Admins
 $admin_sidebar_labels = [
     _x('Dashboard', 'admin', 'kivicare-clinic-management-system'),
+    _x('Calendar', 'admin', 'kivicare-clinic-management-system'),
     _x('Appointments', 'admin', 'kivicare-clinic-management-system'),
     _x('Encounters', 'admin', 'kivicare-clinic-management-system'),
     _x('Encounters List', 'admin', 'kivicare-clinic-management-system'),
@@ -61,6 +62,7 @@ $admin_sidebar_labels = [
 
 $clinic_admin_sidebar_labels = [
     _x('Dashboard', 'clinic_admin', 'kivicare-clinic-management-system'),
+    _x('Calendar', 'clinic_admin', 'kivicare-clinic-management-system'),
     _x('Appointments', 'clinic_admin', 'kivicare-clinic-management-system'),
     _x('Encounters', 'clinic_admin', 'kivicare-clinic-management-system'),
     _x('Encounters List', 'clinic_admin', 'kivicare-clinic-management-system'),

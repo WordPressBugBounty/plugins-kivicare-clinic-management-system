@@ -312,7 +312,7 @@ class ClinicScheduleController extends KCBaseController
                 ])
                 ->where('clinic_id',$clinicId)
                 ->where('doctor_id',$params['doctor_id'])
-                ->get()->pluck('day')->toArray();
+                ->pluck('day');
         $days = ['0' => 'sun', '1' => 'mon', '2' =>'tue', '3' => 'wed', '4' => 'thu', '5' => 'fri', '6' => 'sat'];
         if(count($doctor_session) > 0){
             // get unavilable  days

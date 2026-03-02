@@ -15,10 +15,12 @@ use App\models\KCClinic;
 use App\models\KCOption;
 use App\models\KCCustomFieldData;
 use App\models\KCUserMeta;
+use App\models\KCUser;
 use App\baseClasses\KCErrorLogger;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
+use KCProApp\controllers\api\GoogleCalendarIntegration;
 
 defined('ABSPATH') or die('Something went wrong');
 
@@ -544,7 +546,12 @@ class PatientController extends KCBaseController
                 'description' => 'Patient unique ID',
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_text_field',
-            ]
+            ],
+            'timezone' => [
+                'description' => 'Patient timezone',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
         ];
 
         return apply_filters('kc_patient_create_endpoint_args', $args);
@@ -723,16 +730,14 @@ class PatientController extends KCBaseController
     public function getPatients(WP_REST_Request $request): WP_REST_Response
     {
         try {
-            // Process request parameters
             $params = $request->get_params();
 
-            // Set defaults
-            $page = isset($params['page']) ? (int) $params['page'] : 1;
+            // Set pagination defaults
+            $page = max(1, isset($params['page']) ? (int) $params['page'] : 1);
             $perPageParam = isset($params['perPage']) ? $params['perPage'] : 10;
-
-            // Handle "all" option for perPage
             $showAll = (strtolower($perPageParam) === 'all');
-            $perPage = $showAll ? null : (int) $perPageParam;
+            
+            // Search / Filter parameters
             $search = isset($params['search']) ? sanitize_text_field($params['search']) : '';
             $patient_id = isset($params['id']) ? (int) $params['id'] : null;
             $patientName = isset($params['patientName']) ? sanitize_text_field($params['patientName']) : '';
@@ -741,125 +746,66 @@ class PatientController extends KCBaseController
             $date_to = isset($params['date_to']) ? sanitize_text_field($params['date_to']) : '';
             $registeredOn = isset($params['registeredOn']) ? sanitize_text_field($params['registeredOn']) : '';
             $status = isset($params['status']) ? (int) ($params['status']) : null;
-            $orderBy = isset($params['orderBy']) ? sanitize_text_field($params['orderBy']) : 'ID';
-            $order = isset($params['order']) ? strtoupper(sanitize_text_field($params['order'])) : 'DESC';
             $patientUniqueId = isset($params['patient_unique_id']) ? sanitize_text_field($params['patient_unique_id']) : '';
 
-            // Build the base query for patients
-            $query = KCPatient::table('p')
-                ->select([
-                    "p.*",
-                    "GROUP_CONCAT(DISTINCT CONCAT('{\"clinic_id\":', c.id, ',\"clinic_name\":\"', REPLACE(c.name, '\"', '\\\"'), '\",\"clinic_status\":\"', IFNULL(c.status, ''), '\",\"clinic_email\":\"', c.email, '\",\"clinic_contact_number\":\"', IFNULL(c.telephone_no, ''), '\",\"clinic_address\":\"', REPLACE(CONCAT_WS(', ', NULLIF(c.address, ''), NULLIF(c.city, ''), NULLIF(c.state, ''), NULLIF(c.country, ''), NULLIF(c.postal_code, '')), '\"', '\\\"'), '\",\"clinic_image_id\":', IFNULL(c.profile_image, 'null'), '}') SEPARATOR '||') as clinic_data",
-                    "bd.meta_value as basic_data",
-                    "pi.meta_value as profile_image",
-                    "puid.meta_value as patient_unique_id"
-                ])
-                ->leftJoin(KCUserMeta::class, function ($join) {
-                    $join->on('p.ID', '=', 'bd.user_id')
-                        ->onRaw("bd.meta_key = 'basic_data'");
-                }, null, null, 'bd')
-                ->leftJoin(KCUserMeta::class, function ($join) {
-                    $join->on('p.ID', '=', 'pi.user_id')
-                        ->onRaw("pi.meta_key = 'patient_profile_image'");
-                }, null, null, 'pi')
-                ->leftJoin(KCUserMeta::class, function ($join) {
-                    $join->on('p.ID', '=', 'puid.user_id')
-                        ->onRaw("puid.meta_key = 'patient_unique_id'");
-                }, null, null, 'puid')
-                ->leftJoin(KCUserMeta::class, function ($join) {
-                    $join->on('p.ID', '=', 'fn.user_id')
-                        ->onRaw("fn.meta_key = 'first_name'");
-                }, null, null, 'fn')
-                ->leftJoin(KCUserMeta::class, function ($join) {
-                    $join->on('p.ID', '=', 'ln.user_id')
-                        ->onRaw("ln.meta_key = 'last_name'");
-                }, null, null, 'ln')
-                ->leftJoin(KCPatientClinicMapping::class, 'p.ID', '=', 'pcm.patient_id', 'pcm')
-                ->leftJoin(KCClinic::class, 'pcm.clinic_id', '=', 'c.id', 'c')
-                ->groupBy('p.ID'); // Add GROUP BY to handle the GROUP_CONCAT properly
+            // Build a SLIM base query (IDs and core fields only)
+            $query = KCPatient::table('p')->select(['p.ID as id', 'p.display_name', 'p.user_email as email', 'p.user_registered', 'p.user_status as user_status']);
 
             $current_user_role = $this->kcbase->getLoginUserRole();
             $current_user_id = get_current_user_id();
 
+            // 1. Handle Permission Scoping (Minimal Joins)
             if ($current_user_role === $this->kcbase->getDoctorRole()) {
-                // For doctors, show patients who have appointments with this doctor OR patients created by this doctor
-                $query->leftJoin(KCAppointment::class, 'p.ID', '=', 'app.patient_id', 'app')
-                    ->leftJoin(KCUserMeta::class, function ($join) {
-                        $join->on('p.ID', '=', 'pab.user_id')
-                            ->onRaw("pab.meta_key = 'patient_added_by'");
-                    }, null, null, 'pab')
-                    ->where(function ($q) use ($current_user_id) {
-                        $q->where('app.doctor_id', '=', $current_user_id)
-                            ->orWhere('pab.meta_value', '=', $current_user_id);
-                    });
-            } elseif ($current_user_role === $this->kcbase->getClinicAdminRole()) {
-                // For clinic admins, show only patients from their clinic
-                $clinic_id = KCClinic::getClinicIdOfClinicAdmin($current_user_id);
+                // Fetch IDs of patients linked to this doctor
+                $appointmentPatientIds = KCAppointment::query()->where('doctorId', $current_user_id)->pluck('patient_id');
+                $addedPatientIds = KCUserMeta::query()->where('metaKey', 'patient_added_by')->where('metaValue', $current_user_id)->pluck('user_id');
+                $allowedIds = array_unique(array_merge($appointmentPatientIds, $addedPatientIds));
+                
+                if (empty($allowedIds)) {
+                    return $this->response(['patients' => [], 'pagination' => ['total' => 0, 'perPage' => 10, 'currentPage' => $page, 'lastPage' => 1]], 'No patients found');
+                }
+                $query->whereIn('p.ID', $allowedIds);
+            } elseif ($current_user_role === $this->kcbase->getClinicAdminRole() || $current_user_role === $this->kcbase->getReceptionistRole()) {
+                $clinic_id = ($current_user_role === $this->kcbase->getClinicAdminRole()) ? KCClinic::getClinicIdOfClinicAdmin($current_user_id) : KCClinic::getClinicIdOfReceptionist();
                 if ($clinic_id) {
-                    $query->where('pcm.clinic_id', '=', $clinic_id);
+                    $cpIds = KCPatientClinicMapping::query()->where('clinicId', $clinic_id)->pluck('patient_id');
+                    if (empty($cpIds)) {
+                        return $this->response(['patients' => [], 'pagination' => ['total' => 0, 'perPage' => 10, 'currentPage' => $page, 'lastPage' => 1]], 'No patients found');
+                    }
+                    $query->whereIn('p.ID', $cpIds);
                 }
             }
 
-            // for receptinoist, filter by their clinic 
-            $clinic_id = null;
-            if ($current_user_role === $this->kcbase->getReceptionistRole()) {
-                $clinic_id = KCClinic::getClinicIdOfReceptionist();
-            }
-
-            if ($clinic_id) {
-                // Filter by receptionist clinic
-                $query->where('pcm.clinic_id', '=', $clinic_id);
-            }
-
-            // Apply filters
+            // 2. Optimized Filter Strategy (ID-First)
             if (!empty($search)) {
-                $query->where(function ($q) use ($search) {
-                    $q->where("p.display_name", 'LIKE', '%' . $search . '%')
-                        ->orWhere("fn.meta_value", 'LIKE', '%' . $search . '%')
-                        ->orWhere("ln.meta_value", 'LIKE', '%' . $search . '%')
-                        ->orWhere("p.user_email", 'LIKE', '%' . $search . '%')
-                        ->orWhere("p.ID", 'LIKE', '%' . $search . '%')
-                        ->orWhere("c.name", 'LIKE', '%' . $search . '%')
-                        ->orWhere("bd.meta_value", 'LIKE', '%' . $search . '%');
-                });
+                $searchUserIds = KCUser::query()
+                    ->where('displayName', 'LIKE', '%' . $search . '%')
+                    ->orWhere('email', 'LIKE', '%' . $search . '%')
+                    ->orWhere('id', 'LIKE', '%' . $search . '%')
+                    ->pluck('id');
+                
+                $searchMetaIds = KCUserMeta::query()
+                    ->whereIn('metaKey', ['first_name', 'last_name', 'basic_data', 'patient_unique_id'])
+                    ->where('metaValue', 'LIKE', '%' . $search . '%')
+                    ->pluck('userId');
+                
+                $searchClinicIds = KCClinic::query()->where('name', 'LIKE', '%' . $search . '%')->pluck('id');
+                $clinicPIds = !empty($searchClinicIds) ? KCPatientClinicMapping::query()->whereIn('clinicId', $searchClinicIds)->pluck('patientId') : [];
+
+                $combinedIds = array_unique(array_merge($searchUserIds, $searchMetaIds, $clinicPIds));
+                $query->whereIn('p.ID', $combinedIds ?: [0]);
             }
 
-            if (!empty($patient_id)) {
-                $query->where("p.ID", '=', $patient_id);
+            if (!empty($patientName)) {
+                $nameIds = KCUserMeta::query()->whereIn('metaKey', ['first_name', 'last_name'])->where('metaValue', 'LIKE', '%' . $patientName . '%')->pluck('userId');
+                $nameUserIds = KCUser::query()->where('displayName', 'LIKE', '%' . $patientName . '%')->pluck('id');
+                $query->whereIn('p.ID', array_unique(array_merge($nameIds, $nameUserIds)) ?: [0]);
             }
 
-            if (isset($patientName) && $patientName !== '') {
-                $query->where(function ($q) use ($patientName) {
-                    $q->where("p.display_name", 'LIKE', '%' . $patientName . '%')
-                        ->orWhere("fn.meta_value", 'LIKE', '%' . $patientName . '%')
-                        ->orWhere("ln.meta_value", 'LIKE', '%' . $patientName . '%');
-                });
-            }
-
-            if (isset($clinicName) && $clinicName !== '') {
-                $query->where("c.name", 'LIKE', '%' . $clinicName . '%');
-            }
-
-            if (isset($registeredOn) && $registeredOn !== '') {
-                $query->where("p.user_registered", 'LIKE', '%' . $registeredOn . '%');
-            }
-
-            if (isset($date_from) && $date_from !== '') {
-                $startDate = gmdate('Y-m-d 00:00:00', strtotime($date_from));
-                $query->where("p.user_registered", '>=', $startDate);
-            }
-
-            if (isset($date_to) && $date_to !== '') {
-                $endDate = gmdate('Y-m-d 23:59:59', strtotime($date_to));
-                $query->where("p.user_registered", '<=', $endDate);
-            }
-
-            if (isset($status) && $status !== '') {
-                $query->where("p.user_status", '=', $status);
-            }
-
-            if (!empty($params['clinic'])) {
-                $query->where("c.id", '=', $params['clinic']);
+            if (!empty($clinicName)) {
+                $cIds = KCClinic::query()->where('name', 'LIKE', '%' . $clinicName . '%')->pluck('id');
+                $cpIds = !empty($cIds) ? KCPatientClinicMapping::query()->whereIn('clinicId', $cIds)->pluck('patientId') : [];
+                $query->whereIn('p.ID', $cpIds ?: [0]);
             }
 
             if (!empty($params['doctor_id'])) {
@@ -868,151 +814,116 @@ class PatientController extends KCBaseController
             }
 
             if (!empty($patientUniqueId)) {
-                $query->where("puid.meta_value", 'LIKE', '%' . $patientUniqueId . '%');
+                $puidIds = KCUserMeta::query()->where('metaKey', 'patient_unique_id')->where('metaValue', 'LIKE', '%' . $patientUniqueId . '%')->pluck('userId');
+                $query->whereIn('p.ID', $puidIds ?: [0]);
             }
 
-            // Apply sorting if orderby parameter is provided
-            if (!empty($params['orderby'])) {
-                $orderby = $params['orderby'];
-                $direction = !empty($params['order']) && strtolower($params['order']) === 'desc' ? 'DESC' : 'ASC';
-
-                switch ($orderby) {
-                    case 'name':
-                        $query->orderBy("p.display_name", $direction);
-                        break;
-                    case 'email':
-                        $query->orderBy("p.user_email", $direction);
-                        break;
-                    case 'registered_on':
-                    case 'created_at':
-                        $query->orderBy("p.user_registered", $direction);
-                        break;
-                    case 'status':
-                        $query->orderBy("p.user_status", $direction);
-                        break;
-                    case 'id':
-                    default:
-                        $query->orderBy("p.ID", $direction);
-                        break;
-                }
-            } else {
-                // Default sorting by id descending if no sort specified
-                $query->orderBy("p.id", 'DESC');
+            if ($patient_id) $query->where("p.ID", '=', $patient_id);
+            if ($status !== null && $status !== '') $query->where("p.user_status", '=', $status);
+            if ($registeredOn) $query->where("p.user_registered", 'LIKE', '%' . $registeredOn . '%');
+            if ($date_from) $query->where("p.user_registered", '>=', gmdate('Y-m-d 00:00:00', strtotime($date_from)));
+            if ($date_to) $query->where("p.user_registered", '<=', gmdate('Y-m-d 23:59:59', strtotime($date_to)));
+            if (!empty($params['clinic'])) {
+                $cpIds = KCPatientClinicMapping::query()->where('clinicId', (int)$params['clinic'])->pluck('patientId');
+                $query->whereIn('p.ID', $cpIds ?: [0]);
             }
 
-            // Apply pagination with validation
-            $page = max(1, intval($params['page'] ?? 1));
-            $perPage = intval($params['perPage'] ?? 10);
-
-            // Get total count for pagination
-            $totalQuery = clone $query;
-            $totalQuery->removeGroupBy();
-            $total = $totalQuery->countDistinct('p.ID');
-            $perPage = isset($params['perPage']) ? (int) $params['perPage'] : 10;
-            if ($perPage <= 0) {
-                $perPage = 10;
-            }
-
-            $page = isset($params['page']) ? (int) $params['page'] : 1;
-            if ($page <= 0) {
-                $page = 1;
-            }
-
-            if ($showAll) {
-                $perPage = $total > 0 ? $total : 1;
-                $page = 1;
-            }
-
-            $totalPages = $total > 0 ? ceil($total / $perPage) : 1;
+            // 3. Count and Pagination (Do BEFORE ordering for performance)
+            $total = (int)$query->count();
+            $perPage = $showAll ? $total : max(1, (int)$perPageParam);
+            $totalPages = $perPage > 0 ? ceil($total / $perPage) : 1;
             $offset = ($page - 1) * $perPage;
 
-            if (!$showAll) {
-                $query->limit($perPage)->offset($offset);
+            // 4. Sorting
+            $orderBy = isset($params['orderby']) ? $params['orderby'] : 'id';
+            $order = !empty($params['order']) && strtoupper($params['order']) === 'ASC' ? 'ASC' : 'DESC';
+            $sortMap = ['name' => 'p.display_name', 'email' => 'p.user_email', 'registered_on' => 'p.user_registered', 'created_at' => 'p.user_registered', 'status' => 'p.user_status', 'id' => 'p.ID'];
+            $query->orderBy($sortMap[$orderBy] ?? 'p.ID', $order);
+
+            if (!$showAll) $query->limit($perPage)->offset($offset);
+
+            $patients = $query->get();
+            if ($patients->isEmpty()) {
+                return $this->response(['patients' => [], 'pagination' => ['total' => $total, 'perPage' => $perPage, 'currentPage' => $page, 'lastPage' => $totalPages]], 'Success');
             }
 
-            // Get paginated results
-            $patients = $query->get();
-
-            // Fetch active holidays for all clinics once
+            // 5. Enrichment: Batch Retrieval for visible page (Avoids N+1 and heavy Joins)
+            $patientIds = $patients->pluck('id')->toArray();
+            
+            // Batch fetch metadata
+            $metas = KCUserMeta::query()
+                ->whereIn('userId', $patientIds)
+                ->whereIn('metaKey', ['basic_data', 'patient_profile_image', 'patient_unique_id', 'first_name', 'last_name', 'contact_number', 'gender', 'blood_group', 'address', 'city', 'country', 'postal_code'])
+                ->get()->groupBy('userId');
+            
+            // Batch fetch clinic data
+            $mappings = KCPatientClinicMapping::table('pcm')
+                ->whereIn('pcm.patient_id', $patientIds)
+                ->join(KCClinic::class, 'pcm.clinic_id', '=', 'c.id', 'c')
+                ->select(['pcm.patient_id as patientId', 'c.id', 'c.name', 'c.status', 'c.email', 'c.telephone_no', 'c.address', 'c.city', 'c.state', 'c.country', 'c.postal_code', 'c.profile_image'])
+                ->get()->groupBy('patientId');
+            
+            // Batch fetch encounter counts
+            $encCounts = KCPatientEncounter::query()->whereIn('patientId', $patientIds)->groupBy('patient_id')->pluck('COUNT(*) as total', 'patient_id');
+            
             $holidayClinicIds = \App\models\KCClinicSchedule::getActiveHolidaysByModule('clinic');
 
-            // Prepare the patient data
+            // 6. Format Response
             $patientsData = [];
             foreach ($patients as $patient) {
-
-                // Decode basic_data JSON
-                $basicData = [];
-                if (!empty($patient->basic_data)) {
-                    $basicData = json_decode($patient->basic_data, true);
-                }
-
-                // Get total encounters count for this patient
-                $totalEncounters = KCPatientEncounter::query()
-                    ->where('patient_id', '=', $patient->id)
-                    ->count();
-
+                $pid = $patient->id;
+                $userMetas = $metas->has($pid) ? $metas->get($pid)->pluck('metaValue', 'metaKey')->toArray() : [];
+                $basicData = isset($userMetas['basic_data']) ? json_decode($userMetas['basic_data'], true) : [];
+                
                 $clinics = [];
-                if (!empty($patient->clinic_data)) {
-                    $clinicStrings = explode('||', $patient->clinic_data);
-                    foreach ($clinicStrings as $clinicStr) {
-                        $clinic = json_decode($clinicStr, true);
-                        if ($clinic) {
-                            $clinic['clinic_image_url'] = !empty($clinic['clinic_image_id']) ? wp_get_attachment_url($clinic['clinic_image_id']) : '';
-                            $clinic['is_holiday'] = in_array((int)$clinic['clinic_id'], $holidayClinicIds, true);
-                            $clinics[] = $clinic;
-                        }
+                if ($mappings->has($pid)) {
+                    foreach ($mappings->get($pid) as $m) {
+                        $clinics[] = [
+                            'clinic_id' => $m->id,
+                            'clinic_name' => $m->name,
+                            'clinic_status' => $m->status,
+                            'clinic_email' => $m->email,
+                            'clinic_contact_number' => $m->telephone_no,
+                            'clinic_address' => implode(', ', array_filter([$m->address, $m->city, $m->state, $m->country])),
+                            'clinic_image_url' => !empty($m->profile_image) ? wp_get_attachment_url($m->profile_image) : '',
+                            'is_holiday' => in_array((int)$m->id, $holidayClinicIds, true)
+                        ];
                     }
                 }
                 // Extract country_code and phone_number from patient contact
                 $splitContact = $this->splitContactNumber($basicData['mobile_number'] ?? '');
 
-                $patientData = [
-                    'id' => $patient->id,
+                $patientsData[] = [
+                    'id' => (int)$pid,
                     'name' => $patient->display_name,
                     'email' => $patient->email,
                     'mobileNumber' => $basicData['mobile_number'] ?? null,
                     'country_code' => $splitContact['country_code'] ?: null,
                     'phone_number' => $splitContact['phone_number'] ?: null,
                     'dob' => $basicData['dob'] ?? null,
-                    'gender' => $basicData['gender'] ?? null,
-                    'bloodGroup' => $basicData['blood_group'] ?? null,
-                    'address' => $basicData['address'] ?? null,
-                    'city' => $basicData['city'] ?? null,
-                    'country' => $basicData['country'] ?? null,
-                    'postalCode' => $basicData['postal_code'] ?? null,
+                    'gender' => $basicData['gender'] ?? ($userMetas['gender'] ?? null),
+                    'bloodGroup' => $basicData['blood_group'] ?? ($userMetas['blood_group'] ?? null),
+                    'address' => $basicData['address'] ?? ($userMetas['address'] ?? null),
+                    'city' => $basicData['city'] ?? ($userMetas['city'] ?? null),
+                    'country' => $basicData['country'] ?? ($userMetas['country'] ?? null),
+                    'postalCode' => $basicData['postal_code'] ?? ($userMetas['postal_code'] ?? null),
                     'registeredOn' => kcGetFormatedDate(gmdate('Y-m-d', strtotime($patient->user_registered))),
                     'status' => (int) $patient->status,
-                    'patient_image_url' => $patient->profile_image ? wp_get_attachment_url($patient->profile_image) : '',
-                    'patient_image_id' => !empty($patient->profile_image) ? (int) $patient->profile_image : null,
+                    'patient_image_url' => !empty($userMetas['patient_profile_image']) ? wp_get_attachment_url($userMetas['patient_profile_image']) : '',
+                    'patient_image_id' => isset($userMetas['patient_profile_image']) ? (int) $userMetas['patient_profile_image'] : null,
                     'clinics' => $clinics,
-                    // 'clinicName' => $patient->clinic_names ?: null,
-                    'patient_unique_id' => $patient->patient_unique_id,
-                    'total_encounters' => (int) $totalEncounters,
+                    'patient_unique_id' => $userMetas['patient_unique_id'] ?? null,
+                    'total_encounters' => (int) ($encCounts[$pid] ?? 0),
                 ];
-
-                $patientsData[] = $patientData;
             }
 
-            // Return the formatted data with pagination
-            $data = [
+            return $this->response([
                 'patients' => $patientsData,
-                'pagination' => [
-                    'total' => $total,
-                    'perPage' => $perPage,
-                    'currentPage' => $page,
-                    'lastPage' => $totalPages,
-                ],
-            ];
-
-            return $this->response($data, __('Patients retrieved successfully', 'kivicare-clinic-management-system'));
+                'pagination' => ['total' => $total, 'perPage' => $perPage, 'currentPage' => $page, 'lastPage' => $totalPages]
+            ], __('Patients retrieved successfully', 'kivicare-clinic-management-system'));
 
         } catch (\Exception $e) {
-            return $this->response(
-                ['error' => $e->getMessage()],
-                __('Failed to retrieve patients', 'kivicare-clinic-management-system'),
-                false,
-                500
-            );
+            return $this->response(['error' => $e->getMessage()], __('Failed to retrieve patients', 'kivicare-clinic-management-system'), false, 500);
         }
     }
 
@@ -1065,6 +976,7 @@ class PatientController extends KCBaseController
                     "bd.meta_value as basic_data",
                     "pi.meta_value as profile_image",
                     "puid.meta_value as patient_unique_id",
+                    "tz.meta_value as timezone",
                     "GROUP_CONCAT(DISTINCT CONCAT_WS('::', pcm.clinic_id, c.name, IFNULL(c.status, '')) SEPARATOR '||') as clinic_mappings"
                 ])
                 ->leftJoin(KCUserMeta::class, function ($join) {
@@ -1087,6 +999,10 @@ class PatientController extends KCBaseController
                     $join->on('p.ID', '=', 'puid.user_id')
                         ->onRaw("puid.meta_key = 'patient_unique_id'");
                 }, null, null, 'puid')
+                ->leftJoin(KCUserMeta::class, function ($join) {
+                    $join->on('p.ID', '=', 'tz.user_id')
+                        ->onRaw("tz.meta_key = 'timezone'");
+                }, null, null, 'tz')
                 ->leftJoin(KCPatientClinicMapping::class, 'p.ID', '=', 'pcm.patient_id', 'pcm')
                 ->leftJoin(KCClinic::class, 'pcm.clinic_id', '=', 'c.id', 'c')
                 ->where('p.ID', '=', $patientId)
@@ -1156,6 +1072,7 @@ class PatientController extends KCBaseController
                 'patient_image_url' => $patient->profile_image ? wp_get_attachment_url($patient->profile_image) : '',
                 'patient_image_id' => $patient->profile_image,
                 'patient_unique_id' => $patient->patient_unique_id,
+                'timezone' => $patient->timezone,
                 'total_encounters' => (int) $totalEncounters,
                 'clinic' => $clinicsArray,
             ];
@@ -1273,6 +1190,11 @@ class PatientController extends KCBaseController
                 update_user_meta($patient->id, 'patient_unique_id', sanitize_text_field($params['patient_unique_id']));
             }
 
+            // Store patient timezone in usermeta if provided
+            if (!empty($params['timezone'])) {
+                update_user_meta($patient->id, 'timezone', sanitize_text_field($params['timezone']));
+            }
+
             $patientData = [
                 'id' => $patient->id,
                 'first_name' => $patient->firstName,
@@ -1293,7 +1215,8 @@ class PatientController extends KCBaseController
                 'clinics' => $clinic_id,
                 'created_at' => current_time('mysql'),
                 'temp_password' => $patient->password,
-                'patient_unique_id' => $params['patient_unique_id'] ?? null
+                'patient_unique_id' => $params['patient_unique_id'] ?? null,
+                'timezone' => $params['timezone'] ?? null
             ];
 
             // Fire action hook for patient creation
@@ -1458,6 +1381,13 @@ class PatientController extends KCBaseController
                 }
             }
 
+            // Update patient timezone in usermeta if provided
+            if (isset($params['timezone'])) {
+                if (!empty($params['timezone'])) {
+                    update_user_meta($patient->id, 'timezone', sanitize_text_field($params['timezone']));
+                } 
+            }
+
             // Format patient data
             $patientData = [
                 'id' => $patient->id,
@@ -1477,7 +1407,8 @@ class PatientController extends KCBaseController
                 'patient_image_id' => $patient->profileImage ?: null,
                 'clinics' => $params['clinics'],
                 'updated_at' => current_time('mysql'),
-                'patient_unique_id' => $params['patient_unique_id'] ?? null
+                'patient_unique_id' => $params['patient_unique_id'] ?? null,
+                'timezone' => $params['timezone'] ?? null
             ];
             do_action('kc_patient_update', $patientData, $request);
 
@@ -1514,6 +1445,15 @@ class PatientController extends KCBaseController
             KCMedicalHistory::query()->where('patient_id', $id)->delete();
             KCMedicalProblem::query()->where('patient_id', $id)->delete();
             KCPatientClinicMapping::query()->where('patient_id', $id)->delete();
+
+            // fix: Sync deletion to Google Calendar
+            if (function_exists('isKiviCareProActive') && isKiviCareProActive()) {
+                $appointments = KCAppointment::query()->where('patient_id', $id)->get();
+                foreach ($appointments as $appointment) {
+                    GoogleCalendarIntegration::getInstance()->deleteAppointmentFromGoogleCalendars($appointment->id);
+                }
+            }
+
             KCAppointment::query()->where('patient_id', $id)->delete();
 
             // Get encounter IDs for the patient

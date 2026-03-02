@@ -18,6 +18,7 @@ use App\models\KCUser;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
+use KCProApp\controllers\api\GoogleCalendarIntegration;
 
 defined('ABSPATH') or die('Something went wrong');
 
@@ -481,6 +482,11 @@ class ClinicController extends KCBaseController
                 'description' => 'Clinic description',
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_textarea_field',
+            ],
+            'timezone' => [
+                'description' => 'Clinic admin timezone (IANA timezone identifier)',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
             ]
         ];
     }
@@ -1005,6 +1011,9 @@ class ClinicController extends KCBaseController
                         $profileImageId = ''; // No actual image ID for placeholder
                     }
 
+                    // Get timezone from user meta
+                    $timezone = get_user_meta($adminId, 'timezone', true);
+
                     $adminData = [
                         'first_name' => $firstName,
                         'last_name' => $lastName,
@@ -1012,6 +1021,7 @@ class ClinicController extends KCBaseController
                         'admin_contact_number' => $contactNumber,
                         'dob' => $dob,
                         'gender' => $gender ?: 'male',
+                        'timezone' => $timezone ?: '',
                         'clinic_admin_image_url' => $profileImageUrl,
                         'clinic_admin_image_id' => $profileImageId ?: '',
                     ];
@@ -1059,6 +1069,8 @@ class ClinicController extends KCBaseController
             // Extract country_code and phone_number from clinic contact
             $splitContact = $this->splitContactNumber($clinic->telephoneNo);
 
+            $holidayClinicIds = \App\models\KCClinicSchedule::getActiveHolidaysByModule('clinic');
+
             // Format clinic data according to your structure
             $clinicData = array_merge([
                 'clinic_name' => $clinic->name,
@@ -1066,7 +1078,7 @@ class ClinicController extends KCBaseController
                 'clinic_contact' => $clinic->telephoneNo,
                 'country_code' => $splitContact['country_code'],
                 'phone_number' => $splitContact['phone_number'],
-                'status' => $clinic->status,
+                'status' => (string) $clinic->status,
                 'specialties' => $specialtyKey,
                 'address' => $clinic->address,
                 'country' => $clinic->country,
@@ -1078,6 +1090,7 @@ class ClinicController extends KCBaseController
                 'service_count' => (int) $serviceCount,
                 'doctor_count' => (int) $doctorCount,
                 'total_appointments' => (int) $totalAppointments,
+                'is_holiday' => in_array((int)$clinic->id, $holidayClinicIds, true),
                 'total_satisfaction' => 0.0, // Default value, Pro plugin will override if active
             ], $adminData);
 
@@ -1355,6 +1368,11 @@ class ClinicController extends KCBaseController
                         }
                     }
 
+                    // Save timezone to user meta
+                    if (isset($params['timezone']) && !empty($params['timezone'])) {
+                        update_user_meta($admin->id, 'timezone', sanitize_text_field($params['timezone']));
+                    }
+
                     // Update basic_data meta
                     $admin->updateMeta('basic_data', json_encode($adminData));
                 }
@@ -1611,6 +1629,10 @@ class ClinicController extends KCBaseController
                     ->where('clinic_id', $id)
                     ->get()
                     ->each(function ($appointment) {
+                        // fix: Sync deletion to Google Calendar
+                        if (function_exists('isKiviCareProActive') && isKiviCareProActive()) {
+                            GoogleCalendarIntegration::getInstance()->deleteAppointmentFromGoogleCalendars($appointment->id);
+                        }
                         $appointment->delete();
                     });
 
@@ -1877,6 +1899,10 @@ class ClinicController extends KCBaseController
                         ->where('clinic_id', $id)
                         ->get()
                         ->each(function ($appointment) {
+                            // fix: Sync deletion to Google Calendar
+                            if (function_exists('isKiviCareProActive') && isKiviCareProActive()) {
+                                GoogleCalendarIntegration::getInstance()->deleteAppointmentFromGoogleCalendars($appointment->id);
+                            }
                             $appointment->delete();
                         });
 

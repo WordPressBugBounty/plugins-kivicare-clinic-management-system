@@ -34,6 +34,23 @@ abstract class KCBaseModel
         return static::initSchema();
     }
 
+    /**
+     * Flush cache for this model.
+     */
+    public static function flushCache(): void
+    {
+        $modelClass = static::class;
+        $cacheGroup = 'kc_query_' . str_replace('\\', '_', $modelClass);
+        
+        // Try native group flushing if supported (like in some Redis backends)
+        if (function_exists('wp_cache_flush_group')) {
+            wp_cache_flush_group($cacheGroup);
+        }
+        
+        // Also update the version key for our versioning mechanism fallback
+        wp_cache_set('kc_query_version_' . $modelClass, time(), 'kc_query_versions');
+    }
+
     // Properties will be dynamically accessed via magic methods
     private array $attributes = [];
     private array $dirtyAttributes = [];
@@ -231,6 +248,7 @@ abstract class KCBaseModel
             if ($result) {
                 // Set the new ID
                 $this->attributes[$schema['primary_key']] = $wpdb->insert_id;
+                static::flushCache();
                 return $wpdb->insert_id;
             } else {
                 KCErrorLogger::instance()->error('KCBaseModel::save - Insert failed - Error: ' . $wpdb->last_error);
@@ -245,6 +263,7 @@ abstract class KCBaseModel
 
             if ($result !== false) {
                 // KCErrorLogger::instance()->error('KCBaseModel::save - Update success - Rows affected: ' . $result);
+                static::flushCache();
                 return $this->attributes[$schema['primary_key']];
             } else {
                 KCErrorLogger::instance()->error('KCBaseModel::save - Update failed - Error: ' . $wpdb->last_error);
@@ -279,6 +298,10 @@ abstract class KCBaseModel
 
         $table = $schema['table_name'] ? ($wpdb->prefix . $schema['table_name']) : $schema['user_table_name'];
         $result = $wpdb->delete($table, [$pk => $id]);
+
+        if ($result !== false) {
+            static::flushCache();
+        }
 
         return $result !== false;
     }

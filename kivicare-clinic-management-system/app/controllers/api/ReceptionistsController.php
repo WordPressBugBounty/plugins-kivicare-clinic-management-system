@@ -413,7 +413,12 @@ class ReceptionistsController extends KCBaseController
                 'description' => __('Receptionist profile image ID', 'kivicare-clinic-management-system'),
                 'type' => 'integer',
                 'sanitize_callback' => 'absint',
-            ]
+            ],
+            'timezone' => [
+                'description' => __('Timezone', 'kivicare-clinic-management-system'),
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
         ];
     }
 
@@ -587,6 +592,13 @@ class ReceptionistsController extends KCBaseController
                 $receptionist->profileImage = null;
             }
 
+            // Update timezone in usermeta if provided
+            if (isset($params['timezone'])) {
+                if (!empty($params['timezone'])) {
+                    update_user_meta($receptionist->id, 'timezone', sanitize_text_field($params['timezone']));
+                }
+            }
+
             // Save the receptionist
             if (!$receptionist->save()) {
                 return $this->response(
@@ -649,6 +661,7 @@ class ReceptionistsController extends KCBaseController
                 'status' => $params['status'] ?? 1,
                 'receptionist_image_url' => get_user_meta($receptionistId, 'receptionist_profile_image', true) ? wp_get_attachment_url((int) get_user_meta($receptionistId, 'receptionist_profile_image', true)) : '',
                 'receptionist_image_id' => $params['receptionist_image_id'] ?? null,
+                'timezone' => $params['timezone'] ?? null,
                 'created_at' => current_time('mysql')
             ];
 
@@ -793,6 +806,11 @@ class ReceptionistsController extends KCBaseController
                 $receptionist->profileImage = (int) $params['receptionist_image_id'];
             }
 
+            // Save timezone in usermeta if provided
+            if (!empty($params['timezone'])) {
+                update_user_meta($receptionist->id, 'timezone', sanitize_text_field($params['timezone']));
+            }
+
             // Save the receptionist - the method returns boolean, not ID
             if (!$receptionist->save()) {
                 return $this->response(
@@ -839,6 +857,7 @@ class ReceptionistsController extends KCBaseController
                 'status' => $params['status'] ?? 1,
                 'receptionist_image_url' => get_user_meta($receptionistId, 'receptionist_profile_image', true) ? wp_get_attachment_url((int) get_user_meta($receptionistId, 'receptionist_profile_image', true)) : '',
                 'receptionist_image_id' => $params['receptionist_image_id'] ?? null,
+                'timezone' => $params['timezone'] ?? null,
                 'created_at' => current_time('mysql')
             ];
 
@@ -1328,6 +1347,7 @@ class ReceptionistsController extends KCBaseController
                 'city' => $basicData['city'] ?? '',
                 'country' => $basicData['country'] ?? '',
                 'postal_code' => $basicData['postal_code'] ?? '',
+                'timezone' => get_user_meta($id, 'timezone', true) ?: null,
                 'created_at' => $receptionistData->user_registered
             ];
 

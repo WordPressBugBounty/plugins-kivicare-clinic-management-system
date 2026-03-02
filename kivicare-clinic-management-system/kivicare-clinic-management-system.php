@@ -3,7 +3,7 @@
  * Plugin Name: KiviCare - Clinic & Patient Management System (EHR)
  * Plugin URI: https://kivicare.io
  * Description: KiviCare is an impressive clinic and patient management plugin (EHR). It comes with powerful shortcodes for appointment booking and patient registration.
- * Version: 4.1.4
+ * Version: 4.2.0
  * Author: iqonic design
  * Text Domain: kivicare-clinic-management-system
  * Domain Path: /languages
@@ -46,7 +46,7 @@ if (!defined('KIVI_CARE_PREFIX')) {
 }
 
 if (!defined('KIVI_CARE_VERSION')) {
-	define('KIVI_CARE_VERSION', "4.1.4");
+	define('KIVI_CARE_VERSION', "4.2.0");
 }
 
 if (!defined('KIVI_CARE_API_VERSION')) {
@@ -88,7 +88,7 @@ add_action('plugins_loaded', function () {
 		$addons = [
 			'kivicare-pro/kivicare-clinic-management-system-pro.php' => [
 				'name' => 'KiviCare Pro',
-				'version' => '4.0.6',
+				'version' => '4.1.0',
 				'constant' => 'KIVI_CARE_PRO_VERSION'
 			],
 			'kivicare-body-chart-addon/kivicare-body-chart.php' => [
@@ -147,7 +147,7 @@ add_action('plugins_loaded', function () {
 						<div class="notice notice-error is-dismissible">
 							<p><?php
 								/* translators: 1: Plugin Name, 2: Version number */
-								printf( wp_kses( __('<strong>%1$s</strong> has been deactivated. Version %2$s or higher is required for compatibility with KiviCare Lite 4.0.0.', 'kivicare-clinic-management-system'),
+								printf( wp_kses( __('<strong>%1$s</strong> has been deactivated. Version %2$s or higher is required for compatibility with KiviCare Lite ' . KIVI_CARE_VERSION, 'kivicare-clinic-management-system'),
 										['strong' => []]
 									),	
 									esc_html($data['name']),

@@ -26,6 +26,10 @@ defined('ABSPATH') or die('Something went wrong');
  * @property int|null $status
  * @property string|null $created_at
  * @property string|null $appointment_report
+ * @property string $appointment_start_utc
+ * @property string $appointment_end_utc
+ * @property string $appointment_timezone
+ * @property string|null $created_at_utc
  * 
  * @property KCClinic $clinic
  * @property KCAppointmentServiceMapping[] $services
@@ -39,6 +43,75 @@ class KCAppointment extends KCBaseModel
     const STATUS_PENDING = 2;
     const STATUS_CHECK_OUT = 3;
     const STATUS_CHECK_IN = 4;
+
+    /**
+     * Override save to freeze timezone
+     */
+    public function save(): int|\WP_Error
+    {
+        // Always update UTC columns if local columns are provided
+        if (!empty($this->appointmentStartDate) && !empty($this->appointmentStartTime)) {
+            $this->populateUtcColumns();
+        }
+
+        return parent::save();
+    }
+    /**
+     * Populate UTC columns from local date/time and timezone
+     */
+    private function populateUtcColumns(): void
+    {
+        $tz_string = $this->appointmentTimezone ?: wp_timezone_string();
+        
+        // Parse UTC-X / UTC+X strings into ±HH:MM offset format
+        if (preg_match('/^UTC([+-])([0-9]+)(?:\.([0-9]+))?(?::([0-9]+))?$/i', $tz_string, $matches)) {
+            $sign = $matches[1];
+            $hours = intval($matches[2]);
+            $minutes = 0;
+            if (isset($matches[3]) && $matches[3] !== '') {
+                $minutes = round(floatval('0.' . $matches[3]) * 60);
+            } elseif (isset($matches[4]) && $matches[4] !== '') {
+                $minutes = intval($matches[4]);
+            }
+            $tz_string = sprintf('%s%02d:%02d', $sign, $hours, $minutes);
+        }
+
+        if (!in_array($tz_string, timezone_identifiers_list()) && !preg_match('/^[+-][0-9]{2}:[0-9]{2}$/', $tz_string)) {
+            $tz_string = 'UTC';
+        }
+
+        try {
+            $wp_timezone = new \DateTimeZone($tz_string);
+            $utc_timezone = new \DateTimeZone('UTC');
+
+            // Convert start
+            $start_dt = new \DateTime($this->appointmentStartDate . ' ' . $this->appointmentStartTime, $wp_timezone);
+            $start_dt->setTimezone($utc_timezone);
+            $this->appointmentStartUtc = $start_dt->format('Y-m-d H:i:s');
+
+            // Convert end
+            if (!empty($this->appointmentEndDate) && !empty($this->appointmentEndTime)) {
+                $end_dt = new \DateTime($this->appointmentEndDate . ' ' . $this->appointmentEndTime, $wp_timezone);
+                $end_dt->setTimezone($utc_timezone);
+                $this->appointmentEndUtc = $end_dt->format('Y-m-d H:i:s');
+            } else {
+                // If end is missing, use start
+                $this->appointmentEndUtc = $this->appointmentStartUtc;
+            }
+
+            // Set created_at_utc for new records
+            if (empty($this->id) && empty($this->createdAtUtc)) {
+                $now = new \DateTime('now', $utc_timezone);
+                $this->createdAtUtc = $now->format('Y-m-d H:i:s');
+            }
+        } catch (\Exception $e) {
+            // Silently fail or log if needed, though DateTime with valid strings shouldn't fail
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[KCAppointment] UTC conversion failed: ' . $e->getMessage());
+            }
+        }
+    }
+
     /**
      * Initialize the schema with validation rules
      */
@@ -143,6 +216,28 @@ class KCAppointment extends KCBaseModel
                     'column' => 'appointment_report',
                     'type' => 'longtext',
                     'nullable' => true,
+                ],
+                'appointmentStartUtc' => [
+                    'column' => 'appointment_start_utc',
+                    'type' => 'datetime',
+                    'nullable' => false,
+                ],
+                'appointmentEndUtc' => [
+                    'column' => 'appointment_end_utc',
+                    'type' => 'datetime',
+                    'nullable' => false,
+                ],
+                'createdAtUtc' => [
+                    'column' => 'created_at_utc',
+                    'type' => 'datetime',
+                    'nullable' => true,
+                ],
+                'appointmentTimezone' => [
+                    'column' => 'appointment_timezone',
+                    'type' => 'varchar',
+                    'nullable' => false,
+                    'default' => 'UTC',
+                    'sanitizers' => ['sanitize_text_field'],
                 ],
             ],
             'timestamps' => false,
@@ -388,7 +483,7 @@ class KCAppointment extends KCBaseModel
     {
         return self::getCount([
             'time_frame' => 'upcoming',
-            'status' => self::STATUS_BOOKED // Only count booked appointments
+            'status' => [self::STATUS_BOOKED, self::STATUS_PENDING, self::STATUS_CHECK_IN] // Include active statuses
         ], $user_role, $user_id);
     }
 }

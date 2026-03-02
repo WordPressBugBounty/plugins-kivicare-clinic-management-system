@@ -647,7 +647,7 @@ class DoctorSessionController extends KCBaseController
             // Group sessions by doctor-clinic combination
             $groupedSessions = [];
 
-            // Day translation map - translate at source
+            // Day translation map with order - translate at source
             $dayTranslations = [
                 'MON' => __('Mon', 'kivicare-clinic-management-system'),
                 'TUE' => __('Tue', 'kivicare-clinic-management-system'),
@@ -657,6 +657,8 @@ class DoctorSessionController extends KCBaseController
                 'SAT' => __('Sat', 'kivicare-clinic-management-system'),
                 'SUN' => __('Sun', 'kivicare-clinic-management-system'),
             ];
+
+            $dayOrder = array_keys($dayTranslations);
 
             foreach ($allSessions as $session) {
                 $key = $session->doctorId . '_' . $session->clinicId;
@@ -683,16 +685,20 @@ class DoctorSessionController extends KCBaseController
                     ];
                 }
 
-                // Translate day immediately at source
                 $dayCode = strtoupper($session->day);
-                $translatedDay = isset($dayTranslations[$dayCode]) ? $dayTranslations[$dayCode] : $dayCode;
-                $groupedSessions[$key]['days'][] = $translatedDay;
+                $groupedSessions[$key]['days'][] = $dayCode;
             }
 
-            // Convert to array and format days (already translated)
             $processedSessions = [];
             foreach ($groupedSessions as $group) {
-                $group['days'] = implode(', ', array_unique($group['days']));
+                $uniqueDays = array_unique($group['days']);
+                $sortedDays = [];
+                foreach ($dayOrder as $day) {
+                    if (in_array($day, $uniqueDays)) {
+                        $sortedDays[] = $dayTranslations[$day];
+                    }
+                }
+                $group['days'] = implode(', ', $sortedDays);
                 $processedSessions[] = $group;
             }
 

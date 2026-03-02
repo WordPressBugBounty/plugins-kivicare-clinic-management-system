@@ -15,6 +15,7 @@ class KCBookAppointment extends KCShortcodeAbstract
         'clinic_id' => 0,
         'doctor_id' => 0,
         'service_id' => 0,
+        'timezone' => '',
     ];
     protected $assets_dir = KIVI_CARE_DIR . '/dist';
     protected $js_entry = 'app/shortcodes/assets/js/KCBookAppointment.jsx';
@@ -83,10 +84,25 @@ class KCBookAppointment extends KCShortcodeAbstract
 
         $show_print_button = isset($widgetSettings['widget_print']) ? filter_var($widgetSettings['widget_print'], FILTER_VALIDATE_BOOLEAN) : false;
 
-        $timezone_string = get_option('timezone_string') ?: 'UTC';
-
         // Get default clinic ID
         $default_clinic_id = KCClinic::kcGetDefaultClinicId();
+
+        // Get timezone from shortcode parameter, or fallback to admin/site timezone
+        $timezone_string = '';
+        if (!empty($atts['timezone'])) {
+            $timezone_string = $atts['timezone'];
+        } else {
+            $timezone_string = wp_timezone_string();
+            if ($default_clinic_id) {
+                $default_clinic = KCClinic::find($default_clinic_id);
+                if ($default_clinic && !empty($default_clinic->clinicAdminId)) {
+                    $admin_timezone = get_user_meta($default_clinic->clinicAdminId, 'timezone', true);
+                    if (!empty($admin_timezone)) {
+                        $timezone_string = $admin_timezone;
+                    }
+                }
+            }
+        }
 
         $data_attrs = [
             'data-form-id' => esc_attr($atts['form_id']),

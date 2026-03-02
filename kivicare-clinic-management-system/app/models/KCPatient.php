@@ -149,38 +149,23 @@ class KCPatient extends KCBaseModel
             update_user_meta($this->id, 'patient_profile_image', (int) $this->profileImage);
         }
 
+        // Timezone Handling
+        $timezone = $this->timezone ?? null;
+        if (!empty($timezone) && !in_array($timezone, timezone_identifiers_list(), true)) {
+            return new WP_Error('invalid_timezone', 'Invalid timezone identifier');
+        }
+        
+        // Fallback to WP timezone if empty
+        if (empty($timezone)) {
+            $timezone = wp_timezone_string();
+        }
+
+        update_user_meta($this->id, 'kc_timezone', $timezone);
+
         return $this->id;
     }
 
-    /**
-     * Update doctor status
-     *
-     * @param int|string $status 0 or 1, or 'active'/'inactive'
-     * @return bool
-     */
-    public function updateStatus($status): bool
-    {
-        if (empty($this->id)) {
-            return false;
-        }
-
-        global $wpdb;
-        // Accept 0/1 or 'active'/'inactive'
-        $user_status = ($status === 'active' || $status === 1 || $status === '1' || $status === 0 || $status === '0')
-            ? (in_array($status, [0, '0', 'active']) ? 0 : 1)
-            : 1;
-        $result = $wpdb->update(
-            $wpdb->base_prefix . 'users',
-            ['user_status' => $user_status],
-            ['ID' => (int) $this->id]
-        );
-
-        if ($result !== false) {
-            $this->status = $user_status;
-            return true;
-        }
-        return false;
-    }
+  
 
     public function __get(string $property)
     {
@@ -210,11 +195,13 @@ class KCPatient extends KCBaseModel
             'city',
             'state',
             'country',
-            'postalCode'
+            'postalCode',
+            'timezone'
         ];
 
         if (in_array($property, $metaFields, true)) {
-            return $this->getMeta(kc_snake_case($property));
+            $metaKey = ($property === 'timezone') ? 'kc_timezone' : kc_snake_case($property);
+            return $this->getMeta($metaKey);
         }
 
 
@@ -256,9 +243,9 @@ class KCPatient extends KCBaseModel
         switch ($user_role) {
             case $kcbase->getDoctorRole():
                 // Get patient IDs from appointments, encounters, and user meta
-                $appointmentPatientIds = KCAppointment::query()->where('doctorId', $user_id)->select(['patient_id'])->get()->pluck('patientId')->unique()->toArray();
-                $encounterPatientIds = KCPatientEncounter::query()->where('doctorId', $user_id)->select(['patient_id'])->get()->pluck('patientId')->unique()->toArray();
-                $addedPatientIds = KCUserMeta::query()->where('metaKey', 'patient_added_by')->where('metaValue', $user_id)->select(['user_id'])->get()->pluck('userId')->unique()->toArray();
+                $appointmentPatientIds = KCAppointment::query()->where('doctorId', $user_id)->pluck('patient_id');
+                $encounterPatientIds = KCPatientEncounter::query()->where('doctorId', $user_id)->pluck('patient_id');
+                $addedPatientIds = KCUserMeta::query()->where('metaKey', 'patient_added_by')->where('metaValue', $user_id)->pluck('user_id');
                 // Merge all unique patient IDs
                 $allPatientIds = array_unique(array_merge($appointmentPatientIds, $encounterPatientIds, $addedPatientIds));
 
@@ -278,14 +265,14 @@ class KCPatient extends KCBaseModel
                         $clinic_ids[] = $clinic_id;
                     }
                 } else { // Clinic Admin
-                    $clinic_ids = KCClinic::query()->where('clinic_admin_id', $user_id)->get()->map(fn($clinic) => $clinic->id)->toArray();
+                    $clinic_ids = KCClinic::query()->where('clinic_admin_id', $user_id)->pluck('id');
                 }
 
                 if (empty($clinic_ids)) {
                     return 0;
                 }
                 // Get all patient IDs associated with these clinics
-                $patientIds = KCPatientClinicMapping::query()->whereIn('clinicId', $clinic_ids)->select(['patient_id'])->get()->pluck('patientId')->unique()->toArray();
+                $patientIds = KCPatientClinicMapping::query()->whereIn('clinicId', $clinic_ids)->pluck('patient_id');
                 if (empty($patientIds)) {
                     return 0;
                 }

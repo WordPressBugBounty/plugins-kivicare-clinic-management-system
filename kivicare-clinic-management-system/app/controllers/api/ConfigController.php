@@ -602,7 +602,22 @@ class ConfigController extends KCBaseController
                 $response = array_merge($response, $appointment_settings_response->get_data()['data']);
             }
 
-            $response['wp_timezone'] = wp_timezone_string();
+            // Get user-specific timezone based on role, fallback to WP site timezone
+            $user_timezone = false;
+            if ($currentLoginUserRole === 'administrator') {
+                // For admin, get timezone from the default clinic's admin user
+                $default_clinic_id = KCClinic::kcGetDefaultClinicId();
+                if ($default_clinic_id) {
+                    $default_clinic = KCClinic::find($default_clinic_id);
+                    if ($default_clinic && !empty($default_clinic->clinicAdminId)) {
+                        $user_timezone = get_user_meta($default_clinic->clinicAdminId, 'timezone', true);
+                    }
+                }
+            } else {
+                // For clinic_admin, doctor, receptionist, patient — use their own timezone
+                $user_timezone = get_user_meta($user_id, 'timezone', true);
+            }
+            $response['wp_timezone'] = !empty($user_timezone) ? $user_timezone : false;
             $response['current_server_time'] = current_time('mysql');
 
             $response['only_same_day_book'] = $options['restrict_only_same_day_book_appointment'] ?? 'off';

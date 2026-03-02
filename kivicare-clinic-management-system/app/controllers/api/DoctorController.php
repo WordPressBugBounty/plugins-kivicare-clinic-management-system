@@ -22,6 +22,7 @@ use App\models\KCPatientEncounter;
 use App\models\KCAppointmentServiceMapping;
 use App\models\KCPaymentsAppointmentMapping;
 use App\models\KCCustomField;
+use KCProApp\controllers\api\GoogleCalendarIntegration;
 
 
 defined('ABSPATH') or die('Something went wrong');
@@ -626,7 +627,12 @@ class DoctorController extends KCBaseController
                 'description' => 'Doctor Signature',
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_text_field',
-            ]
+            ],
+            'timezone' => [
+                'description' => 'Doctor timezone',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
         ];
 
         return apply_filters('kc_doctor_create_endpoint_args', $args);
@@ -1071,7 +1077,8 @@ class DoctorController extends KCBaseController
                     "bd.meta_value as basic_data",
                     "ds.meta_value as doctor_signature",
                     "dd.meta_value as doctor_description",
-                    "pi.meta_value as profile_image_id"
+                    "pi.meta_value as profile_image_id",
+                    "tz.meta_value as timezone"
                 ])
                 ->leftJoin(KCUserMeta::class, function ($join) {
                     $join->on('d.ID', '=', 'um_first.user_id')
@@ -1097,6 +1104,10 @@ class DoctorController extends KCBaseController
                     $join->on('d.ID', '=', 'pi.user_id')
                         ->onRaw("pi.meta_key = 'doctor_profile_image'");
                 }, null, null, 'pi')
+                ->leftJoin(KCUserMeta::class, function ($join) {
+                    $join->on('d.ID', '=', 'tz.user_id')
+                        ->onRaw("tz.meta_key = 'timezone'");
+                }, null, null, 'tz')
                 ->where('d.ID', '=', $id)
                 ->first();
 
@@ -1204,6 +1215,7 @@ class DoctorController extends KCBaseController
                     sanitize_textarea_field($doctorData->doctor_description) : '',
 
                 'created_at' => $doctorData->user_registered,
+                'timezone' => $doctorData->timezone ?? null,
                 'service_count' => (int) $serviceCount,
                 'review_count' => (int) $reviewCount
             ];
@@ -1311,6 +1323,14 @@ class DoctorController extends KCBaseController
                 }
             }
 
+            // Store doctor timezone in usermeta if provided
+            if (!empty($params['timezone'])) {
+                $tz_value = $params['timezone'] ?? null;
+                if (!empty($tz_value)) {
+                    update_user_meta($doctor->id, 'timezone', sanitize_text_field($tz_value));
+                }
+            }
+
             // Now call save 
             $saveResult = $doctor->save();
             if (is_wp_error($saveResult)) {
@@ -1378,7 +1398,8 @@ class DoctorController extends KCBaseController
                 'qualifications' => $doctor->qualifications,
                 'specialties' => $doctor->specialties,
                 'doctor_image_url' => $doctor->profileImage ? wp_get_attachment_url($doctor->profileImage) : '',
-                'created_at' => current_time('mysql')
+                'created_at' => current_time('mysql'),
+                'timezone' => $params['timezone'] ?? null
             ];
 
             // Merge clinic info if available
@@ -1544,6 +1565,7 @@ class DoctorController extends KCBaseController
                 'profile_image' => ['profileImage', 'absint', 'doctor_profile_image'],
                 'doctor_image_id' => ['profileImage', 'absint', 'doctor_profile_image'],
                 'status' => ['status', null, null],
+                'timezone' => ['timezone', 'sanitize_text_field', 'timezone'],
             ];
 
             // Apply partial updates
@@ -1686,6 +1708,7 @@ class DoctorController extends KCBaseController
                     wp_get_attachment_url($doctorData->profile_image_id) : '',
                 'doctor_image_id' => !empty($doctorData->profile_image_id) ?
                     (int) $doctorData->profile_image_id : null,
+                'timezone' => get_user_meta($id, 'timezone', true) ?: null,
                 'updated_at' => current_time('mysql')
             ];
 
@@ -2336,6 +2359,14 @@ class DoctorController extends KCBaseController
                     $telemed_provider?->cancel_meeting_by_appointment($appointmentId);
                 }
             } catch (\Exception) {
+            }
+
+
+            // fix: Sync deletion to Google Calendar
+            if (function_exists('isKiviCareProActive') && isKiviCareProActive()) {
+                foreach ($appointmentIds as $appointmentId) {
+                    GoogleCalendarIntegration::getInstance()->deleteAppointmentFromGoogleCalendars($appointmentId);
+                }
             }
 
             KCAppointment::query()->whereIn('id', $appointmentIds)->delete();

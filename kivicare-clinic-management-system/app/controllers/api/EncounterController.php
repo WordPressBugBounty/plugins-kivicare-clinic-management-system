@@ -21,6 +21,7 @@ use App\models\KCPaymentsAppointmentMapping;
 use App\models\KCReceptionistClinicMapping;
 use App\models\KCCustomFieldData;
 use App\baseClasses\KCErrorLogger;
+use KCProApp\controllers\api\GoogleCalendarIntegration;
 
 
 defined('ABSPATH') or die('Something went wrong');
@@ -1142,9 +1143,15 @@ class EncounterController extends KCBaseController
 
                         // Delete related appointment if exists
                         if ($encounter->appointmentId) {
-                            KCAppointmentServiceMapping::query()->where('appointment_id', $encounter->appointmentId)->delete();
-                            KCPaymentsAppointmentMapping::query()->where('appointment_id', $encounter->appointmentId)->delete();
-                            KCAppointment::query()->where('id', $encounter->appointmentId)->delete();
+                            $appointmentId = $encounter->appointmentId;
+                            KCAppointmentServiceMapping::query()->where('appointment_id', $appointmentId)->delete();
+                            KCPaymentsAppointmentMapping::query()->where('appointment_id', $appointmentId)->delete();
+                            KCAppointment::query()->where('id', $appointmentId)->delete();
+
+                            // fix: Sync deletion to Google Calendar
+                            if (function_exists('isKiviCareProActive') && isKiviCareProActive()) {
+                                GoogleCalendarIntegration::getInstance()->deleteAppointmentFromGoogleCalendars($appointmentId);
+                            }
                         }
 
                         $deleted = KCPatientEncounter::query()->where('id', $encounterId)->delete();
@@ -1245,9 +1252,15 @@ class EncounterController extends KCBaseController
 
                 // Delete related appointment if exists
                 if ($encounter->appointmentId) {
-                    KCAppointmentServiceMapping::query()->where('appointment_id', $encounter->appointmentId)->delete();
-                    KCPaymentsAppointmentMapping::query()->where('appointment_id', $encounter->appointmentId)->delete();
-                    KCAppointment::query()->where('id', $encounter->appointmentId)->delete();
+                    $appointmentId = $encounter->appointmentId;
+                    KCAppointmentServiceMapping::query()->where('appointment_id', $appointmentId)->delete();
+                    KCPaymentsAppointmentMapping::query()->where('appointment_id', $appointmentId)->delete();
+                    KCAppointment::query()->where('id', $appointmentId)->delete();
+
+                    // fix: Sync deletion to Google Calendar
+                    if (function_exists('isKiviCareProActive') && isKiviCareProActive()) {
+                        GoogleCalendarIntegration::getInstance()->deleteAppointmentFromGoogleCalendars($appointmentId);
+                    }
                 }
 
                 // Delete the encounter

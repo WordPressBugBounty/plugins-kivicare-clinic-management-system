@@ -19,6 +19,7 @@ use App\models\KCServiceDoctorMapping;
 use App\models\KCAppointmentServiceMapping;
 use App\models\KCPaymentsAppointmentMapping;
 use App\models\KCUserMeta;
+use App\models\KCUser;
 use App\models\KCPatientMedicalReport;
 use App\services\KCAppointmentDataService;
 use App\services\KCTimeSlotService;
@@ -48,6 +49,39 @@ class AppointmentsController extends KCBaseController
      * @var string The base route for this controller
      */
     protected $route = 'appointments';
+
+    /**
+     * Sync appointment to Google Calendar
+     * 
+     * @param int $appointmentId
+     * @param array $appointmentData
+     * @param int $status
+     * @return void
+     */
+    protected function syncAppointmentToGoogleCalendars($appointmentId, $appointmentData, $status)
+    {
+        if (!function_exists('isKiviCareProActive') || !isKiviCareProActive()) {
+            return;
+        }
+
+
+        $clinic = KCClinic::find($appointmentData['clinicId'] ?? 0);
+        $patient = KCPatient::find($appointmentData['patientId'] ?? 0);
+        $doctor = KCDoctor::find($appointmentData['doctorId'] ?? 0);
+
+        $appointmentServices = KCAppointmentServiceMapping::query()->where('appointmentId', $appointmentId)->get();
+        
+        $appointmentData['status'] = $status;
+
+        GoogleCalendarIntegration::getInstance()->updateAppointmentToGoogleCalendars(
+            $appointmentId, 
+            $appointmentData, 
+            $clinic, 
+            $patient, 
+            $doctor, 
+            $appointmentServices
+        );
+    }
 
     /**
      * Get common arguments used across multiple endpoints
@@ -537,8 +571,66 @@ class AppointmentsController extends KCBaseController
                 'type' => 'boolean',
                 'default' => true,
                 'sanitize_callback' => 'rest_sanitize_boolean',
+            ],
+            'timezone' => [
+                'description' => 'Timezone for date/time display (e.g., America/New_York, UTC-5).',
+                'type' => 'string',
+                'validate_callback' => function ($param) {
+                    $formatted = $this->formatTimezoneString($param);
+                    return in_array($formatted, timezone_identifiers_list()) || preg_match('/^[+-][0-9]{2}:[0-9]{2}$/', $formatted);
+                },
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'target_timezone' => [
+                'description' => 'Target timezone for date/time display (e.g., America/New_York, UTC-5).',
+                'type' => 'string',
+                'validate_callback' => function ($param) {
+                    $formatted = $this->formatTimezoneString($param);
+                    return in_array($formatted, timezone_identifiers_list()) || preg_match('/^[+-][0-9]{2}:[0-9]{2}$/', $formatted);
+                },
+                'sanitize_callback' => 'sanitize_text_field',
             ]
         ];
+    }
+
+    /**
+     * Format timezone string (e.g. UTC+2.5 to +02:30, America/New_York)
+     *
+     * @param string|null $timezone
+     * @return string
+     */
+    private function formatTimezoneString($timezone)
+    {
+        if (empty($timezone)) {
+            return wp_timezone_string();
+        }
+
+        // If it's a valid timezone identifier, return as is
+        if (in_array($timezone, timezone_identifiers_list())) {
+            return $timezone;
+        }
+
+        // Check for manual UTC offsets (e.g., UTC+2, UTC-5.5, UTC+05:30)
+        // This covers formats: UTC+2, UTC-5.5, UTC+05:30
+        if (preg_match('/^UTC([+-])([0-9]+)(?:\.([0-9]+))?(?::([0-9]+))?$/i', $timezone, $matches)) {
+            $sign = $matches[1];
+            $hours = intval($matches[2]);
+            $minutes = 0;
+            
+            if (isset($matches[3]) && $matches[3] !== '') {
+                // Decimal format (e.g. UTC+5.5) -> minutes will be round(0.5 * 60)
+                $fraction = floatval('0.' . $matches[3]);
+                $minutes = round($fraction * 60);
+            } elseif (isset($matches[4]) && $matches[4] !== '') {
+                // Colon format (e.g. UTC+05:30)
+                $minutes = intval($matches[4]);
+            }
+            
+            // Format to ±HH:MM
+            return sprintf('%s%02d:%02d', $sign, $hours, $minutes);
+        }
+
+        return wp_timezone_string();
     }
 
     /**
@@ -583,6 +675,16 @@ class AppointmentsController extends KCBaseController
             'date' => $this->getCommonArgs()['date'],
             'date_from' => $this->getCommonArgs()['date'],
             'date_to' => $this->getCommonArgs()['date'],
+            'timezone' => [
+                'description' => 'Timezone for date/time display (e.g., America/New_York, Asia/Kolkata). Defaults to WordPress timezone.',
+                'type' => 'string',
+                'validate_callback' => function ($param) {
+                    $formatted = $this->formatTimezoneString($param);
+                    // Either a valid identifier or a strictly formatted offset ±HH:MM
+                    return in_array($formatted, timezone_identifiers_list()) || preg_match('/^[+-][0-9]{2}:[0-9]{2}$/', $formatted);
+                },
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
             'clinic' => [
                 'description' => 'Filter by clinic ID',
                 'type' => 'integer',
@@ -666,6 +768,16 @@ class AppointmentsController extends KCBaseController
                 },
                 'sanitize_callback' => function ($param) {
                     return strtolower($param) === 'all' ? 'all' : absint($param);
+                },
+            ],
+            'timeFrame' => [
+                'description' => 'Filter by time frame (all, upcoming, past)',
+                'type' => 'string',
+                'validate_callback' => function ($param) {
+                    return in_array(strtolower($param), ['all', 'upcoming', 'past']);
+                },
+                'sanitize_callback' => function ($param) {
+                    return strtolower(sanitize_text_field($param));
                 },
             ]
         ];
@@ -795,6 +907,12 @@ class AppointmentsController extends KCBaseController
                 },
                 'sanitize_callback' => 'absint',
             ],
+            'timezone' => [
+                'description' => 'Timezone for appointment',
+                'type' => 'string',
+                'required' => false,
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
         ];
 
         return apply_filters('kc_appointment_create_endpoint_args', $args);
@@ -855,16 +973,12 @@ class AppointmentsController extends KCBaseController
             'date_from' => [
                 'description' => 'Filter appointments from this date (YYYY-MM-DD)',
                 'type' => 'string',
+                // fix: Removed future-date restriction — export must support upcoming appointment dates.
                 'validate_callback' => function ($param) {
                     if (!empty($param)) {
                         $date = DateTime::createFromFormat('Y-m-d', $param);
                         if (!$date || $date->format('Y-m-d') !== $param) {
                             return new WP_Error('invalid_date', __('Invalid date format. Use YYYY-MM-DD', 'kivicare-clinic-management-system'));
-                        }
-                        // Special logic: Date ≤ current date validation
-                        $currentDate = new DateTime();
-                        if ($date > $currentDate) {
-                            return new WP_Error('future_date', __('Date cannot be in the future', 'kivicare-clinic-management-system'));
                         }
                     }
                     return true;
@@ -879,11 +993,6 @@ class AppointmentsController extends KCBaseController
                         $date = DateTime::createFromFormat('Y-m-d', $param);
                         if (!$date || $date->format('Y-m-d') !== $param) {
                             return new WP_Error('invalid_date', __('Invalid date format. Use YYYY-MM-DD', 'kivicare-clinic-management-system'));
-                        }
-                        // Special logic: Date ≤ current date validation
-                        $currentDate = new DateTime();
-                        if ($date > $currentDate) {
-                            return new WP_Error('future_date', __('Date cannot be in the future', 'kivicare-clinic-management-system'));
                         }
                     }
                     return true;
@@ -1186,6 +1295,12 @@ class AppointmentsController extends KCBaseController
             // Get and validate parameters
             $params = $request->get_params();
 
+            if (!empty($params['timezone'])) {
+                $params['target_timezone'] = $this->formatTimezoneString($params['timezone']);
+            } elseif (!empty($params['target_timezone'])) {
+                $params['target_timezone'] = $this->formatTimezoneString($params['target_timezone']);
+            }
+
             $settings = AppointmentSetting::kcAppointmentRestrictionData();
             $is_same_day = in_array($settings['only_same_day_book'] ?? '', [true, 'on', 1, '1'], true);
 
@@ -1333,7 +1448,18 @@ class AppointmentsController extends KCBaseController
         $pre = (int) ($settings['pre_book'] ?? 0);
         $post = (int) ($settings['post_book'] ?? 365);
 
-        $today = new DateTime('today');
+        // Calculate "today" based on target timezone to align with frontend calendars
+        $targetTimezoneStr = $params['target_timezone'] ?? wp_timezone_string();
+        try {
+            $targetTz = new \DateTimeZone($targetTimezoneStr);
+        } catch (\Exception $e) {
+            $targetTz = new \DateTimeZone(wp_timezone_string());
+        }
+        $todayTarget = new \DateTime('now', $targetTz);
+        // We only care about the date string, then reset timezone to ease DateTime comparison logic 
+        $today = new \DateTime($todayTarget->format('Y-m-d'));
+        $today->setTime(0, 0, 0);
+
         $start = (clone $today)->modify("+{$pre} days");
         $end = (clone $today)->modify("+{$post} days");
 
@@ -1341,25 +1467,25 @@ class AppointmentsController extends KCBaseController
         $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
         $monthSlots = [];
 
-        // Loop through each day in the month
-        for ($day = 1; $day <= $daysInMonth; $day++) {
-            $dateString = sprintf('%04d-%02d-%02d', $year, $month, $day);
-            $currentDate = new DateTime($dateString);
+        // Batch fetch all data for the month once (Optimization)
+        // This avoids N+1 queries for appointments, holidays, sessions
+        $cachedMonthData = KCAppointmentDataService::batchFetchMonthData(
+            $params['doctor_id'],
+            $params['clinic_id'],
+            $month,
+            $year
+        );
+
+        // Loop through an expanded range to account for timezone spillovers
+        $monthStartDay = new DateTime(sprintf('%04d-%02d-01', $year, $month));
+        $monthStartDay->modify('-2 days');
+        $daysToIterate = $daysInMonth + 4; // covers -2 to end+2
+        
+        for ($i = 0; $i <= $daysToIterate; $i++) {
+            $currentDate = clone $monthStartDay;
+            $currentDate->modify("+{$i} days");
+            $dateString = $currentDate->format('Y-m-d');
             $currentDate->setTime(0, 0, 0);
-
-            // Skip if outside booking window
-            if ($is_same_day && $currentDate != $today) {
-                continue;
-            }
-
-            if (!$is_same_day && ($currentDate < $start || $currentDate > $end)) {
-                continue;
-            }
-
-            // Skip past dates
-            if ($currentDate < $today) {
-                continue;
-            }
 
             // Prepare params for this specific date
             $dateParams = $params;
@@ -1367,8 +1493,8 @@ class AppointmentsController extends KCBaseController
             $dateParams['only_available_slots'] = false;
 
             try {
-                // Prepare data for slot generation
-                $slotData = KCAppointmentDataService::prepareSlotGenerationData($dateParams);
+                // Prepare data for slot generation using in-memory cached data
+                $slotData = KCAppointmentDataService::prepareSlotGenerationDataFromCache($dateParams, $cachedMonthData);
 
                 // Create the slot generator
                 $slotGenerator = new KCTimeSlotService($slotData);
@@ -1376,30 +1502,41 @@ class AppointmentsController extends KCBaseController
                 // Generate slots
                 $slots = $slotGenerator->generateSlots();
 
-                // Count total and available slots
-                // Note: Booked appointment times are already excluded by splitSessionIntoChunks()
-                // The 'available' flag indicates if the slot is in the future (not in the past)
-                $totalSlots = 0;
-                $availableSlots = 0;
-
                 foreach ($slots as $session) {
                     foreach ($session as $slot) {
-                        $totalSlots++;
-                        // Only count future slots as available
-                        if (isset($slot['available']) && $slot['available'] === true) {
-                            $availableSlots++;
+                        $actualSlotDate = substr($slot['datetime'], 0, 10);
+                        
+                        // Enforce booking constraints manually on actual slot date
+                        $actualDateObj = new DateTime($actualSlotDate);
+                        $actualDateObj->setTime(0, 0, 0);
+                        
+                        if ($is_same_day && $actualDateObj != $today) {
+                            continue;
+                        }
+                        if (!$is_same_day && ($actualDateObj < $start || $actualDateObj > $end)) {
+                            continue;
+                        }
+                        if ($actualDateObj < $today) {
+                            continue;
+                        }
+                        
+                        // Check if actualSlotDate belongs to the requested month/year
+                        if ((int) $actualDateObj->format('n') === (int) $month && (int) $actualDateObj->format('Y') === (int) $year) {
+                            if (!isset($monthSlots[$actualSlotDate])) {
+                                $monthSlots[$actualSlotDate] = [
+                                    'total_count' => 0,
+                                    'available_count' => 0,
+                                    'date' => $actualSlotDate,
+                                    'day_of_week' => (int) $actualDateObj->format('w')
+                                ];
+                            }
+                            
+                            $monthSlots[$actualSlotDate]['total_count']++;
+                            if (isset($slot['available']) && $slot['available'] === true) {
+                                $monthSlots[$actualSlotDate]['available_count']++;
+                            }
                         }
                     }
-                }
-
-                // Only add to response if there are slots
-                if ($totalSlots > 0) {
-                    $monthSlots[$dateString] = [
-                        'total_count' => $totalSlots,
-                        'available_count' => $availableSlots,
-                        'date' => $dateString,
-                        'day_of_week' => (int) $currentDate->format('w')
-                    ];
                 }
             } catch (\Exception $e) {
                 // Skip this date if it fails
@@ -1435,9 +1572,18 @@ class AppointmentsController extends KCBaseController
         $settings = (new \App\controllers\api\SettingsController\AppointmentSetting())->kcAppointmentRestrictionData();
         $is_same_day = in_array($settings['only_same_day_book'] ?? '', [true, 'on', 1, '1'], true);
 
-        // 'today' keyword automatically sets time to 00:00:00
-        $today = new DateTime('today');
-        $requested = new DateTime($params['date']);
+        // Calculate "today" based on target timezone to align with frontend calendars
+        $targetTimezoneStr = $params['target_timezone'] ?? wp_timezone_string();
+        try {
+            $targetTz = new \DateTimeZone($targetTimezoneStr);
+        } catch (\Exception $e) {
+            $targetTz = new \DateTimeZone(wp_timezone_string());
+        }
+        $todayTarget = new \DateTime('now', $targetTz);
+        $today = new \DateTime($todayTarget->format('Y-m-d'));
+        $today->setTime(0, 0, 0);
+        
+        $requested = new \DateTime($params['date']);
         $requested->setTime(0, 0, 0);
 
         if ($is_same_day) {
@@ -1501,16 +1647,61 @@ class AppointmentsController extends KCBaseController
         }
 
         // Prepare data for slot generation using the data service
-        $slotData = KCAppointmentDataService::prepareSlotGenerationData($params);
+        // To handle timezone overlaps, fetch slots for TargetDate-1, TargetDate, TargetDate+1
+        $targetDateStr = $params['date'];
+        $allSlots = [];
+        $debugInfo = null;
+        
+        foreach ([-1, 0, 1] as $offset) {
+            $currentDate = new \DateTime($targetDateStr);
+            if ($offset !== 0) {
+                $currentDate->modify("$offset day");
+            }
+            $currentDateStr = $currentDate->format('Y-m-d');
+            
+            $offsetParams = $params;
+            $offsetParams['date'] = $currentDateStr;
+            
+            try {
+                $slotData = KCAppointmentDataService::prepareSlotGenerationData($offsetParams);
+                $slotGenerator = new KCTimeSlotService($slotData);
+                $offsetSlots = $slotGenerator->generateSlots();
+                
+                if ($offset === 0) {
+                    $debugInfo = $slotGenerator->getDebugInfo();
+                }
+                
+                // Keep only slots corresponding to target date
+                foreach ($offsetSlots as $sessionSlots) {
+                    foreach ($sessionSlots as $slot) {
+                        $slotDate = substr($slot['datetime'], 0, 10);
+                        if ($slotDate === $targetDateStr) {
+                            $allSlots[] = $slot;
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                // skip if, for instance, doctor is on leave on the offset date
+            }
+        }
+        
+        if (!$debugInfo) {
+            $debugInfo = [
+                'service_duration_sum' => 0,
+                'sessions_count' => 0,
+                'appointments_count' => 0,
+                'source_timezone' => 'UTC',
+                'target_timezone' => 'UTC'
+            ];
+        }
+        
+        // Sort the flat array of allSlots by time
+        usort($allSlots, function($a, $b) {
+            return strcmp($a['time_format'], $b['time_format']);
+        });
 
-        // Create the slot generator with prepared data
-        $slotGenerator = new KCTimeSlotService($slotData);
-
-        // Generate slots
-        $slots = $slotGenerator->generateSlots();
-
-        // Get additional metadata
-        $debugInfo = $slotGenerator->getDebugInfo();
+        // The UI usually expects an array of sessions, we just group them into one session
+        $slots = [$allSlots];
         // Format response data
         $responseData = [
             'date' => $params['date'],
@@ -1523,13 +1714,13 @@ class AppointmentsController extends KCBaseController
             'service_duration_minutes' => $debugInfo['service_duration_sum'],
             'slots_by_session' => $slots,
             'metadata' => [
-                'weekday' => $debugInfo['weekday'],
                 'sessions_found' => $debugInfo['sessions_count'],
-                'existing_appointments' => $debugInfo['appointments_count']
+                'existing_appointments' => $debugInfo['appointments_count'],
+                'source_timezone' => $debugInfo['source_timezone'],
+                'target_timezone' => $debugInfo['target_timezone']
             ]
         ];
 
-        // If no slots found, provide helpful message
         if (empty($slots) || array_sum(array_map('count', $slots)) === 0) {
             return $this->response(
                 $responseData,
@@ -1538,7 +1729,6 @@ class AppointmentsController extends KCBaseController
                 200
             );
         }
-
         return $this->response(
             $responseData,
             __('Appointment slots retrieved successfully', 'kivicare-clinic-management-system'),
@@ -1557,6 +1747,25 @@ class AppointmentsController extends KCBaseController
     {
         // Process request parameters
         $params = $request->get_params();
+
+        // Get user's timezone (from request or use WordPress default)
+        $rawTimezone = !empty($params['timezone']) ? $params['timezone'] : wp_timezone_string();
+        $userTimezone = $this->formatTimezoneString($rawTimezone);
+        
+        // Ensure the formatted timezone is valid
+        if (!in_array($userTimezone, timezone_identifiers_list()) && !preg_match('/^[+-][0-9]{2}:[0-9]{2}$/', $userTimezone)) {
+            $userTimezone = wp_timezone_string();
+            // Fallback: If the default WP timezone string is also just an offset, we leave it since DateTimeZone parses offsets.
+        }
+
+        try {
+            $userTz = new \DateTimeZone($userTimezone);
+            $utcTz = new \DateTimeZone('UTC');
+        } catch (\Exception $e) {
+            // Fallback to UTC if timezone creation fails
+            $userTz = new \DateTimeZone('UTC');
+            $utcTz = new \DateTimeZone('UTC');
+        }
 
         // Build the base query with joins using our new table() method for better readability
         $query = KCAppointment::table('a')
@@ -1589,10 +1798,10 @@ class AppointmentsController extends KCBaseController
                     ->onRaw("dpi.meta_key = 'doctor_profile_image'");
             }, null, null, 'dpi')
             ->leftJoin(KCPaymentsAppointmentMapping::class, "a.id", '=', 'pam.appointment_id', 'pam')
-            ->leftJoin(KCPatientEncounter::class, "a.id", '=', 'pe.appointment_id', 'pe')
-            ->leftJoin(KCAppointmentServiceMapping::class, "a.id", '=', 'asm.appointment_id', 'asm')
-            ->leftJoin(KCService::class, 'asm.service_id', '=', 's.id', 's')
-            ->leftJoin(KCServiceDoctorMapping::class, 's.id', '=', 'dsm.service_id', 'dsm');
+            ->leftJoin(KCPatientEncounter::class, "a.id", '=', 'pe.appointment_id', 'pe');
+
+
+
         // Apply role-based filtering
         $current_user_id = get_current_user_id();
         $current_user_role = $this->kcbase->getLoginUserRole();
@@ -1635,25 +1844,85 @@ class AppointmentsController extends KCBaseController
 
 
         // Apply filters
+        // Apply filters - Optimized for ID-based filtering using Models
         if (!empty($params['search'])) {
-            $searchTerm = $params['search'];
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where("a.description", 'LIKE', '%' . $searchTerm . '%')
-                    ->orWhere("p.display_name", 'LIKE', '%' . $searchTerm . '%')
-                    ->orWhere("p.user_email", 'LIKE', '%' . $searchTerm . '%')
-                    ->orWhere("d.display_name", 'LIKE', '%' . $searchTerm . '%')
-                    ->orWhere("d.user_email", 'LIKE', '%' . $searchTerm . '%')
-                    ->orWhere("c.name", 'LIKE', '%' . $searchTerm . '%')
-                    ->orWhere("s.name", 'LIKE', '%' . $searchTerm . '%');
+            $searchTerm = sanitize_text_field($params['search']);
+            
+            // 1. Search Users (Doctors & Patients) using KCUser model to query underlying wp_users
+            $userIds = KCUser::query()
+                ->where('display_name', 'LIKE', '%' . $searchTerm . '%')
+                ->orWhere('user_email', 'LIKE', '%' . $searchTerm . '%')
+                ->select(['ID'])
+                ->get()
+                ->pluck('id')
+                ->toArray();
+
+            // 2. Search Clinics
+            $clinicIds = KCClinic::query()
+                ->where('name', 'LIKE', '%' . $searchTerm . '%')
+                ->select(['id'])
+                ->get()
+                ->pluck('id')
+                ->toArray();
+
+            // 3. Search Services -> Appointments
+            $serviceIds = KCService::query()
+                ->where('name', 'LIKE', '%' . $searchTerm . '%')
+                ->select(['id'])
+                ->get()
+                ->pluck('id')
+                ->toArray();
+
+            $serviceAppointmentIds = [];
+            if (!empty($serviceIds)) {
+                $serviceAppointmentIds = KCAppointmentServiceMapping::query()
+                    ->whereIn('service_id', $serviceIds)
+                    ->select(['appointment_id'])
+                    ->get()
+                    ->pluck('appointment_id')
+                    ->unique()
+                    ->toArray();
+            }
+
+            // Apply filters to main query
+            $query->where(function ($q) use ($searchTerm, $userIds, $clinicIds, $serviceAppointmentIds) {
+                // Search description
+                $q->where('a.description', 'LIKE', '%' . $searchTerm . '%');
+
+                // Match users (doctors or patients)
+                if (!empty($userIds)) {
+                    $q->orWhereIn('a.patient_id', $userIds);
+                    $q->orWhereIn('a.doctor_id', $userIds);
+                }
+
+                // Match clinics
+                if (!empty($clinicIds)) {
+                    $q->orWhereIn('a.clinic_id', $clinicIds);
+                }
+
+                // Match appointments based on service name search
+                if (!empty($serviceAppointmentIds)) {
+                    $q->orWhereIn('a.id', $serviceAppointmentIds);
+                }
             });
         }
 
         if (!empty($params['date'])) {
             $date = trim(sanitize_text_field($params['date']));
             if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-                $dateTime = DateTime::createFromFormat('Y-m-d', $date);
+                $dateTime = \DateTime::createFromFormat('Y-m-d', $date, $userTz);
                 if ($dateTime && $dateTime->format('Y-m-d') === $date) {
-                    $query->where("a.appointment_start_date", '=', $date);
+                    // Convert user's date to UTC range for querying
+                    $startOfDay = clone $dateTime;
+                    $startOfDay->setTime(0, 0, 0);
+                    $startOfDay->setTimezone($utcTz);
+                    
+                    $endOfDay = clone $dateTime;
+                    $endOfDay->setTime(23, 59, 59);
+                    $endOfDay->setTimezone($utcTz);
+                    
+                    $query->where('a.appointment_start_utc', '>=', $startOfDay->format('Y-m-d H:i:s'))
+                          ->where('a.appointment_start_utc', '<=', $endOfDay->format('Y-m-d H:i:s'));
                 }
             }
         }
@@ -1661,9 +1930,12 @@ class AppointmentsController extends KCBaseController
         if (!empty($params['date_from'])) {
             $dateFrom = trim(sanitize_text_field($params['date_from']));
             if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFrom)) {
-                $dateTime = DateTime::createFromFormat('Y-m-d', $dateFrom);
+                $dateTime = \DateTime::createFromFormat('Y-m-d', $dateFrom, $userTz);
                 if ($dateTime && $dateTime->format('Y-m-d') === $dateFrom) {
-                    $query->where("a.appointment_start_date", '>=', $dateFrom);
+                    // Convert to UTC for querying
+                    $dateTime->setTime(0, 0, 0);
+                    $dateTime->setTimezone($utcTz);
+                    $query->where('a.appointment_start_utc', '>=', $dateTime->format('Y-m-d H:i:s'));
                 }
             }
         }
@@ -1671,39 +1943,33 @@ class AppointmentsController extends KCBaseController
         if (!empty($params['date_to'])) {
             $dateTo = trim(sanitize_text_field($params['date_to']));
             if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) {
-                $dateTime = DateTime::createFromFormat('Y-m-d', $dateTo);
+                $dateTime = \DateTime::createFromFormat('Y-m-d', $dateTo, $userTz);
                 if ($dateTime && $dateTime->format('Y-m-d') === $dateTo) {
-                    $query->where("a.appointment_start_date", '<=', $dateTo);
+                    // Convert to end of day in UTC for querying
+                    $dateTime->setTime(23, 59, 59);
+                    $dateTime->setTimezone($utcTz);
+                    $query->where('a.appointment_start_utc', '<=', $dateTime->format('Y-m-d H:i:s'));
                 }
             }
         }
 
-        // Apply timeFrame filter (all, upcoming, past)
-        $timeFrame = strtolower($params['timeFrame'] ?? 'all');
+        // Apply timeFrame filter (all, upcoming, past) using UTC columns
+        $timeFrame = $params['timeFrame'] ?? 'all';
         if ($timeFrame !== 'all') {
-            // Get current date and time in MySQL format
-            $currentDate = current_time('Y-m-d');
-            $currentTime = current_time('H:i:s');
+            // Get current time in UTC
+            $now = new \DateTime('now', $utcTz);
+            $nowUtc = $now->format('Y-m-d H:i:s');
 
             if ($timeFrame === 'upcoming') {
-                // Upcoming: Appointments that are today with time in future, or any future date
-                $query->where(function ($q) use ($currentDate, $currentTime) {
-                    $q->where(function ($innerQ) use ($currentDate, $currentTime) {
-                        // Today's appointments with time later than now
-                        $innerQ->where('a.appointment_start_date', '=', $currentDate)
-                            ->where('a.appointment_start_time', '>', $currentTime);
-                    })->orWhere('a.appointment_start_date', '>', $currentDate);
-                    $q->where('a.status', '=', KCAppointment::STATUS_BOOKED); // Exclude cancelled appointments
-                });
+                // Upcoming: Appointments in the future, AND status is Booked OR Check-in
+                $query->where('a.appointment_start_utc', '>', $nowUtc)
+                      ->where(function($q) {
+                            // fix: Include Pending and Check-In in upcoming list to prevent appointments from disappearing unexpectedly
+                            $q->whereIn('a.status', [KCAppointment::STATUS_BOOKED, KCAppointment::STATUS_PENDING, KCAppointment::STATUS_CHECK_IN]);
+                      });
             } elseif ($timeFrame === 'past') {
-                // Past: Appointments with dates before today, or today with time already passed
-                $query->where(function ($q) use ($currentDate, $currentTime) {
-                    $q->where('a.appointment_start_date', '<', $currentDate)
-                        ->orWhere(function ($innerQ) use ($currentDate, $currentTime) {
-                            $innerQ->where('a.appointment_start_date', '=', $currentDate)
-                                ->where('a.appointment_start_time', '<', $currentTime);
-                        });
-                });
+                // Past: Appointments that have already occurred
+                $query->where('a.appointment_start_utc', '<', $nowUtc);
             }
         }
 
@@ -1752,6 +2018,9 @@ class AppointmentsController extends KCBaseController
 
         if (isset($params['status']) && $params['status'] !== '') {
             $query->where("a.status", '=', $params['status']);
+        } elseif (empty($timeFrame) || $timeFrame === 'all') {
+            // fix: Only exclude cancelled appointments from general/all view by default
+            $query->where("a.status", '!=', KCAppointment::STATUS_CANCELLED);
         }
 
         // Apply sorting if orderby parameter is provided
@@ -1771,8 +2040,8 @@ class AppointmentsController extends KCBaseController
                     $query->orderBy('c.name', $direction);
                     break;
                 case 'appointment_start_date':
-                    $query->orderBy('a.appointment_start_date', $direction)
-                        ->orderBy('a.appointment_start_time', $direction);
+                    // Sort by UTC column for consistent ordering
+                    $query->orderBy('a.appointment_start_utc', $direction);
                     break;
                 default:
                     // Handle direct appointment table fields
@@ -1887,19 +2156,48 @@ class AppointmentsController extends KCBaseController
                 $paymentStatus = KCPaymentsAppointmentMapping::getPaymentStatusByAppointmentId($appointment->id);
             }
 
-            //compare corrent date and appointment start date 
-            $currentDate = kcGetFormatedDate(current_time('Y-m-d'));
-            $appointmentStartDate = kcGetFormatedDate($appointment->appointmentStartDate);
-            $isToday = $currentDate === $appointmentStartDate;
+            // Convert UTC times to user's timezone for display
+            $startUtc = null;
+            $endUtc = null;
+            
+            $startUtcValue = $appointment->appointmentStartUtc ?? $appointment->appointment_start_utc ?? null;
+            if (!empty($startUtcValue)) {
+                $startUtc = new \DateTime($startUtcValue, $utcTz);
+                $startUtc->setTimezone($userTz);
+            } else {
+                // Fallback to legacy columns if UTC not available
+                $startDate = $appointment->appointmentStartDate ?? $appointment->appointment_start_date ?? '';
+                $startTime = $appointment->appointmentStartTime ?? $appointment->appointment_start_time ?? '';
+                $startUtc = new \DateTime($startDate . ' ' . $startTime, $userTz);
+            }
+            
+            $endUtcValue = $appointment->appointmentEndUtc ?? $appointment->appointment_end_utc ?? null;
+            if (!empty($endUtcValue)) {
+                $endUtc = new \DateTime($endUtcValue, $utcTz);
+                $endUtc->setTimezone($userTz);
+            } else {
+                // Fallback to legacy columns if UTC not available
+                $endDate = $appointment->appointmentEndDate ?? $appointment->appointment_end_date ?? '';
+                $endTime = $appointment->appointmentEndTime ?? $appointment->appointment_end_time ?? '';
+                $endUtc = new \DateTime($endDate . ' ' . $endTime, $userTz);
+            }
 
-            // Check if appointment is in the past
-            $appointmentDateTime = strtotime($appointment->appointmentStartDate . ' ' . $appointment->appointmentStartTime);
-            $currentDateTime = current_time('timestamp');
-            $isPast = $appointmentDateTime <= $currentDateTime;
+            // Check if appointment is today (in user's timezone)
+            $nowInUserTz = new \DateTime('now', $userTz);
+            $currentDate = $nowInUserTz->format('Y-m-d');
+            $appointmentDate = $startUtc->format('Y-m-d');
+            $isToday = $currentDate === $appointmentDate;
 
-            // Format start and end datetime as local ISO strings
-            $startDateTime = new DateTime($appointment->appointmentStartDate . ' ' . $appointment->appointmentStartTime);
-            $endDateTime = new DateTime($appointment->appointmentEndDate . ' ' . $appointment->appointmentEndTime);
+            // Check if appointment is in the past (using UTC for accuracy)
+            $nowUtc = new \DateTime('now', $utcTz);
+            $appointmentStartUtcDt = !empty($startUtcValue) 
+                ? new \DateTime($startUtcValue, $utcTz)
+                : null;
+            $isPast = $appointmentStartUtcDt ? ($appointmentStartUtcDt <= $nowUtc) : false;
+
+            // Format start and end datetime as local ISO strings (in user's timezone)
+            $startDateTime = $startUtc;
+            $endDateTime = $endUtc;
 
             $servicesQuery = KCAppointmentServiceMapping::table('asm')
                 ->select([
@@ -1938,13 +2236,14 @@ class AppointmentsController extends KCBaseController
                 'id' => $appointment->id,
                 'start' => $startDateTime->format('Y-m-d\TH:i:s'),
                 'end' => $endDateTime->format('Y-m-d\TH:i:s'),
-                'appointmentStartDateWF' => ($appointment->appointmentStartDate),
-                'appointmentStartDate' => kcGetFormatedDate($appointment->appointmentStartDate),
-                'appointmentStartTime' => kcGetFormatedTime($appointment->appointmentStartTime),
-                'appointmentStartTimeWF' => ($appointment->appointmentStartTime),
-                'appointmentEndDate' => kcGetFormatedDate($appointment->appointmentEndDate),
-                'appointmentEndDateWF' => ($appointment->appointmentEndDate),
-                'appointmentEndTime' => kcGetFormatedTime($appointment->appointmentEndTime),
+                'appointmentStartDateWF' => $startDateTime->format('Y-m-d'),
+                'appointmentStartDate' => kcGetFormatedDate($startDateTime->format('Y-m-d')),
+                'appointmentStartTime' => kcGetFormatedTime($startDateTime->format('H:i:s')),
+                'appointmentStartTimeWF' => $startDateTime->format('H:i:s'),
+                'appointmentEndDate' => kcGetFormatedDate($endDateTime->format('Y-m-d')),
+                'appointmentEndDateWF' => $endDateTime->format('Y-m-d'),
+                'appointmentEndTime' => kcGetFormatedTime($endDateTime->format('H:i:s')),
+                'timezone' => $userTimezone, // Include timezone in response
                 'clinicId' => (int) $appointment->clinicId,
                 'clinicName' => $appointment->clinic_name, // Direct access to joined column
                 'clinicEmail' => $appointment->clinic_email, // Direct access to joined column
@@ -2121,14 +2420,55 @@ class AppointmentsController extends KCBaseController
             // Get service IDs array for form population
             $serviceIds = $servicesData->pluck('mapping_id')->toArray();
 
+            $params = $request->get_params();
+            $targetTimezoneStr = wp_timezone_string();
+            if (!empty($params['target_timezone'])) {
+                $targetTimezoneStr = $this->formatTimezoneString($params['target_timezone']);
+            } elseif (!empty($params['timezone'])) {
+                $targetTimezoneStr = $this->formatTimezoneString($params['timezone']);
+            }
+            
+            try {
+                $targetTimezone = new \DateTimeZone($targetTimezoneStr);
+            } catch (\Exception $e) {
+                $targetTimezone = new \DateTimeZone(wp_timezone_string());
+            }
+
+            // Convert start times to target timezone
+            $startUtcValue = $appointment->appointmentStartUtc ?? $appointment->appointment_start_utc ?? null;
+            $utcTz = new \DateTimeZone('UTC');
+            if (!empty($startUtcValue)) {
+                $startUtc = new \DateTime($startUtcValue, $utcTz);
+                $startUtc->setTimezone($targetTimezone);
+                
+                $appointmentStartDate = $startUtc->format('Y-m-d');
+                $appointmentStartTime = $startUtc->format('H:i:s');
+            } else {
+                $appointmentStartDate = $appointment->appointmentStartDate;
+                $appointmentStartTime = $appointment->appointmentStartTime;
+            }
+
+            // Convert end times to target timezone
+            $endUtcValue = $appointment->appointmentEndUtc ?? $appointment->appointment_end_utc ?? null;
+            if (!empty($endUtcValue)) {
+                $endUtc = new \DateTime($endUtcValue, $utcTz);
+                $endUtc->setTimezone($targetTimezone);
+                
+                $appointmentEndDate = $endUtc->format('Y-m-d');
+                $appointmentEndTime = $endUtc->format('H:i:s');
+            } else {
+                $appointmentEndDate = $appointment->appointmentEndDate;
+                $appointmentEndTime = $appointment->appointmentEndTime;
+            }
+
             $appointmentsData = [
                 'id' => $appointment->id,
-                'appointmentStartDate' => $appointment->appointmentStartDate,
-                'appointmentFormatedStartDate' => kcGetFormatedDate($appointment->appointmentStartDate),
-                'appointmentStartTime' => $appointment->appointmentStartTime,
-                'appointmentFormatedStartTime' => kcGetFormatedTime($appointment->appointmentStartTime),
-                'appointmentEndDate' => $appointment->appointmentEndDate,
-                'appointmentEndTime' => $appointment->appointmentEndTime,
+                'appointmentStartDate' => $appointmentStartDate,
+                'appointmentFormatedStartDate' => kcGetFormatedDate($appointmentStartDate),
+                'appointmentStartTime' => $appointmentStartTime,
+                'appointmentFormatedStartTime' => kcGetFormatedTime($appointmentStartTime),
+                'appointmentEndDate' => $appointmentEndDate,
+                'appointmentEndTime' => $appointmentEndTime,
                 'patientId' => $appointment->patientId,
                 'patientName' => $appointment->patient_name,
                 'patientEmail' => $appointment->patient_email,
@@ -2663,7 +3003,8 @@ class AppointmentsController extends KCBaseController
                 'status' => $status,
                 'visitType' => implode(',', $request->get_param('serviceId')),
                 'createdAt' => current_time('mysql'),
-                'appointmentReport' => $appointmentReport
+                'appointmentReport' => $appointmentReport,
+                'appointmentTimezone' => !empty($params['timezone']) ? $params['timezone'] : wp_timezone_string()
             ];
 
             /**
@@ -3124,9 +3465,8 @@ class AppointmentsController extends KCBaseController
 
             $wpdb->query('COMMIT'); // Commit transaction
 
-            if (isKiviCareProActive()) {
-                GoogleCalendarIntegration::getInstance()->updateAppointmentToGoogleCalendars($params['id'], $updateData, $clinic, $patient, $doctor, $appointmentServices);
-            }
+            // fix: Use correct appointment data for Google Calendar sync
+            $this->syncAppointmentToGoogleCalendars($params['id'], $appointment->toArray(), $appointment->status ?? 1);
             // Prepare response data
             $responseData = [
                 'appointment_id' => $params['id'],
@@ -3202,6 +3542,10 @@ class AppointmentsController extends KCBaseController
 
         if (!$result) {
             return $this->response(null, __('Failed to delete Appointment', 'kivicare-clinic-management-system'), false, 500);
+        }
+
+        if (function_exists('isKiviCareProActive') && isKiviCareProActive()) {
+            GoogleCalendarIntegration::getInstance()->deleteAppointmentFromGoogleCalendars($id);
         }
 
         do_action('kc_appointment_deleted', $id, $appointment);
@@ -3301,7 +3645,10 @@ class AppointmentsController extends KCBaseController
             'status' => $status
         ]);
 
-        // Trigger specific hook for cancellation
+        // Reload appointment to ensure we have the latest status and any other changes (like encounterId)
+        $appointment = KCAppointment::find($id);
+        $this->syncAppointmentToGoogleCalendars($id, $appointment->toArray(), $status);
+        
         if ($status == 0) {
             do_action('kc_appointment_cancelled', $id);
         }
@@ -4160,6 +4507,10 @@ class AppointmentsController extends KCBaseController
                             'reason' => __('Failed to delete appointment', 'kivicare-clinic-management-system')
                         ];
                         continue;
+                    }
+
+                    if (function_exists('isKiviCareProActive') && isKiviCareProActive()) {
+                        GoogleCalendarIntegration::getInstance()->deleteAppointmentFromGoogleCalendars($id);
                     }
 
                     do_action('kc_appointment_deleted', $id, $appointment);

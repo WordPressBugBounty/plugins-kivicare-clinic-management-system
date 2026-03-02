@@ -112,6 +112,12 @@ class KCClinicSchedule extends KCBaseModel
                     'nullable' => true,
                     'sanitizers' => ['sanitize_text_field'],
                 ],
+                'timezone' => [
+                    'column' => 'timezone',
+                    'type' => 'varchar',
+                    'nullable' => true,
+                    'sanitizers' => ['sanitize_text_field'],
+                ],
                 'createdAt' => [
                     'column' => 'created_at',
                     'type' => 'datetime',

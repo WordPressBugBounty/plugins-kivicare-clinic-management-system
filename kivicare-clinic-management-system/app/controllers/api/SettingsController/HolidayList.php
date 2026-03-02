@@ -332,6 +332,7 @@ class HolidayList extends SettingsController
                 'time_specific' => (bool) ($holiday->timeSpecific ?? false),
                 'start_time' => $holiday->startTime ?? null,
                 'end_time' => $holiday->endTime ?? null,
+                'timezone' => $holiday->timezone ?? null,
             ];
 
             if ($holiday->moduleType === 'clinic') {
@@ -483,6 +484,10 @@ class HolidayList extends SettingsController
                 'timeSpecific' => $timeSpecific ? 1 : 0,
                 'startTime' => $timeSpecific && $startTime ? $startTime : null,
                 'endTime' => $timeSpecific && $endTime ? $endTime : null,
+                // Persist the timezone for correct time-specific holiday interpretation
+                'timezone' => ($moduleType === 'doctor')
+                    ? kcGetDoctorTimezone($moduleId)
+                    : wp_timezone_string(),
             ];
 
             $data = [

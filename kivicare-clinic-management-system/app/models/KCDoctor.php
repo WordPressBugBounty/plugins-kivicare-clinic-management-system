@@ -170,6 +170,11 @@ class KCDoctor extends KCBaseModel
                 $metaUpdates['doctor_profile_image'] = (int) $this->profileImage;
             }
 
+            // Add timezone to meta updates
+            if (!empty($this->timezone)) {
+                $metaUpdates['timezone'] = $this->timezone;
+            }
+
             // Save all meta data
             foreach ($metaUpdates as $key => $value) {
                 update_user_meta($this->id, $key, $value);
@@ -193,36 +198,6 @@ class KCDoctor extends KCBaseModel
             return new WP_Error('save_error', $e->getMessage());
         }
     }
-
-
-    /**
-     * Update doctor status
-     *
-     * @param int|string $status 0 or 1, or 'active'/'inactive'
-     * @return bool
-     */
-    public function updateStatus($status): bool
-    {
-        if (empty($this->id)) {
-            return false;
-        }
-
-        global $wpdb;
-        // Accept 0/1 or 'active'/'inactive'
-        $user_status = ($status === 'active' || $status === 1 || $status === '1') ? 1 : 0;
-        $result = $wpdb->update(
-            $wpdb->base_prefix . 'users',
-            ['user_status' => $user_status],
-            ['ID' => (int) $this->id]
-        );
-
-        if ($result !== false) {
-            $this->status = $user_status;
-            return true;
-        }
-        return false;
-    }
-
 
     public function getClinics()
     {

@@ -1131,3 +1131,34 @@ function kcGetWoocommerceOrderIdByAppointmentId($appointment_id)
 
     return $order_id ? intval($order_id) : null;
 }
+
+/**
+ * Get a doctor's IANA timezone identifier with a safe fallback chain.
+ *
+ * Resolution order:
+ *   1. Doctor's user_meta 'timezone' (if valid IANA identifier)
+ *   2. WordPress site timezone (wp_timezone_string())
+ *
+ * @param int $doctorId WordPress user ID of the doctor
+ * @return string Valid IANA timezone identifier (e.g. 'Asia/Kolkata')
+ */
+function kcGetDoctorTimezone(int $doctorId): string
+{
+    static $cache = [];
+
+    if (isset($cache[$doctorId])) {
+        return $cache[$doctorId];
+    }
+
+    $tz = get_user_meta($doctorId, 'timezone', true);
+
+    if (!empty($tz) && in_array($tz, timezone_identifiers_list(), true)) {
+        $cache[$doctorId] = $tz;
+        return $tz;
+    }
+
+    // Fallback to WordPress site timezone
+    $wpTz = wp_timezone_string();
+    $cache[$doctorId] = $wpTz;
+    return $wpTz;
+}

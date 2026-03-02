@@ -17,6 +17,7 @@ use App\models\KCServiceDoctorMapping;
 use App\models\KCAppointmentServiceMapping;
 use WP_REST_Request;
 use WP_REST_Response;
+use KCProApp\controllers\api\GoogleCalendarIntegration;
 
 defined('ABSPATH') or die('Something went wrong');
 /**
@@ -615,6 +616,28 @@ class BillController extends KCBaseController
                     'status' => '3',
                     'updatedAt' => current_time('mysql')
                 ]);
+
+            // fix: Sync status change to Google Calendar
+            if (function_exists('isKiviCareProActive') && isKiviCareProActive()) {
+                $appointmentId = (int) $params['patientEncounter']['appointmentId'];
+                $appointment = KCAppointment::find($appointmentId);
+                if ($appointment) {
+                    $appointmentData = $appointment->toArray();
+                    $clinicModels = KCClinic::find($appointment->clinicId);
+                    $patientModels = KCPatient::find($appointment->patientId);
+                    $doctorModels = KCDoctor::find($appointment->doctorId);
+                    $servicesModels = KCAppointmentServiceMapping::query()->where('appointmentId', $appointmentId)->get();
+
+                    GoogleCalendarIntegration::getInstance()->updateAppointmentToGoogleCalendars(
+                        $appointmentId,
+                        $appointmentData,
+                        $clinicModels,
+                        $patientModels,
+                        $doctorModels,
+                        $servicesModels
+                    );
+                }
+            }
         } else {
             KCPatientEncounter::query()
                 ->where('id', $encounter->id)
@@ -771,6 +794,28 @@ class BillController extends KCBaseController
                         'status' => '3',
                         'updatedAt' => current_time('mysql')
                     ]);
+
+                // fix: Sync status change to Google Calendar
+                if (function_exists('isKiviCareProActive') && isKiviCareProActive()) {
+                    $appointmentId = (int) $params['patientEncounter']['appointmentId'];
+                    $appointment = KCAppointment::find($appointmentId);
+                    if ($appointment) {
+                        $appointmentData = $appointment->toArray();
+                        $clinicModels = KCClinic::find($appointment->clinicId);
+                        $patientModels = KCPatient::find($appointment->patientId);
+                        $doctorModels = KCDoctor::find($appointment->doctorId);
+                        $servicesModels = KCAppointmentServiceMapping::query()->where('appointmentId', $appointmentId)->get();
+
+                        GoogleCalendarIntegration::getInstance()->updateAppointmentToGoogleCalendars(
+                            $appointmentId,
+                            $appointmentData,
+                            $clinicModels,
+                            $patientModels,
+                            $doctorModels,
+                            $servicesModels
+                        );
+                    }
+                }
             }
         } else {
             KCPatientEncounter::query()

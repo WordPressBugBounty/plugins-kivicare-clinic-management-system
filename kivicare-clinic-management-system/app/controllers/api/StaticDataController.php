@@ -94,7 +94,8 @@ class StaticDataController extends KCBaseController
                             "emailTemplateKey",
                             "getUsersByClinic",
                             "clinicDoctors",
-                            "users"
+                            "users",
+                            "timezones"
                         ];
                         $allowed_types = apply_filters('kc_static_data_allowed_types', $allowed_types);
                         return in_array($param, $allowed_types);
@@ -348,6 +349,9 @@ class StaticDataController extends KCBaseController
 
             case 'users':
                 return $this->getUsers($request->get_param('role') ?? '', $request);
+
+            case 'timezones':
+                return $this->getTimezones();
 
             default:
                 // Allow custom types through filter
@@ -971,9 +975,7 @@ class StaticDataController extends KCBaseController
                 ->where('status', 1)
                 ->orderBy('type')
                 ->groupBy('type') // Use groupBy to get unique values
-                ->get(['type'])
-                ->pluck('type')
-                ->toArray();
+                ->pluck('type');
 
             return array_map(function ($type) {
                 return [
@@ -1069,14 +1071,14 @@ class StaticDataController extends KCBaseController
                         $zoom_oauth_doctors = KCUserMeta::query()
                             ->where('metaKey', 'kiviCare_zoom_telemed_connect')
                             ->where('metaValue', 'on')
-                            ->get(['userId'])->pluck('userId')->toArray();
+                            ->pluck('userId');
                         $telemed_doctor_ids = array_merge($telemed_doctor_ids, $zoom_oauth_doctors);
 
                         // Find doctors with S2S connected
                         $zoom_s2s_doctors = KCUserMeta::query()
                             ->where('metaKey', 'zoom_server_to_server_oauth_config_data')
                             ->where('metaValue', 'LIKE', '%"enableServerToServerOauthconfig":"true"%')
-                            ->get(['userId'])->pluck('userId')->toArray();
+                            ->pluck('userId');
                         $telemed_doctor_ids = array_merge($telemed_doctor_ids, $zoom_s2s_doctors);
                     }
                 }
@@ -1095,7 +1097,7 @@ class StaticDataController extends KCBaseController
                         $gmeet_doctors = KCUserMeta::query()
                             ->where('metaKey', 'kiviCare_google_meet_connect')
                             ->where('metaValue', 'on')
-                            ->get(['userId'])->pluck('userId')->toArray();
+                            ->pluck('userId');
                         $telemed_doctor_ids = array_merge($telemed_doctor_ids, $gmeet_doctors);
                     }
                 }
@@ -1930,6 +1932,8 @@ class StaticDataController extends KCBaseController
             $doctorCounts = [];
             $appointmentCounts = [];
 
+            $holidayClinicIds = \App\models\KCClinicSchedule::getActiveHolidaysByModule('clinic');
+
             if ($allClinics->isNotEmpty()) {
                 $clinicIds = $allClinics->pluck('id')->toArray();
 
@@ -1968,7 +1972,7 @@ class StaticDataController extends KCBaseController
                     ->toArray();
             }
 
-            $clinics = $allClinics->map(function ($clinic) use ($serviceCounts, $doctorCounts, $appointmentCounts) {
+            $clinics = $allClinics->map(function ($clinic) use ($serviceCounts, $doctorCounts, $appointmentCounts, $request, $holidayClinicIds) {
                 $clinicImage = KIVI_CARE_DIR_URI . 'assets/images/demo-img.png';
                 if ($clinic->clinicLogo) {
                     $clinicImage = wp_get_attachment_url($clinic->clinicLogo);
@@ -1997,6 +2001,11 @@ class StaticDataController extends KCBaseController
                     'total_appointments' => (int) ($appointmentCounts[$clinic->id] ?? 0),
                     'total_satisfaction' => 0.0,
                 ];
+
+                if ($request && $request->has_param('is_app') && ($request->get_param('is_app') === 'true' || $request->get_param('is_app') === true)) {
+                    $clinicData['status'] = (string) $clinic->status;
+                    $clinicData['is_holiday'] = in_array((int)$clinic->id, $holidayClinicIds, true);
+                }
 
                 // Allow Pro plugin (and others) to modify clinic data, e.g. add total_satisfaction
                 $clinicData = apply_filters('kc_clinic_data', $clinicData, (int) $clinic->id);
@@ -2333,5 +2342,46 @@ class StaticDataController extends KCBaseController
                 'line' => $e->getLine()
             ], 500);
         }
+    }
+
+    /**
+     * Get list of timezones from WordPress
+     */
+    private function getTimezones(): array
+    {
+        // Require the functions.php if not already loaded (though it should be in WP context)
+        if (!function_exists('wp_timezone_choice')) {
+            require_once ABSPATH . 'wp-includes/functions.php';
+        }
+
+        $html = wp_timezone_choice('');
+        preg_match_all('/<option[^>]+value=[\'"]([^\'"]+)[\'"][^>]*>([^<]+)<\/option>/i', $html, $matches);
+
+        $timezones = [];
+        if (!empty($matches[1])) {
+            foreach ($matches[1] as $index => $value) {
+                if (empty($value)) {
+                    continue;
+                }
+                
+                $timezones[] = [
+                    'value' => $value,
+                    'label' => $value
+                ];
+            }
+        }
+        
+        // If parsing fails for some reason, fallback to basic list
+        if (empty($timezones)) {
+            $zonenlist = timezone_identifiers_list();
+            foreach ($zonenlist as $zone) {
+                $timezones[] = [
+                    'value' => $zone,
+                    'label' => $zone
+                ];
+            }
+        }
+
+        return $timezones;
     }
 }

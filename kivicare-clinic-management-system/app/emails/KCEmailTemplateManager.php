@@ -342,6 +342,28 @@ class KCEmailTemplateManager
         if ($type === 'gcal') {
             $data = [
                 [
+                    'post_name' => KIVI_CARE_PREFIX . 'patient_gcal_template',
+                    'post_content'  => 'Appointment booked at {{clinic_name}}',
+                    'post_title' => '{{service_name}}',
+                    'post_type' => $templatePostType,
+                    'post_status'   => 'publish',
+                ],
+                [
+                    'post_name' => KIVI_CARE_PREFIX . 'doctor_gcal_template',
+                    'post_content'  => 'Appointment with patient at {{clinic_name}}',
+                    'post_title' => '{{service_name}}',
+                    'post_type' => $templatePostType,
+                    'post_status'   => 'publish',
+                ],
+                [
+                    'post_name' => KIVI_CARE_PREFIX . 'receptionist_gcal_template',
+                    'post_content'  => 'Appointment booked for doctor at {{clinic_name}}',
+                    'post_title' => '{{service_name}}',
+                    'post_type' => $templatePostType,
+                    'post_status'   => 'publish',
+                ],
+                // Keep default just in case it's used elsewhere as fallback
+                [
                     'post_name' => KIVI_CARE_PREFIX . 'default_event_template',
                     'post_content'  => ' Appointment booked at {{clinic_name}}',
                     'post_title' => '{{service_name}}',

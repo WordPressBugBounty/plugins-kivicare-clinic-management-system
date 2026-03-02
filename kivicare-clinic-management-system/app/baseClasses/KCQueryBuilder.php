@@ -24,6 +24,14 @@ class KCQueryBuilder
     // Table alias when needed
     private ?string $tableAlias = null;
 
+    private bool $cacheEnabled = true;
+
+    public function disableCache(): self
+    {
+        $this->cacheEnabled = false;
+        return $this;
+    }
+
     public function __construct(string $modelClass)
     {
         global $wpdb;
@@ -802,21 +810,141 @@ class KCQueryBuilder
         }
 
         $query = $this->buildSelectQuery();
+
+        // --- Cache Implementation Starts Here ---
+        $shouldCache = $this->cacheEnabled && $this->limitValue !== 1;
+        $cacheKey = '';
+        $cacheGroup = 'kc_query_' . str_replace('\\', '_', $this->modelClass);
+
+        if ($shouldCache) {
+            $cacheVersion = wp_cache_get('kc_query_version_' . $this->modelClass, 'kc_query_versions');
+            if (false === $cacheVersion) {
+                $cacheVersion = time();
+                wp_cache_set('kc_query_version_' . $this->modelClass, $cacheVersion, 'kc_query_versions');
+            }
+
+            $cacheKey = 'kc:' . $this->modelClass . ':' . md5($query . serialize($this->params)) . '_v' . $cacheVersion;
+            
+            $cachedResults = wp_cache_get($cacheKey, $cacheGroup);
+            if (false !== $cachedResults && is_array($cachedResults)) {
+                return collect(array_map(function ($result) {
+                    return $this->hydrateModel((array) $result);
+                }, $cachedResults));
+            }
+        }
+        // --- Cache Implementation Ends Here ---
+
         if (empty($this->params)) {
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-            $results = $this->wpdb->get_results($query, ARRAY_A);
+            $executed_query = $query;
+            $results = $this->wpdb->get_results($executed_query, ARRAY_A);
         } else {
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-            $results = $this->wpdb->get_results( $this->wpdb->prepare($query, $this->params ?? []), ARRAY_A );
+            $executed_query = $this->wpdb->prepare($query, $this->params ?? []);
+            $results = $this->wpdb->get_results($executed_query, ARRAY_A);
         }
+
         if ($this->wpdb->last_error) {
             KCErrorLogger::instance()->error("WPDB Error: " . $this->wpdb->last_error);
         }
 
+        $rawResults = $results ?: [];
+
+        if ($shouldCache) {
+            wp_cache_set($cacheKey, $rawResults, $cacheGroup, 120);
+        }
+
         // HYDRATE MODELS
         return collect(array_map(function ($result) {
-            return $this->hydrateModel($result);
-        }, $results ?: []));
+            return $this->hydrateModel((array) $result);
+        }, $rawResults));
+    }
+
+    /**
+     * Get a single column's values as an array without hydrating models
+     * 
+     * @param string $column The column/property to pluck
+     * @return array
+     */
+    public function pluck(string $column, ?string $key = null): array
+    {
+        $originalSelect = $this->selectColumns;
+        
+        // If it's a complex expression (like COUNT(*)), don't try to look it up in schema
+        $columnName = (str_contains($column, '(')) ? $column : $this->getColumnNameFromProperty($column);
+        
+        if ($key) {
+            $keyName = (str_contains($key, '(')) ? $key : $this->getColumnNameFromProperty($key);
+            $this->selectColumns = [$keyName, $columnName];
+        } else {
+            $this->selectColumns = [$columnName];
+        }
+
+        $query = $this->buildSelectQuery();
+
+        if (empty($this->params)) {
+             $results = $this->wpdb->get_results($query, ARRAY_A);
+        } else {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            $prepared = $this->wpdb->prepare($query, $this->params ?? []);
+            $results = $this->wpdb->get_results($prepared, ARRAY_A);
+        }
+
+        $this->selectColumns = $originalSelect;
+
+        if (empty($results)) {
+            return [];
+        }
+
+        // Get the actual result keys (they might be aliased)
+        // For COUNT(*) as total, the key will be 'total'
+        $valueKey = $column;
+        if (str_contains($column, ' as ')) {
+            $valueKey = trim(substr($column, strpos($column, ' as ') + 4));
+        } elseif (str_contains($column, ' AS ')) {
+            $valueKey = trim(substr($column, strpos($column, ' AS ') + 4));
+        } elseif (!str_contains($column, '(')) {
+            // If it's a schema column, get its property name
+            $valueKey = $column; 
+        }
+
+        // Simple way to handle it: if key is present, return assoc, else return col
+        if ($key) {
+            $kKey = $key;
+             if (str_contains($key, ' as ')) {
+                $kKey = trim(substr($key, strpos($key, ' as ') + 4));
+            } elseif (str_contains($key, ' AS ')) {
+                $kKey = trim(substr($key, strpos($key, ' AS ') + 4));
+            }
+            
+            $assoc = [];
+            foreach ($results as $row) {
+                // Try guessing the row keys
+                $rK = isset($row[$kKey]) ? $row[$kKey] : (isset($row[$keyName]) ? $row[$keyName] : reset($row));
+                $rV = isset($row[$valueKey]) ? $row[$valueKey] : (isset($row[$columnName]) ? $row[$columnName] : next($row));
+                $assoc[$rK] = $rV;
+            }
+            return $assoc;
+        }
+
+        // Return first column if one, otherwise array_column
+        if (count($results[0]) === 1) {
+            return array_column($results, array_key_first($results[0]));
+        }
+
+        return array_column($results, $valueKey);
+    }
+
+    /**
+     * Get a single value from the first row without hydrating models
+     * 
+     * @param string $column The column/property to get
+     * @return mixed
+     */
+    public function value(string $column)
+    {
+        $result = $this->limit(1)->pluck($column);
+        return $result[0] ?? null;
     }
 
     /**
@@ -855,34 +983,72 @@ class KCQueryBuilder
      */
     public function count(): int
     {
-        // Save current select columns and create a clone to avoid modifying the original
+        // Save current variables and create a clone to avoid modifying the original
         $originalSelect = $this->selectColumns;
         $originalParams = $this->params;
+        $originalOrders = $this->orders;
+        $originalLimit = $this->limitValue;
+        $originalOffset = $this->offsetValue;
 
-        // Change select to COUNT(*)
+        // Change select to COUNT(*) and clear ordering/pagination
         $this->selectColumns = ['COUNT(*) as count'];
+        $this->orders = [];
+        $this->limitValue = null;
+        $this->offsetValue = null;
 
         // Build query
         $query = $this->buildSelectQuery();
 
+        // --- Cache Implementation Starts Here ---
+        $shouldCache = $this->cacheEnabled;
+        $cacheKey = '';
+        $cacheGroup = 'kc_query_' . str_replace('\\', '_', $this->modelClass);
+
+        if ($shouldCache) {
+            $cacheVersion = wp_cache_get('kc_query_version_' . $this->modelClass, 'kc_query_versions');
+            if (false === $cacheVersion) {
+                $cacheVersion = time();
+                wp_cache_set('kc_query_version_' . $this->modelClass, $cacheVersion, 'kc_query_versions');
+            }
+
+            $cacheKey = 'kc_count:' . $this->modelClass . ':' . md5($query . serialize($this->params)) . '_v' . $cacheVersion;
+            
+            $cachedResult = wp_cache_get($cacheKey, $cacheGroup);
+            if (false !== $cachedResult) {
+                // Restore original select columns and params
+                $this->selectColumns = $originalSelect;
+                $this->params = $originalParams;
+                return (int) $cachedResult;
+            }
+        }
+        // --- Cache Implementation Ends Here ---
+
         // Execute query
         if (empty($this->params)) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-            $result = $this->wpdb->get_var($query);
+             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+            $executed_query = $query;
+            $result = $this->wpdb->get_var($executed_query);
         } else {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-            $preparedQuery = $this->wpdb->prepare($query, $this->params);
-            if (empty($preparedQuery)) {
+             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            $executed_query = $this->wpdb->prepare($query, $this->params);
+            if (empty($executed_query)) {
                 $result = 0;
             } else {
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-                $result = $this->wpdb->get_var($preparedQuery);
+                 // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+                $result = $this->wpdb->get_var($executed_query);
             }
         }
 
-        // Restore original select columns and params
+        if ($shouldCache) {
+            wp_cache_set($cacheKey, $result, $cacheGroup, 120);
+        }
+
+        // Restore original select columns, params, and ordering
         $this->selectColumns = $originalSelect;
         $this->params = $originalParams;
+        $this->orders = $originalOrders;
+        $this->limitValue = $originalLimit;
+        $this->offsetValue = $originalOffset;
 
         return (int) $result;
     }
@@ -959,7 +1125,8 @@ class KCQueryBuilder
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $preparedQuery = $this->wpdb->prepare($query, $values);
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-        return $this->wpdb->query($preparedQuery);
+        $result = $this->wpdb->query($preparedQuery);
+        return $result;
     }
 
     /**
@@ -997,7 +1164,8 @@ class KCQueryBuilder
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $preparedQuery = $this->wpdb->prepare($query, $values);
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
-        return $this->wpdb->query($preparedQuery);
+        $result = $this->wpdb->query($preparedQuery);
+        return $result;
     }
 
     /**
@@ -1146,11 +1314,66 @@ class KCQueryBuilder
         $this->groupByColumns = [];
         return $this;
     }
-    public function countDistinct($column)
+    public function countDistinct($column): int
     {
-        $this->selectColumns = ["COUNT(DISTINCT {$column}) as total"];
-        $result = $this->first();
-        return isset($result->total) ? (int) $result->total : 0;
+        // Save current select columns and create a clone to avoid modifying the original
+        $originalSelect = $this->selectColumns;
+        $originalParams = $this->params;
+
+        // Change select to COUNT(DISTINCT ...)
+        $this->selectColumns = ["COUNT(DISTINCT {$column}) as count"];
+
+        // Build query
+        $query = $this->buildSelectQuery();
+
+        // --- Cache Implementation Starts Here ---
+        $shouldCache = $this->cacheEnabled;
+        $cacheKey = '';
+        $cacheGroup = 'kc_query_' . str_replace('\\', '_', $this->modelClass);
+
+        if ($shouldCache) {
+            $cacheVersion = wp_cache_get('kc_query_version_' . $this->modelClass, 'kc_query_versions');
+            if (false === $cacheVersion) {
+                $cacheVersion = time();
+                wp_cache_set('kc_query_version_' . $this->modelClass, $cacheVersion, 'kc_query_versions');
+            }
+
+            $cacheKey = 'kc_count_dist:' . $this->modelClass . ':' . md5($query . serialize($this->params)) . '_v' . $cacheVersion;
+            
+            $cachedResult = wp_cache_get($cacheKey, $cacheGroup);
+            if (false !== $cachedResult) {
+                // Restore original select columns and params
+                $this->selectColumns = $originalSelect;
+                $this->params = $originalParams;
+                return (int) $cachedResult;
+            }
+        }
+        // --- Cache Implementation Ends Here ---
+
+        // Execute query
+        if (empty($this->params)) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+            $result = $this->wpdb->get_var($query);
+        } else {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            $preparedQuery = $this->wpdb->prepare($query, $this->params);
+            if (empty($preparedQuery)) {
+                $result = 0;
+            } else {
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+                $result = $this->wpdb->get_var($preparedQuery);
+            }
+        }
+
+        if ($shouldCache) {
+            wp_cache_set($cacheKey, $result, $cacheGroup, 120);
+        }
+
+        // Restore original select columns and params
+        $this->selectColumns = $originalSelect;
+        $this->params = $originalParams;
+
+        return (int) $result;
     }
 
 

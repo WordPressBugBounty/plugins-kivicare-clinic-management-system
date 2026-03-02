@@ -52,6 +52,25 @@ class DashboardController extends KCBaseController
             'methods' => WP_REST_Server::READABLE,
             'callback' => [$this, 'getUpcomingAppointments'],
             'permission_callback' => [$this, 'checkPermission'],
+            'args' => [
+                'page' => [
+                    'sanitize_callback' => 'absint',
+                    'default' => 1
+                ],
+                'per_page' => [
+                    'sanitize_callback' => 'absint',
+                    'default' => 10
+                ],
+                'start_date' => [
+                    'sanitize_callback' => 'sanitize_text_field'
+                ],
+                'end_date' => [
+                    'sanitize_callback' => 'sanitize_text_field'
+                ],
+                'timezone' => [
+                    'sanitize_callback' => 'sanitize_text_field'
+                ]
+            ]
         ]);
 
         // Dynamic statistics endpoint with component parameter
@@ -398,50 +417,68 @@ class DashboardController extends KCBaseController
     public function getUpcomingAppointments(WP_REST_Request $request): WP_REST_Response|WP_Error
     {
         try {
-            // Initialize collections
-            $appointmentsData = [];
-            $service_array = [];
-            $service_list = [];
-            // Apply filters for date range if provided
-            $date_from = sanitize_text_field($request->get_param('start_date') ?? gmdate('Y-m-d'));
-            $date_to = sanitize_text_field($request->get_param('end_date') ?? null);
-            // Get current user role for filtering
+            $page = $request->get_param('page');
+            $per_page = $request->get_param('per_page');
+            $offset = ($page - 1) * $per_page;
+
+            $date_from = $request->get_param('start_date') ?? gmdate('Y-m-d');
+            $date_to = $request->get_param('end_date') ?? null;
+            $timezone = $request->get_param('timezone') ?? wp_timezone_string();
+            
             $user_id = get_current_user_id();
             $user_role = $this->kcbase->getLoginUserRole();
+
+            // Setup timezones
+            try {
+                $userTz = new \DateTimeZone($timezone);
+                $utcTz = new \DateTimeZone('UTC');
+            } catch (\Exception $e) {
+                $userTz = new \DateTimeZone(wp_timezone_string());
+                $utcTz = new \DateTimeZone('UTC');
+            }
 
             // Build base query
             $query = KCAppointment::table('a')
                 ->select([
                     "a.*",
                     'd.display_name as doctor_name',
+                    'p.display_name as patient_name',
                     'clinic.name as clinic_name',
                     'clinic.email as clinic_email',
-                    'clinic.profile_image as clinic_profile_image',
                     'p.ID as patient_user_id',
                     'd.ID as doctor_user_id',
                 ])
                 ->leftJoin(KCUser::class, 'a.doctor_id', '=', 'd.id', 'd')
-                ->leftJoin(KCPatientEncounter::class, 'a.id', '=', 'encounter.appointment_id', 'encounter')
                 ->leftJoin(KCUser::class, 'a.patient_id', '=', 'p.id', 'p')
                 ->leftJoin(KCClinic::class, 'a.clinic_id', '=', 'clinic.id', 'clinic')
-                ->where('a.status', '=', KCAppointment::STATUS_BOOKED)
-                ->where('a.appointment_start_date', '>=', $date_from);
+                ->where('a.status', '=', KCAppointment::STATUS_BOOKED);
 
-            // Add date_to filter if provided
+            // Filtering by date using UTC columns if possible
+            if (!empty($date_from)) {
+                $dtFrom = \DateTime::createFromFormat('Y-m-d', $date_from, $userTz);
+                if ($dtFrom) {
+                    $dtFrom->setTime(0, 0, 0);
+                    $dtFrom->setTimezone($utcTz);
+                    $query->where('a.appointment_start_utc', '>=', $dtFrom->format('Y-m-d H:i:s'));
+                }
+            }
+
             if (!empty($date_to)) {
-                $query->where('a.appointment_start_date', '<=', $date_to);
+                $dtTo = \DateTime::createFromFormat('Y-m-d', $date_to, $userTz);
+                if ($dtTo) {
+                    $dtTo->setTime(23, 59, 59);
+                    $dtTo->setTimezone($utcTz);
+                    $query->where('a.appointment_start_utc', '<=', $dtTo->format('Y-m-d H:i:s'));
+                }
             }
 
             // Apply role-based filtering
             if ($user_role === $this->kcbase->getDoctorRole()) {
-                // Doctors can only see their own appointments
                 $query->where('a.doctor_id', '=', $user_id);
             } elseif ($user_role === $this->kcbase->getPatientRole()) {
-                // Patients can only see their appointments
                 $query->where('a.patient_id', '=', $user_id);
             }
 
-            // Clinic-based role filtering (Pro version)
             if (function_exists('isKiviCareProActive') && isKiviCareProActive()) {
                 $clinic_id = null;
                 switch ($user_role) {
@@ -452,124 +489,107 @@ class DashboardController extends KCBaseController
                         $clinic_id = KCClinic::getClinicIdOfReceptionist();
                         break;
                 }
-                
                 if (!empty($clinic_id)) {
                     $query->where("a.clinic_id", '=', $clinic_id);
                 }
             }
 
-            // Allow plugins to modify the query
             $query = apply_filters('kc_upcoming_appointments_query', $query, $request);
 
-            // Get results
-            $appointments = $query->get();
+            // Get total count BEFORE applying limit/offset
+            $total = (int)$query->count();
 
-            // Process appointments
+            // Apply pagination and ordering
+            $query->orderBy('a.appointment_start_utc', 'ASC')
+                  ->limit($per_page)
+                  ->offset($offset);
+
+            $appointments = $query->get();
+            if ($appointments->isEmpty()) {
+                return $this->response([
+                    'appointments' => [],
+                    'pagination' => ['total' => $total, 'page' => $page, 'per_page' => $per_page, 'total_pages' => ceil($total / $per_page)]
+                ], __('No upcoming appointments found', 'kivicare-clinic-management-system'));
+            }
+
+            // Enrichment: Batch fetch services
+            $appointmentIds = $appointments->pluck('id')->toArray();
+            $services = KCAppointment::table('a')
+                ->select(["a.id as appointment_id", "s.name AS service_name", "s.id AS service_id", "sd.charges", "a.clinic_id", "a.doctor_id"])
+                ->leftJoin(KCAppointmentServiceMapping::class, 'a.id', '=', 'asm.appointment_id', 'asm')
+                ->leftJoin(KCService::class, 'asm.service_id', '=', 's.id', 's')
+                ->leftJoin(KCServiceDoctorMapping::class, 'sd.service_id', '=', 's.id', 'sd')
+                ->whereIn('a.id', $appointmentIds)
+                ->whereRaw('sd.clinic_id = a.clinic_id AND sd.doctor_id = a.doctor_id')
+                ->get()->groupBy('appointment_id');
+
+            // Format results
+            $appointmentsData = [];
             foreach ($appointments as $appointment) {
-                // Reset arrays for each appointment
+                $aid = $appointment->id;
+                $aptServices = $services->get($aid) ?? collect([]);
+                
                 $service_array = [];
                 $service_list = [];
-
-                // Get doctor and patient WordPress user data 
-                $doctorUser = $appointment->doctor_user_id ? get_userdata(absint($appointment->doctor_user_id)) : null;
-                $patientUser = $appointment->patient_user_id ? get_userdata(absint($appointment->patient_user_id)) : null;
-
-                // Get services for this appointment
-                $get_service = KCAppointment::table('a')
-                    ->select([
-                        "a.id as appointment_id",
-                        "s.name AS service_name",
-                        "s.id AS service_id",
-                        "sd.charges"
-                    ])
-                    ->leftJoin(KCAppointmentServiceMapping::class, 'a.id', '=', 'asm.appointment_id', 'asm')
-                    ->leftJoin(KCService::class, 'asm.service_id', '=', 's.id', 's')
-                    ->leftJoin(KCServiceDoctorMapping::class, 'sd.service_id', '=', 's.id', 'sd')
-                    ->whereRaw('a.id = %d AND sd.clinic_id = %d AND sd.doctor_id = %d', [
-                        absint($appointment->id),
-                        absint($appointment->clinic_id),
-                        absint($appointment->doctor_id)
-                    ])
-                    ->get();
-
-                // Calculate service charges and build service data
                 $service_charges = 0;
-                foreach ($get_service as $service) {
+
+                foreach ($aptServices as $service) {
                     if (!empty($service->service_name)) {
-                        $service_array[] = sanitize_text_field($service->service_name);
+                        $service_array[] = $service->service_name;
                         $service_list[] = [
                             'service_id' => absint($service->service_id),
-                            'name' => sanitize_text_field($service->service_name),
+                            'name' => $service->service_name,
                             'charges' => round(floatval($service->charges), 3)
                         ];
                         $service_charges += floatval($service->charges);
                     }
                 }
 
-                // Create comma-separated list of services
-                $serviceListName = !empty($service_array) ? implode(', ', $service_array) : '';
+                // Convert UTC to user timezone
+                $start_utc = $appointment->appointment_start_utc;
+                $display_start_date = $appointment->appointmentStartDate;
+                $display_start_time = $appointment->appointmentStartTime;
 
-                // Format appointment start time
-                $appointment_start_time = !empty($appointment->appointmentStartTime)
-                    ? gmdate('h:i A', strtotime($appointment->appointmentStartTime))
-                    : '';
+                if (!empty($start_utc)) {
+                    try {
+                        $dt = new \DateTime($start_utc, $utcTz);
+                        $dt->setTimezone($userTz);
+                        $display_start_date = $dt->format('Y-m-d');
+                        $display_start_time = $dt->format('H:i:s');
+                    } catch (\Exception $e) {
+                        // Keep defaults
+                    }
+                }
 
-                // Format appointment data for response
-                $appointmentData = [
-                    'id' => absint($appointment->id),
-                    'appointmentStartDate' => sanitize_text_field($appointment->appointmentStartDate),
-                    'appointmentStartDateFormated' => kcGetFormatedDate($appointment->appointmentStartDate),
-                    'appointmentStartTime' => $appointment_start_time,
-                    'appointmentStartTimeFormated' => kcGetFormatedTime($appointment_start_time),
-                    'appointmentEndDate' => sanitize_text_field($appointment->appointmentEndDate),
-                    'appointmentEndTime' => sanitize_text_field($appointment->appointmentEndTime),
+                $appointmentsData[] = apply_filters('kc_get_upcoming_appointment_data', [
+                    'id' => absint($aid),
+                    'appointmentStartDate' => $display_start_date,
+                    'appointmentStartDateFormated' => kcGetFormatedDate($display_start_date),
+                    'appointmentStartTime' => $display_start_time ? gmdate('h:i A', strtotime($display_start_time)) : '',
+                    'appointmentStartTimeFormated' => kcGetFormatedTime($display_start_time),
                     'visitType' => $service_list,
-                    'serviceListName' => $serviceListName,
+                    'serviceListName' => implode(', ', $service_array),
                     'totalCharges' => $service_charges,
                     'clinicId' => absint($appointment->clinicId),
-                    'clinicName' => sanitize_text_field($appointment->clinic_name ?? ''),
-                    'clinicEmail' => sanitize_email($appointment->clinic_email ?? ''),
+                    'clinicName' => $appointment->clinic_name ?? '',
                     'doctorId' => absint($appointment->doctorId),
-                    'doctorName' => $doctorUser ? sanitize_text_field($doctorUser->display_name) : '',
-                    'doctorEmail' => $doctorUser ? sanitize_email($doctorUser->user_email) : '',
-                    'doctor_image_url' => $appointment->doctor_user_id && get_user_meta($appointment->doctor_user_id, 'doctor_profile_image', true) ? esc_url(wp_get_attachment_url((int) get_user_meta($appointment->doctor_user_id, 'doctor_profile_image', true))) : '',
+                    'doctorName' => $appointment->doctor_name ?? '',
+                    'doctor_image_url' => $appointment->doctor_user_id ? esc_url(wp_get_attachment_url((int) get_user_meta($appointment->doctor_user_id, 'doctor_profile_image', true))) : '',
                     'patientId' => absint($appointment->patientId),
-                    'patientName' => $patientUser ? sanitize_text_field($patientUser->display_name) : '',
-                    'patientEmail' => $patientUser ? sanitize_email($patientUser->user_email) : '',
-                    'patient_image_url' => $appointment->patient_user_id && get_user_meta($appointment->patient_user_id, 'patient_profile_image', true) ? esc_url(wp_get_attachment_url((int) get_user_meta($appointment->patient_user_id, 'patient_profile_image', true))) : '',
-                    'description' => wp_kses_post($appointment->description),
+                    'patientName' => $appointment->patient_name ?? '',
+                    'patient_image_url' => $appointment->patient_user_id ? esc_url(wp_get_attachment_url((int) get_user_meta($appointment->patient_user_id, 'patient_profile_image', true))) : '',
                     'status' => absint($appointment->status),
-                    'createdAt' => sanitize_text_field($appointment->createdAt),
-                    'video_consultation' => apply_filters('kc_is_video_consultation', false, absint($appointment->id)),
-                ];
-
-                // Allow plugins to modify each appointment's data
-                $appointmentData = apply_filters('kc_get_upcoming_appointment_data', $appointmentData, $appointment);
-
-                // Add to collection
-                $appointmentsData[] = $appointmentData;
-            }
-            // Return error if no appointments found
-            if (empty($appointmentsData)) {
-                return new WP_Error(
-                    'no_appointments',
-                    __('No upcoming appointments found', 'kivicare-clinic-management-system'),
-                    ['status' => 204]
-                );
+                    'video_consultation' => apply_filters('kc_is_video_consultation', false, absint($aid)),
+                ], $appointment);
             }
 
-            // Return successful response
-            return $this->response($appointmentsData, __('Appointments retrieved successfully', 'kivicare-clinic-management-system'));
+            return $this->response([
+                'appointments' => $appointmentsData,
+                'pagination' => ['total' => $total, 'page' => $page, 'per_page' => $per_page, 'total_pages' => ceil($total / $per_page)]
+            ], __('Appointments retrieved successfully', 'kivicare-clinic-management-system'));
         } catch (\Exception $e) {
-            // Log error for debugging
             KCErrorLogger::instance()->error('KiviCare Error (getUpcomingAppointments): ' . $e->getMessage());
-
-            // Return error response
-            return new WP_Error(
-                'appointment_error',
-                __('Error retrieving appointments', 'kivicare-clinic-management-system') . ': ' . $e->getMessage(),
-                ['status' => 500]
-            );
+            return new WP_Error('appointment_error', $e->getMessage(), ['status' => 500]);
         }
     }
 

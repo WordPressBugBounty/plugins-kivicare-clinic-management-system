@@ -1,6 +1,7 @@
 <?php
 namespace App\services;
 
+use DateTimeImmutable;
 use DateTime;
 use DateInterval;
 use Exception;
@@ -25,6 +26,9 @@ class KCTimeSlotService
     private $appointmentIdToSkip = null;
     private $onlyAvailableSlots = false;
 
+    private $sourceTimezone;
+    private $targetTimezone;
+
     // Configuration constants
     const WIDGET_TYPE_PHP = 'phpWidget';
 
@@ -46,6 +50,17 @@ class KCTimeSlotService
         // Set optional parameters
         $this->appointmentIdToSkip = $params['appointment_id'] ?? null;
         $this->onlyAvailableSlots = $params['only_available_slots'] ?? false;
+
+        // Timezone Setup — use doctor's timezone as the source of truth
+        $doctorTzString = kcGetDoctorTimezone((int) $this->doctorId);
+        $this->sourceTimezone = new \DateTimeZone($doctorTzString);
+
+        $targetTzString = $params['target_timezone'] ?? $doctorTzString;
+        try {
+            $this->targetTimezone = new \DateTimeZone($targetTzString);
+        } catch (\Exception $e) {
+            $this->targetTimezone = $this->sourceTimezone;
+        }
 
         $this->validateInputs();
         $this->determineDay();
@@ -109,11 +124,13 @@ class KCTimeSlotService
 
     /**
      * Determine day of the week from date
+     * Uses the doctor's timezone so the weekday is correct for their local context
      */
     private function determineDay(): void
     {
-        $this->weekday = strtolower(gmdate('l', strtotime($this->date)));
-        $this->shortWeekday = strtolower(gmdate('D', strtotime($this->date)));
+        $dateObj = new DateTime($this->date, $this->sourceTimezone);
+        $this->weekday = strtolower($dateObj->format('l'));
+        $this->shortWeekday = strtolower($dateObj->format('D'));
     }
 
     /**
@@ -130,9 +147,15 @@ class KCTimeSlotService
                 $session->timeSlot = $this->serviceDurationSum;
             }
 
-            // Convert times to DateTime objects for easier manipulation
-            $session->start_datetime = new DateTime($this->date . ' ' . $session->startTime,  wp_timezone());
-            $session->end_datetime = new DateTime($this->date . ' ' . $session->endTime,  wp_timezone());
+            // Convert times to DateTimeImmutable using Source Timezone (Doctor's Timezone)
+            $session->start_datetime = new DateTimeImmutable($this->date . ' ' . $session->startTime, $this->sourceTimezone);
+            $session->end_datetime = new DateTimeImmutable($this->date . ' ' . $session->endTime, $this->sourceTimezone);
+
+            // Cross-midnight detection: if end_time <= start_time, the session
+            // spans midnight (e.g., 22:00–02:00). Push end to the next day.
+            if ($session->end_datetime <= $session->start_datetime) {
+                $session->end_datetime = $session->end_datetime->modify('+1 day');
+            }
         }
     }
 
@@ -141,7 +164,7 @@ class KCTimeSlotService
      */
     private function generateSlotsFromSessions(): void
     {
-        $currentTime = new DateTime('now', wp_timezone());
+        $currentTime = new DateTimeImmutable('now');
         
         foreach ($this->sessions as $sessionIndex => $session) {
             $sessionSlots = [];
@@ -173,52 +196,66 @@ class KCTimeSlotService
     private function splitSessionIntoChunks($session): array
     {
         $chunks = [];
-        $sessionStart = clone $session->start_datetime;
-        $sessionEnd = clone $session->end_datetime;
+        $sessionStart = $session->start_datetime;
+        $sessionEnd = $session->end_datetime;
 
         // Get appointments that overlap with this session
         $overlappingAppointments = $this->getOverlappingAppointments($session);
 
         // Sort appointments by start time
         usort($overlappingAppointments, function ($a, $b) {
-            $aStart = is_array($a) ? $a['appointmentStartDate'] . ' ' . $a['appointmentStartTime']
-                : $a->appointmentStartDate . ' ' . $a->appointmentStartTime;
-            $bStart = is_array($b) ? $b['appointmentStartDate'] . ' ' . $b['appointmentStartTime']
-                : $b->appointmentStartDate . ' ' . $b->appointmentStartTime;
+            $aStart = (is_object($a) && isset($a->appointmentStartUtc)) ? $a->appointmentStartUtc : (is_object($a) && isset($a->appointment_start_utc) ? $a->appointment_start_utc : (is_array($a) && isset($a['appointment_start_utc']) ? $a['appointment_start_utc'] : (is_array($a) ? $a['appointmentStartDate'] . ' ' . $a['appointmentStartTime'] : $a->appointmentStartDate . ' ' . $a->appointmentStartTime)));
+            $bStart = (is_object($b) && isset($b->appointmentStartUtc)) ? $b->appointmentStartUtc : (is_object($b) && isset($b->appointment_start_utc) ? $b->appointment_start_utc : (is_array($b) && isset($b['appointment_start_utc']) ? $b['appointment_start_utc'] : (is_array($b) ? $b['appointmentStartDate'] . ' ' . $b['appointmentStartTime'] : $b->appointmentStartDate . ' ' . $b->appointmentStartTime)));
             return strtotime($aStart) - strtotime($bStart);
         });
 
-        $currentStart = clone $sessionStart;
+        $currentStart = $sessionStart;
 
         foreach ($overlappingAppointments as $appointment) {
             $appointment = (object) $appointment;
-            $appointmentStart = new DateTime($appointment->appointmentStartDate . ' ' . $appointment->appointmentStartTime, wp_timezone());
-            $appointmentEnd = new DateTime($appointment->appointmentEndDate . ' ' . $appointment->appointmentEndTime, wp_timezone());
+            
+            $utcTimezone = new \DateTimeZone('UTC');
+            $startUtcStr = isset($appointment->appointmentStartUtc) ? $appointment->appointmentStartUtc : (isset($appointment->appointment_start_utc) ? $appointment->appointment_start_utc : null);
+            $endUtcStr = isset($appointment->appointmentEndUtc) ? $appointment->appointmentEndUtc : (isset($appointment->appointment_end_utc) ? $appointment->appointment_end_utc : null);
+
+            if ($startUtcStr && $endUtcStr) {
+                // Use UTC fields and convert to sourceTimezone for comparison
+                $appointmentStartObj = new \DateTimeImmutable($startUtcStr, $utcTimezone);
+                $appointmentStart = $appointmentStartObj->setTimezone($this->sourceTimezone);
+                
+                $appointmentEndObj = new \DateTimeImmutable($endUtcStr, $utcTimezone);
+                $appointmentEnd = $appointmentEndObj->setTimezone($this->sourceTimezone);
+            } else {
+                // Fallback to old behavior if UTC columns are mysteriously unavailable
+                $appointmentStart = new DateTimeImmutable($appointment->appointmentStartDate . ' ' . $appointment->appointmentStartTime, $this->sourceTimezone);
+                $appointmentEnd = new DateTimeImmutable($appointment->appointmentEndDate . ' ' . $appointment->appointmentEndTime, $this->sourceTimezone);
+            }
+
             // If there's a gap before this appointment, add it as a chunk
             if ($currentStart < $appointmentStart) {
                 $chunks[] = [
-                    'start' => clone $currentStart,
-                    'end' => clone $appointmentStart
+                    'start' => $currentStart,
+                    'end' => $appointmentStart
                 ];
             }
 
             // Move current start to after this appointment
-            $currentStart = $appointmentEnd > $currentStart ? clone $appointmentEnd : clone $currentStart;
+            $currentStart = $appointmentEnd > $currentStart ? $appointmentEnd : $currentStart;
         }
 
         // Add remaining time after last appointment
         if (!empty($overlappingAppointments) && $currentStart < $sessionEnd) {
             $chunks[] = [
-                'start' => clone $currentStart,
-                'end' => clone $sessionEnd
+                'start' => $currentStart,
+                'end' => $sessionEnd
             ];
         }
 
         // If no appointments, the entire session is available
         if (empty($overlappingAppointments)) {
             $chunks[] = [
-                'start' => clone $sessionStart,
-                'end' => clone $sessionEnd
+                'start' => $sessionStart,
+                'end' => $sessionEnd
             ];
         }
 
@@ -237,8 +274,23 @@ class KCTimeSlotService
 
         foreach ($this->appointments as $appointment) {
             $appointment = (object) $appointment;
-            $appointmentStart = new DateTime($appointment->appointmentStartDate . ' ' . $appointment->appointmentStartTime, wp_timezone());
-            $appointmentEnd = new DateTime($appointment->appointmentEndDate . ' ' . $appointment->appointmentEndTime, wp_timezone());
+            
+            $utcTimezone = new \DateTimeZone('UTC');
+            $startUtcStr = isset($appointment->appointmentStartUtc) ? $appointment->appointmentStartUtc : (isset($appointment->appointment_start_utc) ? $appointment->appointment_start_utc : null);
+            $endUtcStr = isset($appointment->appointmentEndUtc) ? $appointment->appointmentEndUtc : (isset($appointment->appointment_end_utc) ? $appointment->appointment_end_utc : null);
+
+            if ($startUtcStr && $endUtcStr) {
+                // Use UTC fields and convert to sourceTimezone for comparison
+                $appointmentStartObj = new \DateTimeImmutable($startUtcStr, $utcTimezone);
+                $appointmentStart = $appointmentStartObj->setTimezone($this->sourceTimezone);
+                
+                $appointmentEndObj = new \DateTimeImmutable($endUtcStr, $utcTimezone);
+                $appointmentEnd = $appointmentEndObj->setTimezone($this->sourceTimezone);
+            } else {
+                // Fallback to old behavior
+                $appointmentStart = new DateTimeImmutable($appointment->appointmentStartDate . ' ' . $appointment->appointmentStartTime, $this->sourceTimezone);
+                $appointmentEnd = new DateTimeImmutable($appointment->appointmentEndDate . ' ' . $appointment->appointmentEndTime, $this->sourceTimezone);
+            }
 
             // Check if appointment overlaps with session
             if ($appointmentStart < $session->end_datetime && $appointmentEnd > $session->start_datetime) {
@@ -254,40 +306,40 @@ class KCTimeSlotService
      * 
      * @param array $chunk Time chunk with start and end
      * @param object $session Session data
-     * @param DateTime $currentTime Current time for future validation
+     * @param DateTimeImmutable $currentTime Current time for future validation
      * @return array Generated slots
      */
-    private function generateSlotsFromChunk(array $chunk, $session, DateTime $currentTime): array
+    private function generateSlotsFromChunk(array $chunk, $session, DateTimeImmutable $currentTime): array
     {
         $slots = [];
         $slotDuration = $this->serviceDurationSum ?: $session->timeSlot;
+        $interval = new DateInterval('PT' . $slotDuration . 'M');
 
-        $slotStart = clone $chunk['start'];
+        $slotStart = $chunk['start'];
         while ($slotStart < $chunk['end']) {
-            $slotEnd = clone $slotStart;
-            $slotEnd->add(new DateInterval('PT' . $slotDuration . 'M'));
+            $slotEnd = $slotStart->add($interval);
 
             // Check if slot fits within chunk
             if ($slotEnd <= $chunk['end']) {
-                // Generate slot based on only_available_slots flag
-                // Note: Booked appointment times never reach here because splitSessionIntoChunks()
-                // creates time chunks that exclude existing appointments
-                // 
-                // The 'only_available_slots' flag controls whether to include PAST slots:
-                // - If true: Only return future slots (slotStart > currentTime)
-                // - If false: Return all slots (future and past), but mark past ones with available=false
-                if (!$this->onlyAvailableSlots || $slotStart > $currentTime) { 
+                // Availability check uses strict absolute time comparison
+                $isFuture = $slotStart > $currentTime;
+
+                if (!$this->onlyAvailableSlots || $isFuture) { 
+                    // Convert to Target Timezone for display (immutable — returns new object)
+                    $displayStart = $slotStart->setTimezone($this->targetTimezone);
+
                     $slots[] = [
-                        'time' => $this->formatTime($slotStart),
-                        'available' => $slotStart > $currentTime, // True only if slot is in the future
-                        'datetime' => $slotStart->format('Y-m-d H:i:s'),
-                        'session_id' => $session->id ?? null
+                        'time' => $this->formatTime($displayStart),
+                        'available' => $isFuture,
+                        'datetime' => $displayStart->format('Y-m-d H:i:s'),
+                        'session_id' => $session->id ?? null,
+                        'source_datetime' => $slotStart->format('Y-m-d H:i:s')
                     ];
                 }
             }
 
-            // Move to next slot
-            $slotStart->add(new DateInterval('PT' . $slotDuration . 'M'));
+            // Move to next slot (immutable — returns new object)
+            $slotStart = $slotStart->add($interval);
         }
 
         return $slots;
@@ -298,42 +350,46 @@ class KCTimeSlotService
      * Used when only_available_slots is false to get accurate total slot counts
      * 
      * @param object $session Session data
-     * @param DateTime $currentTime Current time for future validation
+     * @param DateTimeImmutable $currentTime Current time for future validation
      * @return array Generated slots with booking status
      */
-    private function generateAllSlotsWithBookingStatus($session, DateTime $currentTime): array
+    private function generateAllSlotsWithBookingStatus($session, DateTimeImmutable $currentTime): array
     {
         $slots = [];
         $slotDuration = $this->serviceDurationSum ?: $session->timeSlot;
+        $interval = new DateInterval('PT' . $slotDuration . 'M');
         
-        $slotStart = clone $session->start_datetime;
-        $sessionEnd = clone $session->end_datetime;
+        $slotStart = $session->start_datetime;
+        $sessionEnd = $session->end_datetime;
         
         while ($slotStart < $sessionEnd) {
-            $slotEnd = clone $slotStart;
-            $slotEnd->add(new DateInterval('PT' . $slotDuration . 'M'));
+            $slotEnd = $slotStart->add($interval);
             
             // Check if slot fits within session
             if ($slotEnd <= $sessionEnd) {
                 // Check if this slot overlaps with any booked appointment
                 $isBooked = $this->isSlotBooked($slotStart, $slotEnd);
                 
-                // Determine if slot is available:
-                // - Must be in the future (slotStart > currentTime)
-                // - Must not be booked
+                // Determine if slot is available (absolute time comparison)
                 $isAvailable = ($slotStart > $currentTime) && !$isBooked;
                 
+                // Convert to Target Timezone for display (immutable — returns new object)
+                $displayStart = $slotStart->setTimezone($this->targetTimezone);
+
                 $slots[] = [
-                    'time' => $this->formatTime($slotStart),
+                    'time' => $this->formatTime($displayStart),
                     'available' => $isAvailable,
                     'booked' => $isBooked,
-                    'datetime' => $slotStart->format('Y-m-d H:i:s'),
-                    'session_id' => $session->id ?? null
+                    'datetime' => $displayStart->format('Y-m-d H:i:s'),
+                    'session_id' => $session->id ?? null,
+                    'source_datetime' => $slotStart->format('Y-m-d H:i:s'),
+                    'selected_date_time' => $displayStart->format('Y-m-d H:i:s'),
+                    'time_format' => $displayStart->format('H:i:s')
                 ];
             }
             
-            // Move to next slot
-            $slotStart->add(new DateInterval('PT' . $slotDuration . 'M'));
+            // Move to next slot (immutable — returns new object)
+            $slotStart = $slotStart->add($interval);
         }
         
         return $slots;
@@ -342,11 +398,11 @@ class KCTimeSlotService
     /**
      * Check if a specific time slot overlaps with any booked appointment
      * 
-     * @param DateTime $slotStart Slot start time
-     * @param DateTime $slotEnd Slot end time
+     * @param DateTimeImmutable $slotStart Slot start time
+     * @param DateTimeImmutable $slotEnd Slot end time
      * @return bool True if slot is booked
      */
-    private function isSlotBooked(DateTime $slotStart, DateTime $slotEnd): bool
+    private function isSlotBooked(DateTimeImmutable $slotStart, DateTimeImmutable $slotEnd): bool
     {
         foreach ($this->appointments as $appointment) {
             $appointment = (object) $appointment;
@@ -356,8 +412,22 @@ class KCTimeSlotService
                 continue;
             }
             
-            $appointmentStart = new DateTime($appointment->appointmentStartDate . ' ' . $appointment->appointmentStartTime, wp_timezone());
-            $appointmentEnd = new DateTime($appointment->appointmentEndDate . ' ' . $appointment->appointmentEndTime, wp_timezone());
+            $utcTimezone = new \DateTimeZone('UTC');
+            $startUtcStr = isset($appointment->appointmentStartUtc) ? $appointment->appointmentStartUtc : (isset($appointment->appointment_start_utc) ? $appointment->appointment_start_utc : null);
+            $endUtcStr = isset($appointment->appointmentEndUtc) ? $appointment->appointmentEndUtc : (isset($appointment->appointment_end_utc) ? $appointment->appointment_end_utc : null);
+
+            if ($startUtcStr && $endUtcStr) {
+                // Use UTC fields and convert to sourceTimezone for comparison
+                $appointmentStartObj = new \DateTimeImmutable($startUtcStr, $utcTimezone);
+                $appointmentStart = $appointmentStartObj->setTimezone($this->sourceTimezone);
+                
+                $appointmentEndObj = new \DateTimeImmutable($endUtcStr, $utcTimezone);
+                $appointmentEnd = $appointmentEndObj->setTimezone($this->sourceTimezone);
+            } else {
+                // Fallback to old behavior
+                $appointmentStart = new DateTimeImmutable($appointment->appointmentStartDate . ' ' . $appointment->appointmentStartTime, $this->sourceTimezone);
+                $appointmentEnd = new DateTimeImmutable($appointment->appointmentEndDate . ' ' . $appointment->appointmentEndTime, $this->sourceTimezone);
+            }
             
             // Check for overlap
             if ($slotStart < $appointmentEnd && $slotEnd > $appointmentStart) {
@@ -371,10 +441,10 @@ class KCTimeSlotService
     /**
      * Format time using kcGetFormatedTime function or fallback
      * 
-     * @param DateTime $dateTime DateTime object
+     * @param DateTimeImmutable $dateTime DateTime object
      * @return string Formatted time
      */
-    private function formatTime(DateTime $dateTime): string
+    private function formatTime(DateTimeImmutable $dateTime): string
     {
         // Use kcGetFormatedTime if available, otherwise use default format
         if (function_exists('kcGetFormatedTime')) {
@@ -407,11 +477,11 @@ class KCTimeSlotService
     /**
      * Get current time (can be overridden for testing)
      * 
-     * @return DateTime Current time
+     * @return DateTimeImmutable Current time
      */
-    protected function getCurrentTime(): DateTime
+    protected function getCurrentTime(): DateTimeImmutable
     {
-        return new DateTime();
+        return new DateTimeImmutable('now', $this->sourceTimezone);
     }
 
     /**
@@ -460,7 +530,9 @@ class KCTimeSlotService
             'service_duration_sum' => $this->serviceDurationSum,
             'sessions_count' => count($this->sessions),
             'appointments_count' => count($this->appointments),
-            'slots_count' => array_sum(array_map('count', $this->slots))
+            'slots_count' => array_sum(array_map('count', $this->slots)),
+            'source_timezone' => $this->sourceTimezone->getName(),
+            'target_timezone' => $this->targetTimezone->getName()
         ];
     }
 
@@ -472,15 +544,15 @@ class KCTimeSlotService
      */
     public function isSlotAvailable(string $slotDateTime): bool
     {
-        $slotStart = new DateTime($slotDateTime, wp_timezone());
+        $slotStart = new DateTime($slotDateTime, $this->sourceTimezone);
         $slotEnd = clone $slotStart;
         $slotEnd->add(new DateInterval('PT' . $this->serviceDurationSum . 'M'));
 
         // Check against existing appointments
         foreach ($this->appointments as $appointment) {
             $appointment = (object) $appointment;
-            $appointmentStart = new DateTime($appointment->appointmentStartDate . ' ' . $appointment->appointmentStartTime,  wp_timezone());
-            $appointmentEnd = new DateTime($appointment->appointmentEndDate . ' ' . $appointment->appointmentEndTime,  wp_timezone());
+            $appointmentStart = new DateTime($appointment->appointmentStartDate . ' ' . $appointment->appointmentStartTime,  $this->sourceTimezone);
+            $appointmentEnd = new DateTime($appointment->appointmentEndDate . ' ' . $appointment->appointmentEndTime,  $this->sourceTimezone);
 
             // Check for overlap
             if ($slotStart < $appointmentEnd && $slotEnd > $appointmentStart) {
@@ -490,5 +562,6 @@ class KCTimeSlotService
 
         return true;
     }
+
 }
 

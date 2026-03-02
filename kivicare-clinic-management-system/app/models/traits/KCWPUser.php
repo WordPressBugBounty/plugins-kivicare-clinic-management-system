@@ -145,4 +145,36 @@ trait KCWPUser
         }
         return false;
     }
+
+    /**
+     * Update doctor status
+     *
+     * @param int|string $status 0 or 1, or 'active'/'inactive'
+     * @return bool
+     */
+    public function updateStatus($status): bool
+    {
+        if (empty($this->id)) {
+            return false;
+        }
+
+        global $wpdb;
+        // Accept 0/1 or 'active'/'inactive'
+        $user_status = ($status === 'active' || $status === 1 || $status === '1' || $status === 0 || $status === '0')
+            ? (in_array($status, [0, '0', 'active']) ? 0 : 1)
+            : 1;
+        $result = $wpdb->update(
+            $wpdb->base_prefix . 'users',
+            ['user_status' => $user_status],
+            ['ID' => (int) $this->id]
+        );
+
+        if ($result !== false) {
+            $this->status = $user_status;
+            static::flushCache();
+            return true;
+        }
+        return false;
+    }
+
 }
