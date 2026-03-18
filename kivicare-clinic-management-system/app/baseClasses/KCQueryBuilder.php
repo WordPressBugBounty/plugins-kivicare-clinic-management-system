@@ -852,6 +852,24 @@ class KCQueryBuilder
 
         if ($shouldCache) {
             wp_cache_set($cacheKey, $rawResults, $cacheGroup, 120);
+
+            // ─── DSA: Populate the inverted-index registry ─────────────────────────
+            // For each returned row we record which cache key contains it.
+            // Later, flushCacheForId($id) can surgically delete only these keys.
+            if (!empty($rawResults)) {
+                $schema   = $this->modelClass::getSchema();
+                $pk       = $schema['primary_key'];
+                // Primary-key column name in the raw DB result
+                $pkCol    = $schema['columns'][$pk]['column'] ?? $pk;
+
+                // Only register when we can extract a single, stable PK per row
+                foreach ($rawResults as $row) {
+                    if (isset($row[$pkCol])) {
+                        $this->modelClass::registerCacheKey($row[$pkCol], $cacheKey);
+                    }
+                }
+            }
+            // ─── End DSA Registry ──────────────────────────────────────────────────
         }
 
         // HYDRATE MODELS
@@ -1126,7 +1144,13 @@ class KCQueryBuilder
         $preparedQuery = $this->wpdb->prepare($query, $values);
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $result = $this->wpdb->query($preparedQuery);
-        return $result;
+
+        if ($result !== false && $result > 0) {
+            $modelClass = $this->modelClass;
+            $modelClass::flushCache();
+        }
+
+        return (int) $result;
     }
 
     /**
@@ -1165,7 +1189,15 @@ class KCQueryBuilder
         $preparedQuery = $this->wpdb->prepare($query, $values);
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $result = $this->wpdb->query($preparedQuery);
-        return $result;
+
+        if ($result !== false && $result > 0) {
+            $modelClass = $this->modelClass;
+            // Bulk UPDATE: we can't know which row IDs were affected,
+            // so use full version-bump invalidation as a fallback.
+            $modelClass::flushCache();
+        }
+
+        return (int) $result;
     }
 
     /**

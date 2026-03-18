@@ -2158,6 +2158,59 @@ class ClinicController extends KCBaseController
                 },
                 'sanitize_callback' => 'absint',
             ],
+            'id' => [
+                'description' => 'Filter by clinic ID',
+                'type' => 'integer',
+                'validate_callback' => [$this, 'validateId'],
+                'sanitize_callback' => 'absint',
+            ],
+            'clinicName' => [
+                'description' => 'Filter by clinic name or ID',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'clinicAddress' => [
+                'description' => 'Filter by clinic address',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'specialization' => [
+                'description' => 'Filter by specialization',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'orderby' => [
+                'description' => 'Sort results by specified field',
+                'type' => 'string',
+                'validate_callback' => [$this, 'validateOrderBy'],
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'order' => [
+                'description' => 'Sort direction (asc or desc)',
+                'type' => 'string',
+                'validate_callback' => [$this, 'validateOrder'],
+                'sanitize_callback' => function ($param) {
+                    return strtolower(sanitize_text_field($param));
+                },
+            ],
+            'page' => [
+                'description' => 'Current page of results',
+                'type' => 'integer',
+                'default' => 1,
+                'validate_callback' => function ($param) {
+                    return is_numeric($param) && $param > 0;
+                },
+                'sanitize_callback' => 'absint',
+            ],
+            'perPage' => [
+                'description' => 'Number of results per page',
+                'type' => 'string',
+                'default' => 'all',
+                'validate_callback' => [$this, 'validatePerPage'],
+                'sanitize_callback' => function ($param) {
+                    return strtolower($param) === 'all' ? 'all' : absint($param);
+                },
+            ],
         ];
     }
 
@@ -2172,15 +2225,130 @@ class ClinicController extends KCBaseController
         try {
             // Process request parameters
             $params = $request->get_params();
-            $status = (isset($params['status']) && $params['status'] !== '' && $params['status'] !== null) ? (int) $params['status'] : null;
+            $page = isset($params['page']) ? (int) $params['page'] : 1;
+            $perPageParam = isset($params['perPage']) ? $params['perPage'] : 'all';
+            $showAll = (strtolower($perPageParam) === 'all');
+            $perPage = $showAll ? null : (int) $perPageParam;
 
-            // Build the base query for clinics
+            // Build the base query for clinics (same as getClinics)
             $query = KCClinic::table('c')
                 ->select([
-                    "c.*"
-                ]);
+                    "c.*",
+                    "u.display_name as admin_display_name",
+                    "u.user_email as admin_email"
+                ])
+                ->leftJoin(KCUser::class, 'c.clinic_admin_id', '=', 'u.id', 'u');
 
-            // Execute query
+            // Filter clinics by doctor_id
+            if (!empty($params['doctor_id'])) {
+                $doctorId = (int) $params['doctor_id'];
+
+                $doctorClinicIds = KCDoctorClinicMapping::query()
+                    ->where('doctor_id', $doctorId)
+                    ->get()
+                    ->pluck('clinicId')
+                    ->toArray();
+
+                if (!empty($doctorClinicIds)) {
+                    $query->whereIn('c.id', $doctorClinicIds);
+                } else {
+                    $query->whereRaw('1 = 0');
+                }
+            }
+
+            if(!isKiviCareProActive()){
+                $default_clinic_id = KCClinic::kcGetDefaultClinicId();
+                $query->where('c.id','=',$default_clinic_id);
+            }else{
+                if($this->kcbase->getLoginUserRole() == $this->kcbase->getClinicAdminRole()){
+                    $query->where('c.clinic_admin_id','=',get_current_user_id());
+                }
+            }
+
+            // Apply filters (same as getClinics)
+            if (!empty($params['search'])) {
+                $query->where(function ($q) use ($params) {
+                    $q->where("c.name", 'LIKE', '%' . $params['search'] . '%')
+                        ->orWhere("c.email", 'LIKE', '%' . $params['search'] . '%')
+                        ->orWhere("u.display_name", 'LIKE', '%' . $params['search'] . '%')
+                        ->orWhere("c.address", 'LIKE', '%' . $params['search'] . '%')
+                        ->orWhere("c.city", 'LIKE', '%' . $params['search'] . '%')
+                        ->orWhere("c.country", 'LIKE', '%' . $params['search'] . '%');
+                });
+            }
+
+            if (isset($params['status']) && $params['status'] !== '') {
+                $query->where("c.status", '=', $params['status']);
+            }
+
+            if (!empty($params['id'])) {
+                $query->where('c.id', '=', $params['id']);
+            }
+            if (!empty($params['clinicName'])) {
+                if (is_numeric($params['clinicName'])) {
+                    $query->where('c.id', '=', $params['clinicName']);
+                } else {
+                    $query->where('c.name', 'LIKE', '%' . $params['clinicName'] . '%');
+                }
+            }
+            if (!empty($params['clinicAddress'])) {
+                $query->where(function ($q) use ($params) {
+                    $q->where('c.address', 'LIKE', '%' . $params['clinicAddress'] . '%')
+                        ->orWhere('c.city', 'LIKE', '%' . $params['clinicAddress'] . '%')
+                        ->orWhere('c.state', 'LIKE', '%' . $params['clinicAddress'] . '%')
+                        ->orWhere('c.postal_code', 'LIKE', '%' . $params['clinicAddress'] . '%')
+                        ->orWhere('c.country', 'LIKE', '%' . $params['clinicAddress'] . '%');
+                });
+            }
+            if ($request->get_param('specialization')) {
+                $specialization = $request->get_param('specialization');
+                $query->where('c.specialties', 'LIKE', '%' . $specialization . '%');
+            }
+
+            // Apply sorting (same as getClinics)
+            if (!empty($params['orderby'])) {
+                $orderby = $params['orderby'];
+                $direction = !empty($params['order']) && strtolower($params['order']) === 'desc' ? 'DESC' : 'ASC';
+
+                switch ($orderby) {
+                    case 'name':
+                        $query->orderBy("c.name", $direction);
+                        break;
+                    case 'email':
+                        $query->orderBy("c.email", $direction);
+                        break;
+                    case 'clinic_admin_name':
+                    case 'admin':
+                        $query->orderBy("u.display_name", $direction);
+                        break;
+                    case 'telephone_no':
+                    case 'contact':
+                        $query->orderBy("c.telephone_no", $direction);
+                        break;
+                    case 'status':
+                        $query->orderBy("c.status", $direction);
+                        break;
+                    case 'id':
+                    default:
+                        $query->orderBy("c.id", $direction);
+                        break;
+                }
+            } else {
+                $query->orderBy("c.id", 'DESC');
+            }
+
+            // Apply pagination (same as getClinics)
+            if (!$showAll) {
+                $totalQuery = clone $query;
+                $total = $totalQuery->count();
+                $totalPages = $total > 0 ? ceil($total / $perPage) : 1;
+                $page = max(1, min($page, $totalPages));
+                $offset = ($page - 1) * $perPage;
+                $query->limit($perPage)->offset($offset);
+            } else {
+                $page = 1;
+            }
+
             $results = $query->get();
 
             if (empty($results)) {
@@ -2198,6 +2366,7 @@ class ClinicController extends KCBaseController
                 // Get admin data if clinic_admin_id exists
                 $adminEmail = '-';
                 $profileImageUrl = '-';
+                $clinicAdminName = $clinic->admin_display_name ?? '';
 
                 if (!empty($clinic->clinicAdminId)) {
                     $adminUser = get_userdata($clinic->clinicAdminId);
@@ -2211,8 +2380,14 @@ class ClinicController extends KCBaseController
                             if (isset($basicDataArray['profile_image']) && !empty($basicDataArray['profile_image'])) {
                                 $profileImageUrl = wp_get_attachment_url($basicDataArray['profile_image']) ?: '-';
                             }
+                            if (!empty($basicDataArray['first_name']) && !empty($basicDataArray['last_name'])) {
+                                $clinicAdminName = $basicDataArray['first_name'] . ' ' . $basicDataArray['last_name'];
+                            }
                         }
                     }
+                }
+                if ($adminEmail === '-' && !empty($clinic->admin_email)) {
+                    $adminEmail = $clinic->admin_email;
                 }
 
                 // Build full address
@@ -2240,16 +2415,19 @@ class ClinicController extends KCBaseController
                 }
 
                 $exportData[] = [
-                    'clinic_id' => $clinic->id,
-                    'clinic_name' => $clinic->name,
-                    'clinic_email' => $clinic->email,
-                    'clinic_contact_no' => $clinic->telephoneNo,
-                    'specialties' => $specialties,
+                    'id' => $clinic->id,
+                    'name' => $clinic->name,
+                    'email' => $clinic->email,
+                    'contact' => $clinic->telephoneNo,
+                    'clinic_admin_name' => $clinicAdminName,
+                    'clinic_admin_email' => $adminEmail,
+                    'specialty' => $clinic->specialties,
+                    'address' => $clinic->address,
+                    'city' => $clinic->city,
+                    'state' => $clinic->state,
+                    'postal_code' => $clinic->postalCode,
+                    'country' => $clinic->country,
                     'status' => $clinic->status == 1 ? 'Active' : 'Inactive',
-                    'clinic_admin_id' => $clinic->clinicAdminId,
-                    'clinic_admin_image_url' => $profileImageUrl,
-                    'clinic_full_address' => $fullAddress,
-                    'clinic_admin_email' => $adminEmail
                 ];
             }
 

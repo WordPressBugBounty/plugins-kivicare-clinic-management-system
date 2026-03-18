@@ -638,6 +638,14 @@ class BillController extends KCBaseController
                     );
                 }
             }
+
+            $appointmentId = isset($params['patientEncounter']['appointmentId']) ? (int)$params['patientEncounter']['appointmentId'] : 0;
+            if ($appointmentId > 0) {
+                $appointmentRecord = KCAppointment::find($appointmentId);
+                if ($appointmentRecord) {
+                    do_action('kc_appointment_updated', $appointmentId, ['status' => '3'], $appointmentRecord->toArray(), $request);
+                }
+            }
         } else {
             KCPatientEncounter::query()
                 ->where('id', $encounter->id)
@@ -816,6 +824,14 @@ class BillController extends KCBaseController
                         );
                     }
                 }
+
+                $appointmentId = isset($params['patientEncounter']['appointmentId']) ? (int)$params['patientEncounter']['appointmentId'] : 0;
+                if ($appointmentId > 0) {
+                    $appointmentRecord = KCAppointment::find($appointmentId);
+                    if ($appointmentRecord) {
+                        do_action('kc_appointment_updated', $appointmentId, ['status' => '3'], $appointmentRecord->toArray(), $request);
+                    }
+                }
             }
         } else {
             KCPatientEncounter::query()
@@ -827,6 +843,7 @@ class BillController extends KCBaseController
         }
         if ($result) {
             $wpdb->query('COMMIT');
+            do_action('kivicare_after_update_bill', $id, $params);
             return $this->response(['id' => $id], __('Bill updated successfully', 'kivicare-clinic-management-system'));
         }
         $wpdb->query('ROLLBACK');

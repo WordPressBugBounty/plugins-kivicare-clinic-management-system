@@ -131,7 +131,7 @@ class MigrateAppointmentsToUTC extends KCAbstractMigration {
         }
 
         // Process in deterministic batches (ORDER BY id ASC)
-        $offset = 0;
+        $last_id = 0;
         $batch_num = 1;
 
         while (true) {
@@ -140,9 +140,10 @@ class MigrateAppointmentsToUTC extends KCAbstractMigration {
                 "SELECT id, appointment_start_date, appointment_start_time, 
                         appointment_end_date, appointment_end_time, created_at 
                  FROM $table_name 
-                 WHERE appointment_start_utc IS NULL OR appointment_end_utc IS NULL
+                 WHERE id > %d AND (appointment_start_utc IS NULL OR appointment_end_utc IS NULL)
                  ORDER BY id ASC
                  LIMIT %d",
+                $last_id,
                 $this->batch_size
             ));
 
@@ -155,6 +156,7 @@ class MigrateAppointmentsToUTC extends KCAbstractMigration {
             // Process batch
             foreach ($records as $record) {
                 $this->migrate_single_record($record, $table_name, $wp_timezone, $utc_timezone);
+                $last_id = $record->id;
             }
 
             $batch_num++;

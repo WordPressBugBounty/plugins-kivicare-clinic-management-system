@@ -61,10 +61,11 @@ class KCPaypal extends KCAbstractPaymentGateway
 
         // Set currency - handle both array and string values
         if (isset($settings['currency'])) {
-            if (is_array($settings['currency']) && isset($settings['currency']['id'])) {
-                $this->currency = $settings['currency']['id'];
+            if (is_array($settings['currency'])) {
+                $val = $settings['currency']['id'] ?? 'USD';
+                $this->currency = is_array($val) ? 'USD' : (string) $val;
             } else {
-                $this->currency = $settings['currency'];
+                $this->currency = (string) $settings['currency'];
             }
         } else {
             $this->currency = 'USD';
@@ -469,12 +470,11 @@ class KCPaypal extends KCAbstractPaymentGateway
         if (isset($settings['mode'])) {
             if (is_array($settings['mode'])) {
                 // Extract the ID from array structure
-                $settings['mode'] = (string) ($settings['mode']['id'] ?? 0);
-            } elseif (!is_string($settings['mode'])) {
-                // Convert any non-string value to string
-                $settings['mode'] = (string) $settings['mode'];
+                $val = $settings['mode']['id'] ?? '0';
+                $settings['mode'] = is_array($val) ? '0' : (string) $val;
+            } else {
+                $settings['mode'] = (string) ($settings['mode'] ?? '0');
             }
-            // Else it's already a string, keep it as is
         } else {
             $settings['mode'] = '0'; // Default to sandbox mode
         }

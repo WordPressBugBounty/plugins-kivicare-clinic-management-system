@@ -61,6 +61,21 @@ class SystemNoticesController extends KCBaseController
             'callback' => [$this, 'runPendingMigrations'],
             'permission_callback' => [$this, 'checkAdminPermission'],
         ]);
+
+        // Dismiss a notice
+        $this->registerRoute('/' . $this->route . '/dismiss', [
+            'methods' => WP_REST_Server::CREATABLE,
+            'callback' => [$this, 'dismissNotice'],
+            'permission_callback' => [$this, 'checkAdminPermission'],
+            'args' => [
+                'notice_id' => [
+                    'required' => true,
+                    'type' => 'string',
+                    'description' => 'The ID of the notice to dismiss',
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+            ]
+        ]);
     }
 
     /**
@@ -100,6 +115,21 @@ class SystemNoticesController extends KCBaseController
             $migration_notice = $this->checkPendingMigrations();
             if ($migration_notice) {
                 $notices[] = $migration_notice;
+            }
+
+            // Check for new features
+            $feature_notices = $this->getFeatureNotices();
+            if (!empty($feature_notices)) {
+                $notices = array_merge($notices, $feature_notices);
+            }
+
+            // Filter out dismissed notices for the current user
+            $dismissed = $this->getDismissedNotices();
+            if (!empty($dismissed)) {
+                $notices = array_filter($notices, function ($notice) use ($dismissed) {
+                    return !in_array($notice['id'] ?? '', $dismissed, true);
+                });
+                $notices = array_values($notices); // Re-index
             }
 
             return $this->response($notices, __('System notices retrieved successfully', 'kivicare-clinic-management-system'));
@@ -201,6 +231,61 @@ class SystemNoticesController extends KCBaseController
                 ['status' => 500]
             );
         }
+    }
+
+    /**
+     * Dismiss a notice for the current user
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response|WP_Error
+     */
+    public function dismissNotice(WP_REST_Request $request): WP_REST_Response|WP_Error
+    {
+        try {
+            $notice_id = $request->get_param('notice_id');
+
+            if (empty($notice_id)) {
+                return new WP_Error(
+                    'missing_notice_id',
+                    __('Notice ID is required', 'kivicare-clinic-management-system'),
+                    ['status' => 400]
+                );
+            }
+
+            $user_id = get_current_user_id();
+            $dismissed = $this->getDismissedNotices($user_id);
+
+            // Add the notice ID if not already dismissed
+            if (!in_array($notice_id, $dismissed, true)) {
+                $dismissed[] = $notice_id;
+                update_user_meta($user_id, KIVI_CARE_PREFIX . 'dismissed_notices', $dismissed);
+            }
+
+            return $this->response(
+                ['notice_id' => $notice_id],
+                __('Notice dismissed successfully', 'kivicare-clinic-management-system')
+            );
+        } catch (\Exception $e) {
+            return new WP_Error(
+                'dismiss_notice_error',
+                __('Error dismissing notice', 'kivicare-clinic-management-system') . ': ' . $e->getMessage(),
+                ['status' => 500]
+            );
+        }
+    }
+
+    /**
+     * Get dismissed notice IDs for a user
+     *
+     * @param int|null $user_id User ID, defaults to current user
+     * @return array
+     */
+    private function getDismissedNotices(?int $user_id = null): array
+    {
+        $user_id = $user_id ?: get_current_user_id();
+        $dismissed = get_user_meta($user_id, KIVI_CARE_PREFIX . 'dismissed_notices', true);
+
+        return is_array($dismissed) ? $dismissed : [];
     }
 
     /**
@@ -454,6 +539,24 @@ class SystemNoticesController extends KCBaseController
         }
 
         return $all_migration_files;
+    }
+
+    /**
+     * Check for new features and return notices if any
+     *
+     * @return array
+     */
+    private function getFeatureNotices(): array
+    {
+        $notices = [];
+
+        $notice = apply_filters('kivicare_followup_treatment_notice', []);
+
+        if (!empty($notice)) {
+            $notices[] = $notice;
+        }
+
+        return $notices;
     }
 
     /**

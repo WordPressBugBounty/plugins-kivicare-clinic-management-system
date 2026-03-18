@@ -455,7 +455,12 @@ class PatientController extends KCBaseController
                 'description' => 'Filter by patient unique ID',
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_text_field',
-            ]
+            ],
+            'mobile_number' => [
+                'description' => 'Filter by patient mobile number',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
         ];
     }
 
@@ -644,6 +649,77 @@ class PatientController extends KCBaseController
                 'validate_callback' => [$this, 'validateId'],
                 'sanitize_callback' => 'absint',
             ],
+            'id' => [
+                'description' => 'Filter by patient ID',
+                'type' => 'integer',
+                'validate_callback' => [$this, 'validateId'],
+                'sanitize_callback' => 'absint',
+            ],
+            'patientName' => [
+                'description' => 'Filter by patient name',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'clinicName' => [
+                'description' => 'Filter by clinic name',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'date_from' => [
+                'description' => 'Filter by registered date (from)',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'date_to' => [
+                'description' => 'Filter by registered date (to)',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'registeredOn' => [
+                'description' => 'Filter by registered date',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'patient_unique_id' => [
+                'description' => 'Filter by patient unique ID',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'mobile_number' => [
+                'description' => 'Filter by patient mobile number',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'orderby' => [
+                'description' => 'Sort results by specified field',
+                'type' => 'string',
+                'validate_callback' => [$this, 'validateOrderBy'],
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'order' => [
+                'description' => 'Sort direction (asc or desc)',
+                'type' => 'string',
+                'validate_callback' => [$this, 'validateOrder'],
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'page' => [
+                'description' => 'Current page of results',
+                'type' => 'integer',
+                'default' => 1,
+                'validate_callback' => function ($param) {
+                    return is_numeric($param) && $param > 0;
+                },
+                'sanitize_callback' => 'absint',
+            ],
+            'perPage' => [
+                'description' => 'Number of results per page',
+                'type' => 'string',
+                'default' => 'all',
+                'validate_callback' => [$this, 'validatePerPage'],
+                'sanitize_callback' => function ($param) {
+                    return strtolower($param) === 'all' ? 'all' : absint($param);
+                },
+            ],
         ];
     }
 
@@ -747,6 +823,7 @@ class PatientController extends KCBaseController
             $registeredOn = isset($params['registeredOn']) ? sanitize_text_field($params['registeredOn']) : '';
             $status = isset($params['status']) ? (int) ($params['status']) : null;
             $patientUniqueId = isset($params['patient_unique_id']) ? sanitize_text_field($params['patient_unique_id']) : '';
+            $mobileNumber = isset($params['mobile_number']) ? sanitize_text_field($params['mobile_number']) : '';
 
             // Build a SLIM base query (IDs and core fields only)
             $query = KCPatient::table('p')->select(['p.ID as id', 'p.display_name', 'p.user_email as email', 'p.user_registered', 'p.user_status as user_status']);
@@ -816,6 +893,11 @@ class PatientController extends KCBaseController
             if (!empty($patientUniqueId)) {
                 $puidIds = KCUserMeta::query()->where('metaKey', 'patient_unique_id')->where('metaValue', 'LIKE', '%' . $patientUniqueId . '%')->pluck('userId');
                 $query->whereIn('p.ID', $puidIds ?: [0]);
+            }
+
+            if (!empty($mobileNumber)) {
+                $mobileIds = KCUserMeta::query()->where('metaKey', 'basic_data')->where('metaValue', 'LIKE', '%' . $mobileNumber . '%')->pluck('userId');
+                $query->whereIn('p.ID', $mobileIds ?: [0]);
             }
 
             if ($patient_id) $query->where("p.ID", '=', $patient_id);
@@ -2095,10 +2177,22 @@ class PatientController extends KCBaseController
             $params = $request->get_params();
             $format = $params['format'];
 
-            // Use the same query logic as getPatients but without pagination
+            // Use the same query logic as getPatients with pagination
+            $page = max(1, isset($params['page']) ? (int) $params['page'] : 1);
+            $perPageParam = isset($params['perPage']) ? $params['perPage'] : 10;
+            $showAll = (strtolower($perPageParam) === 'all');
+
             $search = isset($params['search']) ? sanitize_text_field($params['search']) : '';
-            $clinic_id = isset($params['clinic']) ? (int) $params['clinic'] : null;
+            $patient_id = isset($params['id']) ? (int) $params['id'] : null;
+            $patientName = isset($params['patientName']) ? sanitize_text_field($params['patientName']) : '';
+            $clinicName = isset($params['clinicName']) ? sanitize_text_field($params['clinicName']) : '';
+            $date_from = isset($params['date_from']) ? sanitize_text_field($params['date_from']) : '';
+            $date_to = isset($params['date_to']) ? sanitize_text_field($params['date_to']) : '';
+            $registeredOn = isset($params['registeredOn']) ? sanitize_text_field($params['registeredOn']) : '';
             $status = isset($params['status']) ? (int) $params['status'] : null;
+            $patientUniqueId = isset($params['patient_unique_id']) ? sanitize_text_field($params['patient_unique_id']) : '';
+            $mobileNumber = isset($params['mobile_number']) ? sanitize_text_field($params['mobile_number']) : '';
+            $clinic_id = isset($params['clinic']) ? (int) $params['clinic'] : null;
 
             // Build the base query for patients - using exact same structure as getPatients
             $query = KCPatient::table('p')
@@ -2148,9 +2242,11 @@ class PatientController extends KCBaseController
                         $q->where('app.doctor_id', '=', $current_user_id)
                             ->orWhere('pab.meta_value', '=', $current_user_id);
                     });
-            } elseif ($current_user_role === $this->kcbase->getClinicAdminRole()) {
+            } elseif ($current_user_role === $this->kcbase->getClinicAdminRole() || $current_user_role === $this->kcbase->getReceptionistRole()) {
                 // For clinic admins, show only patients from their clinic
-                $clinic_id = KCClinic::getClinicIdOfClinicAdmin($current_user_id);
+                $clinic_id = ($current_user_role === $this->kcbase->getClinicAdminRole())
+                    ? KCClinic::getClinicIdOfClinicAdmin($current_user_id)
+                    : KCClinic::getClinicIdOfReceptionist();
                 if ($clinic_id) {
                     $query->where('pcm.clinic_id', '=', $clinic_id);
                 }
@@ -2169,12 +2265,48 @@ class PatientController extends KCBaseController
                 });
             }
 
+            if (!empty($patientName)) {
+                $query->where(function ($q) use ($patientName) {
+                    $q->where("fn.meta_value", 'LIKE', '%' . $patientName . '%')
+                        ->orWhere("ln.meta_value", 'LIKE', '%' . $patientName . '%')
+                        ->orWhere("p.display_name", 'LIKE', '%' . $patientName . '%');
+                });
+            }
+
+            if (!empty($clinicName)) {
+                $query->where("c.name", 'LIKE', '%' . $clinicName . '%');
+            }
+
             if ($clinic_id) {
                 $query->where('pcm.clinic_id', '=', $clinic_id);
             }
 
+            if ($patientUniqueId) {
+                $query->where('puid.meta_value', 'LIKE', '%' . $patientUniqueId . '%');
+            }
+
+            if ($mobileNumber) {
+                $query->where('bd.meta_value', 'LIKE', '%' . $mobileNumber . '%');
+            }
+
+            if ($patient_id) {
+                $query->where("p.ID", '=', $patient_id);
+            }
+
             if ($status !== null) {
                 $query->where('p.user_status', '=', $status);
+            }
+
+            if ($registeredOn) {
+                $query->where("p.user_registered", 'LIKE', '%' . $registeredOn . '%');
+            }
+
+            if ($date_from) {
+                $query->where("p.user_registered", '>=', gmdate('Y-m-d 00:00:00', strtotime($date_from)));
+            }
+
+            if ($date_to) {
+                $query->where("p.user_registered", '<=', gmdate('Y-m-d 23:59:59', strtotime($date_to)));
             }
 
             // Apply doctor filter for export as well
@@ -2184,7 +2316,25 @@ class PatientController extends KCBaseController
                     ->where('app.doctor_id', '=', $doctor_id);
             }
 
-            // Execute query
+            // Sorting
+            $orderBy = isset($params['orderby']) ? $params['orderby'] : 'id';
+            $order = !empty($params['order']) && strtoupper($params['order']) === 'ASC' ? 'ASC' : 'DESC';
+            $sortMap = [
+                'name' => 'p.display_name',
+                'email' => 'p.user_email',
+                'registered_on' => 'p.user_registered',
+                'created_at' => 'p.user_registered',
+                'status' => 'p.user_status',
+                'id' => 'p.ID'
+            ];
+            $query->orderBy($sortMap[$orderBy] ?? 'p.ID', $order);
+
+            if (!$showAll) {
+                $perPage = max(1, (int) $perPageParam);
+                $offset = ($page - 1) * $perPage;
+                $query->limit($perPage)->offset($offset);
+            }
+
             $results = $query->get();
 
             if (empty($results)) {

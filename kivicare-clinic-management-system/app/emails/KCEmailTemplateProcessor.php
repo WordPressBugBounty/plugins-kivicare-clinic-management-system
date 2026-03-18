@@ -128,6 +128,9 @@ class KCEmailTemplateProcessor
             $mapping['appointment_id'] = $appointment['id'] ?? '';
             $mapping['service_name'] = $appointment['service_name'] ?? '';
             $mapping['total_amount'] = $appointment['total_amount'] ?? '';
+            if (isset($appointment['created_by'])) {
+                $mapping['created_by'] = $appointment['created_by'];
+            }
         }
 
         // Patient data mapping
@@ -152,6 +155,7 @@ class KCEmailTemplateProcessor
             $mapping['clinic_name'] = $clinic['name'] ?? '';
             $mapping['clinic_email'] = $clinic['email'] ?? '';
             $mapping['clinic_contact_number'] = $clinic['telephone_no'] ?? '';
+            $mapping['clinic_phone'] = $clinic['telephone_no'] ?? $clinic['mobile_number'] ?? '';
             $mapping['clinic_address'] = $this->formatClinicAddress($clinic);
         }
 
@@ -189,6 +193,10 @@ class KCEmailTemplateProcessor
         // Prescription data
         if (isset($data['prescription'])) {
             $mapping['prescription'] = $data['prescription'];
+        }
+
+        if (isset($data['site_name'])) {
+            $mapping['site_name'] = $data['site_name'];
         }
 
         return $mapping;

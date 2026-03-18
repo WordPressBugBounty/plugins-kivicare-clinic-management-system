@@ -51,6 +51,32 @@ class AppointmentsController extends KCBaseController
     protected $route = 'appointments';
 
     /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        // Standard REST controller initialization (dependencies are loaded via KCBaseController)
+    }
+
+    /**
+     * Globally registers the cron callback and appointment lifecycle hooks
+     * for auto-close scheduling. Must be called during plugin init (e.g., KCApp::init)
+     * so that WP-Cron and CLI can discover the hooks outside of REST requests.
+     */
+    public static function initAutoCloseAppointmentCron(): void
+    {
+        $instance = new self();
+
+        add_action('kc_appointment_auto_close', [$instance, 'handleAutoCloseAppointments']);
+
+        // improvement: Simple, low-overhead daily cron schedule
+        if (!wp_next_scheduled('kc_appointment_auto_close')) {
+            wp_schedule_event(time(), 'daily', 'kc_appointment_auto_close');
+        }
+    }
+
+    /**
      * Sync appointment to Google Calendar
      * 
      * @param int $appointmentId
@@ -81,6 +107,102 @@ class AppointmentsController extends KCBaseController
             $doctor, 
             $appointmentServices
         );
+    }
+
+    /** Processes cancellation for all past-due booked appointments. */
+    public function handleAutoCloseAppointments(): void
+    {
+        // improvement: Pre-filter in DB — past-date, booked-only appointments
+        $todayWp = ( new \DateTime( 'now', new \DateTimeZone( wp_timezone_string() ) ) )->format('Y-m-d');
+
+        // Note: limit is intentionally removed to process all overdue appointments at once
+        $appointments = KCAppointment::query()
+            ->where('status', '=', KCAppointment::STATUS_BOOKED)
+            ->where('appointment_start_date', '<', $todayWp)
+            ->get();
+
+        if (!$appointments || $appointments->isEmpty()) {
+            return;
+        }
+
+        $utcTz  = new \DateTimeZone('UTC');
+        $nowUtc = new \DateTime('now', $utcTz);
+
+        foreach ($appointments as $appointment) {
+            $apptDate = $appointment->appointmentStartDate
+                ?? $appointment->appointment_start_date
+                ?? null;
+
+            if (empty($apptDate)) {
+                continue;
+            }
+
+            // feature: Resolve timezone — appointment tz first, then WP General Settings
+            $tz = $this->resolveAppointmentTimezone($appointment);
+
+            // Build end-of-day boundary (23:59:59) in the resolved timezone
+            try {
+                $endOfDay = new \DateTime($apptDate . ' 23:59:59', $tz);
+            } catch (\Exception $e) {
+                KCErrorLogger::instance()->error(
+                    '[AutoClose] Failed to parse date for appointment #'
+                    . $appointment->id . ': ' . $e->getMessage()
+                );
+                continue;
+            }
+
+            // Convert end-of-day to UTC and confirm day has fully passed
+            $endOfDayUtc = clone $endOfDay;
+            $endOfDayUtc->setTimezone($utcTz);
+
+            // improvement: Safety check — skip if end-of-day hasn't passed yet
+            if ($nowUtc <= $endOfDayUtc) {
+                continue;
+            }
+
+            // feature: Update status to CANCELLED — do NOT delete the record
+            KCAppointment::find($appointment->id)->update([
+                'status' => KCAppointment::STATUS_CANCELLED,
+            ]);
+
+            // feature: Fire standard hooks so email notifications, Google Calendar
+            //          sync and other integrations are triggered automatically
+            do_action('kc_appointment_cancelled', $appointment->id);
+            do_action('kc_appointment_status_update', $appointment->id, KCAppointment::STATUS_CANCELLED, $appointment);
+        }
+    }
+
+    /**
+     * Resolve the timezone for an appointment.
+     *
+     * Priority:
+     *   1. appointment_timezone column — frozen at booking time from user's profile or request.
+     *   2. WordPress General Settings timezone (wp_timezone_string()).
+     *   3. UTC as a last-resort fallback.
+   
+     */
+    private function resolveAppointmentTimezone(KCAppointment $appointment): \DateTimeZone
+    {
+        // 1. Try the timezone frozen at booking time
+        $stored = $appointment->appointmentTimezone
+            ?? $appointment->appointment_timezone
+            ?? '';
+
+        if (!empty($stored)) {
+            try {
+                return new \DateTimeZone($stored);
+            } catch (\Exception $e) {
+                // stored value is invalid — fall through to WP setting
+            }
+        }
+
+        // 2. WordPress General Settings timezone
+        try {
+            return new \DateTimeZone(wp_timezone_string());
+        } catch (\Exception $e) {
+            // 3. Last-resort fallback
+            return new \DateTimeZone('UTC');
+        }
     }
 
     /**
@@ -1569,7 +1691,7 @@ class AppointmentsController extends KCBaseController
      */
     private function getSingleDateSlots($params)
     {
-        $settings = (new \App\controllers\api\SettingsController\AppointmentSetting())->kcAppointmentRestrictionData();
+        $settings = (new AppointmentSetting())->kcAppointmentRestrictionData();
         $is_same_day = in_array($settings['only_same_day_book'] ?? '', [true, 'on', 1, '1'], true);
 
         // Calculate "today" based on target timezone to align with frontend calendars
@@ -1694,11 +1816,7 @@ class AppointmentsController extends KCBaseController
                 'target_timezone' => 'UTC'
             ];
         }
-        
-        // Sort the flat array of allSlots by time
-        usort($allSlots, function($a, $b) {
-            return strcmp($a['time_format'], $b['time_format']);
-        });
+  
 
         // The UI usually expects an array of sessions, we just group them into one session
         $slots = [$allSlots];
@@ -2018,9 +2136,6 @@ class AppointmentsController extends KCBaseController
 
         if (isset($params['status']) && $params['status'] !== '') {
             $query->where("a.status", '=', $params['status']);
-        } elseif (empty($timeFrame) || $timeFrame === 'all') {
-            // fix: Only exclude cancelled appointments from general/all view by default
-            $query->where("a.status", '!=', KCAppointment::STATUS_CANCELLED);
         }
 
         // Apply sorting if orderby parameter is provided
@@ -2865,7 +2980,7 @@ class AppointmentsController extends KCBaseController
             $appointmentDate = $params['appointmentStartDate'];
             $appointmentStartTime = $params['appointmentStartTime'];
 
-            // Get doctor sessions for the day
+            // Get doctor sessions for the date
             $slotData = KCAppointmentDataService::prepareSlotGenerationData([
                 'doctor_id' => $params['doctorId'],
                 'clinic_id' => $clinicId,
@@ -2873,7 +2988,7 @@ class AppointmentsController extends KCBaseController
                 'service_id' => $mappingIds
             ]);
 
-            // Create the slot generator with prepared data
+            // Create the slot generator and use standard availability check
             $slotGenerator = new KCTimeSlotService($slotData);
             if (!$slotGenerator->isSlotAvailable($appointmentDate . ' ' . $appointmentStartTime)) {
                 return $this->response(
@@ -2991,6 +3106,9 @@ class AppointmentsController extends KCBaseController
             $appointmentReport = !empty($params['appointmentFileId']) ? json_encode($params['appointmentFileId']) : null;
 
             // 9. Insert Appointment
+            $rawTimezone = !empty($params['timezone']) ? $params['timezone'] : kcGetDoctorTimezone((int)$params['doctorId']);
+            $appointmentTimezone = $this->formatTimezoneString($rawTimezone);
+
             $appointmentData = [
                 'appointmentStartDate' => $appointmentStartDate,
                 'appointmentStartTime' => $appointmentStartTime,
@@ -3004,7 +3122,7 @@ class AppointmentsController extends KCBaseController
                 'visitType' => implode(',', $request->get_param('serviceId')),
                 'createdAt' => current_time('mysql'),
                 'appointmentReport' => $appointmentReport,
-                'appointmentTimezone' => !empty($params['timezone']) ? $params['timezone'] : wp_timezone_string()
+                'appointmentTimezone' => $appointmentTimezone
             ];
 
             /**
@@ -3319,8 +3437,20 @@ class AppointmentsController extends KCBaseController
                 }
             }
 
+            // ── Timezone resolution (mirrors createAppointment) ──────────────────────
+            $rawTimezone = !empty($params['timezone'])
+                ? $params['timezone']
+                : ($appointment->appointmentTimezone ?: kcGetDoctorTimezone((int)$appointment->doctorId));
+            $resolvedTimezone = $this->formatTimezoneString($rawTimezone);
+            try {
+                $localTz = new \DateTimeZone($resolvedTimezone);
+            } catch (\Exception $e) {
+                $localTz = new \DateTimeZone(wp_timezone_string());
+                $resolvedTimezone = wp_timezone_string();
+            }
+
             // Calculate new end time
-            $startDateTime = new DateTime($newAppointmentDate . ' ' . $newAppointmentStartTime);
+            $startDateTime = new DateTime($newAppointmentDate . ' ' . $newAppointmentStartTime, $localTz);
             $newAppointmentStartDate = $startDateTime->format('Y-m-d');
             $newAppointmentStartTime = $startDateTime->format('H:i:s');
 
@@ -3399,14 +3529,15 @@ class AppointmentsController extends KCBaseController
                 }
             }
 
-            // Update appointment with new date and time only
+            // Update appointment with new date, time, and UTC equivalents
             $updateData = [
                 'appointmentStartDate' => $newAppointmentStartDate,
                 'appointmentStartTime' => $newAppointmentStartTime,
-                'appointmentEndDate' => $newAppointmentEndDate,
-                'appointmentEndTime' => $newAppointmentEndTime,
+                'appointmentEndDate'   => $newAppointmentEndDate,
+                'appointmentEndTime'   => $newAppointmentEndTime,
+                'appointmentTimezone'  => $resolvedTimezone,
                 'description' => $params['description'] ?? '',
-                'updatedAt' => current_time('mysql'),
+                'updatedAt'   => current_time('mysql'),
             ];
 
             // Include status if provided
@@ -3414,7 +3545,12 @@ class AppointmentsController extends KCBaseController
                 $updateData['status'] = $params['status'];
             }
 
-            $updated = KCAppointment::query()->where('id', $params['id'])->update($updateData);
+            // Important: Use the model's update() method, NOT KCAppointment::query()->update().
+            // The model instance's update() triggers the save() method in KCAppointment.php,
+            // which handles generating and saving the required UTC columns. The query
+            // builder bypasses this logic entirely, resulting in missing/outdated UTC times
+            // which the frontend calendar relies on.
+            $updated = $appointment->update($updateData);
 
             if ($updated === false) {
                 throw new Exception(__('Failed to update appointment', 'kivicare-clinic-management-system'));

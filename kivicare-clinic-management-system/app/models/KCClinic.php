@@ -518,7 +518,7 @@ class KCClinic extends KCBaseModel
         $clinic_prefix  = '';
         $clinic_postfix = '';
 
-        $clinic = self::query()->first();
+        $clinic = self::getDefaultClinic();
 
         if ($clinic && ! empty($clinic->extra)) {
             $data = json_decode($clinic->extra);

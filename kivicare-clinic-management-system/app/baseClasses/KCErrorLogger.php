@@ -47,7 +47,7 @@ class KCErrorLogger {
 	 *
 	 * @var bool
 	 */
-	private $is_enabled = true;
+	private $is_enabled = false;
 
 	/**
 	 * Get the singleton instance.
@@ -87,8 +87,8 @@ class KCErrorLogger {
 		}
 
 		// Check for disable constant
-		if ( defined( 'KIVICARE_DISABLE_LOGGING' ) && KIVICARE_DISABLE_LOGGING ) {
-			$this->is_enabled = false;
+		if ( defined( 'KIVICARE_LOGGING' ) && KIVICARE_LOGGING ) {
+			$this->is_enabled = true;
 		}
 	}
 

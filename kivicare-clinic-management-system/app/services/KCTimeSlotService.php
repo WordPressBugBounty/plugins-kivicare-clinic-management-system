@@ -551,8 +551,20 @@ class KCTimeSlotService
         // Check against existing appointments
         foreach ($this->appointments as $appointment) {
             $appointment = (object) $appointment;
-            $appointmentStart = new DateTime($appointment->appointmentStartDate . ' ' . $appointment->appointmentStartTime,  $this->sourceTimezone);
-            $appointmentEnd = new DateTime($appointment->appointmentEndDate . ' ' . $appointment->appointmentEndTime,  $this->sourceTimezone);
+
+            $utcTimezone = new \DateTimeZone('UTC');
+            $startUtcStr = $appointment->appointmentStartUtc ?? ($appointment->appointment_start_utc ?? null);
+            $endUtcStr = $appointment->appointmentEndUtc ?? ($appointment->appointment_end_utc ?? null);
+
+            if ($startUtcStr && $endUtcStr) {
+                // Use UTC fields and convert to sourceTimezone for comparison
+                $appointmentStart = (new \DateTime($startUtcStr, $utcTimezone))->setTimezone($this->sourceTimezone);
+                $appointmentEnd = (new \DateTime($endUtcStr, $utcTimezone))->setTimezone($this->sourceTimezone);
+            } else {
+                // Fallback to local time comparison
+                $appointmentStart = new DateTime($appointment->appointmentStartDate . ' ' . $appointment->appointmentStartTime,  $this->sourceTimezone);
+                $appointmentEnd = new DateTime($appointment->appointmentEndDate . ' ' . $appointment->appointmentEndTime,  $this->sourceTimezone);
+            }
 
             // Check for overlap
             if ($slotStart < $appointmentEnd && $slotEnd > $appointmentStart) {

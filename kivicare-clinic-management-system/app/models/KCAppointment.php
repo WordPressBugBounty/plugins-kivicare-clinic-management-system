@@ -61,7 +61,14 @@ class KCAppointment extends KCBaseModel
      */
     private function populateUtcColumns(): void
     {
-        $tz_string = $this->appointmentTimezone ?: wp_timezone_string();
+        $timezone = $this->appointmentTimezone;
+
+        // Fallback to doctor's timezone if current is empty or generic UTC (schema default)
+        if (empty($timezone) || $timezone === 'UTC') {
+            $timezone = kcGetDoctorTimezone((int) $this->doctorId);
+        }
+
+        $tz_string = $timezone;
         
         // Parse UTC-X / UTC+X strings into ±HH:MM offset format
         if (preg_match('/^UTC([+-])([0-9]+)(?:\.([0-9]+))?(?::([0-9]+))?$/i', $tz_string, $matches)) {

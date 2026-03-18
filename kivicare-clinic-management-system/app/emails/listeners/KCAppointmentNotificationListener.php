@@ -14,6 +14,7 @@ use App\models\KCServiceDoctorMapping;
 use App\models\KCAppointmentReminderMapping;
 use App\models\KCOption;
 use DateTime;
+use KCProApp\baseClasses\KCProFollowupSettings;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -63,7 +64,11 @@ class KCAppointmentNotificationListener
         add_action('kivicare_appointment_confirmed', [$this, 'handleAppointmentConfirmed'], 10, 1);
 
         // Appointment Reminder Hooks
-        add_action('kivicare_appointment_reminder', [$this, 'handleAppointmentReminder'], 10, 1);
+        if (!apply_filters('kivicare_pro_handle_reminder', false)) {
+            add_action('kivicare_appointment_reminder', [$this, 'handleAppointmentReminder'], 10, 1);
+        }
+
+        // Removed Pro hooks - moving to KCPro\notifications\listeners\KCFollowupNotificationListener
     }
 
 
@@ -89,7 +94,11 @@ class KCAppointmentNotificationListener
             // Get reminder settings
             $reminderSettings = KCOption::get('email_appointment_reminder', []);
 
-            if (!is_array($reminderSettings) || !isset($reminderSettings['status']) || $reminderSettings['status'] !== true) {
+            if (!is_array($reminderSettings) || !isset($reminderSettings['status']) || ($reminderSettings['status'] !== true && $reminderSettings['status'] !== 'on')) {
+                return;
+            }
+
+            if (apply_filters('kivicare_pro_handle_reminder', false)) {
                 return;
             }
 
@@ -105,13 +114,12 @@ class KCAppointmentNotificationListener
 
             // Send email reminder to patient
             if ($this->shouldSendEmailReminder($reminderSettings)) {
-                $templateName = KIVI_CARE_PREFIX . 'book_appointment_reminder';
+                $templateName = KIVI_CARE_PREFIX . 'book_appointment_reminder'; 
                 $patientResult = $this->emailSender->sendAppointmentNotification(
                     $templateName,
                     $fullAppointmentData,
                     'patient',
                 );
-   
             }
             // Send email reminder to doctor
             if ($this->shouldSendEmailReminder($reminderSettings)) {
@@ -221,7 +229,8 @@ class KCAppointmentNotificationListener
             // Send video conference links if applicable
             $this->sendVideoConferenceLinks($fullAppointmentData);
 
-            // Schedule appointment reminder
+            // Reschedule reminder
+            $this->unscheduleReminder($appointmentId);
             $this->scheduleReminder($appointmentId, $fullAppointmentData);
 
         } catch (\Exception $e) {
@@ -539,7 +548,10 @@ class KCAppointmentNotificationListener
                     'description' => $appointment->description,
                     'status' => $appointment->status,
                     'service_name' => implode(', ', array_column($services, 'name')),
-                    'total_amount' => number_format(array_sum(array_column($services, 'charges')), 2)
+                    'total_amount' => number_format(array_sum(array_column($services, 'charges')), 2),
+                    'appointment_id' => $appointment->id,
+                    'clinic_id' => $appointment->clinicId,
+                    'created_by' => ($creator = get_userdata(get_post_meta($appointmentId, '_kc_created_by', true) ?: (get_current_user_id() ?: 1))) ? $creator->display_name : 'Staff',
                 ],
                 'patient' => [
                     'id' => $patient->id ?? 0,
@@ -571,9 +583,11 @@ class KCAppointmentNotificationListener
                     'clinic_name' => $clinic->name ?? '', // Alias for templates
                     'clinic_email' => $clinic->email ?? '', // Alias for templates
                     'mobile_number' => $this->format_phone($clinicAdminBasicData['mobile_number'] ?? ''), // Alias for templates
-                    'clinic_address' => $this->formatClinicAddress($clinic) // Formatted address
+                    'clinic_address' => $this->formatClinicAddress($clinic), // Formatted address
+                    'clinic_phone' => $this->format_phone($clinicAdminBasicData['mobile_number'] ?? ''), // Alias for templates
                 ],
                 'services' => $services,
+                'isFollowUp' => (get_post_meta($appointmentId, '_kc_is_follow_up', true) === 'yes' || get_post_meta($appointmentId, '_kc_is_follow_up', true) === '1'),
                 
                 // Video Links (Available for all notifications)
                 'zoom_link' => $this->getZoomLink($appointmentId) ?? '',
@@ -585,6 +599,7 @@ class KCAppointmentNotificationListener
                 'current_date_time' => current_time('Y-m-d H:i:s'),
                 'site_url' => get_site_url(),
                 'login_url' => wp_login_url(),
+                'site_name' => get_bloginfo('name'),
             ];
 
         } catch (\Exception $e) {
@@ -765,7 +780,21 @@ class KCAppointmentNotificationListener
                 return;
             }
 
+            if (apply_filters('kivicare_pro_handle_reminder', false)) {
+                return;
+            }
+
+
+            $isFollowUp = (get_post_meta($appointmentId, '_kc_is_follow_up', true) === 'yes' || get_post_meta($appointmentId, '_kc_is_follow_up', true) === '1');
             $reminderHours = isset($reminderSettings['time']) ? intval($reminderSettings['time']) : 24;
+
+            // Use follow-up settings if it's a follow-up appointment
+            if ($isFollowUp && class_exists('\KCProApp\baseClasses\KCProFollowupSettings')) {
+                if (KCProFollowupSettings::isReminderEnabled()) {
+                    $reminderDaysBefore = KCProFollowupSettings::reminderDaysBefore();
+                    $reminderHours = $reminderDaysBefore * 24;
+                }
+            }
 
             // Appointment datetime string (stored in WP timezone)
             $appointmentStart = $appointmentData['appointment']['appointment_start_date'] . ' ' . $appointmentData['appointment']['appointment_time'];
@@ -911,11 +940,9 @@ class KCAppointmentNotificationListener
 
         update_option('kivicare_notification_history_' . $appointmentId, $history);
     }
+
     /**
      * Format phone number to E.164 format for Twilio
-     *
-     * @param string $phone_number Raw phone number
-     * @return string Formatted phone number in E.164 format
      */
     public function format_phone($phone_number)
     {

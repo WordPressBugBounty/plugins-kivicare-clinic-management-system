@@ -483,6 +483,30 @@ class DoctorSessionController extends KCBaseController
                 'description' => 'Filter by status',
                 'type' => 'integer',
                 'sanitize_callback' => 'absint',
+            ],
+            'orderby' => [
+                'description' => 'Sort results by specified field',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'order' => [
+                'description' => 'Sort direction (asc or desc)',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'page' => [
+                'description' => 'Current page of results',
+                'type' => 'integer',
+                'default' => 1,
+                'sanitize_callback' => 'absint',
+            ],
+            'perPage' => [
+                'description' => 'Number of results per page',
+                'type' => 'string',
+                'default' => 10,
+                'sanitize_callback' => function ($param) {
+                    return strtolower($param) === 'all' ? 'all' : absint($param);
+                },
             ]
         ];
     }
@@ -1299,9 +1323,33 @@ class DoctorSessionController extends KCBaseController
                 $processedSessions[] = $group;
             }
 
+            // Pagination (same approach as getDoctorSessions)
+            $total = count($processedSessions);
+            $perPageParam = isset($params['perPage']) ? $params['perPage'] : (isset($params['per_page']) ? $params['per_page'] : 10);
+            $showAll = (is_string($perPageParam) && strtolower($perPageParam) === 'all');
+            $perPage = $showAll ? $total : (int) $perPageParam;
+            $page = isset($params['page']) ? (int) $params['page'] : 1;
+
+            if (!$showAll && $perPage <= 0) {
+                $perPage = 10;
+            }
+            if ($page <= 0) {
+                $page = 1;
+            }
+
+            $totalPages = ($total > 0 && $perPage > 0) ? ceil($total / $perPage) : 1;
+            $offset = ($page - 1) * $perPage;
+
+            $paginatedSessions = $showAll ? $processedSessions : array_slice($processedSessions, $offset, $perPage);
+
             $data = [
-                'sessions' => $processedSessions,
-                'total' => count($processedSessions)
+                'sessions' => $paginatedSessions,
+                'pagination' => [
+                    'total' => $total,
+                    'lastPage' => $totalPages,
+                    'perPage' => $perPage,
+                    'currentPage' => $page,
+                ],
             ];
 
             return $this->response($data, __('Doctor sessions export data retrieved successfully', 'kivicare-clinic-management-system'));

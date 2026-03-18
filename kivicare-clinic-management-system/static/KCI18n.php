@@ -45,7 +45,7 @@ $admin_sidebar_labels = [
     _x('Encounters', 'admin', 'kivicare-clinic-management-system'),
     _x('Encounters List', 'admin', 'kivicare-clinic-management-system'),
     _x('Encounter Templates', 'admin', 'kivicare-clinic-management-system'),
-    _x('Clinic', 'admin', 'kivicare-clinic-management-system'),
+    _x('Clinics', 'admin', 'kivicare-clinic-management-system'),
     _x('Patients', 'admin', 'kivicare-clinic-management-system'),
     _x('Doctors', 'admin', 'kivicare-clinic-management-system'),
     _x('Receptionist', 'admin', 'kivicare-clinic-management-system'),
@@ -112,5 +112,5 @@ $patient_sidebar_labels = [
     _x('Appointments', 'patient', 'kivicare-clinic-management-system'),
     _x('Encounters', 'patient', 'kivicare-clinic-management-system'),
     _x('Billing records', 'patient', 'kivicare-clinic-management-system'),
-    _x('Reports', 'patient', 'kivicare-clinic-management-system'),
+    _x('Medical Reports', 'patient', 'kivicare-clinic-management-system'),
 ];

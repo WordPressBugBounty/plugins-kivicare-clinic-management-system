@@ -2205,6 +2205,64 @@ class DoctorController extends KCBaseController
                 'validate_callback' => [$this, 'validateId'],
                 'sanitize_callback' => 'absint',
             ],
+            'id' => [
+                'description' => 'Filter by doctor ID',
+                'type' => 'integer',
+                'validate_callback' => [$this, 'validateId'],
+                'sanitize_callback' => 'absint',
+            ],
+            'doctorName' => [
+                'description' => 'Filter by doctor name',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'specialization' => [
+                'description' => 'Filter by specialization',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'doctorAddress' => [
+                'description' => 'Filter by address',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'gender' => [
+                'description' => 'Filter by gender',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'orderby' => [
+                'description' => 'Sort results by specified field',
+                'type' => 'string',
+                'validate_callback' => [$this, 'validateOrderBy'],
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'order' => [
+                'description' => 'Sort direction (asc or desc)',
+                'type' => 'string',
+                'validate_callback' => [$this, 'validateOrder'],
+                'sanitize_callback' => function ($param) {
+                    return strtolower(sanitize_text_field($param));
+                },
+            ],
+            'page' => [
+                'description' => 'Current page of results',
+                'type' => 'integer',
+                'default' => 1,
+                'validate_callback' => function ($param) {
+                    return is_numeric($param) && $param > 0;
+                },
+                'sanitize_callback' => 'absint',
+            ],
+            'perPage' => [
+                'description' => 'Number of results per page',
+                'type' => 'string',
+                'default' => 'all',
+                'validate_callback' => [$this, 'validatePerPage'],
+                'sanitize_callback' => function ($param) {
+                    return strtolower($param) === 'all' ? 'all' : absint($param);
+                },
+            ],
         ];
     }
 
@@ -2217,10 +2275,25 @@ class DoctorController extends KCBaseController
     public function exportDoctors(WP_REST_Request $request): WP_REST_Response
     {
         try {
-            $format = $request->get_param('format');
             $params = $request->get_params();
 
-            // Build query to get all doctors matching filters
+            $page = isset($params['page']) ? (int) $params['page'] : 1;
+            $perPageParam = isset($params['perPage']) ? $params['perPage'] : 10;
+            $showAll = (strtolower($perPageParam) === 'all');
+            $perPage = $showAll ? null : (int) $perPageParam;
+            $search = isset($params['search']) ? sanitize_text_field($params['search']) : '';
+            $clinic = isset($params['clinic_id']) ? (int) $params['clinic_id'] : null;
+            $doctor_id = isset($params['id']) ? (int) $params['id'] : null;
+            $status = isset($params['status']) ? (int) ($params['status']) : null;
+            $specialization = isset($params['specialization']) ? sanitize_text_field($params['specialization']) : '';
+            $doctorAddress = isset($params['doctorAddress']) ? sanitize_text_field($params['doctorAddress']) : '';
+
+            // Check if current user is receptionist and filter by their clinic
+            $current_user_role = $this->kcbase->getLoginUserRole();
+            if ($current_user_role === $this->kcbase->getReceptionistRole()) {
+                $clinic = KCClinic::getClinicIdOfReceptionist();
+            }
+
             $query = KCDoctor::table('d')
                 ->select([
                     "d.ID as id",
@@ -2243,10 +2316,24 @@ class DoctorController extends KCBaseController
                 ->leftJoin(KCUserMeta::class, function ($join) {
                     $join->on('d.ID', '=', 'bd.user_id')
                         ->onRaw("bd.meta_key = 'basic_data'");
-                }, null, null, 'bd')
-                ->leftJoin(KCDoctorClinicMapping::class, 'd.ID', '=', 'dcm.doctor_id', 'dcm')
-                ->leftJoin(KCClinic::class, 'dcm.clinic_id', '=', 'c.id', 'c')
-                ->groupBy('d.ID');
+                }, null, null, 'bd');
+
+            // Check if current user is clinic admin and filter by their clinic
+            $current_user_role = $this->kcbase->getLoginUserRole();
+            if ($current_user_role === $this->kcbase->getClinicAdminRole() && empty($clinic)) {
+                $clinic = KCClinic::getClinicIdOfClinicAdmin();
+            }
+
+            if ($clinic) {
+                $query->join(KCDoctorClinicMapping::class, 'd.ID', '=', 'dcm.doctor_id', 'dcm')
+                    ->join(KCClinic::class, 'dcm.clinic_id', '=', 'c.id', 'c')
+                    ->where('c.id', '=', $clinic)
+                    ->groupBy('d.ID');
+            } else {
+                $query->leftJoin(KCDoctorClinicMapping::class, 'd.ID', '=', 'dcm.doctor_id', 'dcm')
+                    ->leftJoin(KCClinic::class, 'dcm.clinic_id', '=', 'c.id', 'c')
+                    ->groupBy('d.ID');
+            }
 
             // Apply filters
             if (!empty($params['search'])) {
@@ -2258,12 +2345,88 @@ class DoctorController extends KCBaseController
                 });
             }
 
+            if (!empty($params['doctorName'])) {
+                $doctorName = sanitize_text_field($params['doctorName']);
+                $query->where(function ($q) use ($doctorName) {
+                    $q->where("um_first.meta_value", 'LIKE', '%' . $doctorName . '%')
+                        ->orWhere("um_last.meta_value", 'LIKE', '%' . $doctorName . '%')
+                        ->orWhere("d.display_name", 'LIKE', '%' . $doctorName . '%');
+                });
+            }
+
+            if (!empty($doctor_id) && is_numeric($doctor_id)) {
+                $query->where('d.id', '=', (int) $doctor_id);
+            }
+
+            if (!empty($specialization)) {
+                $query->where("bd.meta_value", 'LIKE', '%' . $specialization . '%');
+            }
+
+            if (!empty($doctorAddress)) {
+                $query->where(function ($q) use ($doctorAddress) {
+                    $q->where("bd.meta_value", 'LIKE', '%' . $doctorAddress . '%');
+                });
+            }
+
             if (isset($params['status']) && $params['status'] !== '') {
                 $query->where("d.user_status", '=', intval($params['status']));
             }
 
             if (!empty($params['clinic_id'])) {
                 $query->where('c.id', '=', intval($params['clinic_id']));
+            }
+
+            if (!empty($params['gender'])) {
+                $query->where("d.gender", '=', $params['gender']);
+            }
+
+            if (!empty($params['orderby'])) {
+                $orderby = $params['orderby'];
+                $direction = !empty($params['order']) && strtolower($params['order']) === 'desc' ? 'DESC' : 'ASC';
+
+                switch ($orderby) {
+                    case 'name':
+                        $query->orderBy("d.display_name", $direction);
+                        break;
+                    case 'email':
+                        $query->orderBy("d.user_email", $direction);
+                        break;
+                    case 'status':
+                        $query->orderBy("d.user_status", $direction);
+                        break;
+                    case 'id':
+                    default:
+                        $query->orderBy("d.ID", $direction);
+                        break;
+                }
+            } else {
+                $query->orderBy("d.ID", 'DESC');
+            }
+
+            $totalQuery = clone $query;
+            $totalQuery->removeGroupBy();
+            $total = $totalQuery->countDistinct('d.ID');
+
+            $perPage = isset($params['perPage']) ? (int) $params['perPage'] : 10;
+            if ($perPage <= 0) {
+                $perPage = 10;
+            }
+
+            $page = isset($params['page']) ? (int) $params['page'] : 1;
+            if ($page <= 0) {
+                $page = 1;
+            }
+
+            if ($showAll) {
+                $perPage = $total > 0 ? $total : 1;
+                $page = 1;
+            }
+
+            $totalPages = $perPage > 0 ? ceil($total / $perPage) : 1;
+            $offset = ($page - 1) * $perPage;
+
+            if (!$showAll) {
+                $query->limit($perPage)->offset($offset);
             }
 
             $doctors = $query->get();

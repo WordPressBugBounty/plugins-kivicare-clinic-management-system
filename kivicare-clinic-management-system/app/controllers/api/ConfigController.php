@@ -351,7 +351,16 @@ class ConfigController extends KCBaseController
                 }
             }
 
-            $response['module_config'] = $module_config_object;
+            /**
+             * Filter: kivicare_module_config
+             *
+             * Allows Pro addons (and third-party plugins) to append their own
+             * feature-flag entries to the module_config object before it is
+             * delivered to the frontend.
+             *
+             * @param array $module_config_object Key-value map of module flags ('1'|'0' or strings).
+             */
+            $response['module_config'] = apply_filters('kivicare_module_config', $module_config_object);
             $response['countryCode'] = $options['country_code'] ?? 'us';
             $response['hideUtilityLinks'] = $options['request_helper_status'] ?? 'off';
             $response['hideLanguageSwitcher'] = $options['hide_language_switcher_status'] ?? 'off';
@@ -364,10 +373,10 @@ class ConfigController extends KCBaseController
                 : KIVI_CARE_DIR_URI . 'assets/images/logo-mini.png';
             $response['dark_site_logo'] = !empty($options['dark_site_logo'])
                 ? wp_get_attachment_url($options['dark_site_logo'])
-                : KIVI_CARE_DIR_URI . 'assets/images/logo.png';
+                : KIVI_CARE_DIR_URI . 'assets/images/logo-dark.png';
             $response['dark_site_mini_logo'] = !empty($options['dark_site_mini_logo'])
                 ? wp_get_attachment_url($options['dark_site_mini_logo'])
-                : KIVI_CARE_DIR_URI . 'assets/images/logo-mini.png';
+                : KIVI_CARE_DIR_URI . 'assets/images/logo-mini-dark.png';
             $response['theme_color'] = $options['theme_color'] ?? '#4874dc';
             $response['is_rtl'] = $options['rtl_style'] ?? false;
             $response['appointment_file_upload_enabled'] = kcAppointmentMultiFileUploadEnable();

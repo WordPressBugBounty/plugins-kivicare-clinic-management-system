@@ -85,6 +85,37 @@ class Configurations extends SettingsController
                     }, true);
                 },
             ],
+            'followup_settings' => $this->getFollowupSettingsSchema(),
+            'treatment_chain_settings' => $this->getTreatmentChainSettingsSchema(),
+        ];
+    }
+
+    public function getFollowupSettingsSchema(): array
+    {
+        return [
+            'type' => 'object',
+            'properties' => [
+                'enable_followup' => ['type' => 'boolean'],
+                'overdue_threshold' => ['type' => 'integer'],
+                'receptionist_can_schedule' => ['type' => 'boolean'],
+            ],
+            'required' => false,
+            'sanitize_callback' => 'kcSanitizeData',
+        ];
+    }
+
+    public function getTreatmentChainSettingsSchema(): array
+    {
+        return [
+            'type' => 'object',
+            'properties' => [
+                'enable_chains' => ['type' => 'boolean'],
+                'allow_multiple_active' => ['type' => 'boolean'],
+                'closure_policy' => ['type' => 'string', 'enum' => ['manual', 'auto']],
+                'management_permission' => ['type' => 'string'],
+            ],
+            'required' => false,
+            'sanitize_callback' => 'kcSanitizeData',
         ];
     }
 
@@ -154,6 +185,8 @@ class Configurations extends SettingsController
         if(isKiviCareProActive()){
             $response_data['encounter_modules'] = $this->encounterModules();
             $response_data['prescription_modules'] = $this->prescriptionModules();
+            $response_data['followup_settings'] = apply_filters('kcpro_get_followup_settings', []);
+            $response_data['treatment_chain_settings'] = apply_filters('kcpro_get_treatment_chain_settings', []);
         }
 
         return $this->response($response_data, __('Module configuration retrieved.', 'kivicare-clinic-management-system'));
@@ -191,7 +224,7 @@ class Configurations extends SettingsController
             $receptionist_enabled = false;
 
             // Convert frontend format to storage format
-            if (is_array($module_config_input)) {
+            if (!empty($module_config_input) && is_array($module_config_input) ) {
                 foreach ($module_config_input as $module) {
                     if (isset($module['name']) && isset($module['label'])) {
                         $new_module_config[] = [
@@ -205,9 +238,9 @@ class Configurations extends SettingsController
                         }
                     }
                 }
+                // Update module_config
+                KCOption::set('modules', json_encode(['module_config' => $new_module_config]));
             }
-            // Update module_config
-            KCOption::set('modules', json_encode(['module_config' => $new_module_config]));
             
             $step_config = collect(kcGetStepConfig());
             $response = [];
@@ -224,6 +257,12 @@ class Configurations extends SettingsController
                     $response['prescription_modules'] = apply_filters('kcpro_save_prescription_setting', [
                         'prescription_module_config' => $data['prescription_modules'],
                     ]);
+                }
+                if (isset($data['followup_settings'])) {
+                    $response['followup_settings'] = apply_filters('kcpro_save_followup_settings', $data['followup_settings']);
+                }
+                if (isset($data['treatment_chain_settings'])) {
+                    $response['treatment_chain_settings'] = apply_filters('kcpro_save_treatment_chain_settings', $data['treatment_chain_settings']);
                 }
             }
 

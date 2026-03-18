@@ -280,6 +280,13 @@ class AuthController extends KCBaseController
             'permission_callback' => 'is_user_logged_in',
             'args' => []
         ]);
+
+        $this->registerRoute('/' . $this->route . '/getGeneralSettings', [
+            'methods' => 'GET',
+            'callback' => [$this, 'getGeneralSettings'],
+            'permission_callback' => '__return_true',
+            'args' => []
+        ]);
     }
 
     private function getLoginEndpointArgs()
@@ -395,20 +402,22 @@ class AuthController extends KCBaseController
                 'sanitize_callback' => 'sanitize_text_field',
             ],
             'user_clinic' => [
-                'description' => 'Clinic ID',
-                'type' => 'integer',
+                'description' => 'Clinic ID or IDs',
                 'required' => true,
                 'validate_callback' => function ($param) {
                     if (empty($param)) {
                         return new WP_Error('invalid_clinic', __('Clinic is required', 'kivicare-clinic-management-system'));
                     }
-                    $clinic = KCClinic::find($param);
-                    if (!$clinic) {
-                        return new WP_Error('invalid_clinic', __('Invalid clinic ID', 'kivicare-clinic-management-system'));
+
+                    $clinic_ids = is_array($param) ? $param : [$param];
+                    foreach ($clinic_ids as $id) {
+                        $clinic = KCClinic::find($id);
+                        if (!$clinic) {
+                            return new WP_Error('invalid_clinic', __('Invalid clinic selected', 'kivicare-clinic-management-system'));
+                        }
                     }
                     return true;
-                },
-                'sanitize_callback' => 'absint',
+                }
             ],
             'country_code' => [
                 'description' => 'Country code for mobile number',
@@ -467,6 +476,12 @@ class AuthController extends KCBaseController
                 'description' => 'Custom fields data',
                 'type' => 'object',
                 'required' => false,
+            ],
+            'widget_id' => [
+                'description' => 'Widget ID to trigger auto-login',
+                'type' => 'string',
+                'required' => false,
+                'sanitize_callback' => 'sanitize_text_field'
             ]
         ];
 
@@ -1210,19 +1225,8 @@ class AuthController extends KCBaseController
             );
         }
 
-        // Get clinic ID
-        $clinic_id = $params['user_clinic'];
-
-        // Validate clinic exists
-        $clinic = KCClinic::find($clinic_id);
-        if (!$clinic) {
-            return $this->response(
-                null,
-                __('Invalid clinic selected', 'kivicare-clinic-management-system'),
-                false,
-                400
-            );
-        }
+        // Get clinic IDs (argument validation already ensured existence)
+        $clinic_ids = (array) $params['user_clinic'];
 
         try {
             $user_id = null;
@@ -1283,9 +1287,9 @@ class AuthController extends KCBaseController
                 'username' => $params['username'],
                 'email' => $params['email'],
                 'password' => $params['password'],
-                'firstName' => $params['firstName'] ?? '',
-                'lastName' => $params['lastName'] ?? '',
-                'displayName' => trim(($params['firstName'] ?? '') . ' ' . ($params['lastName'] ?? '')),
+                'firstName' => $params['first_name'] ?? '',
+                'lastName' => $params['last_name'] ?? '',
+                'displayName' => trim(($params['first_name'] ?? '') . ' ' . ($params['last_name'] ?? '')),
                 'contactNumber' => $mobile_number,
                 'gender' => $params['gender'],
                 'status' => $default_status,
@@ -1354,16 +1358,18 @@ class AuthController extends KCBaseController
             /**
              * Mapping creation.
              */
-            $mapping = new $mapping_class();
-            $mapping->clinicId = $clinic_id;
-            $mapping->createdAt = current_time('mysql');
+            foreach ($clinic_ids as $id) {
+                $mapping = new $mapping_class();
+                $mapping->clinicId = $id;
+                $mapping->createdAt = current_time('mysql');
 
-            /** Assign role-specific mapping keys */
-            foreach ($role_config['keys'] as $mappingKey => $sourceKey) {
-                $mapping->{$mappingKey} = ($sourceKey === 'id') ? $user_id : $sourceKey;
+                /** Assign role-specific mapping keys */
+                foreach ($role_config['keys'] as $mappingKey => $sourceKey) {
+                    $mapping->{$mappingKey} = ($sourceKey === 'id') ? $user_id : $sourceKey;
+                }
+
+                $mapping->save();
             }
-
-            $mapping->save();
 
             /**
              * Final response.
@@ -1401,24 +1407,37 @@ class AuthController extends KCBaseController
                 }
             }
 
+
             /**
-             * Automatically log in the newly registered user.
-             *
-             * The booking widget (and other frontend flows) expect the user to be
-             * authenticated immediately after registration so that protected
-             * endpoints like the appointment confirmation API can be accessed.
+             * Auto-login the newly registered user when widget_id is present.
+             * Both the Booking Widget and the Register Login shortcode send widget_id,
+             * so this covers all registration contexts that require immediate authentication.
              */
-            wp_clear_auth_cookie();
-            // Prevent duplicate Set-Cookie headers from multiple auth calls.
-            header_remove('Set-Cookie');
-            wp_set_current_user($user_id);
-            add_action(
-                'set_logged_in_cookie',
-                function ($logged_in_cookie) {
-                    $_COOKIE[LOGGED_IN_COOKIE] = $logged_in_cookie;
-                }
-            );
-            wp_set_auth_cookie($user_id);
+            $auto_login = !empty($params['widget_id']);
+            $nonce       = null;
+            $redirect_url = null;
+
+            if ($auto_login) {
+                wp_clear_auth_cookie();
+
+                // Prevent duplicate Set-Cookie headers when running inside a REST request
+                header_remove('Set-Cookie');
+
+                wp_set_current_user($user_id);
+
+                add_action(
+                    'set_logged_in_cookie',
+                    function ($logged_in_cookie) {
+                        $_COOKIE[LOGGED_IN_COOKIE] = $logged_in_cookie;
+                    }
+                );
+
+                wp_set_auth_cookie($user_id, true);
+
+                // Nonce must be generated AFTER authentication and after $_COOKIE[LOGGED_IN_COOKIE] is set
+                $nonce        = wp_create_nonce('wp_rest');
+                $redirect_url = $this->getLoginRedirectUrl($user_role);
+            }
 
             // Get user data for response (now as a logged-in user)
             $wpUser = get_userdata($user_id);
@@ -1437,16 +1456,17 @@ class AuthController extends KCBaseController
                 'phone_number' => $splitContact['phone_number'] ?: null,
                 'gender' => $params['gender'],
                 'user_role' => $user_role,
-                'clinic_id' => $clinic_id,
+                'clinic_id' => reset($clinic_ids),
                 'roles' => $wpUser->roles,
                 'profileImageUrl' => $this->getUserProfileImageUrl($user_id, $user_role),
+                'redirect_url' => $redirect_url,
                 // Nonce must be generated AFTER the user is authenticated
-                'nonce' => wp_create_nonce('wp_rest')
+                'nonce' => $auto_login ? $nonce : null
             ];
 
             return $this->response(
                 $userData,
-                __('Registration successful. Please login to continue.', 'kivicare-clinic-management-system'),
+                __('Registration successful.', 'kivicare-clinic-management-system'),
                 true,
                 201
             );
@@ -1805,6 +1825,80 @@ class AuthController extends KCBaseController
         }
 
         return '';
+    }
+
+    public function getGeneralSettings(WP_REST_Request $request): WP_REST_Response
+    {
+        try {
+
+            $option_keys = [
+                'status' => 'user_registration_shortcode_setting',
+                'role' => 'user_registration_shortcode_role_setting',
+                'loginRedirects' => 'login_redirect'
+            ];
+
+            // Fetch options in one query
+            $options = KCOption::getMultiple(array_values($option_keys));
+
+            $response = [];
+            foreach ($option_keys as $key => $wp_option_name) {
+                $response[$key] = $options[$wp_option_name] ?? null;
+            }
+
+            // Default status
+            $response['status'] = $response['status'] ?? [
+                'doctor' => 'off',
+                'receptionist' => 'off',
+                'patient' => 'on'
+            ];
+
+            // Default role settings
+            $response['role'] = $response['role'] ?? [
+                'kiviCare_doctor' => 'on',
+                'kiviCare_receptionist' => 'on',
+                'kiviCare_patient' => 'on'
+            ];
+
+            // Prepare login redirects
+            $allowed_roles = KCBase::get_instance()->KCGetRoles();
+            $dashboard_handler = \App\admin\KCDashboardPermalinkHandler::instance();
+
+            if (!isset($response['loginRedirects']) || !is_array($response['loginRedirects'])) {
+                $response['loginRedirects'] = [];
+            }
+
+            // Ensure redirect for all roles
+            foreach ($allowed_roles as $role) {
+                if (!isset($response['loginRedirects'][$role])) {
+                    $response['loginRedirects'][$role] = $dashboard_handler->get_dashboard_url($role);
+                }
+            }
+
+            // Sanitize redirects
+            $sanitized_login_redirects = [];
+            foreach ($response['loginRedirects'] as $role => $url) {
+                if (in_array($role, $allowed_roles, true)) {
+                    $sanitized_login_redirects[$role] = !empty($url)
+                        ? esc_url_raw($url)
+                        : ($dashboard_handler->get_dashboard_url($role) ?? home_url());
+                }
+            }
+
+            $response['loginRedirects'] = $sanitized_login_redirects;
+
+            return $this->response(
+                $response,
+                __('Registration settings retrieved successfully', 'kivicare-clinic-management-system')
+            );
+        } catch (\Exception $e) {
+
+            return $this->response(
+                ['error' => $e->getMessage()],
+                __('Failed to retrieve registration settings', 'kivicare-clinic-management-system'),
+                false,
+                500
+            );
+        }
     }
 
 }

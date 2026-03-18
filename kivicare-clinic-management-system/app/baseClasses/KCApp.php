@@ -7,6 +7,7 @@ use App\admin\KCDashboardPermalinkHandler;
 use App\controllers\KCRestAPI;
 use App\controllers\filters\KCDoctorControllerFilters;
 use App\controllers\filters\KCPatientControllerFilters;
+use App\controllers\api\AppointmentsController;
 use App\emails\KCEmailNotificationInit;
 use App\emails\KCEmailTemplateManager;
 use App\shortcodes\KCBookAppointment;
@@ -49,6 +50,7 @@ final class KCApp
         add_action('init', [KCRestAPI::class, 'get_instance']);
 
         add_action('init', [KCTelemedFactory::class, 'init']);
+        add_action('init', [AppointmentsController::class, 'initAutoCloseAppointmentCron']);
 
         add_action('rest_api_init', [KCPatientControllerFilters::class, 'get_instance']);
         add_action('rest_api_init', [KCDoctorControllerFilters::class, 'get_instance']);
@@ -104,6 +106,17 @@ final class KCApp
 
         // Restrict media library visibility
         add_filter('ajax_query_attachments_args', [$this, 'restrict_media_library']);
+
+        // Force-disable admin bar for all KiviCare non-admin roles,
+        // even if `edit_posts` is granted via User Role Editor or similar.
+        add_filter('show_admin_bar', [$this, 'kc_hide_admin_bar_for_kc_roles'], 20);
+    }
+
+    /**
+     * Hides the WordPress admin bar for all KiviCare non-admin roles.
+     */
+    function kc_hide_admin_bar_for_kc_roles($show_admin_bar) {
+        return ( current_user_can( 'administrator' ) ) ? $show_admin_bar : false;
     }
 
     public function kivicare_migrate_apt_booking_steps(){

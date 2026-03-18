@@ -234,11 +234,14 @@ class EncounterController extends KCBaseController
             // No specific encounter(s) to check, allow
             return true;
         }
+
         foreach ($ids as $encounterId) {
             $encounter = KCPatientEncounter::find($encounterId);
+
             if (empty($encounter)) {
                 return false;
             }
+
             $hasAccess = false;
             switch ($currentUserRole) {
                 case $kcBase->getDoctorRole():
@@ -492,6 +495,8 @@ class EncounterController extends KCBaseController
                 'patient_data' => json_decode($encounter->basic_data, true) ?: [],
                 'customfield_data' => $customFieldData,
             ];
+
+
             if ($encounter->appointment_report) {
                 $reportIds = json_decode($encounter->appointment_report, true);
                 if (is_array($reportIds)) {
@@ -508,7 +513,7 @@ class EncounterController extends KCBaseController
                     $result['appointmentReport'] = $reports;
                 }
             }
-            return $this->response($result, __('Encounter retrieved successfully', 'kivicare-clinic-management-system'));
+            return $this->response(apply_filters('kc_encounter_data', $result,$encounter), __('Encounter retrieved successfully', 'kivicare-clinic-management-system'));
         } catch (\Exception $e) {
             return new \WP_Error(
                 'kc_encounter_fetch_failed',

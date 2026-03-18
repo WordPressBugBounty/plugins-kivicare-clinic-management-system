@@ -72,6 +72,7 @@ if ($theme_mode == 'true') {
         <?php echo esc_html(apply_filters('kivicare_dashboard_title', __('KiviCare Dashboard', 'kivicare-clinic-management-system'), $current_user_role)); ?>
     </title>
 
+     <!-- <script crossOrigin="anonymous" src="//unpkg.com/react-scan/dist/auto.global.js"> </script> -->
     <?php // Hook for additional head content
     wp_head();
 

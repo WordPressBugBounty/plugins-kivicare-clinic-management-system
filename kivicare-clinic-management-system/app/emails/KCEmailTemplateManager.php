@@ -324,6 +324,20 @@ class KCEmailTemplateManager
                 'post_type' => $templatePostType,
                 'post_status' => 'publish'
             ],
+            [
+                'post_name' => $this->prefix . 'follow_up_appointment_for_staff',
+                'post_content'  => '<p>Hello,</p><p>A follow-up appointment has been created during encounter checkout.</p><p>Patient: {{patient_name}}<br>Doctor: {{doctor_name}}<br>Clinic: {{clinic_name}}<br>Service: {{service_name}}<br>Date: {{appointment_date}}<br>Time: {{appointment_time}}<br>Appointment ID: {{appointment_id}}<br>Created By: {{created_by}}</p><p>Please ensure necessary arrangements are made.</p><p>Regards,<br>{{site_name}}</p>',
+                'post_title' => 'Follow-Up Appointment Created – {{clinic_name}}',
+                'post_type' => $templatePostType,
+                'post_status'   => 'publish',
+            ],
+            [
+                'post_name' => $this->prefix . 'follow_up_appointment_reminder',
+                'post_content'  => '<p>Hello {{patient_name}},</p><p>This is a reminder for your upcoming follow-up appointment.</p><p>Doctor: {{doctor_name}}<br>Clinic: {{clinic_name}}<br>Service: {{service_name}}<br>Date: {{appointment_date}}<br>Time: {{appointment_time}}</p><p>Please arrive 10 minutes early.</p><p>If you are unable to attend, kindly inform us in advance.</p><p>Thank you,<br>{{clinic_name}}<br>Contact: {{clinic_phone}}</p>',
+                'post_title' => 'Reminder: Upcoming Follow-Up Appointment on {{appointment_date}}',
+                'post_type' => $templatePostType,
+                'post_status'   => 'publish',
+            ],
         ];
 
 
@@ -534,7 +548,9 @@ class KCEmailTemplateManager
                 'kivicare_encounter_close',
                 'kivicare_patient_prescription',
                 'kivicare_patient_invoice',
-                'kivicare_patient_report'
+                'kivicare_patient_report',
+                'kivicare_follow_up_appointment',
+                'kivicare_follow_up_appointment_reminder'
             ],
             'doctor' => [
                 'kivicare_doctor_registration',
@@ -542,13 +558,16 @@ class KCEmailTemplateManager
                 'kivicare_add_doctor_zoom_link',
                 'kivicare_add_doctor_meet_link',
                 'kivicare_book_appointment_reminder_for_doctor',
+                'kivicare_follow_up_appointment_for_staff'
             ],
             'clinic' => [
                 'kivicare_clinic_admin_registration',
-                'kivicare_clinic_book_appointment'
+                'kivicare_clinic_book_appointment',
+                'kivicare_follow_up_appointment_for_staff'
             ],
             'receptionist' => [
-                'kivicare_receptionist_register'
+                'kivicare_receptionist_register',
+                'kivicare_follow_up_appointment_for_staff'
             ],
             'common' => [
                 'kivicare_resend_user_credential',

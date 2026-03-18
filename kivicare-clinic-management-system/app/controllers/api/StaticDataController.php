@@ -376,6 +376,8 @@ class StaticDataController extends KCBaseController
             $serviceId = $request->get_param('service_id');
             $category = $request->get_param('category_id');
 
+        
+
             // Use the KCServiceDoctorMapping model's query builder with proper joins
             $query = KCServiceDoctorMapping::table('sdm')
                 ->select([
@@ -411,6 +413,11 @@ class StaticDataController extends KCBaseController
 
             if (!$request->has_param('is_app') || ($request->get_param('is_app') !== 'true' && $request->get_param('is_app') !== true)) {
                 $query->where('c.status', 1); // Only active clinics
+            }
+
+            if(in_array($this->kcbase->getLoginUserRole(), [$this->kcbase->getPatientRole(),false])) {
+                // $doctorId = get_current_user_id();
+                $query->whereNotIn('s.type',apply_filters('kc_service_type_not_show_in_frontend', ['bill_service']));
             }
 
             $query->orderBy('sdm.id', 'DESC');
@@ -456,6 +463,21 @@ class StaticDataController extends KCBaseController
 
             if (!empty($category)) {
                 $query->where('sd.id', '=', (int) $category);
+            }
+
+
+            // Get total count before pagination
+            $totalCount = $query->count();
+
+            // Handle pagination
+            if ($request instanceof \WP_REST_Request) {
+                $page = $request->get_param('page') ?: 1;
+                $perPage = $request->get_param('per_page') ?: 10;
+                $offset = ($page - 1) * $perPage;
+
+                if ($page !== -1) {
+                    $query->limit($perPage)->offset($offset);
+                }
             }
 
             // Execute query
@@ -593,7 +615,29 @@ class StaticDataController extends KCBaseController
             })->values()->toArray();
 
 
-            return $services;
+
+            $response_data = [
+                'data' => $services,
+            ];
+
+            // Add pagination metadata if request provided
+            if ($request instanceof \WP_REST_Request) {
+                $page = $request->get_param('page') ?: 1;
+                $perPage = $request->get_param('per_page') ?: 10;
+                $totalPages = ceil($totalCount / $perPage);
+
+                $response_data['pagination'] = [
+                    'total' => $totalCount,
+                    'per_page' => $perPage,
+                    'current_page' => $page,
+                    'total_pages' => $totalPages,
+                    'has_more' => $page < $totalPages,
+                ];
+            } else {
+                 $response_data['pagination'] = null;
+            }
+
+            return $response_data;
 
         } catch (\Exception $e) {
             return ['error' => $e->getMessage(), 'status' => 500];

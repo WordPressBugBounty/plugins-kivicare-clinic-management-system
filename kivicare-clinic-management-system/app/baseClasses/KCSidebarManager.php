@@ -128,6 +128,18 @@ class KCSidebarManager implements KCSidebarInterface
             $sidebar = array_values($sidebar);
         }
 
+        /**
+         * Filter: kivicare_sidebar_data
+         *
+         * Allows addons to add, remove, or reorder sidebar items (including
+         * nested children) after the base sidebar has been assembled and
+         * module-level top items have been filtered out.
+         *
+         * @param array  $sidebar The assembled sidebar item array.
+         * @param string $role    The current user role.
+         */
+        $sidebar = apply_filters('kivicare_sidebar_data', $sidebar, $role);
+
         $this->sidebarCache[$role] = $sidebar;
         return $sidebar;
     }
@@ -191,7 +203,17 @@ class KCSidebarManager implements KCSidebarInterface
             $this->createGroupHeader('Main'),
             $this->createSidebarItem('Dashboard', 'route', '/dashboard', 'ph ph-squares-four', 'dashboard'),
             $this->createSidebarItem('Calendar', 'route', '/calendar', 'ph ph-calendar-blank', 'calendar'),
-            $this->createSidebarItem('Appointments', 'route', '/appointments', 'ph ph-calendar-dots', 'appointment_list'),
+            $this->createSidebarItem(
+                'Appointments',
+                'parent',
+                '',
+                'ph ph-calendar-dots',
+                'parent',
+                [
+                    $this->createSidebarItem('Appointment List', 'route', '/appointments', 'ph ph-list-dashes', 'appointment_list'),
+                    $this->createSidebarItem('Follow-ups', 'route', '/followup', 'ph ph-calendar-check', 'followup_list'),
+                ]
+            ),
             $this->createEncountersParentItem([
                 $this->createSidebarItem('Encounters List', 'route', '/encounter', 'ph ph-list-dashes', 'patient_encounter_list'),
                 $this->createSidebarItem('Encounter Templates', 'route', '/encounter-template', 'ph ph-layout', 'encounter_template'),
@@ -246,8 +268,18 @@ class KCSidebarManager implements KCSidebarInterface
             // Core Group
             $this->createGroupHeader('Main'),
             $this->createSidebarItem('Dashboard', 'route', '/dashboard', 'ph ph-squares-four', 'dashboard'),
+            $this->createSidebarItem(
+                'Appointments',
+                'parent',
+                '',
+                'ph ph-calendar-dots',
+                'parent',
+                [
+                    $this->createSidebarItem('Appointment List', 'route', '/appointments', 'ph ph-list-dashes', 'appointment_list'),
+                    $this->createSidebarItem('Follow-ups', 'route', '/followup', 'ph ph-calendar-check', 'followup_list'),
+                ]
+            ),
             $this->createSidebarItem('Calendar', 'route', '/calendar', 'ph ph-calendar-blank', 'calendar'),
-            $this->createSidebarItem('Appointments', 'route', '/appointments', 'ph ph-calendar-dots', 'appointment_list'),
             $this->createEncountersParentItem([
                 $this->createSidebarItem('Encounters List', 'route', '/encounter', 'ph ph-list-dashes', 'patient_encounter_list'),
                 $this->createSidebarItem('Encounter Templates', 'route', '/encounter-template', 'ph ph-layout', 'encounter_template'),
@@ -287,7 +319,17 @@ class KCSidebarManager implements KCSidebarInterface
             // Core Group
             $this->createGroupHeader('Main'),
             $this->createSidebarItem('Dashboard', 'route', '/dashboard', 'ph ph-squares-four', 'dashboard'),
-            $this->createSidebarItem('Appointments', 'route', '/appointments', 'ph ph-calendar-dots', 'appointment_list'),
+            $this->createSidebarItem(
+                'Appointments',
+                'parent',
+                '',
+                'ph ph-calendar-dots',
+                'parent',
+                [
+                    $this->createSidebarItem('Appointment List', 'route', '/appointments', 'ph ph-list-dashes', 'appointment_list'),
+                    $this->createSidebarItem('Follow-ups', 'route', '/followup', 'ph ph-calendar-check', 'followup_list'),
+                ]
+            ),
             $this->createEncountersParentItem([
                 $this->createSidebarItem('Encounters List', 'route', '/encounter', 'ph ph-list-dashes', 'patient_encounter_list'),
                 $this->createSidebarItem('Encounter Templates', 'route', '/encounter-template', 'ph ph-layout', 'encounter_template'),
@@ -323,7 +365,17 @@ class KCSidebarManager implements KCSidebarInterface
             // Core Group
             $this->createGroupHeader('Main'),
             $this->createSidebarItem('Dashboard', 'route', '/dashboard', 'ph ph-squares-four', 'dashboard'),
-            $this->createSidebarItem('Appointments', 'route', '/appointments', 'ph ph-calendar-dots', 'appointment_list'),
+            $this->createSidebarItem(
+                'Appointments',
+                'parent',
+                '',
+                'ph ph-calendar-dots',
+                'parent',
+                [
+                    $this->createSidebarItem('Appointment List', 'route', '/appointments', 'ph ph-list-dashes', 'appointment_list'),
+                    $this->createSidebarItem('Follow-ups', 'route', '/followup', 'ph ph-calendar-check', 'followup_list'),
+                ]
+            ),
             $this->createEncountersParentItem([
                 $this->createSidebarItem('Encounters List', 'route', '/encounter', 'ph ph-list-dashes', 'patient_encounter_list'),
                 $this->createSidebarItem('Encounter Templates', 'route', '/encounter-template', 'ph ph-layout', 'encounters_template_list'),
@@ -357,7 +409,12 @@ class KCSidebarManager implements KCSidebarInterface
         return [
             $this->createSidebarItem('Home', 'href', get_home_url(), 'ph ph-house', 'home'),
             $this->createSidebarItem('Dashboard', 'route', '/dashboard', 'ph ph-squares-four', 'dashboard'),
-            $this->createSidebarItem('Appointments', 'route', '/appointments', 'ph ph-calendar-dots', 'appointment_list'),
+            $this->createSidebarItem('Appointments', 'parent', '', 'ph ph-calendar-dots', 'parent',
+                [
+                    $this->createSidebarItem('Appointment List', 'route', '/appointments', 'ph ph-list-dashes', 'appointment_list'),
+                    $this->createSidebarItem('Follow-ups', 'route', '/followup', 'ph ph-calendar-check', 'followup_list'),
+                ]
+            ),
             $this->createSidebarItem('Encounters', 'route', '/encounter', 'ph ph-clock-counter-clockwise', 'patient_encounter_list'),
             $this->createSidebarItem('Billing records', 'route', '/billings', 'ph ph-invoice', 'billings'),
             $this->createSidebarItem('Medical Reports', 'route', '/patient-medical-report_id', 'ph ph-file', 'patient_report'),

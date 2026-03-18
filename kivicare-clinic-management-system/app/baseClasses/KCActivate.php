@@ -19,6 +19,8 @@ final class KCActivate
         KCMigration::migrate();
         KCPermissions::get_instance()->init_roles_and_capabilities();
         KCDashboardPermalinkHandler::flush_rewrite_rules();
+        // $templateManager = \App\emails\KCEmailTemplateManager::getInstance();
+        // $templateManager->createDefaultTemplates('mail');
 
 
 

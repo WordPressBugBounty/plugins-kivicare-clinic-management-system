@@ -293,6 +293,26 @@ class KCNotificationDynamicKeys
                 '{{clinic_name}}',
                 '{{clinic_email}}',
                 '{{clinic_address}}',
+            ],
+            'kivicare_follow_up_appointment_for_staff' => [
+                '{{patient_name}}',
+                '{{doctor_name}}',
+                '{{clinic_name}}',
+                '{{service_name}}',
+                '{{appointment_date}}',
+                '{{appointment_time}}',
+                '{{appointment_id}}',
+                '{{created_by}}',
+                '{{site_name}}'
+            ],
+            'kivicare_follow_up_appointment_reminder' => [
+                '{{patient_name}}',
+                '{{doctor_name}}',
+                '{{clinic_name}}',
+                '{{service_name}}',
+                '{{appointment_date}}',
+                '{{appointment_time}}',
+                '{{clinic_phone}}'
             ]
         ];
 

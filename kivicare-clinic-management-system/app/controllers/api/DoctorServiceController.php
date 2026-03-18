@@ -1543,6 +1543,70 @@ class DoctorServiceController extends KCBaseController
                 },
                 'sanitize_callback' => 'absint',
             ],
+            'id' => [
+                'description' => 'Filter by mapping ID',
+                'type' => 'integer',
+                'validate_callback' => [$this, 'validateId'],
+                'sanitize_callback' => 'absint',
+            ],
+            'serviceName' => [
+                'description' => 'Filter by service name',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'clinicName' => [
+                'description' => 'Filter by clinic name',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'doctorName' => [
+                'description' => 'Filter by doctor name',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'charges' => [
+                'description' => 'Filter by charges',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'category' => [
+                'description' => 'Filter by category ID',
+                'type' => 'integer',
+                'validate_callback' => [$this, 'validateId'],
+                'sanitize_callback' => 'absint',
+            ],
+            'orderby' => [
+                'description' => 'Sort results by specified field',
+                'type' => 'string',
+                'validate_callback' => [$this, 'validateOrderBy'],
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'order' => [
+                'description' => 'Sort direction (asc or desc)',
+                'type' => 'string',
+                'validate_callback' => [$this, 'validateOrder'],
+                'sanitize_callback' => function ($param) {
+                    return strtolower(sanitize_text_field($param));
+                },
+            ],
+            'page' => [
+                'description' => 'Current page of results',
+                'type' => 'integer',
+                'default' => 1,
+                'validate_callback' => function ($param) {
+                    return is_numeric($param) && $param > 0;
+                },
+                'sanitize_callback' => 'absint',
+            ],
+            'perPage' => [
+                'description' => 'Number of results per page',
+                'type' => 'string',
+                'default' => 'all',
+                'validate_callback' => [$this, 'validatePerPage'],
+                'sanitize_callback' => function ($param) {
+                    return strtolower($param) === 'all' ? 'all' : absint($param);
+                },
+            ],
         ];
     }
 
@@ -1559,30 +1623,74 @@ class DoctorServiceController extends KCBaseController
 
             $query = KCServiceDoctorMapping::table('sdm')
                 ->select([
-                    'sdm.id',
-                    'sdm.charges',
-                    'sdm.telemed_service',
-                    'sdm.multiple as allow_multiple',
-                    'sdm.image',
-                    'sdm.status',
+                    'sdm.*',
                     's.name as name',
-                    's.type as service_category_id_val',
-                    'sd.label as service_category',
-                    'u.ID as doctor_id',
+                    'sd.label as service_type',
+                    'sd.id as category_id',
                     'u.display_name as doctor_name',
+                    'c.name as clinic_name',
                 ])
                 ->leftJoin(KCService::class, 'sdm.service_id', '=', 's.id', 's')
-                ->leftJoin(KCStaticData::class, 's.type', '=', 'sd.id', 'sd')
+                ->leftJoin(KCClinic::class, 'sdm.clinic_id', '=', 'c.id', 'c')
                 ->leftJoin(KCUser::class, 'sdm.doctor_id', '=', 'u.ID', 'u')
-                ->where('s.status', '=', 1);
+                ->leftJoin(KCUserMeta::class, function ($join) {
+                    $join->on('u.ID', '=', 'fn.user_id')
+                        ->onRaw("fn.meta_key = 'first_name'");
+                }, null, null, 'fn')
+                ->leftJoin(KCUserMeta::class, function ($join) {
+                    $join->on('u.ID', '=', 'ln.user_id')
+                        ->onRaw("ln.meta_key = 'last_name'");
+                }, null, null, 'ln')
+                ->leftJoin(KCStaticData::class, function ($join) {
+                    $join->on('s.type', '=', 'sd.value')
+                        ->onRaw("sd.type = 'service_type'");
+                }, null, null, 'sd');
+
+            $current_user_id = get_current_user_id();
+            $current_user_role = $this->kcbase->getLoginUserRole();
+            $admin_role = 'administrator';
+
+            // Apply restrictions unless the user is a WordPress administrator
+            if ($current_user_role !== $admin_role) {
+                if ($current_user_role === $this->kcbase->getClinicAdminRole()) {
+
+                    $clinic_id = KCClinic::getClinicIdOfClinicAdmin($current_user_id);
+                    if ($clinic_id) {
+                        $query->where('sdm.clinic_id', '=', $clinic_id);
+                    } else {
+                        // This admin is not assigned to a clinic, so they see nothing.
+                        $query->whereRaw('1 = 0');
+                    }
+                } elseif ($current_user_role === $this->kcbase->getReceptionistRole()) {
+
+                    $clinic_id = KCClinic::getClinicIdOfReceptionist($current_user_id);
+                    if ($clinic_id) {
+                        $query->where('sdm.clinic_id', '=', $clinic_id);
+                    } else {
+                        $query->whereRaw('1 = 0');
+                    }
+                } elseif ($current_user_role === $this->kcbase->getDoctorRole()) {
+
+                    // doctor can only see their own services.
+                    $query->where('sdm.doctor_id', '=', $current_user_id);
+                } else {
+                    // Any other role (e.g., patient) should not see any services through this endpoint.
+                    $query->whereRaw('1 = 0');
+                }
+            }
 
             // Apply filters based on the JOINed data
             if (!empty($params['search'])) {
                 $search = sanitize_text_field($params['search']);
                 $query->where(function ($q) use ($search) {
-                    $q->where('s.name', 'LIKE', '%' . $search . '%')
-                        ->orWhere('u.display_name', 'LIKE', '%' . $search . '%')
-                        ->orWhere('sd.label', 'LIKE', '%' . $search . '%');
+                    $q->where("u.display_name", 'LIKE', '%' . $search . '%')
+                        ->orWhere("fn.meta_value", 'LIKE', '%' . $search . '%')
+                        ->orWhere("ln.meta_value", 'LIKE', '%' . $search . '%')
+                        ->orWhere("sdm.id", 'LIKE', '%' . $search . '%')
+                        ->orWhere("s.name", 'LIKE', '%' . $search . '%')
+                        ->orWhere("sd.id", '=', $search)
+                        ->orWhere("sdm.charges", 'LIKE', '%' . $search . '%')
+                        ->orWhere("sdm.status", '=', $search);
                 });
             }
 
@@ -1594,7 +1702,83 @@ class DoctorServiceController extends KCBaseController
                 $query->where('sdm.clinic_id', '=', (int) $params['clinic']);
             }
 
-            $results = $query->get();
+            if (isset($params['id']) && $params['id'] !== '') {
+                $query->where("sdm.id", 'LIKE', '%' . $params['id'] . '%');
+            }
+
+            if (isset($params['serviceName']) && $params['serviceName'] !== '') {
+                $query->where("s.name", 'LIKE', '%' . $params['serviceName'] . '%');
+            }
+
+            if (isset($params['clinicName']) && $params['clinicName'] !== '') {
+                $query->where("c.name", 'LIKE', '%' . $params['clinicName'] . '%');
+            }
+
+            if (isset($params['doctorName']) && $params['doctorName'] !== '') {
+                $query->where(function ($q) use ($params) {
+                    $q->where("u.display_name", 'LIKE', '%' . $params['doctorName'] . '%')
+                        ->orWhere("fn.meta_value", 'LIKE', '%' . $params['doctorName'] . '%')
+                        ->orWhere("ln.meta_value", 'LIKE', '%' . $params['doctorName'] . '%');
+                });
+            }
+
+            if (isset($params['charges']) && $params['charges'] !== '') {
+                $query->where('sdm.charges', $params['charges']);
+            }
+
+            if (isset($params['category']) && $params['category'] !== '') {
+                $query->where("sd.id", '=', $params['category']);
+            }
+
+            if (isset($params['orderby']) && $params['orderby'] !== '') {
+                $direction = isset($params['order']) && strtolower($params['order']) === 'desc' ? 'DESC' : 'ASC';
+                switch ($params['orderby']) {
+                    case 'serviceId':
+                        $query->orderBy("sdm.service_id", $direction);
+                        break;
+                    case 'serviceName':
+                    case 'name':
+                        $query->orderBy("s.name", $direction);
+                        break;
+                    case 'clinicName':
+                        $query->orderBy("c.name", $direction);
+                        break;
+                    case 'doctorName':
+                        $query->orderBy("u.display_name", $direction);
+                        break;
+                    case 'charges':
+                    case 'price':
+                        $query->orderBy("CAST(sdm.charges AS DECIMAL(10,2))", $direction);
+                        break;
+                    case 'duration':
+                        $query->orderBy("sdm.duration", $direction);
+                        break;
+                    case 'category':
+                    case 'type':
+                        $query->orderBy("sd.label", $direction);
+                        break;
+                    case 'status':
+                        $query->orderBy("sdm.status", $direction);
+                        break;
+                    case 'id':
+                    default:
+                        $query->orderBy("sdm.id", $direction);
+                        break;
+                }
+            } else {
+                $query->orderBy("sdm.id", 'DESC');
+            }
+
+            $perPage = isset($params['perPage']) ? $params['perPage'] : 'all';
+            $page = isset($params['page']) ? (int) $params['page'] : 1;
+
+            if ($perPage !== 'all') {
+                $perPage = (int) $perPage;
+                $offset = max(0, ($page - 1) * $perPage);
+                $results = $query->limit($perPage)->offset($offset)->get();
+            } else {
+                $results = $query->get();
+            }
 
             if ($results->isEmpty()) {
                 return $this->response(
@@ -1607,15 +1791,13 @@ class DoctorServiceController extends KCBaseController
             $exportData = $results->map(function ($service) {
                 return [
                     'id' => $service->id ?? '',
-                    'name' => $service->name ?? '',
-                    'service_category' => $service->service_category ?? '',
-                    'service_category_id' => $service->service_category_id_val ?? '',
-                    'doctor_name' => $service->doctor_name ?? '',
-                    'doctor_id' => $service->doctor_id ?? '',
+                    'serviceId' => $service->serviceId ?? '',
+                    'serviceName' => $service->name ?? '',
+                    'clinicName' => $service->clinic_name ?? '',
+                    'doctorName' => $service->doctor_name ?? '',
                     'charges' => $service->charges ?? '',
-                    'telemed_service' => ($service->telemed_service === 'yes') ? 'Yes' : 'No',
-                    'allow_multiple' => ($service->allow_multiple === 'yes') ? 'Yes' : 'No',
-                    'image' => $service->image ? wp_get_attachment_url($service->image) : '',
+                    'duration' => isset($service->duration) ? $this->formatDurationInMinutes($service->duration) : '',
+                    'category' => $service->service_type ?? '',
                     'status' => $service->status == 1 ? 'Active' : 'Inactive',
                 ];
             })->toArray();

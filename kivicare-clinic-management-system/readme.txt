@@ -3,8 +3,8 @@ Contributors: iqonicdesign
 Tags: clinic management, patient management, doctor management, appointment management, clinic management solution
 Requires PHP: 8.0 
 Requires at least: 3.0.1
-Tested up to: 6.9.1
-Stable tag: 4.2.0
+Tested up to: 6.9.4
+Stable tag: 4.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -217,6 +217,30 @@ Free version support is available through our comprehensive Documentation and Vi
 We'd love to hear from you! Contact us at hello@iqonic.design or submit a feature request through our website.
 
 == Changelog ==
+
+= Version 4.2.1 – 19 Mar 2026
+
+### 🏥 Multi-Clinic & Registration Enhancements
+- [New] Enabled multi-clinic selection during patient registration with paginated select component and backend validation
+- [New] Allowed doctors to select multiple clinics during registration; clinic selection menu stays open for improved UX
+- [Improvement] Updated translation templates to reflect new registration form changes
+- [Improvement] Added dynamic translation context for sidebar labels based on user roles
+
+### 🚀 New Features & Improvements
+- [New] Patient list can now be filtered by mobile number for faster search
+- [New] Export functionality for clinics and doctors, including dedicated API endpoints and full UI integration
+- [Improvement] Axios instance now includes `withCredentials` for proper cross-origin request handling
+- [Improvement] Dashboard configuration is invalidated after appointment mutations to ensure accurate updates
+- [Improvement] Responsive design for mobile devices
+
+### 🔧 Fixes & Refactoring
+- [Fixed] Admin bar is now forcefully disabled for all non-admin KiviCare roles for improved role-based access control
+- [Fixed] Canceled appointments were not appearing in the appointment list; now displayed correctly
+- [Fixed] "Canceled" status filter was not functioning properly; now resolved
+- [Fixed] Navigation error in custom forms
+- [Fixed] Auto-closing functionality added for past appointments
+- [Fixed] After registration, users are automatically redirected to their respective dashboards
+
 
 = Version 4.2.0 – 02 Mar 2026
 ### 🌍 Multi-Timezone Architecture Upgrade
