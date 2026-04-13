@@ -222,8 +222,11 @@ class KCAppointmentNotificationListener
             }
 
             // Send notifications to different recipients
-            $this->sendPatientBookingNotification($fullAppointmentData);
-            $this->sendDoctorBookingNotification($fullAppointmentData);
+            if (!$this->isTelemedAppointment($fullAppointmentData)) {
+                $this->sendPatientBookingNotification($fullAppointmentData);
+                $this->sendDoctorBookingNotification($fullAppointmentData);
+            }
+            
             $this->sendClinicBookingNotification($fullAppointmentData);
 
             // Send video conference links if applicable
@@ -582,9 +585,18 @@ class KCAppointmentNotificationListener
                     'country' => $clinic->country ?? '',
                     'clinic_name' => $clinic->name ?? '', // Alias for templates
                     'clinic_email' => $clinic->email ?? '', // Alias for templates
-                    'mobile_number' => $this->format_phone($clinicAdminBasicData['mobile_number'] ?? ''), // Alias for templates
+                    // Prefer clinic admin's mobile; fall back to clinic telephone_no
+                    'mobile_number' => $this->format_phone(
+                        !empty($clinicAdminBasicData['mobile_number'])
+                            ? $clinicAdminBasicData['mobile_number']
+                            : ($clinic->telephone_no ?? '')
+                    ),
                     'clinic_address' => $this->formatClinicAddress($clinic), // Formatted address
-                    'clinic_phone' => $this->format_phone($clinicAdminBasicData['mobile_number'] ?? ''), // Alias for templates
+                    'clinic_phone' => $this->format_phone(
+                        !empty($clinicAdminBasicData['mobile_number'])
+                            ? $clinicAdminBasicData['mobile_number']
+                            : ($clinic->telephone_no ?? '')
+                    ),
                 ],
                 'services' => $services,
                 'isFollowUp' => (get_post_meta($appointmentId, '_kc_is_follow_up', true) === 'yes' || get_post_meta($appointmentId, '_kc_is_follow_up', true) === '1'),
@@ -946,9 +958,19 @@ class KCAppointmentNotificationListener
      */
     public function format_phone($phone_number)
     {
+        // Return empty string for empty input — do NOT return '+' for empty numbers
+        if (empty(trim((string) $phone_number))) {
+            return '';
+        }
+
         // Remove spaces, dashes, brackets, or other non-digit characters, but keep leading +
         $number = trim($phone_number);
         $number = preg_replace('/[^0-9+]/', '', $number);
+
+        // Return empty if nothing left after stripping
+        if (empty($number) || $number === '+') {
+            return '';
+        }
 
         // If number starts with '+', return as is
         if (strpos($number, '+') === 0) {

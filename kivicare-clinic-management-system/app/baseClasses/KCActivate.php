@@ -17,6 +17,7 @@ final class KCActivate
     public static function activate()
     {
         KCMigration::migrate();
+        self::generate_server_key_pair();
         KCPermissions::get_instance()->init_roles_and_capabilities();
         KCDashboardPermalinkHandler::flush_rewrite_rules();
         // $templateManager = \App\emails\KCEmailTemplateManager::getInstance();
@@ -34,6 +35,30 @@ final class KCActivate
 
         // add widgetsetting
         self::widgetSettingLoad();
+    }
+
+    /**
+     * Generate X25519 server key pair for E2E encryption.
+     * Runs only once — skips if keys already exist in wp_options.
+     * Keys are stored as base64 strings under kc_server_public_key / kc_server_private_key.
+     */
+    public static function generate_server_key_pair()
+    {
+        // Guard: do not rotate existing keys
+        if (get_option('kc_server_public_key')) {
+            return;
+        }
+
+        try {
+            $keypair     = \ParagonIE_Sodium_Compat::crypto_box_keypair();
+            $public_key  = \ParagonIE_Sodium_Compat::crypto_box_publickey($keypair);
+            $private_key = \ParagonIE_Sodium_Compat::crypto_box_secretkey($keypair);
+
+            update_option('kc_server_public_key',  \ParagonIE_Sodium_Compat::bin2base64($public_key,  SODIUM_BASE64_VARIANT_ORIGINAL));
+            update_option('kc_server_private_key', \ParagonIE_Sodium_Compat::bin2base64($private_key, SODIUM_BASE64_VARIANT_ORIGINAL));
+        } catch (\Exception $e) {
+            error_log('[KiviCare E2E] Failed to generate server key pair: ' . $e->getMessage());
+        }
     }
 
 

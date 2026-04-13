@@ -6,6 +6,9 @@ use App\models\KCClinicSchedule;
 use App\models\KCAppointment;
 use App\models\KCDoctor;
 use App\models\KCServiceDoctorMapping;
+use App\models\KCOption;
+use App\baseClasses\KCErrorLogger;
+use KCProApp\controllers\api\GoogleCalendarIntegration;
 use DateTime;
 use DateTimeZone;
 use DateTimeImmutable;
@@ -20,7 +23,7 @@ class KCAppointmentDataService
 {
     /**
      * Get doctor sessions for a specific date (and clinic)
-     * 
+     *
      * @param int $doctorId
      * @param int $clinicId
      * @param string $date Y-m-d format
@@ -37,6 +40,38 @@ class KCAppointmentDataService
         return KCClinicSession::query()
             ->where('doctor_id', $doctorId)
             ->where('clinic_id', $clinicId)
+            ->where(function ($query) use ($weekday, $shortWeekday) {
+                $query->where('day', $weekday)
+                      ->orWhere('day', $shortWeekday);
+            })
+            ->get();
+    }
+
+    /**
+     * Get service sessions for a specific mapping date (Pro addon)
+     *
+     * @param int $mappingId Service-doctor-clinic mapping ID
+     * @param string $date Y-m-d format
+     * @param string $doctorId Doctor ID for timezone resolution
+     * @return array
+     */
+    public static function getServiceSessions($mappingId, $date, $doctorId)
+    {
+        // Check if KCServiceSession model exists (pro addon)
+        if (!class_exists('KCProApp\\models\\KCServiceSession')) {
+            return [];
+        }
+
+        // Resolve weekday in the doctor's local timezone (not GMT)
+        $doctorTz = new \DateTimeZone(kcGetDoctorTimezone($doctorId));
+        $dateObj = new \DateTime($date, $doctorTz);
+        $weekday = strtolower($dateObj->format('l'));
+        $shortWeekday = strtolower($dateObj->format('D'));
+
+        // Use dynamic class reference to avoid strict type checking
+        $serviceSessionClass = 'KCProApp\\models\\KCServiceSession';
+        return $serviceSessionClass::query()
+            ->where('mapping_id', $mappingId)
             ->where(function ($query) use ($weekday, $shortWeekday) {
                 $query->where('day', $weekday)
                       ->orWhere('day', $shortWeekday);
@@ -80,7 +115,7 @@ class KCAppointmentDataService
             $appointmentQuery->where('id', '!=', $excludeAppointmentId);
         }
 
-        return $appointmentQuery->get();
+        return $appointmentQuery->get()->toArray();
     }
     
     /**
@@ -103,7 +138,7 @@ class KCAppointmentDataService
         $durations = KCServiceDoctorMapping::query()
             ->where('doctor_id', $doctorId)
             ->where('clinic_id', $clinicId)
-            ->whereIn('service_id', $serviceIds)
+            ->whereIn('id', $serviceIds)
             ->get();
 
         $sum = 0;
@@ -132,11 +167,56 @@ class KCAppointmentDataService
         
         if ($isHoliday) {
             throw new \Exception(__('Doctor is on leave for this date.', 'kivicare-clinic-management-system'));
+        }        
+        
+        $serviceDurationSum = self::getServiceDurationSum($requestData['service_id'], $doctorId, $clinicId);
+        
+        // Check if strict_service_session is enabled
+        $strict_service_session = KCOption::get('strict_service_session') ?? 'off';
+
+        // Fetch doctor sessions for this day
+        $doctorSessions = self::getDoctorSessions($doctorId, $clinicId, $date);
+        $sessions = $doctorSessions;
+        
+        // PRIORITY: Check for service sessions first (if service mapping exists)
+        $serviceId = $requestData['service_id'];
+        if ($serviceId) {
+            // Get service-doctor-clinic mapping
+            $mappings = KCServiceDoctorMapping::query()
+                ->where('doctor_id', $doctorId)
+                ->where('clinic_id', $clinicId)
+                ->whereIn('service_id', is_array($serviceId) ? $serviceId : [$serviceId])
+                ->get();
+
+            if (count($mappings) > 0) {
+                $serviceSessions = [];
+                $mapping_ids = [];
+                
+                foreach ($mappings as $mapping) {
+                    $mapping_ids[] = $mapping->id;
+                    $serviceSessionResult = self::getServiceSessions($mapping->id, $date, $doctorId);
+                    $serviceSessionArray = is_array($serviceSessionResult) ? $serviceSessionResult : ($serviceSessionResult ? $serviceSessionResult->toArray() : []);
+                    $serviceSessions = array_merge($serviceSessions, $serviceSessionArray);
+                }
+
+                // Check if they have ANY session defined across ANY day (for strict mode check)
+                $hasAnyServiceSessionAtAll = false;
+                if (!empty($mapping_ids) && class_exists('KCProApp\\models\\KCServiceSession')) {
+                    $serviceSessionClass = 'KCProApp\\models\\KCServiceSession';
+                    $hasAnyServiceSessionAtAll = $serviceSessionClass::query()->whereIn('mapping_id', $mapping_ids)->count() > 0;
+                }
+
+                if (!empty($serviceSessions)) {
+                    // Service sessions exist for THIS day, use them instead of doctor sessions
+                    $sessions = $serviceSessions;
+                } else if ($strict_service_session === 'on' && $hasAnyServiceSessionAtAll) {
+                    // Strict mode: they have service sessions globally, but none for THIS day.
+                    // Wipe doctor sessions so no slots are generated.
+                    $sessions = [];
+                }
+            }
         }
 
-        $serviceDurationSum = self::getServiceDurationSum($requestData['service_id'], $doctorId, $clinicId);
-        // Fetch sessions and appointments
-        $sessions = self::getDoctorSessions($doctorId, $clinicId, $date);
         $appointments = self::getExistingAppointments($doctorId, $clinicId, $date, $appointmentIdToSkip);
 
         // Inject time-specific holidays as virtual appointments
@@ -198,6 +278,9 @@ class KCAppointmentDataService
             }
         }
 
+        // 3. Inject External Busy Slots (e.g., Google Calendar via Pro plugin)
+        $appointments = self::injectExternalBusySlots($doctorId, $date, $appointments);
+
         return [
             'date' => $date,
             'doctor_id' => $doctorId,
@@ -214,14 +297,15 @@ class KCAppointmentDataService
     /**
      * Batch fetch ALL data needed for a full month of slot generation.
      * Reduces 30+ DB queries to ~4 optimized queries.
-     * 
+     *
      * @param int $doctorId
      * @param int $clinicId
      * @param int $month
      * @param int $year
+     * @param mixed $serviceId Service ID or array of service IDs (optional, for service sessions)
      * @return array Prefetched data grouped by type
      */
-    public static function batchFetchMonthData($doctorId, $clinicId, $month, $year) 
+    public static function batchFetchMonthData($doctorId, $clinicId, $month, $year, $serviceId = null) 
     {
         $doctorTzString = kcGetDoctorTimezone($doctorId);
         $doctorTzObj = new DateTimeZone($doctorTzString);
@@ -272,10 +356,18 @@ class KCAppointmentDataService
             ->where('clinic_id', $clinicId)
             ->get();
 
+        // 4. Fetch service sessions if service ID provided (Pro addon)
+        $serviceSessions = apply_filters('kc_fetch_service_sessions', collect([]), $serviceId, $doctorId, $clinicId);
+
+        // 4. Fetch external busy slots for the month range (e.g., Google Calendar via Pro plugin)
+        $externalBusySlots = apply_filters('kc_external_busy_slots', [], $doctorId, $localStartDate, $localEndDate);
+
         return [
             'appointments' => $appointments,
             'holidays' => $holidays,
             'sessions' => $sessions,
+            'service_sessions' => $serviceSessions,
+            'external_busy_slots' => $externalBusySlots,
             'doctor_timezone' => $doctorTzString
         ];
     }
@@ -303,10 +395,41 @@ class KCAppointmentDataService
         $shortWeekday = strtolower($dateObj->format('D'));
 
         // 1. Sessions: Filter from cache
+        $strict_service_session = KCOption::get('strict_service_session') ?? 'off';
+
+        // PRIORITY: Check service sessions first (if available)
         $sessions = [];
-        foreach ($cachedData['sessions'] as $session) {
-            if ($session->day === $weekday || $session->day === $shortWeekday) {
-                $sessions[] = $session;
+        $hasAnyServiceSessionAtAll = !empty($cachedData['service_sessions']) && count($cachedData['service_sessions']) > 0;
+
+        if ($hasAnyServiceSessionAtAll) {
+            // Service sessions exist globally - filter for this day
+            foreach ($cachedData['service_sessions'] as $session) {
+                if ($session['day'] === $weekday || $session['day'] === $shortWeekday) {
+                    $sessions[] = $session;
+                }
+            }
+        }
+
+        // Fallback logic
+        $shouldFallbackToDoctor = false;
+        
+        if (empty($sessions)) {
+            if ($strict_service_session === 'on') {
+                // Strict mode ON: only fallback if there are NO service sessions AT ALL in the DB
+                if (!$hasAnyServiceSessionAtAll) {
+                    $shouldFallbackToDoctor = true;
+                }
+            } else {
+                // Strict mode OFF: fallback whenever there are no service sessions for THIS specific day
+                $shouldFallbackToDoctor = true;
+            }
+        }
+
+        if ($shouldFallbackToDoctor && !empty($cachedData['sessions'])) {
+            foreach ($cachedData['sessions'] as $session) {
+                if ($session->day === $weekday || $session->day === $shortWeekday) {
+                    $sessions[] = $session;
+                }
             }
         }
 
@@ -391,6 +514,9 @@ class KCAppointmentDataService
             ];
         }
 
+        // 5. Inject External Busy Slots
+        // Use pre-fetched slots from cache if available to avoid network requests
+        $dayAppointments = self::injectExternalBusySlots($doctorId, $date, $dayAppointments, $cachedData['external_busy_slots'] ?? null);
         $serviceDurationSum = self::getServiceDurationSum($requestData['service_id'], $doctorId, $clinicId);
 
         return [
@@ -400,6 +526,7 @@ class KCAppointmentDataService
             'service_duration_sum' =>  $serviceDurationSum > 0 ? $serviceDurationSum : ($sessions[0]->timeSlot ?? 10),
             'sessions' => $sessions,
             'appointments' => $dayAppointments,
+            'external_busy_slots' => $cachedData['external_busy_slots'] ?? [],
             'appointment_id' => $appointmentIdToSkip,
             'only_available_slots' => $requestData['only_available_slots'] ?? false,
             'target_timezone' => $requestData['target_timezone'] ?? null,
@@ -455,5 +582,49 @@ class KCAppointmentDataService
         }
 
         return false;
+    }
+
+    /**
+     * Inject external busy slots as virtual appointments
+     * 
+     * @param int $doctorId
+     * @param string $date Y-m-d
+     * @param array $appointments
+     * @param array|null $preFetchedBusySlots Optional pre-fetched slots to avoid network request
+     * @return array
+     */
+    private static function injectExternalBusySlots($doctorId, $date, $appointments, $preFetchedBusySlots = null)
+    {
+        try {
+            $busySlots = [];
+            if ($preFetchedBusySlots !== null) {
+                // Filter pre-fetched slots for this specific date
+                foreach ($preFetchedBusySlots as $busy) {
+                    if (substr($busy['start'], 0, 10) === $date) {
+                        $busySlots[] = $busy;
+                    }
+                }
+            } else {
+                // Fallback to single-date network request if not pre-fetched
+                $busySlots = apply_filters('kc_external_busy_slots_single', [], $doctorId, $date);
+            }
+
+            if (!empty($busySlots)) {
+                foreach ($busySlots as $busy) {
+                    $appointments[] = [
+                        'appointmentStartDate' => substr($busy['start'], 0, 10),
+                        'appointmentStartTime' => substr($busy['start'], 11),
+                        'appointmentEndDate'   => substr($busy['end'], 0, 10),
+                        'appointmentEndTime'   => substr($busy['end'], 11),
+                        'status'               => 'google_busy_block',
+                        'google_event_name'    => $busy['name'] ?? __('Busy', 'kivicare-clinic-management-system'),
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            KCErrorLogger::instance()->error('Error injecting external busy slots: ' . $e->getMessage());
+        }
+
+        return $appointments;
     }
 }

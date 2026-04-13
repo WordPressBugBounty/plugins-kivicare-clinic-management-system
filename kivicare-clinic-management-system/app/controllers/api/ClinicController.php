@@ -15,6 +15,7 @@ use App\models\KCStaticData;
 use App\models\KCDoctorClinicMapping;
 use App\models\KCPatientClinicMapping;
 use App\models\KCUser;
+use App\baseClasses\KCQueryBuilder;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
@@ -1289,6 +1290,11 @@ class ClinicController extends KCBaseController
             $adminData = [];
             if ($clinic->clinicAdminId) {
                 $admin = KCClinicAdmin::find($clinic->clinicAdminId);
+                if (!$admin) {
+                    $admin = (new KCQueryBuilder(KCClinicAdmin::class))
+                        ->where('id', $clinic->clinicAdminId)
+                        ->first();
+                }
                 if ($admin) {
                     // Check admin email uniqueness
                     if (isset($params['admin_email']) && $params['admin_email'] !== $admin->email) {

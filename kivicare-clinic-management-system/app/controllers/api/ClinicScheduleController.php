@@ -9,6 +9,8 @@ use App\models\KCClinicSchedule;
 use App\models\KCClinic;
 use App\models\KCClinicSession;
 use App\models\KCDoctor;
+use App\models\KCServiceDoctorMapping;
+use App\models\KCOption;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -80,6 +82,25 @@ class ClinicScheduleController extends KCBaseController
                     'description' => 'Doctor ID',
                     'type' => 'integer',
                     'sanitize_callback' => 'absint',
+                    'required' => false,
+                ],
+                'service_id' => [
+                    'description' => 'Service IDs',
+                    'type' => 'array',
+                    'items' => [
+                        'type' => 'integer',
+                    ],
+                    'sanitize_callback' => function ($param) {
+                        if (!is_array($param)) return [];
+                        return array_map('absint', $param);
+                    },
+                    'validate_callback' => function ($value) {
+                        if (!is_array($value)) return false;
+                        foreach ($value as $id) {
+                            if (!is_numeric($id)) return false;
+                        }
+                        return true;
+                    },
                     'required' => false,
                 ],
             ],
@@ -290,7 +311,7 @@ class ClinicScheduleController extends KCBaseController
 
     public function getUnavailableSchedule(WP_REST_Request $request): WP_REST_Response
     {
-        $params = $request->get_params();
+        $params = $request->get_params();      
         $unavailable_schedule = [];
 
         $current_user_role = $this->kcbase->getLoginUserRole();
@@ -304,32 +325,72 @@ class ClinicScheduleController extends KCBaseController
             $clinicId = KCClinic::getClinicIdOfReceptionist();
         }
 
-        // get doctor session days
-        $doctor_session = KCClinicSession::query()
-                ->setTableAlias('kc_doctor_sessions')
-                ->select([
-                    'kc_doctor_sessions.day',
-                ])
-                ->where('clinic_id',$clinicId)
-                ->where('doctor_id',$params['doctor_id'])
-                ->pluck('day');
-        $days = ['0' => 'sun', '1' => 'mon', '2' =>'tue', '3' => 'wed', '4' => 'thu', '5' => 'fri', '6' => 'sat'];
-        if(count($doctor_session) > 0){
-            // get unavilable  days
-            $doctor_session = array_diff(array_values($days),$doctor_session);
-            //get key of unavilable days
-            $doctor_session = array_map(function ($v) use ($days){
-                // converted in string because in flatpickr only accept string
-                return (string)array_search($v,$days);
-            },$doctor_session);
-            $doctor_session = array_values($doctor_session);
+        $days = ['0' => 'sun', '1' => 'mon', '2' => 'tue', '3' => 'wed', '4' => 'thu', '5' => 'fri', '6' => 'sat'];
+
+        $active_session_days = [];
+        $service_ids = !empty($params['service_id']) && is_array($params['service_id']) ? $params['service_id'] : (!empty($params['service_id']) ? [$params['service_id']] : []);
+        $service_session_days = [];
+
+        // Check if strict_service_session is enabled
+        $strict_service_session = KCOption::get('strict_service_session') ?? 'off';
+
+        // 1. Fetch Service Sessions
+        $service_sessions = apply_filters('kc_fetch_service_sessions', collect([]), $service_ids, $params['doctor_id'], $clinicId);
+
+        // Extract days from service sessions
+        $service_session_days = [];
+        if (!empty($service_sessions)) {
+            $service_session_days = array_unique($service_sessions->pluck('day')->toArray());
         }
-        else{
-            //get all days keys
+
+        // 2. Fetch Doctor Sessions
+        $doctor_session_days = KCClinicSession::query()
+            ->setTableAlias('kc_doctor_sessions')
+            ->select(['kc_doctor_sessions.day'])
+            ->where('clinic_id', $clinicId)
+            ->where('doctor_id', $params['doctor_id'])
+            ->pluck('day');
+
+        // 3. Apply the setting logic
+        if ($strict_service_session === 'on') {
+            // Strict mode: Only use service sessions
+            if (count($service_session_days) > 0) {
+                $active_session_days = $service_session_days;
+            } else {
+                // Fallback to doctor sessions if no service sessions defined for this service
+                $active_session_days = $doctor_session_days;
+            }
+        } else {
+            // Disabled (All mode): Combine both service sessions and doctor sessions
+            $active_session_days = array_values(array_unique(array_merge($service_session_days, $doctor_session_days)));
+        }
+
+        if (count($active_session_days) > 0) {
+            // get unavailable days
+            $off_day_names = array_diff(array_values($days), $active_session_days);
+            // get numeric keys of unavailable days (flatpickr accepts string 0-6)
+            $doctor_session = array_values(array_map(function ($v) use ($days) {
+                return (string) array_search($v, $days);
+            }, $off_day_names));
+        } else {
+            // no sessions defined — all days are off
             $doctor_session = array_keys($days);
         }
 
+        // Separate service-restricted days from true off days
+        // These are days where the doctor has a session but is excluded
+        // because strict_service_session is enabled and no service session exists on that day
+        $service_restricted_days = [];
+        if ($strict_service_session === 'on' && count($service_session_days) > 0 && count($doctor_session_days) > 0) {
+            // Days the doctor has sessions but the service does not
+            $restricted_day_names = array_diff($doctor_session_days, $service_session_days);
+            $service_restricted_days = array_values(array_map(function ($v) use ($days) {
+                return (string) array_search($v, $days);
+            }, $restricted_day_names));
+        }
+
         $unavailable_schedule['off_days'] = $doctor_session;
+        $unavailable_schedule['service_restricted_days'] = $service_restricted_days;
         
         // Now get specific day off and full booked day date.
         $leaves = KCClinicSchedule::query()

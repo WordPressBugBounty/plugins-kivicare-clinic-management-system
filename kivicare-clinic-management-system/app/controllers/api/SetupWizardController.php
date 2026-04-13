@@ -526,7 +526,6 @@ class SetupWizardController extends KCBaseController
                 'createdAt' => current_time('mysql'),
             ];
             KCServiceDoctorMapping::create($service_mapping_data);
-            do_action('kc_service_add', $service_id);
             return true;
         } catch (\Exception $e) {
             KCErrorLogger::instance()->error("Failed to create demo service: " . $e->getMessage());

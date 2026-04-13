@@ -160,6 +160,12 @@ class KCEmailTemplateProcessor
         }
 
         // User data mapping (for registration emails)
+        if (isset($data['user'])) {
+            $user = $data['user'];
+            $mapping['user_name']    = $user['username'] ?? '';
+            $mapping['user_email']   = $user['email'] ?? '';
+            $mapping['user_contact'] = $user['contact_number'] ?? '';
+        }
         if (isset($data['user_email'])) {
             $mapping['user_email'] = $data['user_email'];
         }

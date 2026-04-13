@@ -73,7 +73,8 @@ class AppointmentSetting extends SettingsController
             'appointment_cancellation_buffer',
             'multifile_appointment',
             'appointment_description_config_data',
-            'appointment_patient_info_config_data'
+            'appointment_patient_info_config_data',
+            'strict_service_session'
         ]);
 
         $appointmentReminder = is_array($options['email_appointment_reminder'])
@@ -115,6 +116,7 @@ class AppointmentSetting extends SettingsController
                 : $options['appointment_description_config_data'],
             'cancellationBufferEnabled' => $bufferStatus,
             'cancellationBufferHours'   => $bufferHours,
+            'strict_service_session' => $options['strict_service_session'] ?? 'off',
         ];
 
         // Check Twilio Configuration
@@ -151,6 +153,7 @@ class AppointmentSetting extends SettingsController
                 'appointment_reminder_notification' => $this->appointmentReminderNotificationSave(),
                 'appointment_description_status' => $this->enableDisableAppointmentDescription(),
                 'appointment_cancellation_buffer' => $this->appointmentCancellationBufferSave(),
+                'strict_service_session_status' => $this->saveStrictServiceSessionStatus(),
             ];
 
             return $this->response($data, esc_html__('Appointment settings saved successfully.', 'kivicare-clinic-management-system'));
@@ -278,6 +281,23 @@ class AppointmentSetting extends SettingsController
 
         return [
             'status'  => true,
+            'message' => $message,
+        ];
+    }
+
+    public function saveStrictServiceSessionStatus()
+    {
+        $request_data = $this->request_data;
+        $message = esc_html__('Failed to update', 'kivicare-clinic-management-system');
+        $status = false;
+        if (isset($request_data['strict_service_session'])) {
+            $value = ($request_data['strict_service_session'] === true) ? 'on' : 'off';
+            KCOption::set('strict_service_session', $value);
+            $message = esc_html__('Strict Service Session Setting Saved.', 'kivicare-clinic-management-system');
+            $status = true;
+        }
+        return [
+            'status'  => $status,
             'message' => $message,
         ];
     }

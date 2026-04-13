@@ -401,8 +401,8 @@ class StaticDataController extends KCBaseController
                 ])
                 ->leftJoin(KCService::class, 'sdm.service_id', '=', 's.id', 's')
                 ->leftJoin(KCClinic::class, 'sdm.clinic_id', '=', 'c.id', 'c')
-                ->leftJoin('users', 'u.ID', '=', 'sdm.doctor_id', 'u')
-                ->leftJoin('kc_doctor_clinic_mappings', 'dcm.doctor_id', '=', 'sdm.doctor_id', 'dcm')
+                ->leftJoin(KCUser::class, 'u.ID', '=', 'sdm.doctor_id', 'u')
+                ->leftJoin(KCDoctorClinicMapping::class, 'dcm.doctor_id', '=', 'sdm.doctor_id', 'dcm')
                 ->leftJoin(KCStaticData::class, function ($join) {
                     $join->on('s.type', '=', 'sd.value')
                         ->onRaw("sd.type = 'service_type'");
@@ -1273,6 +1273,9 @@ class StaticDataController extends KCBaseController
     {
         try {
             $query = KCPatient::query()->setTableAlias('user')->where('user.user_status', 0);
+            // Exclude anonymized/deleted users
+            $query->where('user.user_email', 'NOT LIKE', '%@example.invalid')
+                  ->where('user.display_name', 'NOT LIKE', 'deleted_user_%');
 
             // Add patient unique ID settings check
             $patientIdSetting = KCOption::get('patient_id_setting', []);
@@ -1671,6 +1674,9 @@ class StaticDataController extends KCBaseController
 
             // Build query for users
             $query = KCUser::query()->where('status', 0); // 0 means active in WordPress
+            // Exclude anonymized/deleted users
+            $query->where('user_email', 'NOT LIKE', '%@example.invalid')
+                  ->where('display_name', 'NOT LIKE', 'deleted_user_%');
 
             // Filter by user IDs if clinic ID was provided
             if ($clinicId > 0 && !empty($userIds)) {
@@ -1824,6 +1830,9 @@ class StaticDataController extends KCBaseController
 
                 case $kcBase->getPatientRole():
                     $query = KCPatient::query()->where('user_status', 0);
+                    // Exclude anonymized/deleted users
+                    $query->where('user_email', 'NOT LIKE', '%@example.invalid')
+                          ->where('display_name', 'NOT LIKE', 'deleted_user_%');
                     break;
 
                 case $kcBase->getReceptionistRole():

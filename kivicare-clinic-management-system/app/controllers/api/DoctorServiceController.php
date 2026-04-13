@@ -1126,7 +1126,16 @@ class DoctorServiceController extends KCBaseController
                 'createdAt' => current_time('mysql')
             ];
 
-            // Create the clinic
+            // Check if service name already exists
+            $existingService = KCService::query()
+                ->where('name', '=', $params['name'])
+                ->first();
+
+            if ($existingService) {
+                return $this->response(null, __('Service name already exists. Please choose a different name.', 'kivicare-clinic-management-system'), false, 400);
+            }
+
+            // Create the service
             $service_id = KCService::create($serviceData);
 
             if (!$service_id) {
@@ -1225,6 +1234,7 @@ class DoctorServiceController extends KCBaseController
                     })
                     ->toArray();
 
+                $created_mapping_ids = [];
                 foreach ($clinic_doctors as $clinic_id_loop => $clinic_doctor_val) {
                     foreach ($clinic_doctor_val as $doctor) {
                         $serviceMappingData = [
@@ -1244,7 +1254,10 @@ class DoctorServiceController extends KCBaseController
                             $serviceMappingData['duration'] = $params['duration'];
                         }
                         // Create the service-doctor mapping
-                        KCServiceDoctorMapping::create($serviceMappingData);
+                        $new_mapping_id = KCServiceDoctorMapping::create($serviceMappingData);
+                        if ($new_mapping_id) {
+                            $created_mapping_ids[] = (int) $new_mapping_id;
+                        }
                     }
                 }
 
@@ -1262,8 +1275,10 @@ class DoctorServiceController extends KCBaseController
                     'service_image_url' => $params['profile_image'] ? wp_get_attachment_url($params['profile_image']) : '',
                 ];
 
-                // hook for service add.
-                do_action('kc_service_add', $serviceData);
+                // hook for saving service sessions (handled by pro plugin if active).
+                if (!empty($created_mapping_ids) && !empty($params['session_days'])) {
+                    do_action('kc_service_add', $created_mapping_ids, $params['session_days'], $serviceData);
+                }
 
                 // Save clinic and doctor mappings if needed (implement as per your DB structure)
                 return $this->response($serviceData, __('Service created successfully', 'kivicare-clinic-management-system'), true, 201);
@@ -1307,7 +1322,17 @@ class DoctorServiceController extends KCBaseController
                 ])
                 ->where('id', '=', $params['category'])
                 ->first();
-            // Try to find existing service with the same name and type
+            // Try to find if the service name already exists in another record
+            $otherServiceWithSameName = KCService::query()
+                ->where('name', '=', $params['name'])
+                ->where('id', '!=', $serviceMapping->serviceId)
+                ->first();
+
+            if ($otherServiceWithSameName) {
+                return $this->response(null, __('Service name already exists. Please choose a different name.', 'kivicare-clinic-management-system'), false, 400);
+            }
+
+            // Try to find existing service with the same name and type for reuse
             $existingService = KCService::query()
                 ->where('name', '=', $params['name'])
                 ->where('type', '=', $type->value)
@@ -1437,8 +1462,11 @@ class DoctorServiceController extends KCBaseController
                 'updated_at' => current_time('mysql')
             ];
 
-            // hook for service update.
-            do_action('kc_service_update', $serviceData);
+            if (empty($params['session_days'])) {
+                $params['session_days'] = [];
+            }
+            // hook for saving service sessions on update (handled by pro plugin if active).
+            do_action('kc_service_update', (int) $id, $params['session_days'], $serviceData);
 
             return $this->response($serviceData, __('Service updated successfully', 'kivicare-clinic-management-system'));
         } catch (\Exception $e) {
@@ -1480,7 +1508,7 @@ class DoctorServiceController extends KCBaseController
                 return $this->response(null, __('Failed to delete service', 'kivicare-clinic-management-system'), false, 500);
             }
 
-            do_action('kc_service_delete', $id);
+            do_action('kc_service_delete', (int) $id);
 
             return $this->response(
                 ['id' => $id],

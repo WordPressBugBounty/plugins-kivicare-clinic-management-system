@@ -731,7 +731,30 @@ class PatientController extends KCBaseController
      */
     public function checkPermission($request)
     {
-        return current_user_can('read');
+        if (!current_user_can('read')) {
+            return false;
+        }
+
+        $current_user_role = $this->kcbase->getLoginUserRole();
+
+        if ($current_user_role === $this->kcbase->getPatientRole()) {
+            $patient_id = $request->get_param('id');
+            if ($patient_id && intval($patient_id) === get_current_user_id()) {
+                $route = $request->get_route();
+                if (strpos($route, '/export') !== false) {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        $route = $request->get_route();
+        if (strpos($route, '/export') !== false) {
+            return $this->checkResourceAccess('patient', 'export');
+        }
+
+        return $this->checkResourceAccess('patient', 'view');
     }
 
     /**
@@ -766,18 +789,22 @@ class PatientController extends KCBaseController
 
         $current_user_id = get_current_user_id();
         $current_user_role = $this->kcbase->getLoginUserRole();
+        
+        // Check patient edit permission - mandatory for ALL users
+        if (!$this->checkResourceAccess('patient', 'edit')) {
+            return false;
+        }
 
-        // If it's a patient role, allow them to update their own profile
+        // If it's a patient role, they can only update their own profile
         if ($current_user_role === $this->kcbase->getPatientRole()) {
             $patient_id = $request->get_param('id');
-            // Allow patient to update their own data
             if ($patient_id && intval($patient_id) === $current_user_id) {
                 return true;
             }
+            return false; // Cannot update other patients
         }
 
-        // Check patient edit permission
-        return $this->checkResourceAccess('patient', 'edit');
+        return true;
     }
 
     /**
@@ -827,6 +854,9 @@ class PatientController extends KCBaseController
 
             // Build a SLIM base query (IDs and core fields only)
             $query = KCPatient::table('p')->select(['p.ID as id', 'p.display_name', 'p.user_email as email', 'p.user_registered', 'p.user_status as user_status']);
+            // Exclude anonymized/deleted users
+            $query->where('p.user_email', 'NOT LIKE', '%@example.invalid')
+                  ->where('p.display_name', 'NOT LIKE', 'deleted_user_%');
 
             $current_user_role = $this->kcbase->getLoginUserRole();
             $current_user_id = get_current_user_id();
@@ -1091,13 +1121,12 @@ class PatientController extends KCBaseController
                 ->groupBy('p.ID')
                 ->first();
 
+            if ($patient && $patient->isAnonymized()) {
+                $patient = null;
+            }
+
             if (!$patient) {
-                return $this->response(
-                    null,
-                    __('Patient not found', 'kivicare-clinic-management-system'),
-                    false,
-                    404
-                );
+                return $this->response(null, __('Patient not found', 'kivicare-clinic-management-system'), false, 404);
             }
 
             // Fetch active holidays for all clinics once
@@ -1366,7 +1395,7 @@ class PatientController extends KCBaseController
             // Find the patient
             $patient = KCPatient::find($id);
 
-            if (!$patient) {
+            if (!$patient || $patient->isAnonymized()) {
                 return $this->response(null, __('Patient not found', 'kivicare-clinic-management-system'), false, 404);
             }
 
@@ -1605,7 +1634,7 @@ class PatientController extends KCBaseController
 
             $patient = KCPatient::find($id);
 
-            if (!$patient) {
+            if (!$patient || $patient->isAnonymized()) {
                 return $this->response(null, __('Patient not found', 'kivicare-clinic-management-system'), false, 404);
             }
 
@@ -1657,7 +1686,7 @@ class PatientController extends KCBaseController
 
             $patient = KCPatient::find($id);
 
-            if (!$patient) {
+            if (!$patient || $patient->isAnonymized()) {
                 return $this->response(null, __('Patient not found', 'kivicare-clinic-management-system'), false, 404);
             }
 
@@ -2468,6 +2497,11 @@ class PatientController extends KCBaseController
     public function getPatientStatistics(WP_REST_Request $request): WP_REST_Response
     {
         $patientId = (int) $request->get_param('id');
+        $patient = KCPatient::find($patientId);
+        if (!$patient || $patient->isAnonymized()) {
+            return $this->response(null, __("Patient not found", "kivicare-clinic-management-system"), false, 404);
+        }
+
 
         try {
             // Total appointments

@@ -11,6 +11,7 @@ use App\models\KCServiceDoctorMapping;
 use App\models\KCPatient;
 use App\models\KCOption;
 use App\models\KCUserMeta;
+use App\controllers\helper\KCEncryptedResponseHelper;
 use KCProApp\models\KCPPatientReview;
 use WP_Error;
 use WP_REST_Request;
@@ -103,11 +104,13 @@ class KCBookAppoinmentShortcode extends KCBaseController
         $this->registerRoute('/' . $this->route . '/upload-medical-report', [
             'methods' => 'POST',
             'callback' => [$this, 'handleFileUpload'],
-            'permission_callback' => function () {
-                return wp_verify_nonce(
-                    isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '',
-                    'wp_rest'
-                );
+            'permission_callback' => function (\WP_REST_Request $request) {
+                // Fixed the IP address nonce bug
+                $nonce = $request->get_header('media_nonce');
+                if (empty($nonce)) {
+                    $nonce = $request->get_header('x_wp_nonce');
+                }
+                return wp_verify_nonce($nonce, 'wp_rest');
             },
         ]);
     }
@@ -326,11 +329,33 @@ class KCBookAppoinmentShortcode extends KCBaseController
                 'is_appointment_description_config_data' => $is_appointment_description_config_data ? filter_var($is_appointment_description_config_data, FILTER_VALIDATE_BOOLEAN) : false,
             ];
 
+            // GDPR settings
+            $gdpr_consent_settings = KCOption::get('gdpr_consent_settings', []);
+            $gdpr_settings = [
+                'enable_gdpr'          => !empty($gdpr_consent_settings['enable_gdpr']),
+                'version'              => $gdpr_consent_settings['consent_version'] ?? '1.0',
+                'privacy_policy_url'   => $gdpr_consent_settings['privacy_policy_url'] ?? '',
+                'terms_of_service_url' => $gdpr_consent_settings['terms_of_service_url'] ?? '',
+                'mandatory_consents'   => $gdpr_consent_settings['mandatory_consents'] ?? [],
+            ];
+
+            // User info for frontend flow (GdprReconsentModal)
+            $is_authenticated = is_user_logged_in();
+            $current_user = [
+                'isAuthenticated' => $is_authenticated,
+                'userRole'        => $is_authenticated ? $this->kcbase->getLoginUserRole() : null,
+                'currentuserID'   => $is_authenticated ? get_current_user_id() : null,
+            ];
+
             return $this->response([
-                'clinic'  => $clinic_settings,
-                'doctor'  => $doctor_settings,
-                'service' => $service_settings,
+                'clinic'      => $clinic_settings,
+                'doctor'      => $doctor_settings,
+                'service'     => $service_settings,
                 'appointment' => $appointment_settings,
+                'gdpr_settings' => $gdpr_settings,
+                'current_user'  => $current_user,
+                'is_pro_active' => function_exists('isKiviCareProActive') && isKiviCareProActive(),
+                'e2e_dev_mode' => KCEncryptedResponseHelper::isDevelopmentMode(),
             ]);
 
         } catch (\Exception $e) {

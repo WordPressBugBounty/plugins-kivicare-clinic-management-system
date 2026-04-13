@@ -6,6 +6,7 @@ use App\baseClasses\KCBaseController;
 use App\models\KCPrescription;
 use App\emails\KCEmailTemplateManager;
 use App\emails\KCEmailTemplateProcessor;
+use App\models\KCPatientEncounter;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -222,19 +223,69 @@ class PrescriptionController extends KCBaseController
 
     public function checkPermission($request)
     {
-        return $this->checkCapability('read');
+        if (!current_user_can('read')) {
+            return false;
+        }
+
+        $current_user_id = get_current_user_id();
+        $current_user_role = $this->kcbase->getLoginUserRole();
+
+        if ($current_user_role === $this->kcbase->getPatientRole()) {
+            $prescription_id = $request->get_param('id');
+            if ($prescription_id) {
+                $prescription = KCPrescription::find($prescription_id);
+                if ($prescription && intval($prescription->patientId) === $current_user_id) {
+                    return true;
+                }
+                return false;
+            }
+            
+            $patient_id = $request->get_param('patient_id');
+            if ($patient_id && intval($patient_id) === $current_user_id) {
+                return true;
+            }
+            
+            $encounter_id = $request->get_param('encounter_id');
+            if ($encounter_id) {
+                $encounter = KCPatientEncounter::find($encounter_id);
+                if ($encounter && intval($encounter->patientId) === $current_user_id) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
+        $route = $request->get_route();
+        if (strpos($route, '/export') !== false) {
+            return $this->checkResourceAccess('prescription', 'export');
+        }
+
+        return $this->checkResourceAccess('prescription', 'view');
     }
+
     public function checkCreatePermission($request)
     {
-        return $this->checkCapability('read');
+        if (!current_user_can('read')) {
+            return false;
+        }
+        return $this->checkResourceAccess('prescription', 'add');
     }
+    
     public function checkUpdatePermission($request)
     {
-        return $this->checkCapability('read');
+        if (!current_user_can('read')) {
+            return false;
+        }
+        return $this->checkResourceAccess('prescription', 'edit');
     }
+    
     public function checkDeletePermission($request)
     {
-        return $this->checkCapability('read');
+        if (!current_user_can('read')) {
+            return false;
+        }
+        return $this->checkResourceAccess('prescription', 'delete');
     }
 
     public function getPrescriptions(WP_REST_Request $request): WP_REST_Response

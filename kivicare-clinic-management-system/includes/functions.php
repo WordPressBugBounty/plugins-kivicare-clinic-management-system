@@ -3,6 +3,7 @@
 use App\baseClasses\KCSidebarManager;
 use App\admin\KCDashboardPermalinkHandler;
 use App\models\KCOption;
+use App\models\KCClinic;
 
 defined('ABSPATH') or die('Something went wrong');
 
@@ -325,6 +326,7 @@ function kc_snake_case($string)
  */
 function kc_get_json_translation_files($domain)
 {
+    $locale = determine_locale();
     $cached_mofiles = [];
 
     $locations = [
@@ -334,7 +336,8 @@ function kc_get_json_translation_files($domain)
     ];
 
     foreach ($locations as $location) {
-        $mofiles = glob($location . '/*.json');
+        // Optimized to only find files for the current domain and locale
+        $mofiles = glob($location . '/' . $domain . '-' . $locale . '-*.json');
 
         if (!$mofiles) {
             continue;
@@ -343,19 +346,13 @@ function kc_get_json_translation_files($domain)
         $cached_mofiles = array_merge($cached_mofiles, $mofiles);
     }
 
-    $locale = determine_locale();
+    // Sort files by modification time (oldest to newest)
+    // This ensures that when merged later, the newest translations overwrite older ones.
+    usort($cached_mofiles, function($a, $b) {
+        return filemtime($a) - filemtime($b);
+    });
 
-    $result = [];
-
-    foreach ($cached_mofiles as $single_file) {
-        if (strpos($single_file, $locale) === false) {
-            continue;
-        }
-
-        $result[] = $single_file;
-    }
-
-    return $result;
+    return $cached_mofiles;
 }
 
 /**
@@ -398,15 +395,23 @@ function kc_get_jed_locale_data($domain)
             true
         );
 
-        if (
-            !$parsed_json
-            ||
-            !isset($parsed_json['locale_data']['messages'])
-        ) {
+        if (!$parsed_json || !isset($parsed_json['locale_data'])) {
             continue;
         }
 
-        foreach ($parsed_json['locale_data']['messages'] as $msgid => $entry) {
+        // Support both old 'messages' key and modern domain-based keys
+        $messages = null;
+        if (isset($parsed_json['locale_data'][$domain])) {
+            $messages = $parsed_json['locale_data'][$domain];
+        } elseif (isset($parsed_json['locale_data']['messages'])) {
+            $messages = $parsed_json['locale_data']['messages'];
+        }
+
+        if (!$messages) {
+            continue;
+        }
+
+        foreach ($messages as $msgid => $entry) {
             if (empty($msgid)) {
                 continue;
             }
@@ -655,6 +660,47 @@ function kcGetFormatedDate($date)
 
     // Use wp_date with the correct timestamp and WordPress timezone
     return wp_date($dateFormat, $timestamp);
+}
+
+
+/**
+ * Format a UTC database timestamp to the current user's preferred timezone.
+ * 
+ * @param string $date UTC datetime string from DB
+ * @param string $separator Separator between date and time (default: ', ')
+ * @return string Formatted local date and time
+ */
+function kcGetFormatedDateTimeWithTimezone($date, $separator = ', ')
+{
+    if (empty($date)) return '-';
+
+    $timezone = wp_timezone();
+    if ($user_id = get_current_user_id()) {
+        $user_tz = get_user_meta($user_id, 'timezone', true);
+        
+        if (empty($user_tz) && current_user_can('manage_options')) {
+            $clinic_id = KCClinic::kcGetDefaultClinicId();
+            if ($clinic_id && ($clinic = KCClinic::find($clinic_id))) {
+                $user_tz = get_user_meta($clinic->clinicAdminId, 'timezone', true);
+            }
+        }
+
+        if (!empty($user_tz)) {
+            try {
+                $timezone = new \DateTimeZone($user_tz);
+            } catch (\Exception $e) {}
+        }
+    }
+
+    try {
+        $dateTime = new \DateTime($date, new \DateTimeZone('UTC'));
+        $dateTime->setTimezone($timezone);
+        $ts = $dateTime->getTimestamp();
+
+        return wp_date(get_option('date_format'), $ts, $timezone) . $separator . wp_date(get_option('time_format'), $ts, $timezone);
+    } catch (\Exception $e) {
+        return $date;
+    }
 }
 
 /**

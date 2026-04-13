@@ -5,6 +5,7 @@ use DateTimeImmutable;
 use DateTime;
 use DateInterval;
 use Exception;
+use App\baseClasses\KCBase;
 
 defined('ABSPATH') or die('Something went wrong');
 
@@ -25,6 +26,7 @@ class KCTimeSlotService
     private $appointments = [];
     private $appointmentIdToSkip = null;
     private $onlyAvailableSlots = false;
+    private $isNonPatient = false;
 
     private $sourceTimezone;
     private $targetTimezone;
@@ -61,6 +63,11 @@ class KCTimeSlotService
         } catch (\Exception $e) {
             $this->targetTimezone = $this->sourceTimezone;
         }
+
+        $kcBase = KCBase::get_instance();
+        $userRole = $kcBase->getLoginUserRole();
+        // Only these roles can see Google busy slots
+        $this->isNonPatient = !empty($userRole) && in_array($userRole, ['administrator', $kcBase->getClinicAdminRole(), $kcBase->getDoctorRole(), $kcBase->getReceptionistRole()]);
 
         $this->validateInputs();
         $this->determineDay();
@@ -214,6 +221,11 @@ class KCTimeSlotService
         foreach ($overlappingAppointments as $appointment) {
             $appointment = (object) $appointment;
             
+            // If it's a Google busy block, don't remove it from the available chunks
+            // so it remains visible but disabled in the frontend.
+            if (($appointment->status ?? '') === 'google_busy_block') {
+                continue;
+            }
             $utcTimezone = new \DateTimeZone('UTC');
             $startUtcStr = isset($appointment->appointmentStartUtc) ? $appointment->appointmentStartUtc : (isset($appointment->appointment_start_utc) ? $appointment->appointment_start_utc : null);
             $endUtcStr = isset($appointment->appointmentEndUtc) ? $appointment->appointmentEndUtc : (isset($appointment->appointment_end_utc) ? $appointment->appointment_end_utc : null);
@@ -321,20 +333,45 @@ class KCTimeSlotService
 
             // Check if slot fits within chunk
             if ($slotEnd <= $chunk['end']) {
+                // Check if this slot overlaps with any booked appointment (e.g. Google busy blocks)
+                $booking = $this->getBookingForSlot($slotStart, $slotEnd);
+                $isBooked = !empty($booking);
+
                 // Availability check uses strict absolute time comparison
                 $isFuture = $slotStart > $currentTime;
+                $isAvailable = $isFuture && !$isBooked;
 
                 if (!$this->onlyAvailableSlots || $isFuture) { 
                     // Convert to Target Timezone for display (immutable — returns new object)
                     $displayStart = $slotStart->setTimezone($this->targetTimezone);
 
-                    $slots[] = [
+                    $slotData = [
                         'time' => $this->formatTime($displayStart),
-                        'available' => $isFuture,
+                        'available' => $isAvailable,
+                        'booked' => $isBooked,
                         'datetime' => $displayStart->format('Y-m-d H:i:s'),
                         'session_id' => $session->id ?? null,
-                        'source_datetime' => $slotStart->format('Y-m-d H:i:s')
+                        'source_datetime' => $slotStart->format('Y-m-d H:i:s'),
+                        'selected_date_time' => $displayStart->format('Y-m-d H:i:s'),
+                        'time_format' => $displayStart->format('H:i:s')
                     ];
+
+                    if ($isBooked) {
+                        $slotData['booked_status'] = $booking->status ?? null;
+                        if (($booking->status ?? '') === 'google_busy_block') {
+                            $slotData['is_google_event'] = true;
+                            $slotData['google_event_name'] = $booking->google_event_name ?? __('Busy on Google Calendar', 'kivicare-clinic-management-system');
+                        }
+                    }
+
+                    // Exclude google_busy_block if user is a patient
+                    if ($isBooked && (($booking->status ?? '') === 'google_busy_block') && !$this->isNonPatient) {
+                        // Move to next slot iteration early
+                        $slotStart = $slotStart->add($interval);
+                        continue;
+                    }
+
+                    $slots[] = $slotData;
                 }
             }
 
@@ -368,7 +405,8 @@ class KCTimeSlotService
             // Check if slot fits within session
             if ($slotEnd <= $sessionEnd) {
                 // Check if this slot overlaps with any booked appointment
-                $isBooked = $this->isSlotBooked($slotStart, $slotEnd);
+                $booking = $this->getBookingForSlot($slotStart, $slotEnd);
+                $isBooked = !empty($booking);
                 
                 // Determine if slot is available (absolute time comparison)
                 $isAvailable = ($slotStart > $currentTime) && !$isBooked;
@@ -376,7 +414,7 @@ class KCTimeSlotService
                 // Convert to Target Timezone for display (immutable — returns new object)
                 $displayStart = $slotStart->setTimezone($this->targetTimezone);
 
-                $slots[] = [
+                $slotData = [
                     'time' => $this->formatTime($displayStart),
                     'available' => $isAvailable,
                     'booked' => $isBooked,
@@ -386,6 +424,21 @@ class KCTimeSlotService
                     'selected_date_time' => $displayStart->format('Y-m-d H:i:s'),
                     'time_format' => $displayStart->format('H:i:s')
                 ];
+
+                if ($isBooked) {
+                    $slotData['booked_status'] = $booking->status ?? null;
+                    if (($booking->status ?? '') === 'google_busy_block') {
+                        $slotData['is_google_event'] = true;
+                    }
+                }
+
+                // Exclude google_busy_block if user is a patient
+                if ($isBooked && (($booking->status ?? '') === 'google_busy_block') && !$this->isNonPatient) {
+                    $slotStart = $slotStart->add($interval);
+                    continue;
+                }
+
+                $slots[] = $slotData;
             }
             
             // Move to next slot (immutable — returns new object)
@@ -396,13 +449,13 @@ class KCTimeSlotService
     }
     
     /**
-     * Check if a specific time slot overlaps with any booked appointment
+     * Check if a specific time slot overlaps with any booked appointment and return the booking
      * 
      * @param DateTimeImmutable $slotStart Slot start time
      * @param DateTimeImmutable $slotEnd Slot end time
-     * @return bool True if slot is booked
+     * @return object|null The appointment object if booked, null otherwise
      */
-    private function isSlotBooked(DateTimeImmutable $slotStart, DateTimeImmutable $slotEnd): bool
+    private function getBookingForSlot(DateTimeImmutable $slotStart, DateTimeImmutable $slotEnd)
     {
         foreach ($this->appointments as $appointment) {
             $appointment = (object) $appointment;
@@ -431,11 +484,11 @@ class KCTimeSlotService
             
             // Check for overlap
             if ($slotStart < $appointmentEnd && $slotEnd > $appointmentStart) {
-                return true;
+                return $appointment;
             }
         }
         
-        return false;
+        return null;
     }
 
     /**
@@ -544,35 +597,11 @@ class KCTimeSlotService
      */
     public function isSlotAvailable(string $slotDateTime): bool
     {
-        $slotStart = new DateTime($slotDateTime, $this->sourceTimezone);
-        $slotEnd = clone $slotStart;
-        $slotEnd->add(new DateInterval('PT' . $this->serviceDurationSum . 'M'));
+        $slotStart = new \DateTimeImmutable($slotDateTime, $this->sourceTimezone);
+        $slotEnd = $slotStart->add(new \DateInterval('PT' . $this->serviceDurationSum . 'M'));
 
         // Check against existing appointments
-        foreach ($this->appointments as $appointment) {
-            $appointment = (object) $appointment;
-
-            $utcTimezone = new \DateTimeZone('UTC');
-            $startUtcStr = $appointment->appointmentStartUtc ?? ($appointment->appointment_start_utc ?? null);
-            $endUtcStr = $appointment->appointmentEndUtc ?? ($appointment->appointment_end_utc ?? null);
-
-            if ($startUtcStr && $endUtcStr) {
-                // Use UTC fields and convert to sourceTimezone for comparison
-                $appointmentStart = (new \DateTime($startUtcStr, $utcTimezone))->setTimezone($this->sourceTimezone);
-                $appointmentEnd = (new \DateTime($endUtcStr, $utcTimezone))->setTimezone($this->sourceTimezone);
-            } else {
-                // Fallback to local time comparison
-                $appointmentStart = new DateTime($appointment->appointmentStartDate . ' ' . $appointment->appointmentStartTime,  $this->sourceTimezone);
-                $appointmentEnd = new DateTime($appointment->appointmentEndDate . ' ' . $appointment->appointmentEndTime,  $this->sourceTimezone);
-            }
-
-            // Check for overlap
-            if ($slotStart < $appointmentEnd && $slotEnd > $appointmentStart) {
-                return false;
-            }
-        }
-
-        return true;
+        return empty($this->getBookingForSlot($slotStart, $slotEnd));
     }
 
 }

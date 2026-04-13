@@ -15,6 +15,11 @@ use App\emails\listeners\KCPaymentNotificationListener;
 use App\emails\listeners\KCInvoiceNotificationListener;
 use App\emails\listeners\KCPrescriptionNotificationListener;
 use KCProApp\email\KCClinicAdminNotificationListener;
+use App\models\KCService;
+use App\models\KCAppointment;
+use App\models\KCServiceDoctorMapping;
+use App\models\KCAppointmentServiceMapping;
+
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -383,7 +388,7 @@ class KCEmailNotificationInit
      */
     private function fetchAppointmentData(int $appointmentId): ?array
     {
-        $appointment = \App\models\KCAppointment::find($appointmentId);
+        $appointment = KCAppointment::find($appointmentId);
 
         if (!$appointment) {
             return null;
@@ -392,6 +397,26 @@ class KCEmailNotificationInit
         $patient = $appointment->getPatient();
         $doctor = $appointment->getDoctor();
         $clinic = $appointment->getClinic();
+
+        $services = [];
+        $serviceMapping = KCAppointmentServiceMapping::query()
+            ->where('appointmentId', '=', $appointmentId)
+            ->get();
+
+        foreach ($serviceMapping as $mapping) {
+            $service = KCServiceDoctorMapping::table('sdm')
+                ->select(['sdm.*', 's.name'])
+                ->leftJoin( KCService::class, 'sdm.service_id', '=', 's.id', 's')
+                ->where('s.id', '=', $mapping->serviceId)
+                ->first();
+
+            if ($service) {
+                $services[] = [
+                    'name' => $service->name,
+                    'charges' => (float) $service->charges
+                ];
+            }
+        }
 
         return [
             'appointment' => [
@@ -403,7 +428,10 @@ class KCEmailNotificationInit
                 'visit_type' => $appointment->visitType,
                 'description' => $appointment->description,
                 'status' => $appointment->status,
+                'service_name' => implode(', ', array_column($services, 'name')),
+                'total_amount' => number_format(array_sum(array_column($services, 'charges')), 2),
             ],
+            'services' => $services,
             'patient' => $patient ? [
                 'id' => $patient->id,
                 'email' => $patient->email,
@@ -632,6 +660,9 @@ class KCEmailNotificationInit
             return null;
         }
 
+        $basicData = get_user_meta($user->ID, 'basic_data', true);
+        $basicData = is_string($basicData) ? json_decode($basicData, true) : (is_array($basicData) ? $basicData : []);
+
         return [
             'user' => [
                 'id' => $user->ID,
@@ -640,6 +671,7 @@ class KCEmailNotificationInit
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
                 'display_name' => $user->display_name,
+                'contact_number' => $basicData['mobile_number'] ?? '',
             ]
         ];
     }

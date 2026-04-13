@@ -303,13 +303,15 @@ class KCEmailTemplateManager
                 'post_type' => $templatePostType,
                 'post_status' => 'publish',
             ],
-            [
-                'post_name' => $this->prefix . 'payment_pending',
-                'post_content' => '<p>Appointment Payment,</p><p>Your Appointment is cancelled due to pending payment</p><p>Thank you.</p>',
-                'post_title' => 'Appointment Payment Pending Template',
-                'post_type' => $templatePostType,
-                'post_status' => 'publish',
-            ],
+            // [DEPRECATED] kivicare_payment_pending — hook kc_payment_pending is never fired in the codebase.
+            // Kept here for reference. Re-enable if the hook is implemented in the future.
+            // [
+            //     'post_name' => $this->prefix . 'payment_pending',
+            //     'post_content' => '<p>Appointment Payment,</p><p>Your Appointment is cancelled due to pending payment</p><p>Thank you.</p>',
+            //     'post_title' => 'Appointment Payment Pending Template',
+            //     'post_type' => $templatePostType,
+            //     'post_status' => 'publish',
+            // ],
             [
                 'post_name' => $this->prefix . 'patient_invoice',
                 'post_content' => '<p>Welcome to KiviCare,</p><p>Find your Invoice in attachment</p><p>Thank you.</p>',
@@ -337,6 +339,27 @@ class KCEmailTemplateManager
                 'post_title' => 'Reminder: Upcoming Follow-Up Appointment on {{appointment_date}}',
                 'post_type' => $templatePostType,
                 'post_status'   => 'publish',
+            ],
+            [
+                'post_name'    => $this->prefix . 'appointment_rescheduled_by_gcal',
+                'post_content' => '<p>Dear {{patient_name}},</p><p>Your appointment #{{appointment_id}} has been updated via Google Calendar.</p><p>New Time: <strong>{{appointment_date}} at {{appointment_time}}</strong></p><p>Clinic: {{clinic_name}}</p><p>Thank you.</p>',
+                'post_title'   => 'Appointment Rescheduled via Google Calendar (Patient)',
+                'post_type'    => $templatePostType,
+                'post_status'  => 'publish',
+            ],
+            [
+                'post_name'    => $this->prefix . 'doctor_appointment_rescheduled_by_gcal',
+                'post_content' => '<p>New update via Google Calendar</p><p>Appointment #{{appointment_id}} has been rescheduled.</p><p>New Time: <strong>{{appointment_date}} at {{appointment_time}}</strong></p><p>Patient: {{patient_name}}</p><p>Thank you.</p>',
+                'post_title'   => 'Appointment Rescheduled via Google Calendar (Doctor)',
+                'post_type'    => $templatePostType,
+                'post_status'  => 'publish',
+            ],
+            [
+                'post_name'    => $this->prefix . 'appointment_gcal_revert',
+                'post_content' => '<p>Google Calendar Sync Conflict</p><p>The event change for appointment #{{appointment_id}} was <strong>reverted</strong> because the selected slot ({{appointment_date}} at {{appointment_time}}) is already booked.</p><p>Thank you.</p>',
+                'post_title'   => 'Google Calendar Sync Reverted (Conflict)',
+                'post_type'    => $templatePostType,
+                'post_status'  => 'publish',
             ],
         ];
 
@@ -427,8 +450,15 @@ class KCEmailTemplateManager
      */
     public function templateExists(string $postName): bool
     {
-        $post = get_page_by_path($postName, OBJECT, [$this->mailTemplatePostType]);
-        return $post !== null;
+        $args = [
+            'name'           => $postName,
+            'post_type'      => [$this->mailTemplatePostType, $this->gcalTemplatePostType, $this->gmeetTemplatePostType],
+            'post_status'    => 'any',
+            'posts_per_page' => 1,
+            'fields'         => 'ids'
+        ];
+        $posts = get_posts($args);
+        return !empty($posts);
     }
 
     /**
@@ -505,13 +535,20 @@ class KCEmailTemplateManager
 
         $userWiseTemplate = $this->getUserWiseTemplateMapping();
 
-        foreach ($templateResult as $post) {
-            $post->content_sid = get_post_meta($post->ID, 'content_sid', true);
-        }
+        // [DEPRECATED] slugs to hide from the frontend template list
+        $deprecatedTemplateSlugs = [
+            KIVI_CARE_PREFIX . 'payment_pending', // hook kc_payment_pending is never fired
+        ];
 
-        $templateResult = collect($templateResult)->unique('post_name')->sortBy('ID')->map(function ($value) use ($userWiseTemplate) {
+        $templateResult = collect($templateResult)->sortBy('ID')->map(function ($value) {
+            $value->base_post_name = preg_replace('/-\d+$/', '', $value->post_name);
+            $value->content_sid = get_post_meta($value->ID, 'content_sid', true);
+            return $value;
+        })->unique('base_post_name')->filter(function ($value) use ($deprecatedTemplateSlugs) {
+            return !in_array($value->base_post_name, $deprecatedTemplateSlugs, true);
+        })->map(function ($value) use ($userWiseTemplate) {
             foreach ($userWiseTemplate as $userType => $templates) {
-                if (in_array($value->post_name, $templates)) {
+                if (in_array($value->base_post_name, $templates)) {
                     $value->user_type = $userType;
                     break;
                 }
@@ -533,46 +570,49 @@ class KCEmailTemplateManager
      */
     private function getUserWiseTemplateMapping(): array
     {
+        $prefix = strtolower($this->prefix);
         $userWiseTemplate = [
             'patient' => [
-                'kivicare_patient_register',
-                'kivicare_book_appointment_reminder',
-                'kivicare_book_appointment',
-                'kivicare_add_appointment',
-                'kivicare_cancel_appointment',
-                'kivicare_encounter_close',
-                'kivicare_zoom_link',
-                'kivicare_meet_link',
-                'kivicare_payment_confirmation',
-                'kivicare_patient_clinic_check_in_check_out',
-                'kivicare_encounter_close',
-                'kivicare_patient_prescription',
-                'kivicare_patient_invoice',
-                'kivicare_patient_report',
-                'kivicare_follow_up_appointment',
-                'kivicare_follow_up_appointment_reminder'
+                $prefix . 'patient_register',
+                $prefix . 'book_appointment_reminder',
+                $prefix . 'book_appointment',
+                $prefix . 'add_appointment',
+                $prefix . 'cancel_appointment',
+                $prefix . 'zoom_link',
+                $prefix . 'meet_link',
+                $prefix . 'payment_confirmation',
+                $prefix . 'patient_clinic_check_in_check_out',
+                $prefix . 'encounter_close',
+                $prefix . 'patient_prescription',
+                $prefix . 'patient_invoice',
+                $prefix . 'patient_report',
+                $prefix . 'follow_up_appointment',
+                $prefix . 'follow_up_appointment_reminder',
+                $prefix . 'appointment_rescheduled_by_gcal'
             ],
             'doctor' => [
-                'kivicare_doctor_registration',
-                'kivicare_doctor_book_appointment',
-                'kivicare_add_doctor_zoom_link',
-                'kivicare_add_doctor_meet_link',
-                'kivicare_book_appointment_reminder_for_doctor',
-                'kivicare_follow_up_appointment_for_staff'
+                $prefix . 'doctor_registration',
+                $prefix . 'doctor_book_appointment',
+                $prefix . 'add_doctor_zoom_link',
+                $prefix . 'add_doctor_meet_link',
+                $prefix . 'book_appointment_reminder_for_doctor',
+                $prefix . 'follow_up_appointment_for_staff',
+                $prefix . 'doctor_appointment_rescheduled_by_gcal',
+                $prefix . 'appointment_gcal_revert',
             ],
             'clinic' => [
-                'kivicare_clinic_admin_registration',
-                'kivicare_clinic_book_appointment',
-                'kivicare_follow_up_appointment_for_staff'
+                $prefix . 'clinic_admin_registration',
+                $prefix . 'clinic_book_appointment',
+                $prefix . 'follow_up_appointment_for_staff'
             ],
             'receptionist' => [
-                'kivicare_receptionist_register',
-                'kivicare_follow_up_appointment_for_staff'
+                $prefix . 'receptionist_register',
+                $prefix . 'follow_up_appointment_for_staff'
             ],
             'common' => [
-                'kivicare_resend_user_credential',
-                'kivicare_user_verified',
-                'kivicare_admin_new_user_register'
+                $prefix . 'resend_user_credential',
+                $prefix . 'user_verified',
+                $prefix . 'admin_new_user_register'
             ]
         ];
 

@@ -128,7 +128,7 @@ class KCBase
 
 	public function getLoginUserRole()
 	{
-		if (null !== $this->loginUserRole) {
+		if (false !== $this->loginUserRole && null !== $this->loginUserRole) {
 			return $this->loginUserRole;
 		}
 

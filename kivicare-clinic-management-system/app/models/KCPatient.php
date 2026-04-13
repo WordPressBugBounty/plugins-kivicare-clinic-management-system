@@ -291,4 +291,18 @@ class KCPatient extends KCBaseModel
 
         return (int) $query->count();
     }
+
+    /**
+     * Check if the patient has been anonymized (deleted)
+     * 
+     * @return bool
+     */
+    public function isAnonymized(): bool
+    {
+        $email = $this->email ?? '';
+        $displayName = $this->displayName ?? '';
+
+        return (strpos($email, '@example.invalid') !== false) || 
+               (strpos($displayName, 'deleted_user_') === 0);
+    }
 }

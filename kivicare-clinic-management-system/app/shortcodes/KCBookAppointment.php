@@ -125,6 +125,7 @@ class KCBookAppointment extends KCShortcodeAbstract
             'data-secondary-hover-color' => isset($widgetSettings['secondaryHoverColor']) ? esc_attr($widgetSettings['secondaryHoverColor']) : '',
             'data-show-other-gender' => KCOption::get('user_registration_form_setting', 'off'),
             'data-default-country' => KCOption::get('country_code', 'us'),
+            'data-show-register-tab' => (($registration_status_settings = KCOption::get('user_registration_shortcode_setting')) && isset($registration_status_settings['patient']) && $registration_status_settings['patient'] === 'on') ? 'true' : 'false',
         ];
 
         // Add query parameters if they exist

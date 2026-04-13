@@ -182,6 +182,81 @@ class ConfigController extends KCBaseController
             'permission_callback' => [$this, 'checkPermission'],
             'args' => $this->getUserPreferencesEndpointArgs()
         ]);
+
+        // ── E2EE Key-exchange Handshake ────────────────────────────────────────
+        // These routes MUST be excluded from encryption (chicken-and-egg problem).
+
+        // Step 1: Client fetches the server's X25519 public key
+        $this->registerRoute('/server-key', [
+            'methods'             => WP_REST_Server::CREATABLE,
+            'callback'            => [$this, 'get_server_public_key'],
+            'permission_callback' => '__return_true',
+            'args'                => [],
+            'encryption'          => false,
+        ]);
+
+        // Step 2: Client registers its own X25519 public key with the server
+        $this->registerRoute('/' . $this->route . '/register-key', [
+            'methods'             => WP_REST_Server::CREATABLE,
+            'callback'            => [$this, 'register_client_public_key'],
+            'permission_callback' => '__return_true',
+            'args'                => [],
+            'encryption'          => false,
+        ]);
+    }
+
+    /**
+     * Return the server's base64-encoded X25519 public key.
+     * The client uses this to encrypt data that only the server can decrypt.
+     *
+     * Lazily generates the key pair when missing — handles existing installations
+     * that were already active when E2EE was added (skipped the activation hook).
+     */
+    public function get_server_public_key(WP_REST_Request $request)
+    {
+        $public_key = get_option('kc_server_public_key');
+
+        // Lazy generation: activation hook may have been missed on existing installs
+        if (!$public_key) {
+            \App\baseClasses\KCActivate::generate_server_key_pair();
+            $public_key = get_option('kc_server_public_key');
+        }
+
+        if (!$public_key) {
+            return new WP_Error('no_key', 'Server public key could not be generated', ['status' => 500]);
+        }
+
+        return ['public_key' => $public_key];
+    }
+
+    /**
+     * Store the client's base64-encoded X25519 public key in user_meta.
+     * The server uses this key to encrypt responses that only the client can decrypt.
+     */
+    public function register_client_public_key(WP_REST_Request $request)
+    {
+        $public_key = sanitize_text_field($request['public_key'] ?? '');
+        $user_id    = get_current_user_id();
+
+        if (empty($public_key)) {
+            return new WP_Error('invalid_key', 'Public key is required', ['status' => 400]);
+        }
+
+        if (!$user_id) {
+            // Check for client ID
+            $client_id = $request->get_header('x_kc_client_id');
+            if ($client_id) {
+                set_transient('kc_e2e_guest_' . $client_id, $public_key, 2 * HOUR_IN_SECONDS);
+                return ['status' => 'success', 'source' => 'guest'];
+            }
+            
+            // Handshake fired before auth cookie was processed — client should
+            // retry once authenticated. Return 401 so JS can handle gracefully.
+            return new WP_Error('not_authenticated', 'User not authenticated', ['status' => 401]);
+        }
+
+        update_user_meta($user_id, 'client_public_key', $public_key);
+        return ['status' => 'success'];
     }
 
     /**
@@ -361,6 +436,22 @@ class ConfigController extends KCBaseController
              * @param array $module_config_object Key-value map of module flags ('1'|'0' or strings).
              */
             $response['module_config'] = apply_filters('kivicare_module_config', $module_config_object);
+            
+            // Get GDPR consent enabled status:
+            $gdpr_consent_settings  = KCOption::get('gdpr_consent_settings', []);
+            $gdpr_activity_settings = KCOption::get('gdpr_activity_settings', []);
+            $auditSettings = KCOption::get('gdpr_audit_settings', [
+                'audit_log_mode' => 'disabled',
+            ]);
+            $response['audit_log_mode'] = $auditSettings['audit_log_mode'] ?? 'disabled';
+
+            $response['gdpr_settings'] = [
+                'enable_gdpr' => !empty($gdpr_consent_settings['enable_gdpr']),
+                'version' => $gdpr_consent_settings['consent_version'] ?? '1.0',
+                'privacy_policy_url' => $gdpr_consent_settings['privacy_policy_url'] ?? '',
+                'terms_of_service_url' => $gdpr_consent_settings['terms_of_service_url'] ?? '',
+                'mandatory_consents' => $gdpr_consent_settings['mandatory_consents'] ?? [],
+            ];
             $response['countryCode'] = $options['country_code'] ?? 'us';
             $response['hideUtilityLinks'] = $options['request_helper_status'] ?? 'off';
             $response['hideLanguageSwitcher'] = $options['hide_language_switcher_status'] ?? 'off';
@@ -635,7 +726,8 @@ class ConfigController extends KCBaseController
             $response['appointmentDescription'] = is_bool($options['appointment_description_config_data'])
                 ? 'off'
                 : $options['appointment_description_config_data'];
-            $response['hideClinicalDetailsForPatient'] = $options['hide_clinical_detail_in_patient'] ?? 'false';
+            $settingValue = $options['hide_clinical_detail_in_patient'] ?? 'false';
+            $response['hideClinicalDetailsForPatient'] = filter_var($settingValue, FILTER_VALIDATE_BOOLEAN);
 
             // get allow meme types
             $response['allowed_mime_types'] = get_allowed_mime_types();

@@ -3,6 +3,7 @@ namespace App\admin;
 
 use App\baseClasses\KCBase;
 use App\models\KCOption;
+use App\controllers\helper\KCEncryptedResponseHelper;
 use function Iqonic\Vite\iqonic_enqueue_asset;
 
 defined('ABSPATH') or die('Something went wrong');
@@ -99,13 +100,15 @@ class AdminMenu
         });
 
         wp_localize_script('kc-dashboard', 'kc_frontend', [
-            'rest_url' => rest_url(),
-            'nonce' => wp_create_nonce('wp_rest'),
-            'locale_data' => $locale_data_kc,
-            'prefix' => KIVI_CARE_PREFIX,
+            'rest_url'     => rest_url(),
+            'nonce'        => wp_create_nonce('wp_rest'),
+            'locale_data'  => $locale_data_kc,
+            'prefix'       => KIVI_CARE_PREFIX,
             'loader_image' => KIVI_CARE_DIR_URI . 'assets/images/loader.gif',
-            'site_logo' => !empty(KCOption::get('site_logo')) ? wp_get_attachment_url(KCOption::get('site_logo')) : '',
-            'date_format' => get_option('date_format'),
+            'site_logo'    => !empty(KCOption::get('site_logo')) ? wp_get_attachment_url(KCOption::get('site_logo')) : '',
+            'date_format'  => get_option('date_format'),
+            // E2EE bypass mode — set define('KIVICARE_REST_API_E2EE_BYPASS', true) in wp-config.php
+            'e2e_dev_mode' => KCEncryptedResponseHelper::isDevelopmentMode(),
         ]);
     }
 }

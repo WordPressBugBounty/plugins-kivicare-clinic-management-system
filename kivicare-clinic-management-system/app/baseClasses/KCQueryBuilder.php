@@ -1086,6 +1086,83 @@ class KCQueryBuilder
     }
 
     /**
+     * Batch insert multiple records
+     *
+     * @param array $rows Array of associative arrays (property name or column name => value)
+     * @return bool True on success, false on failure
+     */
+    public function insert(array $rows): bool
+    {
+        if (empty($rows)) {
+            return true;
+        }
+
+        // Build map of valid insert keys (skipping auto-increment primary key)
+        $columnMap = []; // input key => actual DB column name
+        foreach ($this->schema['columns'] as $property => $config) {
+            if (isset($config['auto_increment']) && $config['auto_increment']) {
+                continue;
+            }
+            $columnMap[$property] = $config['column'];
+            // Also accept direct DB column name as key
+            if ($config['column'] !== $property) {
+                $columnMap[$config['column']] = $config['column'];
+            }
+        }
+
+        // Determine which columns to insert from the first row
+        $firstRow = reset($rows);
+        $usedColumns = []; // input key => DB column name
+        foreach ($firstRow as $key => $value) {
+            if (isset($columnMap[$key])) {
+                $usedColumns[$key] = $columnMap[$key];
+            }
+        }
+
+        if (empty($usedColumns)) {
+            return false;
+        }
+
+        $columnList = implode(', ', array_map(fn($col) => "`{$col}`", array_values($usedColumns)));
+        $placeholderRows = [];
+        $allValues = [];
+
+        foreach ($rows as $row) {
+            $rowPlaceholders = [];
+            foreach ($usedColumns as $inputKey => $dbColumn) {
+                $value = array_key_exists($inputKey, $row) ? $row[$inputKey] : null;
+                if ($value === null) {
+                    $rowPlaceholders[] = 'NULL';
+                } else {
+                    $type = isset($this->schema['columns'][$inputKey]) ? $this->schema['columns'][$inputKey]['type'] : 'string';
+                    $rowPlaceholders[] = '%s';
+                    $allValues[] = $this->formatValueForDatabase($value, $type);
+                }
+            }
+            $placeholderRows[] = '(' . implode(', ', $rowPlaceholders) . ')';
+        }
+
+        $query = "INSERT INTO {$this->table} ({$columnList}) VALUES " . implode(', ', $placeholderRows);
+
+        if (empty($allValues)) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+            $result = $this->wpdb->query($query);
+        } else {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            $preparedQuery = $this->wpdb->prepare($query, $allValues);
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+            $result = $this->wpdb->query($preparedQuery);
+        }
+
+        if ($this->wpdb->last_error) {
+            KCErrorLogger::instance()->error("WPDB Batch Insert Error: " . $this->wpdb->last_error);
+            return false;
+        }
+
+        return $result !== false;
+    }
+
+    /**
      * Update records
      */
     public function update(array $data): int

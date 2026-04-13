@@ -90,21 +90,29 @@ class AppointmentsController extends KCBaseController
             return;
         }
 
-
         $clinic = KCClinic::find($appointmentData['clinicId'] ?? 0);
         $patient = KCPatient::find($appointmentData['patientId'] ?? 0);
         $doctor = KCDoctor::find($appointmentData['doctorId'] ?? 0);
 
-        $appointmentServices = KCAppointmentServiceMapping::query()->where('appointmentId', $appointmentId)->get();
-        
+        // Fetch services WITH their names so the Google Calendar template can use service_name
+        $appointmentServices = KCAppointmentServiceMapping::table('asm')
+            ->select(['asm.*', 's.name'])
+            ->leftJoin(KCService::class, 'asm.service_id', '=', 's.id', 's')
+            ->where('asm.appointment_id', $appointmentId)
+            ->get();
+
         $appointmentData['status'] = $status;
 
-        GoogleCalendarIntegration::getInstance()->updateAppointmentToGoogleCalendars(
-            $appointmentId, 
-            $appointmentData, 
-            $clinic, 
-            $patient, 
-            $doctor, 
+        // Use addAppointmentToGoogleCalendars which correctly detects whether a Google Meet
+        // event already exists (via meeting->eventId) and UPDATES it instead of CREATING a
+        // new duplicate. updateAppointmentToGoogleCalendars relies on storedEvents which is
+        // empty for fresh payment-success bookings, causing it to always create a new event.
+        GoogleCalendarIntegration::getInstance()->addAppointmentToGoogleCalendars(
+            $appointmentId,
+            $appointmentData,
+            $clinic,
+            $patient,
+            $doctor,
             $appointmentServices
         );
     }
@@ -699,7 +707,7 @@ class AppointmentsController extends KCBaseController
                 'type' => 'string',
                 'validate_callback' => function ($param) {
                     $formatted = $this->formatTimezoneString($param);
-                    return in_array($formatted, timezone_identifiers_list()) || preg_match('/^[+-][0-9]{2}:[0-9]{2}$/', $formatted);
+                    return in_array($formatted, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC)) || preg_match('/^[+-][0-9]{2}:[0-9]{2}$/', $formatted);
                 },
                 'sanitize_callback' => 'sanitize_text_field',
             ],
@@ -708,7 +716,7 @@ class AppointmentsController extends KCBaseController
                 'type' => 'string',
                 'validate_callback' => function ($param) {
                     $formatted = $this->formatTimezoneString($param);
-                    return in_array($formatted, timezone_identifiers_list()) || preg_match('/^[+-][0-9]{2}:[0-9]{2}$/', $formatted);
+                    return in_array($formatted, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC)) || preg_match('/^[+-][0-9]{2}:[0-9]{2}$/', $formatted);
                 },
                 'sanitize_callback' => 'sanitize_text_field',
             ]
@@ -728,7 +736,8 @@ class AppointmentsController extends KCBaseController
         }
 
         // If it's a valid timezone identifier, return as is
-        if (in_array($timezone, timezone_identifiers_list())) {
+                if (in_array($timezone, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
+
             return $timezone;
         }
 
@@ -752,7 +761,9 @@ class AppointmentsController extends KCBaseController
             return sprintf('%s%02d:%02d', $sign, $hours, $minutes);
         }
 
-        return wp_timezone_string();
+        $fallback = wp_timezone_string();
+        error_log('[AppointmentsController Debug] formatTimezoneString No match, fallback to WP: ' . $fallback);
+        return $fallback;
     }
 
     /**
@@ -1426,10 +1437,22 @@ class AppointmentsController extends KCBaseController
             $settings = AppointmentSetting::kcAppointmentRestrictionData();
             $is_same_day = in_array($settings['only_same_day_book'] ?? '', [true, 'on', 1, '1'], true);
 
-            // 'today' keyword automatically sets time to 00:00:00
-            $today = new DateTime('today', wp_timezone());
+            $user_timezone = get_user_meta(get_current_user_id(), 'timezone', true);
 
-            $requested = new DateTime($params['date'], wp_timezone());
+            // Fallback to WordPress timezone if user timezone is empty or invalid
+            try {
+                $timezone = !empty($user_timezone) 
+                    ? new \DateTimeZone($user_timezone) 
+                    : wp_timezone();
+            } catch (Exception $e) {
+                $timezone = wp_timezone();
+            }
+
+            // 'today' keyword automatically sets time to 00:00:00
+            $today = new DateTime('today', $timezone);
+
+            // Requested date (make sure $params['date'] is valid format)
+            $requested = new DateTime($params['date'], $timezone);
 
             $requested->setTime(0, 0, 0);
 
@@ -1471,22 +1494,6 @@ class AppointmentsController extends KCBaseController
                 $year = null;
             }
 
-            $settings = (new \App\controllers\api\SettingsController\AppointmentSetting())->kcAppointmentRestrictionData();
-            $is_same_day = in_array($settings['only_same_day_book'] ?? '', [true, 'on', 1, '1'], true);
-
-            // 'today' keyword automatically sets time to 00:00:00
-            $today = new DateTime('today', wp_timezone());
-
-            $requested = new DateTime($params['date'] ,     wp_timezone());
-            
-            $requested->setTime(0, 0, 0); 
-
-            if ($is_same_day) {
-                if ($requested != $today) {
-                    return $this->response(['error' => 'Only same-day booking is allowed.'], __('Only same-day booking is allowed.', 'kivicare-clinic-management-system'), false,   400);
-                }
-            }
-            
             // Validate month and year
             if ($month >= 1 && $month <= 12 && $year >= 1000 && $year <= 9999) {
                 // Handle month-wide slot retrieval
@@ -1496,7 +1503,7 @@ class AppointmentsController extends KCBaseController
             // Continue with single-date slot retrieval
             return $this->getSingleDateSlots($params);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Log the error for debugging
             KCErrorLogger::instance()->error('AppointmentSlotGenerator Error: ' . $e->getMessage());
             KCErrorLogger::instance()->error('Stack trace: ' . $e->getTraceAsString());
@@ -1563,9 +1570,9 @@ class AppointmentsController extends KCBaseController
                 400
             );
         }
-
+        
         // Get booking restrictions
-        $settings = (new \App\controllers\api\SettingsController\AppointmentSetting())->kcAppointmentRestrictionData();
+        $settings = (new AppointmentSetting())->kcAppointmentRestrictionData();
         $is_same_day = in_array($settings['only_same_day_book'] ?? '', [true, 'on', 1, '1'], true);
         $pre = (int) ($settings['pre_book'] ?? 0);
         $post = (int) ($settings['post_book'] ?? 365);
@@ -1595,7 +1602,8 @@ class AppointmentsController extends KCBaseController
             $params['doctor_id'],
             $params['clinic_id'],
             $month,
-            $year
+            $year,
+            $params['service_id']
         );
 
         // Loop through an expanded range to account for timezone spillovers
@@ -1871,7 +1879,7 @@ class AppointmentsController extends KCBaseController
         $userTimezone = $this->formatTimezoneString($rawTimezone);
         
         // Ensure the formatted timezone is valid
-        if (!in_array($userTimezone, timezone_identifiers_list()) && !preg_match('/^[+-][0-9]{2}:[0-9]{2}$/', $userTimezone)) {
+        if (!in_array($userTimezone, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC)) && !preg_match('/^[+-][0-9]{2}:[0-9]{2}$/', $userTimezone)) {
             $userTimezone = wp_timezone_string();
             // Fallback: If the default WP timezone string is also just an offset, we leave it since DateTimeZone parses offsets.
         }
@@ -1918,6 +1926,9 @@ class AppointmentsController extends KCBaseController
             ->leftJoin(KCPaymentsAppointmentMapping::class, "a.id", '=', 'pam.appointment_id', 'pam')
             ->leftJoin(KCPatientEncounter::class, "a.id", '=', 'pe.appointment_id', 'pe');
 
+        // Exclude anonymized/deleted patients
+        $query->where('p.user_email', 'NOT LIKE', '%@example.invalid')
+              ->where('p.display_name', 'NOT LIKE', 'deleted_user_%');
 
 
         // Apply role-based filtering
@@ -2959,6 +2970,20 @@ class AppointmentsController extends KCBaseController
                 );
             }
 
+            // Booking limit check (handled by pro plugin via filter)
+            $limitError = apply_filters(
+                'kivicare_check_patient_booking_limit',
+                null,
+                (int) $params['patientId'],
+                $params['appointmentStartDate'],
+                $params['appointmentStartTime'],
+                !empty($params['timezone']) ? $params['timezone'] : kcGetDoctorTimezone((int) $params['doctorId'])
+            );
+            if ($limitError !== null) {
+                $wpdb->query('ROLLBACK');
+                return $limitError;
+            }
+
             do_action('kivicare_before_create_appointment', $params);
 
             if (isset($params['serviceId'])) {
@@ -3138,9 +3163,12 @@ class AppointmentsController extends KCBaseController
 
             $appointmentId = $appointment->id ?? $appointment;
 
-            if (!empty($params['tax_data']) && function_exists('isKiviCareProActive') && isKiviCareProActive()) {
-                // Save tax data
-                do_action('kivicare_save_appointment_tax_data', $appointmentId, $params['tax_data']);
+            if (function_exists('isKiviCareProActive') && isKiviCareProActive()) {
+                $taxData = !empty($params['tax_data']) ? $params['tax_data'] : ($summaryData['applied_taxes'] ?? []);
+                if (!empty($taxData)) {
+                    // Save tax data
+                    do_action('kivicare_save_appointment_tax_data', $appointmentId, $taxData);
+                }
             }
 
             if (!empty($mappingIds)) {
@@ -3163,7 +3191,7 @@ class AppointmentsController extends KCBaseController
                 ->where('telemedService', '=', 'yes')
                 ->where('clinicId', '=', $clinicId);
 
-            if ($telemed_services->count() > 0) {
+            if ($status !== KCAppointment::STATUS_PENDING && $telemed_services->count() > 0) {
                 $telemedProvider = KCTelemedFactory::get_provider_by_doctor_id($params['doctorId']);
 
                 if (!$telemedProvider) {
@@ -3294,12 +3322,14 @@ class AppointmentsController extends KCBaseController
                 $responseData['payment_response'] = $gatewayResponce;
             }
 
-            do_action('kc_after_create_appointment', $appointmentId, $appointmentData, $request);
+            if ($status !== KCAppointment::STATUS_PENDING) {
+                do_action('kc_after_create_appointment', $appointmentId, $appointmentData, $request);
+            }
 
             $wpdb->query('COMMIT'); // Commit transaction
 
             // After successful commit, add to Google Calendar if connected (non-transactional, ignore errors)
-            if (isKiviCareProActive()) {
+            if ($status !== KCAppointment::STATUS_PENDING && isKiviCareProActive()) {
                 GoogleCalendarIntegration::getInstance()->addAppointmentToGoogleCalendars($appointmentId, $appointmentData, $clinic, $patient, $doctor, $services);
             }
             return $this->response(
@@ -3326,7 +3356,7 @@ class AppointmentsController extends KCBaseController
 
     /**
      * Update existing appointment (date and time only)
-     * 
+     *
      * @param \WP_REST_Request $request
      * @return \WP_REST_Response
      */
@@ -3883,11 +3913,16 @@ class AppointmentsController extends KCBaseController
 
                 $telemedProvider = KCTelemedFactory::get_provider_by_doctor_id($appointment->doctorId);
 
+                $appointment_start_str = $appointment->appointmentStartDate . ' ' . $appointment->appointmentStartTime;
+                $start_dt = new \DateTime($appointment->appointmentStartTime);
+                $end_dt   = new \DateTime($appointment->appointmentEndTime);
+                $duration_minutes = max(($end_dt->getTimestamp() - $start_dt->getTimestamp()) / 60, 30);
+
                 $is_meeting_link = $telemedProvider?->create_meeting(array(
                     'topic' => $telemed_services->map(fn($service) => $service->name)->join(', ') ?? 'Telemed Service',
                     'type' => 'scheduled',
-                    'start_time' => current_time('mysql'),
-                    'duration' => $appointment->appointmentEndTime - $appointment->appointmentStartTime,
+                    'start_time' => $appointment_start_str,
+                    'duration' => $duration_minutes,
                     'timezone' => wp_timezone_string(),
                     'password' => '',
                     'waiting_room' => false,
@@ -3906,6 +3941,15 @@ class AppointmentsController extends KCBaseController
             do_action('kc_appointment_payment_completed', $appointmentId, $paymentResult['data']);
 
             $wpdb->query('COMMIT');
+
+            // After commit, sync to Google Calendar (non-transactional)
+            if (function_exists('isKiviCareProActive') && isKiviCareProActive()) {
+                // Reload appointment to get latest confirmed status
+                $confirmedAppointment = KCAppointment::find($appointmentId);
+                if ($confirmedAppointment) {
+                    $this->syncAppointmentToGoogleCalendars($appointmentId, $confirmedAppointment->toArray(), 1);
+                }
+            }
 
             // Redirect to success page or return success response
             $redirectUrl = home_url('/appointment-success/?appointment_id=' . $appointmentId);
@@ -3941,8 +3985,27 @@ class AppointmentsController extends KCBaseController
             exit;
         } catch (\Exception $e) {
             $wpdb->query('ROLLBACK');
+            
+            $appointmentId = $request->get_param('appointment_id');
+            
+            // Cancel the appointment when payment is not successful
+            if ($appointmentId) {
+                $apptQuery = KCAppointment::query()->where('id', $appointmentId)->first();
+                if ($apptQuery) {
+                    $apptQuery->update(['status' => 0]);
+                }
+            }
+
             // Check if payment mapping already exists
-            $existingPayment = KCPaymentsAppointmentMapping::query()->where('appointment_id', $request->get_param('appointment_id'))->first();
+            $existingPayment = KCPaymentsAppointmentMapping::query()->where('appointment_id', $appointmentId)->first();
+            
+            if ($existingPayment) {
+                $existingPayment->update(['paymentStatus' => 'cancelled']);
+            }
+            
+            if ($appointmentId) {
+                do_action('kc_appointment_payment_cancelled', $appointmentId);
+            }
 
             // Redirect to success page or return success response
             $page_id = json_decode($existingPayment->extra ?? '{}', true)['is_from_frontend'];
@@ -4130,6 +4193,19 @@ class AppointmentsController extends KCBaseController
                 }
             } else {
                 // Payment not completed
+                if ($appointment_id) {
+                    $apptQuery = KCAppointment::query()->where('id', $appointment_id)->first();
+                    if ($apptQuery && $apptQuery->status !== 1) { // Only cancel if not confirmed
+                        $apptQuery->update(['status' => 0]);
+                        
+                        $existingPayment = KCPaymentsAppointmentMapping::query()->where('appointment_id', $appointment_id)->first();
+                        if ($existingPayment) {
+                            $existingPayment->update(['paymentStatus' => 'cancelled']);
+                        }
+                        
+                    }
+                }
+
                 $response_data['status'] = 'failed';
 
                 return $this->response(

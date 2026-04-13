@@ -161,18 +161,19 @@ abstract class KCShortcodeAbstract
     {
         global $post;
 
-        if (!is_a($post, 'WP_Post')) {
-            return false;
+        // Check current post content
+        if ($post instanceof \WP_Post && !empty($post->post_content)) {
+            if (has_shortcode($post->post_content, $this->tag)) {
+                return true;
+            }
         }
 
-        // Check if shortcode is in post content
-        if (has_shortcode($post->post_content, $this->tag)) {
-            return true;
-        }
-
-        // Also check if shortcode is in widgets or other areas
-        if (is_active_widget(false, false, 'text') || is_active_widget(false, false, 'custom_html')) {
-            return true;
+        // Check current queried object if global post is not reliable
+        $queried_object = get_queried_object();
+        if ($queried_object instanceof WP_Post && !empty($queried_object->post_content)) {
+            if (has_shortcode($queried_object->post_content, $this->tag)) {
+                return true;
+            }
         }
 
         return false;

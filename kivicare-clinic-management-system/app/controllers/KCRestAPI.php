@@ -39,6 +39,8 @@ use App\controllers\api\SettingsController\WidgetSetting;
 use App\controllers\api\KCPrintInvoiceController;
 use App\controllers\api\BillController;
 use App\baseClasses\KCErrorLogger;
+use App\controllers\helper\KCRestAPIEncryptionFilter;
+use KCProApp\filterClasses\KCGdprExportFilters;
 
 defined("ABSPATH") or die("Something went wrong");
 
@@ -297,7 +299,8 @@ class KCRestAPI
                 "setting",
                 "notification",
                 CustomNotification::class,
-            );
+            )
+;
 
         $this->moduleRegistry->registerModule("frontend")
             ->registerModuleController(
@@ -362,6 +365,11 @@ class KCRestAPI
          * @param KCRestAPI $this Current KCRestAPI instance
          */
         do_action("kivicare_after_controllers_init", $this->controllers, $this);
+
+        // ── E2EE Transport Encryption ──────────────────────────────────────────
+        // Instantiate AFTER all routes are registered so the filter can correctly
+        // collect the full route list (including opt-out flags on handshake routes).
+        KCRestAPIEncryptionFilter::getInstance();
     }
 
     /**

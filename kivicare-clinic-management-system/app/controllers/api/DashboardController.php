@@ -185,6 +185,10 @@ class DashboardController extends KCBaseController
                 ->leftJoin(KCPaymentsAppointmentMapping::class, 'b.appointment_id', '=', 'pam.appointment_id', 'pam')
                 ->orderBy('b.created_at', 'DESC')
                 ->limit($limit);
+            
+            // Exclude anonymized/deleted patients
+            $query->where('p.user_email', 'NOT LIKE', '%@example.invalid')
+                  ->where('p.display_name', 'NOT LIKE', 'deleted_user_%');
 
             // Apply role-based filtering
             if ($user_role === $this->kcbase->getDoctorRole()) {

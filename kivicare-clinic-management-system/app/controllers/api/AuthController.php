@@ -14,6 +14,7 @@ use App\models\KCOption;
 use App\models\KCPatientClinicMapping;
 use App\models\KCDoctorClinicMapping;
 use App\models\KCReceptionistClinicMapping;
+use App\controllers\helper\KCEncryptedResponseHelper;
 use App\models\KCCustomFieldData;
 use WP_REST_Server;
 use WP_REST_Request;
@@ -482,6 +483,11 @@ class AuthController extends KCBaseController
                 'type' => 'string',
                 'required' => false,
                 'sanitize_callback' => 'sanitize_text_field'
+            ],
+            'gdpr_consent' => [
+                'description' => 'GDPR consent data',
+                'type' => 'array',
+                'required' => false,
             ]
         ];
 
@@ -658,6 +664,21 @@ class AuthController extends KCBaseController
     }
 
     /**
+     * Transfer Guest E2E Key to Authenticated User Meta
+     */
+    private function transferGuestKey(WP_REST_Request $request, $user_id)
+    {
+        $client_id = $request->get_header('x_kc_client_id');
+        if ($client_id) {
+            $guest_key = get_transient('kc_e2e_guest_' . $client_id);
+            if ($guest_key) {
+                update_user_meta($user_id, 'client_public_key', $guest_key);
+                delete_transient('kc_e2e_guest_' . $client_id);
+            }
+        }
+    }
+
+    /**
      * Login endpoint handler
      * 
      * @param WP_REST_Request $request
@@ -796,6 +817,9 @@ class AuthController extends KCBaseController
             $_COOKIE[LOGGED_IN_COOKIE] = $logged_in_cookie;
         });
         wp_set_auth_cookie($user->ID);
+
+        // Transfer guest E2E key to permanent user meta
+        $this->transferGuestKey($request, $user->ID);
 
         // Get redirect URL based on user role
         $redirect_url = $this->getLoginRedirectUrl($user->roles[0] ?? '');
@@ -1000,7 +1024,7 @@ class AuthController extends KCBaseController
     /**
      * Send admin notification for new user registration
      */
-    private function sendAdminNewUserNotification($user_id)
+    private function sendAdminNewUserNotification($user_id, string $user_role = '')
     {
         try {
             $user = get_userdata($user_id);
@@ -1008,31 +1032,29 @@ class AuthController extends KCBaseController
                 return false;
             }
 
-            $admin_email = get_option('admin_email');
-            $subject = __('New User Registration - KiviCare', 'kivicare-clinic-management-system');
-            $message = sprintf(
-                /* translators: 1: User's display name, 2: User's username, 3: User's email, 4: User's roles */
-                __('A new user has registered on your KiviCare site.
+            $roleLabels = $this->kcbase->KCGetRolesWithLabels();
+            $userRole = $roleLabels[$user_role] ?? $user_role;
 
-                    User Details:
-                    Name: %1$s
-                    Username: %2$s
-                    Email: %3$s
-                    Role: %4$s
-
-                    You can manage this user from the admin dashboard.', 'kivicare-clinic-management-system'),
-                $user->display_name,
-                $user->user_login,
-                $user->user_email,
-                implode(', ', $user->roles)
+            return $this->emailSender->sendEmailWithContext(
+                KIVI_CARE_PREFIX . 'admin_new_user_register',
+                'user',
+                (int) $user_id,
+                'patient',
+                [
+                    'to_override'   => get_option('admin_email'),
+                    'custom_data'   => [
+                        'user_role' => $userRole,
+                        'site_url'  => get_site_url(),
+                        'login_url' => wp_login_url(),
+                    ]
+                ]
             );
-
-            return wp_mail($admin_email, $subject, $message);
         } catch (\Exception $e) {
             KCErrorLogger::instance()->error('Admin notification email error: ' . $e->getMessage());
             return false;
         }
     }
+
     private function sendPasswordResetEmail($user, $key)
     {
         $reset_url = add_query_arg([
@@ -1329,6 +1351,14 @@ class AuthController extends KCBaseController
 
             $user_id = $result;
 
+            // Transfer guest E2E key to permanent user meta
+            $this->transferGuestKey($request, $user_id);
+
+            /**
+             * Allow Pro plugin to hook after successful user registration.
+             */
+            do_action('kivicare_after_user_register', $user_id, $params);
+
             // PATIENT UNIQUE ID GENERATION
             $patientIdSetting = KCOption::get('patient_id_setting', []);
             $is_id_enabled = isset($patientIdSetting['enable']) && in_array((string)$patientIdSetting['enable'], ['true', '1', 'on'], true);
@@ -1380,7 +1410,7 @@ class AuthController extends KCBaseController
 
             // Send welcome email
             $this->sendWelcomeEmail($user_id, $params['username'], $params['password']);
-            $this->sendAdminNewUserNotification($user_id);
+            $this->sendAdminNewUserNotification($user_id, $user_role);
 
             /**
              * Save custom fields if provided
@@ -1409,11 +1439,15 @@ class AuthController extends KCBaseController
 
 
             /**
-             * Auto-login the newly registered user when widget_id is present.
-             * Both the Booking Widget and the Register Login shortcode send widget_id,
-             * so this covers all registration contexts that require immediate authentication.
+             * Auto-login the newly registered user when widget_id is present
+             * AND the user is active (default_status === 0).
+             *
+             * If the user is inactive (pending approval), skip auto-login so the
+             * frontend falls through to the default "Registration successful. Please login."
+             * flow and switches to the login tab — instead of redirecting to the dashboard
+             * and bouncing to wp-login.php.
              */
-            $auto_login = !empty($params['widget_id']);
+            $auto_login = !empty($params['widget_id']) && $default_status === 0;
             $nonce       = null;
             $redirect_url = null;
 
@@ -1885,6 +1919,7 @@ class AuthController extends KCBaseController
             }
 
             $response['loginRedirects'] = $sanitized_login_redirects;
+            $response['e2e_dev_mode'] = KCEncryptedResponseHelper::isDevelopmentMode();
 
             return $this->response(
                 $response,

@@ -23,6 +23,7 @@ class KCPermissions
             'dashboard'                 => ['status' => 1],
             'patient_dashboard'         => ['status' => 1],
             'patient_profile'           => ['status' => 1],
+            'patient_edit'              => ['status' => 1],
             'change_password'           => ['status' => 1],
             'service_list'              => ['status' => 0],
             'appointment_list'          => ['status' => 1],

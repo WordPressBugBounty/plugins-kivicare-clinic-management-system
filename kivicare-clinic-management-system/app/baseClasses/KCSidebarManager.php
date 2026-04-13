@@ -235,10 +235,11 @@ class KCSidebarManager implements KCSidebarInterface
             $this->createGroupHeader('Financial'),
             $this->createSidebarItem('Taxes', 'route', '/tax', 'ph ph-seal-percent', 'tax'),
             $this->createSidebarItem('Billing records', 'route', '/billings', 'ph ph-invoice', 'billings'),
-            $this->createSidebarItem('Reports', 'route', '/clinic-revenue-reports', 'ph ph-file', 'clinic-revenue-reports'),
-
+            $this->createSidebarItem('Reports', 'route', '/clinic-revenue-reports', 'ph ph-chart-line', 'clinic-revenue-reports'),
+            
             // Settings Group
-            $this->createGroupHeader('Settings'),
+            $this->createGroupHeader('System'),
+            $this->createSidebarItem('Activity Logs', 'route', '/activity-logs', 'ph ph-clock-counter-clockwise', 'activity-logs'),
             $this->createSidebarItem('Settings', 'route', '/setting/general-setting', 'ph ph-gear-six', 'settings'),
         ];
 

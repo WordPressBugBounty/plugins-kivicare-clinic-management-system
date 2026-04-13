@@ -417,6 +417,10 @@ class EncounterController extends KCBaseController
                         ->onRaw("um_patient.meta_key = 'patient_profile_image'");
                 }, null, null, 'um_patient')
                 ->where('a.id', $id);
+            
+            // Exclude anonymized/deleted patients
+            $query->where('p.user_email', 'NOT LIKE', '%@example.invalid')
+                  ->where('p.display_name', 'NOT LIKE', 'deleted_user_%');
 
 
             // Role-based filter (optional, similar to list)
@@ -674,6 +678,10 @@ class EncounterController extends KCBaseController
                     $join->on('p.id', '=', 'um_patient.user_id')
                         ->onRaw("um_patient.meta_key = 'patient_profile_image'");
                 }, null, null, 'um_patient');
+            
+            // Exclude anonymized/deleted patients
+            $query->where('p.user_email', 'NOT LIKE', '%@example.invalid')
+                  ->where('p.display_name', 'NOT LIKE', 'deleted_user_%');
 
             if (isset($params['encounterDate']) && !empty($params['encounterDate'])) {
                 $query->where("a.encounter_date", 'LIKE', '%' . $params['encounterDate'] . '%');

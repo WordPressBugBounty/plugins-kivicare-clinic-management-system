@@ -3,8 +3,8 @@ Contributors: iqonicdesign
 Tags: clinic management, patient management, doctor management, appointment management, clinic management solution
 Requires PHP: 8.0 
 Requires at least: 3.0.1
-Tested up to: 6.9.4
-Stable tag: 4.2.1
+Tested up to: 6.9.1
+Stable tag: 4.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -217,6 +217,16 @@ Free version support is available through our comprehensive Documentation and Vi
 We'd love to hear from you! Contact us at hello@iqonic.design or submit a feature request through our website.
 
 == Changelog ==
+
+= Version 4.3.0 – 13 Apr 2026
+
+### 🛡️ Enhanced Security & E2EE
+- [New] Introduced End-to-End Encryption (E2EE) for sensitive patient data, medical records, and clinic settings to ensure maximum privacy and compliance.
+
+### 🔧 Fixes & Improvements
+- [Fixed] Translation issues across multiple modules to improve localized experience.
+- [Fixed] Calendar toolbar functionality and visibility bugs.
+- [Fixed] Resolved various minor bugs and stability improvements.
 
 = Version 4.2.1 – 19 Mar 2026
 

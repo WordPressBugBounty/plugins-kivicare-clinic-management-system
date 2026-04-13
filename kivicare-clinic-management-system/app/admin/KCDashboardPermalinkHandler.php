@@ -5,6 +5,7 @@ namespace App\admin;
 use App\baseClasses\KCBase;
 use App\baseClasses\KCPermissions;
 use App\models\KCOption;
+use App\controllers\helper\KCEncryptedResponseHelper;
 use function Iqonic\Vite\iqonic_enqueue_asset;
 
 defined('ABSPATH') || exit;
@@ -339,20 +340,23 @@ class KCDashboardPermalinkHandler
 
         // Prepare dashboard data array
         $dashboard_data = [
-            'rest_url' => rest_url(),
-            'nonce' => wp_create_nonce('wp_rest'),
-            'locale_data' => $locale_data_kc,
-            'prefix' => defined('KIVI_CARE_PREFIX') ? KIVI_CARE_PREFIX : 'kc_',
+            'rest_url'     => rest_url(),
+            'nonce'        => wp_create_nonce('wp_rest'),
+            'locale_data'  => $locale_data_kc,
+            'prefix'       => defined('KIVI_CARE_PREFIX') ? KIVI_CARE_PREFIX : 'kc_',
             'loader_image' => (defined('KIVI_CARE_DIR_URI') ? KIVI_CARE_DIR_URI : '') . 'assets/images/loader.gif',
-            'site_logo' => !empty(KCOption::get('site_logo')) ? wp_get_attachment_url(KCOption::get('site_logo')) : '',
+            'site_logo'    => !empty(KCOption::get('site_logo')) ? wp_get_attachment_url(KCOption::get('site_logo')) : '',
             'dashboard_type' => $dashboard_type,
-            'user_role' => KCBase::get_instance()->KCGetRoles(),
+            'user_role'    => KCBase::get_instance()->KCGetRoles(),
             'dashboard_url' => wp_make_link_relative($this->get_dashboard_url($dashboard_type)),
             'dashboard_uri' => $this->get_dashboard_url($dashboard_type),
-            'api_url' => rest_url('kivicare/v1/'),
-            'admin_url' => KCBase::get_instance()->getLoginUserRole() === 'administrator' ? admin_url() : '',
-            'date_format' => get_option('date_format'),
+            'api_url'      => rest_url('kivicare/v1/'),
+            'admin_url'    => KCBase::get_instance()->getLoginUserRole() === 'administrator' ? admin_url() : '',
+            'date_format'  => get_option('date_format'),
             'start_of_week' => get_option('start_of_week'),
+            // E2EE bypass mode flag — set define('KIVICARE_REST_API_E2EE_BYPASS', true) in wp-config.php
+            // to bypass all encryption and see plain JSON in DevTools.
+            'e2e_dev_mode' => KCEncryptedResponseHelper::isDevelopmentMode(),
         ];
         // Apply filter to dashboard data
         $dashboard_data = apply_filters('kivicare_dashboard_data', $dashboard_data);

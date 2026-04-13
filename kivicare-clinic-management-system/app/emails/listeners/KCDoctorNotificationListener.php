@@ -136,6 +136,9 @@ class KCDoctorNotificationListener
             [
                 'to_override' => get_option('admin_email'),
                 'custom_data' => [
+                    'user_name'    => $doctorData['username'] ?? '',
+                    'user_email'   => $doctorData['email'] ?? '',
+                    'user_contact' => $doctorData['contact_number'] ?? '',
                     'site_url' => get_site_url(),
                     'current_date' => current_time('mysql'),
                     'user_role' => 'Doctor',

@@ -23,6 +23,7 @@ use App\models\KCOption;
 use App\blocks\KCBlocksRegister;
 use App\baseClasses\KCBase;
 use App\models\KCClinic;
+use App\baseClasses\KCMediaHandler;
 
 /**
  * The code that runs during plugin activation
@@ -110,6 +111,10 @@ final class KCApp
         // Force-disable admin bar for all KiviCare non-admin roles,
         // even if `edit_posts` is granted via User Role Editor or similar.
         add_filter('show_admin_bar', [$this, 'kc_hide_admin_bar_for_kc_roles'], 20);
+    
+        // Initialize media handler to consolidate KiviCare uploads
+        KCMediaHandler::get_instance();
+    
     }
 
     /**
