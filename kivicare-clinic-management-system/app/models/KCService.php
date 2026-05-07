@@ -62,12 +62,30 @@ class KCService extends KCBaseModel
                     'type' => 'datetime',
                     'nullable' => false,
                 ],
+                'category' => [
+                    'column' => 'category',
+                    'type' => 'json',
+                    'nullable' => true,
+                ],
             ],
             'timestamps' => false, // We'll handle created_at manually
             'soft_deletes' => false,
         ];
     }
 
+    /**
+     * Get category metadata from the JSON snapshot
+     * 
+     * @return array|null
+     */
+    public function getCategoryData(): ?array
+    {
+        $data = $this->category;
+        if (is_string($data)) {
+            return json_decode($data, true);
+        }
+        return $data;
+    }
     /**
      * Get all doctors who provide this service
      */

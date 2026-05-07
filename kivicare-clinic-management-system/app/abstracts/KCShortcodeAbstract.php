@@ -5,6 +5,7 @@ namespace App\abstracts;
 use App\baseClasses\KCBase;
 use Kucrut\Vite;
 use function Iqonic\Vite\iqonic_enqueue_asset;
+use App\models\KCOption;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -83,6 +84,8 @@ abstract class KCShortcodeAbstract
     protected KCBase $kcbase;
 
     protected static $is_localize_enqueued = false;
+    protected static $is_font_injected = false;
+
     public function __construct()
     {
         // Set the default assets directory if not overridden
@@ -96,6 +99,12 @@ abstract class KCShortcodeAbstract
 
         // Register assets
         add_action('wp_enqueue_scripts', [$this, 'registerAssets']);
+
+        // Inject font variables
+        if (!self::$is_font_injected) {
+            add_action('wp_head', [self::class, 'inject_font_variables'], 1);
+            self::$is_font_injected = true;
+        }
     }
 
     /**
@@ -223,5 +232,31 @@ abstract class KCShortcodeAbstract
     public function getTag()
     {
         return $this->tag;
+    }
+
+    /**
+     * Inject dynamic font variables and Google Fonts link into the <head>
+     * This makes the fonts available for the dashboard and all shortcodes.
+     */
+    public static function inject_font_variables()
+    {
+        $titleFont = KCOption::get('title_font', 'Inter');
+        $bodyFont = KCOption::get('body_font', 'Inter');
+        
+        $fontsToLoad = array_unique([$titleFont, $bodyFont]);
+
+        if (!empty($fontsToLoad)) {
+            $fontFamilies = implode('|', array_map(function($f) { 
+                return str_replace(' ', '+', $f); 
+            }, $fontsToLoad));
+            echo '<link id="kivicare-google-fonts" rel="stylesheet" href="https://fonts.googleapis.com/css?family=' . esc_attr($fontFamilies) . ':300,400,500,600,700&display=swap">' . PHP_EOL;
+        }
+
+        echo '<style id="kivicare-global-fonts-style">
+            :root {
+                --bs-heading-font-family: \'' . esc_attr($titleFont) . '\', sans-serif;
+                --bs-body-font-family: \'' . esc_attr($bodyFont) . '\', sans-serif;
+            }
+        </style>' . PHP_EOL;
     }
 }

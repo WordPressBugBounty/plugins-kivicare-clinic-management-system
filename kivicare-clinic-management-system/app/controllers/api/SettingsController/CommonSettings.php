@@ -76,7 +76,7 @@ class CommonSettings extends SettingsController
             case 'doctors':
 
                 $this->db->update($this->db->base_prefix . 'users', ['user_status' => $request_data['value']], ['ID' => $request_data['id']]);
-                do_action('kc_doctor_update', $request_data['id']);
+                do_action('kc_doctor_update', ['id'=>$request_data['id']]);
                 break;
             case 'receptionists':
 

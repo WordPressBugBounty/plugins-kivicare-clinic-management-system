@@ -685,7 +685,7 @@ class DoctorSessionController extends KCBaseController
             $dayOrder = array_keys($dayTranslations);
 
             foreach ($allSessions as $session) {
-                $key = $session->doctorId . '_' . $session->clinicId;
+                $key = $session->doctorId . '_' . $session->clinicId . '_' . $session->timeSlot;
 
                 if (!isset($groupedSessions[$key])) {
                     $groupedSessions[$key] = [
@@ -792,6 +792,7 @@ class DoctorSessionController extends KCBaseController
             $sessions = KCClinicSession::query()
                 ->where('doctorId', $parent->doctorId)
                 ->where('clinicId', $parent->clinicId)
+                ->where('timeSlot', $parent->timeSlot)
                 ->where(function ($q) {
                     $q->where('startTime', '!=', '00:00:00')
                         ->orWhere('endTime', '!=', '00:00:00');
@@ -883,12 +884,18 @@ class DoctorSessionController extends KCBaseController
      */
     private function checkSessionOverlap($doctor_id, $clinic_id, $days, $exclude_session_id = null)
     {
+        $old_session = null;
+        if ($exclude_session_id) {
+            $old_session = KCClinicSession::find($exclude_session_id);
+        }
+
         foreach ($days as $day) {
             if (isset($day['enabled']) && $day['enabled'] === true) {
                 $query = KCClinicSession::query()
                     ->setTableAlias('kc_doctor_sessions')
-                    ->select(['kc_doctor_sessions.*', 'kc_doctors.display_name as doctor_name'])
+                    ->select(['kc_doctor_sessions.*', 'kc_doctors.display_name as doctor_name', 'kc_clinics.name as clinic_name'])
                     ->leftJoin(KCDoctor::class, 'kc_doctor_sessions.doctor_id', '=', 'kc_doctors.id', 'kc_doctors')
+                    ->leftJoin(KCClinic::class, 'kc_doctor_sessions.clinic_id', '=', 'kc_clinics.id', 'kc_clinics')
                     ->where('kc_doctor_sessions.doctor_id', $doctor_id)
                     ->where('kc_doctor_sessions.clinic_id', $clinic_id)
                     ->where('kc_doctor_sessions.day', $day['id'])
@@ -897,9 +904,12 @@ class DoctorSessionController extends KCBaseController
                             ->orWhere('kc_doctor_sessions.end_time', '!=', '00:00:00');
                     });
 
-                if ($exclude_session_id) {
-                    $query->where('kc_doctor_sessions.id', '!=', $exclude_session_id);
-                    $query->where('kc_doctor_sessions.parent_id', '!=', $exclude_session_id);
+                if ($old_session) {
+                    $query->where(function ($q) use ($old_session) {
+                        $q->where('kc_doctor_sessions.doctor_id', '!=', $old_session->doctorId)
+                            ->orWhere('kc_doctor_sessions.clinic_id', '!=', $old_session->clinicId)
+                            ->orWhere('kc_doctor_sessions.time_slot', '!=', $old_session->timeSlot);
+                    });
                 }
 
                 $existingSessions = $query->get();
@@ -918,12 +928,13 @@ class DoctorSessionController extends KCBaseController
                         return new WP_Error(
                             'session_overlap',
                             sprintf(
-                                /* translators: 1: Doctor's name, 2: Day of the week, 3: Session start time, 4: Session end time */
-                                __('A session already exists for %1$s on %2$s from %3$s to %4$s', 'kivicare-clinic-management-system'),
+                                /* translators: 1: Doctor's name, 2: Day of the week, 3: Session start time, 4: Session end time, 5: Clinic name */
+                                __('A session already exists for %1$s at %5$s on %2$s from %3$s to %4$s', 'kivicare-clinic-management-system'),
                                 $session->doctor_name,
                                 $day['id'],
                                 $startTime,
-                                $endTime
+                                $endTime,
+                                $session->clinic_name
                             ),
                             ['status' => 400]
                         );
@@ -1031,13 +1042,20 @@ class DoctorSessionController extends KCBaseController
                 $params['doctor_id'] = get_current_user_id();
             }
 
+            // Check for overlapping sessions (exclude current session group)
+            $overlap = $this->checkSessionOverlap($params['doctor_id'], $params['clinic_id'], $params['days'], $id);
+            if (is_wp_error($overlap)) {
+                return $this->response(null, $overlap->get_error_message(), false, $overlap->get_error_data()['status'] ?? 400);
+            }
+
             $wpdb->query('START TRANSACTION');
 
             try {
-                // Delete all existing sessions for this doctor-clinic combination
+                // Delete all existing sessions for this doctor-clinic-timeslot combination
                 KCClinicSession::query()
                     ->where('doctorId', $session->doctorId)
                     ->where('clinicId', $session->clinicId)
+                    ->where('timeSlot', $session->timeSlot)
                     ->delete();
 
                 // Create new sessions with updated data
@@ -1109,10 +1127,11 @@ class DoctorSessionController extends KCBaseController
                 }
             }
 
-            // Delete all sessions for this doctor-clinic combination
+            // Delete all sessions for this doctor-clinic-timeslot combination
             KCClinicSession::query()
                 ->where('doctorId', $session->doctorId)
                 ->where('clinicId', $session->clinicId)
+                ->where('timeSlot', $session->timeSlot)
                 ->delete();
 
             $wpdb->query('COMMIT');
@@ -1143,10 +1162,11 @@ class DoctorSessionController extends KCBaseController
             foreach ($ids as $id) {
                 $session = KCClinicSession::find($id);
                 if ($session) {
-                    // Delete all sessions for this doctor-clinic combination
+                    // Delete all sessions for this doctor-clinic-timeslot combination
                     $deleted = KCClinicSession::query()
                         ->where('doctorId', $session->doctorId)
                         ->where('clinicId', $session->clinicId)
+                        ->where('timeSlot', $session->timeSlot)
                         ->delete();
 
                     if ($deleted) {
@@ -1270,7 +1290,7 @@ class DoctorSessionController extends KCBaseController
             // Group sessions by doctor-clinic combination
             $groupedSessions = [];
             foreach ($allSessions as $session) {
-                $key = $session->doctorId . '_' . $session->clinicId;
+                $key = $session->doctorId . '_' . $session->clinicId . '_' . $session->timeSlot;
 
                 if (!isset($groupedSessions[$key])) {
                     $groupedSessions[$key] = [

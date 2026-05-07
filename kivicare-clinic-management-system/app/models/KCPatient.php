@@ -151,7 +151,7 @@ class KCPatient extends KCBaseModel
 
         // Timezone Handling
         $timezone = $this->timezone ?? null;
-        if (!empty($timezone) && !in_array($timezone, timezone_identifiers_list(), true)) {
+        if (!empty($timezone) && !in_array($timezone, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC), true)) {
             return new WP_Error('invalid_timezone', 'Invalid timezone identifier');
         }
         

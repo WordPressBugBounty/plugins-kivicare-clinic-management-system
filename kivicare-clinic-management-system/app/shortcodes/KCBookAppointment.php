@@ -87,6 +87,21 @@ class KCBookAppointment extends KCShortcodeAbstract
         // Get default clinic ID
         $default_clinic_id = KCClinic::kcGetDefaultClinicId();
 
+        // fix: Auto-select clinic if only one active clinic is available when Pro is active, or use default clinic
+        $clinic_id = !empty($atts['clinic_id']) ? $atts['clinic_id'] : 0;
+        if (empty($clinic_id)) {
+            if (isKiviCareProActive()) {
+                $clinics = KCClinic::query()->where('status', 1)->get();
+                if ($clinics->count() === 1) {
+                    $clinic_id = $clinics->first()->id;
+                }
+                // improvement: If a default clinic is explicitly set and only one clinic is found or user wants skip, we honor it.
+                // However, we only auto-skip if it's the only choice to avoid restricting multi-clinic setups unless forced.
+            } else {
+                $clinic_id = $default_clinic_id;
+            }
+        }
+
         // Get timezone from shortcode parameter, or fallback to admin/site timezone
         $timezone_string = '';
         if (!empty($atts['timezone'])) {
@@ -114,7 +129,7 @@ class KCBookAppointment extends KCShortcodeAbstract
             'data-current-user-id' => get_current_user_id(),
             'data-page-id' => get_the_ID(),
             'data-show-print-button' => $show_print_button ? 'true' : 'false',
-            'data-clinic-id' => esc_attr($atts['clinic_id']),
+            'data-clinic-id' => esc_attr($clinic_id),
             'data-doctor-id' => esc_attr($atts['doctor_id']),
             'data-service-id' => esc_attr($atts['service_id']),
             'data-timezone' => esc_attr($timezone_string),
@@ -150,6 +165,13 @@ class KCBookAppointment extends KCShortcodeAbstract
         if (isset($_GET['message']) && sanitize_text_field( wp_unslash( $_GET['message'] ) ) !== '') {
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             $query_params['message'] = sanitize_text_field(wp_unslash($_GET['message']));
+        }
+
+        // Check for appointment_id parameter
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if (isset($_GET['appointment_id']) && sanitize_text_field( wp_unslash( $_GET['appointment_id'] ) ) !== '') {
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            $query_params['appointment_id'] = sanitize_text_field(wp_unslash($_GET['appointment_id']));
         }
 
         // Add query params to data attributes if any exist

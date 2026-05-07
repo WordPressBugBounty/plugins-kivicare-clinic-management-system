@@ -565,6 +565,11 @@ class BillController extends KCBaseController
                     $serviceData = new KCService();
                     $serviceData->name = $item['name'];
                     $serviceData->type = 'bill_service';
+                    $serviceData->category = [
+                        'id' => 0,
+                        'label' => 'System Default',
+                        'value' => 'system_default'
+                    ];
                     $serviceData->price = (float) $item['price'];
                     $serviceData->status = 1;
                     $serviceData->createdAt = current_time('mysql');
@@ -737,6 +742,11 @@ class BillController extends KCBaseController
                     $serviceData = new KCService();
                     $serviceData->name = $item['name'];
                     $serviceData->type = 'bill_service';
+                    $serviceData->category = [
+                        'id' => 0,
+                        'label' => 'System Default',
+                        'value' => 'system_default'
+                    ];
                     $serviceData->price = (float) $item['price'];
                     $serviceData->status = 1;
                     $serviceData->createdAt = current_time('mysql');

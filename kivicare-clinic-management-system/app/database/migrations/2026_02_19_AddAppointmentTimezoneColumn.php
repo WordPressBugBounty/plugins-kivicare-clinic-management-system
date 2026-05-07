@@ -46,12 +46,12 @@ class AddAppointmentTimezoneColumn extends KCAbstractMigration
             WHERE a.appointment_timezone = 'UTC'
                 AND um.meta_value IS NOT NULL
                 AND um.meta_value != ''
-                AND um.meta_value IN ('" . implode("','", array_map('esc_sql', timezone_identifiers_list())) . "')
+                AND um.meta_value IN ('" . implode("','", array_map('esc_sql', timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) . "')
         ");
 
         // For remaining rows (doctors without timezone meta), use WP timezone
         $wp_tz = wp_timezone_string();
-        if (!empty($wp_tz) && in_array($wp_tz, timezone_identifiers_list(), true)) {
+        if (!empty($wp_tz) && in_array($wp_tz, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC), true)) {
             $wpdb->query($wpdb->prepare(
                 "UPDATE `{$table}` SET appointment_timezone = %s WHERE appointment_timezone = 'UTC'",
                 $wp_tz

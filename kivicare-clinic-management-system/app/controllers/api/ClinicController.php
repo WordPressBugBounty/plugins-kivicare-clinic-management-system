@@ -316,6 +316,21 @@ class ClinicController extends KCBaseController
             'permission_callback' => [$this, 'checkPermission'],
             'args' => $this->getExportEndpointArgs()
         ]);
+        
+        // Get users available for clinic admin assignment
+        $this->registerRoute('/' . $this->route . '/users', [
+            'methods' => 'GET',
+            'callback' => [$this, 'getClinicAdminUsers'],
+            'permission_callback' => [$this, 'checkAdminPermission'],
+            'args' => $this->getUserListEndpointArgs()
+        ]);
+
+        // Change clinic admin
+        $this->registerRoute('/' . $this->route . '/(?P<id>\d+)/change-admin', [
+            'methods' => 'POST',
+            'callback' => [$this, 'changeClinicAdmin'],
+            'permission_callback' => [$this, 'checkPermission'],
+        ]);
     }
 
     /**
@@ -364,6 +379,34 @@ class ClinicController extends KCBaseController
                     return strtolower($param) === 'all' ? 'all' : absint($param);
                 },
             ]
+        ];
+    }
+
+    /**
+     * Get arguments for the user list endpoint
+     *
+     * @return array
+     */
+    private function getUserListEndpointArgs()
+    {
+        return [
+            'search' => [
+                'description' => 'Search term to filter results',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'page' => [
+                'description' => 'Current page number',
+                'type' => 'integer',
+                'default' => 1,
+                'sanitize_callback' => 'absint',
+            ],
+            'per_page' => [
+                'description' => 'Number of results per page',
+                'type' => 'integer',
+                'default' => 10,
+                'sanitize_callback' => 'absint',
+            ],
         ];
     }
 
@@ -660,6 +703,21 @@ class ClinicController extends KCBaseController
 
         // Check clinic delete permission
         return $this->checkResourceAccess('clinic', 'delete') && isKiviCareProActive();
+    }
+
+    /**
+     * Check if user has admin permission (WP administrator or Clinic Admin)
+     * 
+     * @param \WP_REST_Request $request
+     * @return bool
+     */
+    public function checkAdminPermission($request)
+    {
+        if (!$this->checkCapability('read')) {
+            return false;
+        }
+
+        return current_user_can('manage_options') || current_user_can($this->kcbase->getClinicAdminRole());
     }
 
     /**
@@ -979,6 +1037,7 @@ class ClinicController extends KCBaseController
 
             // Get admin data using WordPress functions
             $adminData = [];
+            $isAdminFound = true;
             if (!empty($clinic->clinicAdminId)) {
                 $adminId = $clinic->clinicAdminId;
 
@@ -1026,6 +1085,8 @@ class ClinicController extends KCBaseController
                         'clinic_admin_image_url' => $profileImageUrl,
                         'clinic_admin_image_id' => $profileImageId ?: '',
                     ];
+                } else {
+                    $isAdminFound = false;
                 }
             }
 
@@ -1093,6 +1154,7 @@ class ClinicController extends KCBaseController
                 'total_appointments' => (int) $totalAppointments,
                 'is_holiday' => in_array((int)$clinic->id, $holidayClinicIds, true),
                 'total_satisfaction' => 0.0, // Default value, Pro plugin will override if active
+                'is_admin_found' => $isAdminFound,
             ], $adminData);
 
             // Allow Pro plugin to modify clinic data
@@ -1160,6 +1222,7 @@ class ClinicController extends KCBaseController
                 'city' => $params['city'],
                 'country' => $params['country'],
                 'postal_code' => $params['postal_code'],
+                'description' => $params['description'] ?? '',
                 'created_at' => current_time('mysql')
             ];
 
@@ -1286,9 +1349,18 @@ class ClinicController extends KCBaseController
                 }
             }
 
-            // Update clinic admin if exists
-            $adminData = [];
-            if ($clinic->clinicAdminId) {
+            // Handle clinic administrator update/assignment
+            $requested_admin_id = $params['clinic_admin_id'] ?? null;
+            $is_new_admin = !empty($params['is_new_admin']);
+            
+            // If is_new_admin is true or clinic_admin_id is different from current, we need reassignment or new creation
+            if ($is_new_admin || ($requested_admin_id && (int)$requested_admin_id !== (int)$clinic->clinicAdminId)) {
+                $admin_result = $this->assignClinicAdmin($clinic, $params);
+                if (is_wp_error($admin_result)) {
+                    return $this->response(null, $admin_result->get_error_message(), false, 500);
+                }
+            } else if ($clinic->clinicAdminId) {
+                $adminData = [];
                 $admin = KCClinicAdmin::find($clinic->clinicAdminId);
                 if (!$admin) {
                     $admin = (new KCQueryBuilder(KCClinicAdmin::class))
@@ -1478,7 +1550,6 @@ class ClinicController extends KCBaseController
                 'clinic_image_url' => $updatedClinic->profileImage
                     ? wp_get_attachment_url($updatedClinic->profileImage)
                     : null,
-                'description' => $updatedClinic->description,
                 'updated_at' => $updatedClinic->updated_at,
                 'admin' => $this->getFormattedAdminData($clinic->clinicAdminId)
             ];
@@ -2452,5 +2523,194 @@ class ClinicController extends KCBaseController
                 500
             );
         }
+    }
+    /**
+     * Get users available to be clinic admins
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public function getClinicAdminUsers(WP_REST_Request $request): WP_REST_Response
+    {
+        $search = $request->get_param('search');
+        $page = $request->get_param('page') ?? 1;
+        $per_page = $request->get_param('per_page') ?? 10;
+        $offset = ($page - 1) * $per_page;
+
+        // Get assigned clinic admin IDs to exclude them
+        $assigned_admin_ids = KCClinic::query()
+            ->whereNotNull('clinicAdminId')
+            ->where('clinicAdminId', '>', 0)
+            ->get()
+            ->pluck('clinicAdminId')
+            ->toArray();
+
+        // Build role filter: Include only the clinic admin role
+        $target_roles = [$this->kcbase->getClinicAdminRole()];
+
+        // Build WP_User_Query args
+        $args = [
+            'role__in' => $target_roles,
+            'number'   => $per_page,
+            'offset'   => $offset,
+            'orderby'  => 'display_name',
+            'order'    => 'ASC',
+            'fields'   => 'all',
+        ];
+
+        // Add search if provided
+        if (!empty($search)) {
+            $args['search'] = '*' . $search . '*';
+            $args['search_columns'] = ['user_login', 'user_email', 'display_name'];
+        }
+
+        // Exclude assigned clinic admins
+        if (!empty($assigned_admin_ids)) {
+            $args['exclude'] = array_map('intval', $assigned_admin_ids);
+        }
+
+        // Run query
+        $user_query = new \WP_User_Query($args);
+        $users = $user_query->get_results();
+        $total_users = $user_query->get_total();
+
+        $data = array_map(function ($user) {
+            return [
+                'id' => (int) $user->ID,
+                'user_login' => $user->user_login,
+                'user_email' => $user->user_email,
+                'display_name' => $user->display_name,
+                'first_name' => get_user_meta($user->ID, 'first_name', true),
+                'last_name' => get_user_meta($user->ID, 'last_name', true),
+            ];
+        }, $users);
+
+        return $this->response(
+            [
+                'data' => $data,
+                'pagination' => [
+                    'total_items' => (int) $total_users,
+                    'per_page' => (int) $per_page,
+                    'current_page' => (int) $page,
+                    'total_pages' => (int) ceil($total_users / $per_page),
+                ]
+            ],
+            __('Clinic admin users retrieved successfully', 'kivicare-clinic-management-system'),
+            true,
+            200
+        );
+    }
+
+    /**
+     * Change clinic administrator
+     *
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public function changeClinicAdmin(WP_REST_Request $request): WP_REST_Response
+    {
+        try {
+            $clinic_id = $request->get_param('id');
+            $params = $request->get_params();
+            $clinic = KCClinic::find($clinic_id);
+
+            if (!$clinic) {
+                return $this->response(null, __('Clinic not found', 'kivicare-clinic-management-system'), false, 404);
+            }
+
+            $admin_result = $this->assignClinicAdmin($clinic, $params);
+            if (is_wp_error($admin_result)) {
+                return $this->response(null, $admin_result->get_error_message(), false, 500);
+            }
+
+            return $this->response(null, __('Clinic administrator updated successfully', 'kivicare-clinic-management-system'), true, 200);
+
+        } catch (\Exception $e) {
+            return $this->response(
+                ['error' => $e->getMessage()],
+                __('Failed to change clinic administrator', 'kivicare-clinic-management-system'),
+                false,
+                500
+            );
+        }
+    }
+
+    /**
+     * Helper to assign or create a clinic administrator
+     * 
+     * @param KCClinic $clinic
+     * @param array $params
+     * @return int|\WP_Error User ID or Error
+     */
+    private function assignClinicAdmin($clinic, $params)
+    {
+        $admin_user_id = $params['clinic_admin_id'] ?? null;
+
+        if (!$admin_user_id) {
+            // Create new user
+            $first_name = $params['first_name'] ?? '';
+            $last_name = $params['last_name'] ?? '';
+            $email = $params['admin_email'] ?? ($params['user_email'] ?? '');
+
+            if (empty($email)) {
+                return new \WP_Error('missing_email', __('Administrator email is required', 'kivicare-clinic-management-system'));
+            }
+
+            $username = sanitize_user($first_name . '_' . $last_name . '_' . time());
+            $password = wp_generate_password(12);
+
+            $admin_user_id = wp_create_user($username, $password, $email);
+
+            if (is_wp_error($admin_user_id)) {
+                return $admin_user_id;
+            }
+
+            // Update user profile info
+            wp_update_user([
+                'ID' => $admin_user_id,
+                'display_name' => trim($first_name . ' ' . $last_name)
+            ]);
+
+            $admin_data = [
+                'first_name' => $first_name,
+                'last_name' => $last_name,
+                'mobile_number' => $params['mobile_number'] ?? ($params['admin_contact_number'] ?? ''),
+                'gender' => $params['gender'] ?? '',
+                'dob' => $params['dob'] ?? '',
+                'clinic_id' => $clinic->id
+            ];
+
+            update_user_meta($admin_user_id, 'first_name', $first_name);
+            update_user_meta($admin_user_id, 'last_name', $last_name);
+            update_user_meta($admin_user_id, 'basic_data', json_encode($admin_data));
+            
+            if (!empty($params['admin_image_id'])) {
+                update_user_meta($admin_user_id, 'clinic_admin_profile_image', (int) $params['admin_image_id']);
+            }
+        } else {
+            // For existing users, ensure they have first and last name set correctly
+            $user = new \WP_User($admin_user_id);
+            $first_name = get_user_meta($admin_user_id, 'first_name', true);
+            $last_name = get_user_meta($admin_user_id, 'last_name', true);
+            
+            // Ensure basic_data has names
+            $basic_data_json = get_user_meta($admin_user_id, 'basic_data', true);
+            $basic_data = !empty($basic_data_json) ? json_decode($basic_data_json, true) : [];
+            
+            if (empty($basic_data['first_name']) || empty($basic_data['last_name'])) {
+                $basic_data['first_name'] = $first_name;
+                $basic_data['last_name'] = $last_name;
+                $basic_data['clinic_id'] = $clinic->id;
+                update_user_meta($admin_user_id, 'basic_data', json_encode($basic_data));
+            }
+        }
+
+        // Ensure user has clinic admin role and association
+        $user = new \WP_User($admin_user_id);
+        $user->set_role($this->kcbase->getClinicAdminRole());
+        update_user_meta($admin_user_id, 'clinic_id', $clinic->id);
+        // Update clinic with admin ID
+        $clinic->update(['clinicAdminId' => $admin_user_id]);
+        return $admin_user_id;
     }
 }

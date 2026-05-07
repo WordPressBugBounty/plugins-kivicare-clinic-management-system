@@ -151,6 +151,8 @@ class KCRestAPIEncryptionFilter
             } elseif (is_array($decrypted)) {
                 $request->set_query_params($decrypted);
                 $request->set_body_params($decrypted);
+                $request->set_body(wp_json_encode($decrypted));
+
             }
         } catch (\Exception $e) {
             error_log('KiviCare E2E Decryption Error: ' . $e->getMessage());

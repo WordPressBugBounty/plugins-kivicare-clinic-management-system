@@ -733,4 +733,12 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
         
         return $needs_processing;
     }
+
+    /**
+     * WooCommerce handles its own payment webhooks natively.
+     */
+    public function handle_webhook(string $raw_payload, array $headers): array
+    {
+        return $this->create_payment_response('success', 'WooCommerce handles its own webhooks natively.', []);
+    }
 }

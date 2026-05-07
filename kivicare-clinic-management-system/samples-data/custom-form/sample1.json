@@ -41,6 +41,40 @@
     "appointment_status": [{"id": "1"}],
     "show_mode": [{"id": "appointment"}],
     "clinics": [],
-    "roles": ["doctor", "receptionist"]
+    "roles": ["kiviCare_doctor", "kiviCare_receptionist"],
+    "form_conditions": [
+      {
+        "conditions": [
+          {
+            "field": "gender",
+            "operator": "=",
+            "value": "Male"
+          }
+        ],
+        "logic": "AND",
+        "actions": [
+          {
+            "type": "hide",
+            "target": "phone"
+          }
+        ]
+      },
+      {
+        "conditions": [
+          {
+            "field": "email",
+            "operator": "contains",
+            "value": "@"
+          }
+        ],
+        "logic": "AND",
+        "actions": [
+          {
+            "type": "enable",
+            "target": "phone"
+          }
+        ]
+      }
+    ]
   }
 }

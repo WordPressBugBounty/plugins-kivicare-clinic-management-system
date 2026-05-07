@@ -441,9 +441,9 @@ class ConfigController extends KCBaseController
             $gdpr_consent_settings  = KCOption::get('gdpr_consent_settings', []);
             $gdpr_activity_settings = KCOption::get('gdpr_activity_settings', []);
             $auditSettings = KCOption::get('gdpr_audit_settings', [
-                'audit_log_mode' => 'disabled',
+                'audit_log_mode' => 'preview',
             ]);
-            $response['audit_log_mode'] = $auditSettings['audit_log_mode'] ?? 'disabled';
+            $response['audit_log_mode'] = $auditSettings['audit_log_mode'] ?? 'preview';
 
             $response['gdpr_settings'] = [
                 'enable_gdpr' => !empty($gdpr_consent_settings['enable_gdpr']),
@@ -614,7 +614,8 @@ class ConfigController extends KCBaseController
 
                 // Add dark mode preference
                 $preferences = get_user_meta($user_id, 'kc_user_preferences', true);
-                $response['darkMode'] = isset($preferences['darkMode']) ? (bool)$preferences['darkMode'] : false;
+                $global_dark_mode = KCOption::get('dark_mode', 'false') === 'true';
+                $response['darkMode'] = isset($preferences['darkMode']) ? (bool)$preferences['darkMode'] : $global_dark_mode;
             }
 
             // Add home page URL for QR code functionality  

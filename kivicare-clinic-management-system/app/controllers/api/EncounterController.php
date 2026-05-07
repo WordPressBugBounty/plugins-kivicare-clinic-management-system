@@ -1122,6 +1122,20 @@ class EncounterController extends KCBaseController
             $success_count = 0;
             $failed_count = 0;
             $failed_ids = [];
+
+            // Fetch form IDs once for efficiency
+            $encounter_form_ids = [];
+            $appointment_form_ids = [];
+            $has_custom_form_data_model = class_exists('\KCProApp\models\KCCustomFormData') && class_exists('\KCProApp\models\KCCustomForm');
+            if ($has_custom_form_data_model) {
+                $encounter_form_ids = \KCProApp\models\KCCustomForm::query()
+                    ->where('module_type', 'patient_encounter_module')
+                    ->pluck('id');
+                $appointment_form_ids = \KCProApp\models\KCCustomForm::query()
+                    ->where('module_type', 'appointment_module')
+                    ->pluck('id');
+            }
+
             global $wpdb;
             $wpdb->query('START TRANSACTION');
             try {
@@ -1154,11 +1168,38 @@ class EncounterController extends KCBaseController
 
                         KCMedicalHistory::query()->where('encounterId', $encounterId)->delete();
 
+                        // Delete custom field data
+                        KCCustomFieldData::query()
+                            ->where('module_type', 'patient_encounter_module')
+                            ->where('module_id', $encounterId)
+                            ->delete();
+
+                        // Delete Pro custom form data
+                        if ($has_custom_form_data_model && !empty($encounter_form_ids)) {
+                            \KCProApp\models\KCCustomFormData::query()
+                                ->whereIn('form_id', $encounter_form_ids)
+                                ->where('module_id', (int) $encounterId)
+                                ->delete();
+                        }
+
                         // Delete related appointment if exists
                         if ($encounter->appointmentId) {
                             $appointmentId = $encounter->appointmentId;
                             KCAppointmentServiceMapping::query()->where('appointment_id', $appointmentId)->delete();
                             KCPaymentsAppointmentMapping::query()->where('appointment_id', $appointmentId)->delete();
+                            KCCustomFieldData::query()
+                                ->where('module_type', 'appointment_module')
+                                ->where('module_id', $appointmentId)
+                                ->delete();
+
+                            // Delete Pro custom form data for appointments
+                            if ($has_custom_form_data_model && !empty($appointment_form_ids)) {
+                                \KCProApp\models\KCCustomFormData::query()
+                                    ->whereIn('form_id', $appointment_form_ids)
+                                    ->where('module_id', $appointmentId)
+                                    ->delete();
+                            }
+
                             KCAppointment::query()->where('id', $appointmentId)->delete();
 
                             // fix: Sync deletion to Google Calendar
@@ -1263,11 +1304,49 @@ class EncounterController extends KCBaseController
                 // Delete related medical history
                 KCMedicalHistory::query()->where('encounterId', $id)->delete();
 
+                // Delete custom field data
+                KCCustomFieldData::query()
+                    ->where('module_type', 'patient_encounter_module')
+                    ->where('module_id', $id)
+                    ->delete();
+
+                // Delete Pro custom form data
+                if (class_exists('\KCProApp\models\KCCustomFormData') && class_exists('\KCProApp\models\KCCustomForm')) {
+                    $encounter_form_ids = \KCProApp\models\KCCustomForm::query()
+                        ->where('module_type', 'patient_encounter_module')
+                        ->pluck('id');
+
+                    if (!empty($encounter_form_ids)) {
+                        \KCProApp\models\KCCustomFormData::query()
+                            ->whereIn('form_id', $encounter_form_ids)
+                            ->where('module_id', (int) $id)
+                            ->delete();
+                    }
+                }
+
                 // Delete related appointment if exists
                 if ($encounter->appointmentId) {
                     $appointmentId = $encounter->appointmentId;
                     KCAppointmentServiceMapping::query()->where('appointment_id', $appointmentId)->delete();
                     KCPaymentsAppointmentMapping::query()->where('appointment_id', $appointmentId)->delete();
+                    KCCustomFieldData::query()
+                        ->where('module_type', 'appointment_module')
+                        ->where('module_id', $appointmentId)
+                        ->delete();
+                    // Delete Pro custom form data for appointments
+                    if (class_exists('\KCProApp\models\KCCustomFormData') && class_exists('\KCProApp\models\KCCustomForm')) {
+                        $appointment_form_ids = \KCProApp\models\KCCustomForm::query()
+                            ->where('module_type', 'appointment_module')
+                            ->pluck('id');
+
+                        if (!empty($appointment_form_ids)) {
+                            \KCProApp\models\KCCustomFormData::query()
+                                ->whereIn('form_id', $appointment_form_ids)
+                                ->where('module_id', $appointmentId)
+                                ->delete();
+                        }
+                    }
+
                     KCAppointment::query()->where('id', $appointmentId)->delete();
 
                     // fix: Sync deletion to Google Calendar

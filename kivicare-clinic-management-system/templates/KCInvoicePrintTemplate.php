@@ -19,11 +19,7 @@ $paymentStatusColor = strtolower($paymentStatus) === 'paid' ? '#219653' : '#dc26
     <meta charset="UTF-8">
     <title><?php echo esc_html__('Appointment Invoice', 'kivicare-clinic-management-system'); ?></title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* fix: Removed '* { box-sizing: border-box }' - unsupported in mPDF; causes layout inconsistencies */
 
         body {
             font-family: DejaVu Sans, sans-serif;
@@ -77,14 +73,15 @@ $paymentStatusColor = strtolower($paymentStatus) === 'paid' ? '#219653' : '#dc26
     </style>
 </head>
 
+<!-- NO_SIMPLE_TABLES -->
 <body>
     <!-- Header: Logo and Invoice Info -->
-    <table style="margin-bottom: 16px; margin-top: 16px;">
+    <table style="margin-top: 16px;">
         <tr>
             <td style="width: 50%; vertical-align: middle;">
                 <?php if (!empty($clinic['logo'])): ?>
                     <img src="<?php echo esc_url($clinic['logo']); ?>" alt="<?php echo esc_attr($clinic['name']); ?>"
-                        style="height: 30px;">
+                        style="height: 60px;">
                 <?php else: ?>
                     <strong style="font-size: 16px;"><?php echo esc_html($clinic['name']); ?></strong>
                 <?php endif; ?>
@@ -104,17 +101,24 @@ $paymentStatusColor = strtolower($paymentStatus) === 'paid' ? '#219653' : '#dc26
         <tr>
             <td style="width: 60%; vertical-align: top;">
                 <h5 style="margin-top: 0;"><?php echo esc_html($clinic['name']); ?></h5>
+            </td>
+            <td style="width: 40%; text-align: right; vertical-align: top;">
+                <span><?php echo esc_html__('Payment Status:', 'kivicare-clinic-management-system'); ?></span>
+                <!-- fix: Removed border-radius:50px - mPDF does not render border-radius on inline elements. Using flat background badge style instead. -->
+                <span
+                    style="margin-left: 8px; background-color: <?php echo esc_attr($paymentStatusColor); ?>; color: #fff; padding: 2px 8px; font-weight: bold;">
+                    <?php echo esc_html(strtoupper($paymentStatus)); ?>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <p style="color: #6C757D; margin: 0;">
                     <?php echo esc_html(trim($clinic['address'] . ', ' . $clinic['city'] . ', ' . $clinic['country'] . ', ' . $clinic['postal_code'])); ?>
                 </p>
             </td>
-            <td style="width: 40%; text-align: right; vertical-align: top;">
-                <span><?php echo esc_html__('Payment Status:', 'kivicare-clinic-management-system'); ?></span>
-                <span
-                    style="margin-left: 8px; background-color: <?php echo esc_attr($paymentStatusColor); ?>; color: #fff; padding: 2px 10px; border-radius: 50px;">
-                    <?php echo esc_html(strtoupper($paymentStatus)); ?>
-                </span>
-                <p style="color: #1C1F34; margin: 0;"><?php echo esc_html($clinic['phone']); ?></p>
+            <td style="width: 40%; text-align: right;">
+                <p style="color: #1C1F34;margin: 0;"><?php echo esc_html($clinic['phone']); ?></p>
                 <span style="color: #1C1F34;"><?php echo esc_html($clinic['email']); ?></span>
             </td>
         </tr>
@@ -124,7 +128,7 @@ $paymentStatusColor = strtolower($paymentStatus) === 'paid' ? '#219653' : '#dc26
     <div style="margin-bottom: 40px;">
 
         <h5 style="margin-top: 0;"><?php echo esc_html__('Appointment Information:', 'kivicare-clinic-management-system'); ?></h5>
-        <table style="border: 1px solid #ccc; margin-top: 16px; overflow: hidden; background: #F6F7F9;">
+        <table style="border: 1px solid #ccc; margin-top: 5px; overflow: hidden; background: #F6F7F9;">
             <thead>
                 <tr >
                     <th style="padding: 5px 10px; text-align: left; color: #1C1F34;">
@@ -154,40 +158,19 @@ $paymentStatusColor = strtolower($paymentStatus) === 'paid' ? '#219653' : '#dc26
             <!-- Patient Detail -->
             <td style="width: 33%; vertical-align: top; padding-right: 8px;">
                 <h5><?php echo esc_html__('Patient Detail:', 'kivicare-clinic-management-system'); ?></h5>
-                <table style="background: #F6F7F9; padding: 8px;">
+                <table style="background: #F6F7F9; padding: 8px; margin-top: 10px">
                     <tr>
-                        <td style="color: #1C1F34; padding: 2px; width: 40%;"><?php echo esc_html__('Name:', 'kivicare-clinic-management-system'); ?></td>
-                        <td style="color: #6B6B6B; padding: 2px;"><?php echo esc_html($patient['name']); ?></td>
+                        <td style="color: #1C1F34; padding: 7px; width: 40%;"><?php echo esc_html__('Name:', 'kivicare-clinic-management-system'); ?></td>
+                        <td style="color: #6B6B6B; padding: 7px;"><?php echo esc_html($patient['name']); ?></td>
                     </tr>
                     <tr>
-                        <td style="color: #1C1F34; padding: 2px;"><?php echo esc_html__('Mobile Number:', 'kivicare-clinic-management-system'); ?></td>
-                        <td style="color: #6B6B6B; padding: 2px;"><?php echo esc_html($patient['phone']); ?></td>
+                        <td style="color: #1C1F34; padding: 7px;"><?php echo esc_html__('Mobile Number:', 'kivicare-clinic-management-system'); ?></td>
+                        <td style="color: #6B6B6B; padding: 7px;"><?php echo esc_html($patient['phone']); ?></td>
                     </tr>
                     <tr>
-                        <td style="color: #1C1F34; padding: 2px;"><?php echo esc_html__('Email:', 'kivicare-clinic-management-system'); ?></td>
-                        <td style="color: #6B6B6B; padding: 2px; word-break: break-word;">
+                        <td style="color: #1C1F34; padding: 7px;"><?php echo esc_html__('Email:', 'kivicare-clinic-management-system'); ?></td>
+                        <td style="color: #6B6B6B; padding: 7px;">
                             <?php echo esc_html($patient['email']); ?>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-
-            <!-- Clinic Detail -->
-            <td style="width: 33%; vertical-align: top; padding-left: 2px; padding-right: 2px;">
-                <h5><?php echo esc_html__('Clinic Detail:', 'kivicare-clinic-management-system'); ?></h5>
-                <table style="background: #F6F7F9; padding: 8px;">
-                    <tr>
-                        <td style="color: #1C1F34; padding: 2px; width: 40%;"><?php echo esc_html__('Name:', 'kivicare-clinic-management-system'); ?></td>
-                        <td style="color: #6B6B6B; padding: 2px;"><?php echo esc_html($clinic['name']); ?></td>
-                    </tr>
-                    <tr>
-                        <td style="color: #1C1F34; padding: 2px;"><?php echo esc_html__('Mobile Number:', 'kivicare-clinic-management-system'); ?></td>
-                        <td style="color: #6B6B6B; padding: 2px;"><?php echo esc_html($clinic['phone']); ?></td>
-                    </tr>
-                    <tr>
-                        <td style="color: #1C1F34; padding: 2px;"><?php echo esc_html__('Email:', 'kivicare-clinic-management-system'); ?></td>
-                        <td style="color: #6B6B6B; padding: 2px; word-break: break-word;">
-                            <?php echo esc_html($clinic['email']); ?>
                         </td>
                     </tr>
                 </table>
@@ -196,20 +179,20 @@ $paymentStatusColor = strtolower($paymentStatus) === 'paid' ? '#219653' : '#dc26
             <!-- Doctor Detail -->
             <td style="width: 33%; vertical-align: top; padding-left: 8px;">
                 <h5><?php echo esc_html__('Doctor Detail:', 'kivicare-clinic-management-system'); ?></h5>
-                <table style="background: #F6F7F9; padding: 8px;">
+                <table style="background: #F6F7F9; padding: 8px; margin-top: 10px">
                     <tr>
-                        <td style="color: #1C1F34; padding: 2px; width: 40%;"><?php echo esc_html__('Name:', 'kivicare-clinic-management-system'); ?></td>
-                        <td style="color: #6B6B6B; padding: 2px;"><?php echo esc_html($doctor['name']); ?></td>
+                        <td style="color: #1C1F34; padding: 7px; width: 40%;"><?php echo esc_html__('Name:', 'kivicare-clinic-management-system'); ?></td>
+                        <td style="color: #6B6B6B; padding: 7px;"><?php echo esc_html($doctor['name']); ?></td>
                     </tr>
                     <tr>
-                        <td style="color: #1C1F34; padding: 2px;"><?php echo esc_html__('Specialization:', 'kivicare-clinic-management-system'); ?></td>
-                        <td style="color: #6B6B6B; padding: 2px;"><?php echo esc_html($doctor['specialization']); ?>
+                        <td style="color: #1C1F34; padding: 7px;"><?php echo esc_html__('Specialization:', 'kivicare-clinic-management-system'); ?></td>
+                        <td style="color: #6B6B6B; padding: 7px;"><?php echo esc_html($doctor['specialization']); ?>
                         </td>
                     </tr>
                     <tr>
-                        <td style="color: #1C1F34; padding: 2px;"><?php echo esc_html__('Email:', 'kivicare-clinic-management-system'); ?></td>
-                        <td style="color: #6B6B6B; padding: 2px; word-break: break-word;">
-                            <?php echo esc_html($clinic['email']); ?>
+                        <td style="color: #1C1F34; padding: 7px;"><?php echo esc_html__('Email:', 'kivicare-clinic-management-system'); ?></td>
+                        <td style="color: #6B6B6B; padding: 7px;">
+                            <?php echo esc_html($doctor['email']); ?>
                         </td>
                     </tr>
                 </table>

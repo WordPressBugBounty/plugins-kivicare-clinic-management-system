@@ -182,7 +182,7 @@ class KCSidebarManager implements KCSidebarInterface
     private function createGroupHeader(string $label): array
     {
         return [
-            'label'      => $label,
+            'label'      => __($label, 'kivicare-clinic-management-system'),
             'type'       => 'group',
             'link'       => '',
             'iconClass'  => '',
@@ -238,8 +238,8 @@ class KCSidebarManager implements KCSidebarInterface
             $this->createSidebarItem('Reports', 'route', '/clinic-revenue-reports', 'ph ph-chart-line', 'clinic-revenue-reports'),
             
             // Settings Group
-            $this->createGroupHeader('System'),
-            $this->createSidebarItem('Activity Logs', 'route', '/activity-logs', 'ph ph-clock-counter-clockwise', 'activity-logs'),
+            $this->createGroupHeader('System'), // fix: ensured group header is translatable
+            $this->createSidebarItem(_x('Activity Logs', 'admin', 'kivicare-clinic-management-system'), 'route', '/activity-logs', 'ph ph-clock-counter-clockwise', 'activity-logs'), // fix: used correct context for translation
             $this->createSidebarItem('Settings', 'route', '/setting/general-setting', 'ph ph-gear-six', 'settings'),
         ];
 
@@ -442,7 +442,7 @@ class KCSidebarManager implements KCSidebarInterface
         array $childrens = []
     ): array {
         return [
-            'label'      => $label,
+            'label'      => __($label, 'kivicare-clinic-management-system'),
             'type'       => $type,
             'link'       => $link,
             'iconClass'  => $iconClass,

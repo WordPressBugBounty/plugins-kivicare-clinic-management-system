@@ -39,6 +39,56 @@
   ],
   "conditions": {
     "clinics": [],
-    "roles": ["clinic_admin", "doctor"]
+    "roles": ["kiviCare_clinic_admin", "kiviCare_doctor"],
+    "form_conditions": [
+      {
+        "conditions": [
+          {
+            "field": "max_patients",
+            "operator": ">=",
+            "value": "10"
+          }
+        ],
+        "logic": "AND",
+        "actions": [
+          {
+            "type": "disable",
+            "target": "available_days"
+          }
+        ]
+      },
+      {
+        "conditions": [
+          {
+            "field": "max_patients",
+            "operator": "<=",
+            "value": "100"
+          }
+        ],
+        "logic": "AND",
+        "actions": [
+          {
+            "type": "required",
+            "target": "available_days"
+          }
+        ]
+      },
+      {
+        "conditions": [
+          {
+            "field": "start_time",
+            "operator": "is_not_empty",
+            "value": null
+          }
+        ],
+        "logic": "AND",
+        "actions": [
+          {
+            "type": "show",
+            "target": "start_time"
+          }
+        ]
+      }
+    ]
   }
 }

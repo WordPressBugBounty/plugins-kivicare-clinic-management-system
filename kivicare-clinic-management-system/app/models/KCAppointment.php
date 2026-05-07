@@ -83,7 +83,7 @@ class KCAppointment extends KCBaseModel
             $tz_string = sprintf('%s%02d:%02d', $sign, $hours, $minutes);
         }
 
-        if (!in_array($tz_string, timezone_identifiers_list()) && !preg_match('/^[+-][0-9]{2}:[0-9]{2}$/', $tz_string)) {
+        if (!in_array($tz_string, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC)) && !preg_match('/^[+-][0-9]{2}:[0-9]{2}$/', $tz_string)) {
             $tz_string = 'UTC';
         }
 

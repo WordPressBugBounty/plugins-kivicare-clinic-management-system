@@ -196,8 +196,7 @@ class DoctorServiceController extends KCBaseController
             'serviceId',
             'name',
             'serviceName',
-            'clinicName',
-            'doctorName',
+            'clinicDoctor',
             'charges',
             'category',
             'type',
@@ -304,6 +303,14 @@ class DoctorServiceController extends KCBaseController
             'args' => $this->getBulkStatusUpdateEndpointArgs()
         ]);
 
+        // Bulk update doctor service public status
+        $this->registerRoute('/' . $this->route . '/bulk/public', [
+            'methods' => 'PUT',
+            'callback' => [$this, 'bulkUpdateDoctorServicePublicStatus'],
+            'permission_callback' => [$this, 'checkUpdatePermission'],
+            'args' => $this->getBulkPublicStatusUpdateEndpointArgs()
+        ]);
+
         // Export services
         $this->registerRoute('/' . $this->route . '/export', [
             'methods' => 'GET',
@@ -334,10 +341,15 @@ class DoctorServiceController extends KCBaseController
             ],
             'status' => $this->getCommonArgs()['status'],
             'category' => [
-                'description' => 'ID',
-                'type' => 'integer',
-                'validate_callback' => [$this, 'validateId'],
-                'sanitize_callback' => 'absint',
+                'description' => 'Filter by category ID, value, or label',
+                'sanitize_callback' => function ($param) {
+                    if (is_numeric($param)) {
+                        return absint($param);
+                    } elseif (is_array($param)) {
+                        return array_map('sanitize_text_field', $param);
+                    }
+                    return sanitize_text_field($param);
+                }
             ],
             'orderby' => [
                 'description' => 'Sort results by specified field',
@@ -444,7 +456,13 @@ class DoctorServiceController extends KCBaseController
                     return in_array($param, ['yes', 'no']) ? $param : 'no';
                 },
             ],
-
+            'is_public' => [
+                'description' => 'Is public service (0 or 1)',
+                'type' => 'integer',
+                'enum' => [0, 1],
+                'default' => 1,
+                'sanitize_callback' => 'absint',
+            ],
         ];
     }
 
@@ -566,8 +584,7 @@ class DoctorServiceController extends KCBaseController
                 ->select([
                     'sdm.*',
                     's.name as name',
-                    'sd.label as service_type',
-                    'sd.id as category_id',
+                    's.category as category_data',
                     's.created_at as created_at',
                     'u.display_name as doctor_name',
                     'u.user_email as doctor_email',
@@ -649,7 +666,7 @@ class DoctorServiceController extends KCBaseController
                         ->orWhere("ln.meta_value", 'LIKE', '%' . $params['search'] . '%')
                         ->orWhere("sdm.id", 'LIKE', '%' . $params['search'] . '%')
                         ->orWhere("s.name", 'LIKE', '%' . $params['search'] . '%')
-                        ->orWhere("sd.id", '=', $params['search'])
+                        ->orWhere("s.category", 'LIKE', '%' . $params['search'] . '%')
                         ->orWhere("sdm.charges", 'LIKE', '%' . $params['search'] . '%')
                         ->orWhere("sdm.status", '=', $params['search']);
                 });
@@ -657,6 +674,10 @@ class DoctorServiceController extends KCBaseController
 
             if (isset($params['status']) && $params['status'] !== '') {
                 $query->where("sdm.status", '=', $params['status']);
+            }
+
+            if (isset($params['is_public']) && $params['is_public'] !== '') {
+                $query->where("sdm.is_public", '=', $params['is_public']);
             }
 
             if (isset($params['id']) && $params['id'] !== '') {
@@ -684,7 +705,7 @@ class DoctorServiceController extends KCBaseController
             }
 
             if (isset($params['category']) && $params['category'] !== '') {
-                $query->where("sd.id", '=', $params['category']);
+                $query->where("sd.id", '=',  is_array($params['category']) ? $params['category']['value'] : $params['category']);
             }
 
             if (isset($params['clinic_id']) && $params['clinic_id'] !== '') {
@@ -727,7 +748,7 @@ class DoctorServiceController extends KCBaseController
                         break;
                     case 'category':
                     case 'type':
-                        $query->orderBy("sd.label", $direction);
+                        $query->orderBy("s.category", $direction);
                         break;
                     case 'status':
                         $query->orderBy("sdm.status", $direction);
@@ -782,6 +803,8 @@ class DoctorServiceController extends KCBaseController
             // Prepare the service data
             $servicesData = [];
             foreach ($services as $service) {
+                // Handle category snapshot
+                $categoryData = $service->category_data;
 
                 // Format service data
                 $serviceData = [
@@ -798,9 +821,10 @@ class DoctorServiceController extends KCBaseController
                     'doctorProfileImage' => $service->doctor_profile_image ? wp_get_attachment_url($service->doctor_profile_image) : '',
                     'charges' => $service->charges,
                     'duration' => $this->formatDurationInMinutes($service->duration),
-                    'category' => $service->service_type,
-                    'category_id' => $service->category_id,
+                    'category' => $categoryData['label'] ?? '',
+                    'category_id' => $categoryData['id'] ?? null,
                     'status' => $service->status,
+                    'is_public' => (int) ($service->isPublic ?? 1),
                     'telemedService' => $service->telemedService,
                     'allowMultiple' => $service->multiple,
                     'service_image_url' => $service->image ? wp_get_attachment_url($service->image) : '',
@@ -857,10 +881,7 @@ class DoctorServiceController extends KCBaseController
                 ->select([
                     'sdm.*',
                     's.name as name',
-                    's.type as service_type',
-                    'sd.label as service_type_label',
-                    'sd.id as category',
-                    'sd.value as category_value',
+                    's.category as category_data',
                     'c.name as clinic_name',
                     'c.profile_image as clinic_profile_image',
                     'c.address as clinic_address',
@@ -873,7 +894,6 @@ class DoctorServiceController extends KCBaseController
                 ->leftJoin(KCService::class, 'sdm.service_id', '=', 's.id', 's')
                 ->leftJoin(KCClinic::class, 'sdm.clinic_id', '=', 'c.id', 'c')
                 ->leftJoin(KCUser::class, 'u.ID', '=', 'sdm.doctor_id', 'u')
-                ->leftJoin(KCStaticData::class, 's.type', '=', 'sd.value', 'sd')
                 ->where('sdm.id', '=', $id);
 
             $service = $serviceQuery->first();
@@ -922,12 +942,19 @@ class DoctorServiceController extends KCBaseController
                 return $this->response(null, $access_check->get_error_message(), false, 403);
             }
 
+            // Handle category snapshot
+            $categoryData = $service->category_data;
+
             // Format service data
             $serviceData = [
                 'id' => $service->id,
                 'service_id' => $service->serviceId,
-                'type' => $service->category,
-                'service_category' => ['label' => $service->service_type_label, 'id' => $service->category, 'value' => $service->category_value],
+                'type' => $categoryData['id'] ?? null,
+                'service_category' => [
+                    'label' => $categoryData['label'] ?? '',
+                    'id' => $categoryData['id'] ?? null,
+                    'value' => $categoryData['value'] ?? ''
+                ],
                 'name' => $service->name,
                 'price' => $service->charges,
                 'telemed_service' => $service->telemedService,
@@ -936,6 +963,7 @@ class DoctorServiceController extends KCBaseController
                 'clinic_id' => $service->clinicId,
                 'clinics' => $clinicsArray,
                 'doctors' => $doctorsArray,
+                'is_public' => (int) ($service->isPublic ?? 1),
                 'duration' => $service->duration,
                 'status' => $service->status,
                 'service_image_url' => $service->image ? wp_get_attachment_url($service->image) : '',
@@ -1004,8 +1032,28 @@ class DoctorServiceController extends KCBaseController
         );
     }
 
+    private function getBulkPublicStatusUpdateEndpointArgs()
+    {
+        return [
+            'ids' => [
+                'description' => 'Array of IDs to update',
+                'type' => 'array',
+                'required' => true,
+                'items' => [
+                    'type' => 'integer'
+                ]
+            ],
+            'is_public' => [
+                'description' => 'New public status (0 or 1)',
+                'type' => 'integer',
+                'required' => true,
+                'enum' => [0, 1]
+            ]
+        ];
+    }
+
     /**
-     * Bulk delete doctor services.
+     * Bulk delete doctor service mappings.
      *
      * Deletes multiple doctor service mappings based on an array of IDs.
      *
@@ -1071,6 +1119,40 @@ class DoctorServiceController extends KCBaseController
     }
 
     /**
+     * Bulk update doctor service public status.
+     *
+     * Updates the public status (0: private, 1: public) for multiple doctor service mappings based on an array of IDs.
+     *
+     * @param WP_REST_Request $request The REST API request object. Expects 'ids' as an array of service mapping IDs and 'is_public' as the new status (0 or 1).
+     * @return WP_REST_Response Returns a response with the number of updated services and a success message,
+     *                          or an error message and status code on failure.
+     *
+     */
+    public function bulkUpdateDoctorServicePublicStatus(WP_REST_Request $request): WP_REST_Response
+    {
+        try {
+            $ids = $request->get_param('ids');
+            $is_public = $request->get_param('is_public');
+            $success = 0;
+            foreach ($ids as $id) {
+                $service = KCServiceDoctorMapping::find($id);
+                if ($service) {
+                    $service->isPublic = $is_public;
+                    $service->save();
+                    $success++;
+                }
+            }
+            return $this->response(
+                ['updated' => $success],
+                /* translators: %d: number of doctor services */
+                sprintf(__('%d doctor service(s) public status updated successfully', 'kivicare-clinic-management-system'), $success)
+            );
+        } catch (\Exception $e) {
+            return $this->response(['error' => $e->getMessage()], __('Failed to update doctor services public status', 'kivicare-clinic-management-system'), false, 500);
+        }
+    }
+
+    /**
      * Create new doctor service
      * 
      * @param \WP_REST_Request $request
@@ -1110,54 +1192,88 @@ class DoctorServiceController extends KCBaseController
                 $doctor_id = $params['doctors'];
             }
 
-            // Build the base query for get service_type
-            $type = KCStaticData::table('sd')
-                ->select([
-                    'value'
-                ])
-                ->where('id', '=', $params['category'])
-                ->first();
+            // Get category metadata snapshot
+            $categoryData = null;
+            $staticData = KCStaticData::find($params['category']);
+            if ($staticData) {
+                $categoryData = [
+                    'id' => (int) $staticData->id,
+                    'label' => $staticData->label,
+                    'value' => $staticData->value,
+                ];
+            }
 
             $serviceData = [
                 'name' => $params['name'],
-                'type' => $type->value,
+                'type' => $staticData ? $staticData->value : '',
                 'price' => $params['price'],
                 'status' => $params['status'],
+                'category' => $categoryData,
                 'createdAt' => current_time('mysql')
             ];
 
-            // Check if service name already exists
+            // Check if service already exists with the same name and type
             $existingService = KCService::query()
                 ->where('name', '=', $params['name'])
                 ->first();
 
-            if ($existingService) {
-                return $this->response(null, __('Service name already exists. Please choose a different name.', 'kivicare-clinic-management-system'), false, 400);
+            $targetType = $staticData ? $staticData->value : '';
+            $service_id = null;
+
+            // Prepare clinic IDs for mapping and conflict checking
+            $clinic_ids = [];
+            if (is_array($clinic_id)) {
+                foreach ($clinic_id as $clinic) {
+                    // Handles array of objects like { 'value': 1 } from the frontend select component.
+                    if (is_array($clinic) && isset($clinic['value'])) {
+                        $clinic_ids[] = (int) $clinic['value'];
+                    } else if (is_numeric($clinic)) {
+                        $clinic_ids[] = (int) $clinic;
+                    }
+                }
+            } else if (is_numeric($clinic_id)) {
+                $clinic_ids[] = (int) $clinic_id;
             }
 
-            // Create the service
-            $service_id = KCService::create($serviceData);
+            if ($existingService) {
+                // Check if this doctor already has ANY service with this name in these clinics
+                $conflictMapping = KCServiceDoctorMapping::table('sdm')
+                    ->join(KCService::class, 'sdm.service_id', '=', 's.id', 's')
+                    ->where('sdm.doctor_id', '=', $doctor_id)
+                    ->whereIn('sdm.clinic_id', $clinic_ids)
+                    ->where('s.name', '=', $params['name'])
+                    ->first();
+
+                if ($conflictMapping) {
+                    if ($conflictMapping->type === $targetType) {
+                        // Same name and type for this doctor/clinic - reuse
+                        $service_id = $conflictMapping->service_id;
+                    } else {
+                        // Same name but different type for this doctor/clinic - block
+                        return $this->response(null, __('Service name already exists. Please choose a different name.', 'kivicare-clinic-management-system'), false, 400);
+                    }
+                } else {
+                    // No conflict for this doctor. Try to find a global service with correct name AND type for reuse
+                    $correctService = KCService::query()
+                        ->where('name', '=', $params['name'])
+                        ->where('type', '=', $targetType)
+                        ->first();
+
+                    if ($correctService) {
+                        $service_id = $correctService->id;
+                    } else {
+                        // Create new one (different type from other global records, but okay as no conflict for this doctor)
+                        $service_id = KCService::create($serviceData);
+                    }
+                }
+            } else {
+                // Create the service
+                $service_id = KCService::create($serviceData);
+            }
 
             if (!$service_id) {
                 return $this->response(null, __('Failed to create doctor service', 'kivicare-clinic-management-system'), false, 500);
             } else {
-
-                $clinic_ids = [];
-                if (is_array($clinic_id)) {
-                    foreach ($clinic_id as $clinic) {
-                        // Handles array of objects like { 'value': 1 } from the frontend select component.
-                        if (is_array($clinic) && isset($clinic['value'])) {
-                            $clinic_ids[] = (int) $clinic['value'];
-                        }
-                        // Handles a simple array of IDs like [1, 2] from backend functions (e.g., KCClinic::getClinicIdOfDoctor).
-                        elseif (is_numeric($clinic)) {
-                            $clinic_ids[] = (int) $clinic;
-                        }
-                    }
-                } elseif (is_numeric($clinic_id)) {
-                    // Handles a single numeric ID.
-                    $clinic_ids[] = (int) $clinic_id;
-                }
 
                 // Filter out duplicates and zero-values, then create the final string for the query.
                 $clinic_id = implode(',', array_unique(array_filter($clinic_ids)));
@@ -1191,8 +1307,8 @@ class DoctorServiceController extends KCBaseController
                         "sdm.id"
                     ])
                     ->leftJoin(KCService::class, 'sdm.service_id', '=', 's.id', 's')
-                    ->where(function ($q) use ($type, $params, $clinic_id, $doctor_id) {
-                        $q->whereRaw("s.type = '" . esc_sql($type->value) . "'")
+                    ->where(function ($q) use ($staticData, $params, $clinic_id, $doctor_id) {
+                        $q->whereRaw("s.type = '" . esc_sql($staticData->value) . "'")
                             ->whereRaw("s.name = '" . esc_sql($params['name']) . "'")
                             ->whereRaw("sdm.clinic_id IN ($clinic_id)")
                             ->whereRaw("sdm.doctor_id IN ($doctor_id)");
@@ -1246,7 +1362,8 @@ class DoctorServiceController extends KCBaseController
                             'image' => !empty($params['profile_image']) ? (int) $params['profile_image'] : '',
                             'multiple' => $params['allow_multi'],
                             'telemedService' => $params['telemed_service'],
-                            'serviceNameAlias' => $type->value,
+                            'serviceNameAlias' => $staticData ? $staticData->value : '',
+                            'isPublic' => isset($params['is_public']) ? (int) $params['is_public'] : 1,
                             'createdAt' => current_time('mysql'),
                         ];
 
@@ -1264,12 +1381,13 @@ class DoctorServiceController extends KCBaseController
                 $serviceData = [
                     'id' => $service_id,
                     'name' => $params['name'],
-                    'type' => $type->value,
+                    'type' => $staticData ? $staticData->value : '',
                     'price' => $params['price'],
                     'telemed_service' => $params['telemed_service'],
                     'allow_multi' => $params['allow_multi'],
                     'duration' => $params['duration'],
                     'status' => $params['status'],
+                    'is_public' => isset($params['is_public']) ? (int) $params['is_public'] : 1,
                     'created_at' => current_time('mysql'),
                     'clinic_doctor' => $clinic_doctors_raw,
                     'service_image_url' => $params['profile_image'] ? wp_get_attachment_url($params['profile_image']) : '',
@@ -1316,32 +1434,49 @@ class DoctorServiceController extends KCBaseController
             if (!$service) {
                 return $this->response(null, __('Service record not found', 'kivicare-clinic-management-system'), false, 404);
             }
-            $type = KCStaticData::table('sd')
-                ->select([
-                    'value'
-                ])
-                ->where('id', '=', $params['category'])
-                ->first();
-            // Try to find if the service name already exists in another record
-            $otherServiceWithSameName = KCService::query()
-                ->where('name', '=', $params['name'])
-                ->where('id', '!=', $serviceMapping->serviceId)
+            $staticData = KCStaticData::find($params['category']);
+            $categoryData = null;
+            $typeValue = '';
+
+            if ($staticData) {
+                $categoryData = [
+                    'id' => (int) $staticData->id,
+                    'label' => $staticData->label,
+                    'value' => $staticData->value,
+                ];
+                $typeValue = $staticData->value;
+            } else {
+                // Fallback: If static data is deleted, try to recover from existing snapshot
+                $existingSnapshot = $service->getCategoryData();
+                if ($existingSnapshot && (int) $existingSnapshot['id'] === (int) $params['category']) {
+                    $categoryData = $existingSnapshot;
+                    $typeValue = $existingSnapshot['value'] ?? '';
+                }
+            }
+            // Check if there's another mapping for this doctor/clinic that uses a service with the same name
+            $conflictMapping = KCServiceDoctorMapping::table('sdm')
+                ->join(KCService::class, 'sdm.service_id', '=', 's.id', 's')
+                ->where('sdm.doctor_id', '=', $serviceMapping->doctorId)
+                ->where('sdm.clinic_id', '=', $serviceMapping->clinicId)
+                ->where('s.name', '=', $params['name'])
+                ->where('sdm.id', '!=', $id) // Exclude current mapping
                 ->first();
 
-            if ($otherServiceWithSameName) {
+            if ($conflictMapping) {
                 return $this->response(null, __('Service name already exists. Please choose a different name.', 'kivicare-clinic-management-system'), false, 400);
             }
 
             // Try to find existing service with the same name and type for reuse
             $existingService = KCService::query()
                 ->where('name', '=', $params['name'])
-                ->where('type', '=', $type->value)
+                ->where('type', '=', $typeValue)
                 ->first();
 
             if ($existingService) {
                 $service = $existingService;
                 // Optionally update service metadata to keep it in sync
                 $service->name = $params['name'];
+                $service->description = $params['description'] ?? $service->description;
                 // Only update price if provided and greater than zero to avoid overwriting meaningful defaults
                 if (isset($params['price'])) {
                     $service->price = $params['price'];
@@ -1351,7 +1486,8 @@ class DoctorServiceController extends KCBaseController
                 // Create a new KCService record and point mapping to it
                 $serviceData = [
                     'name' => $params['name'],
-                    'type' => $type->value,
+                    'type' => $typeValue,
+                    'category' => $categoryData,
                     'price' => $params['price'] ?? 0,
                     'status' => $params['status'] ?? 1,
                     'createdAt' => current_time('mysql')
@@ -1400,13 +1536,11 @@ class DoctorServiceController extends KCBaseController
                 $doctor_id = $params['doctors']['value'];
             }
 
-            // Prevent duplicate service for same doctor/clinic/type/name (except current mapping)
             $existing = KCServiceDoctorMapping::table('map')
                 ->leftJoin(KCService::class, 'map.service_id', '=', 'ser.id', 'ser')
-                ->leftJoin(KCStaticData::class, 'ser.type', '=', 'sd.value', 'sd')
                 ->where('map.doctor_id', '=', $doctor_id)
                 ->where('map.clinic_id', '=', $clinic_id)
-                ->where('sd.id', '=', $params['category']) // Compare by static data id directly
+                ->where('ser.category', 'LIKE', '%"id":' . $params['category'] . '%')
                 ->where('ser.name', '=', $params['name'])
                 ->where('map.id', '!=', $id)
                 ->first();
@@ -1422,6 +1556,8 @@ class DoctorServiceController extends KCBaseController
 
             // Update main service
             $service->name = $params['name'];
+            $service->description = $params['description'] ?? $service->description;
+            $service->category = $categoryData;
             $service->save();
 
             // Prepare mapping update data
@@ -1433,6 +1569,7 @@ class DoctorServiceController extends KCBaseController
             $serviceMapping->status = $params['status'];
             $serviceMapping->multiple = $params['allow_multi'];
             $serviceMapping->telemedService = $params['telemed_service'];
+            $serviceMapping->isPublic = isset($params['is_public']) ? (int) $params['is_public'] : 1;
             $serviceMapping->duration = $params['duration'];
 
             // Handle service image update/removal
@@ -1455,6 +1592,7 @@ class DoctorServiceController extends KCBaseController
                 'allow_multi' => $serviceMapping->multiple,
                 'doctor_id' => $serviceMapping->doctorId,
                 'clinic_id' => $serviceMapping->clinicId,
+                'is_public' => (int) ($serviceMapping->isPublic ?? 1),
                 'duration' => $serviceMapping->duration,
                 'status' => $serviceMapping->status,
                 'service_image_url' => $serviceMapping->image ? wp_get_attachment_url($serviceMapping->image) : '',
@@ -1598,10 +1736,15 @@ class DoctorServiceController extends KCBaseController
                 'sanitize_callback' => 'sanitize_text_field',
             ],
             'category' => [
-                'description' => 'Filter by category ID',
-                'type' => 'integer',
-                'validate_callback' => [$this, 'validateId'],
-                'sanitize_callback' => 'absint',
+                'description' => 'Filter by category ID, value, or label',
+                'sanitize_callback' => function ($param) {
+                    if (is_numeric($param)) {
+                        return absint($param);
+                    } elseif (is_array($param)) {
+                        return array_map('sanitize_text_field', $param);
+                    }
+                    return sanitize_text_field($param);
+                }
             ],
             'orderby' => [
                 'description' => 'Sort results by specified field',
@@ -1652,9 +1795,7 @@ class DoctorServiceController extends KCBaseController
             $query = KCServiceDoctorMapping::table('sdm')
                 ->select([
                     'sdm.*',
-                    's.name as name',
-                    'sd.label as service_type',
-                    'sd.id as category_id',
+                    's.category as category_data',
                     'u.display_name as doctor_name',
                     'c.name as clinic_name',
                 ])
@@ -1668,11 +1809,7 @@ class DoctorServiceController extends KCBaseController
                 ->leftJoin(KCUserMeta::class, function ($join) {
                     $join->on('u.ID', '=', 'ln.user_id')
                         ->onRaw("ln.meta_key = 'last_name'");
-                }, null, null, 'ln')
-                ->leftJoin(KCStaticData::class, function ($join) {
-                    $join->on('s.type', '=', 'sd.value')
-                        ->onRaw("sd.type = 'service_type'");
-                }, null, null, 'sd');
+                }, null, null, 'ln');
 
             $current_user_id = get_current_user_id();
             $current_user_role = $this->kcbase->getLoginUserRole();
@@ -1716,7 +1853,7 @@ class DoctorServiceController extends KCBaseController
                         ->orWhere("ln.meta_value", 'LIKE', '%' . $search . '%')
                         ->orWhere("sdm.id", 'LIKE', '%' . $search . '%')
                         ->orWhere("s.name", 'LIKE', '%' . $search . '%')
-                        ->orWhere("sd.id", '=', $search)
+                        ->orWhere("s.category", 'LIKE', '%' . $search . '%')
                         ->orWhere("sdm.charges", 'LIKE', '%' . $search . '%')
                         ->orWhere("sdm.status", '=', $search);
                 });
@@ -1755,7 +1892,7 @@ class DoctorServiceController extends KCBaseController
             }
 
             if (isset($params['category']) && $params['category'] !== '') {
-                $query->where("sd.id", '=', $params['category']);
+                $query->where("s.category", 'LIKE', '%"id":' . $params['category'] . '%');
             }
 
             if (isset($params['orderby']) && $params['orderby'] !== '') {
@@ -1783,7 +1920,7 @@ class DoctorServiceController extends KCBaseController
                         break;
                     case 'category':
                     case 'type':
-                        $query->orderBy("sd.label", $direction);
+                        $query->orderBy("s.category", $direction);
                         break;
                     case 'status':
                         $query->orderBy("sdm.status", $direction);
@@ -1817,6 +1954,7 @@ class DoctorServiceController extends KCBaseController
             }
 
             $exportData = $results->map(function ($service) {
+                $categoryData = $service->category_data;
                 return [
                     'id' => $service->id ?? '',
                     'serviceId' => $service->serviceId ?? '',
@@ -1825,7 +1963,7 @@ class DoctorServiceController extends KCBaseController
                     'doctorName' => $service->doctor_name ?? '',
                     'charges' => $service->charges ?? '',
                     'duration' => isset($service->duration) ? $this->formatDurationInMinutes($service->duration) : '',
-                    'category' => $service->service_type ?? '',
+                    'category' => $categoryData['label'] ?? '',
                     'status' => $service->status == 1 ? 'Active' : 'Inactive',
                 ];
             })->toArray();

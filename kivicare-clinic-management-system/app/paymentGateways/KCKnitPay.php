@@ -451,4 +451,12 @@ class KCKnitPay extends KCAbstractPaymentGateway
 
         return $this->create_payment_response('failed', 'Payment status is: ' . $status);
     }
+
+    /**
+     * Knit Pay processes its own webhooks internally via the Pronamic plugin.
+     */
+    public function handle_webhook(string $raw_payload, array $headers): array
+    {
+        return $this->create_payment_response('success', 'Webhooks for Knit Pay are handled by the Pronamic plugin.', []);
+    }
 }

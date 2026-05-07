@@ -597,9 +597,9 @@ class AuthController extends KCBaseController
      * Check if user has permission to register
      * 
      * @param WP_REST_Request $request
-     * @return bool
+     * @return bool | WP_Error
      */
-    public function checkRegistrationPermission($request)
+    public function checkRegistrationPermission($request) :bool|WP_Error
     {
         KCErrorLogger::instance()->error("AuthController: checkRegistrationPermission called");
 
@@ -621,6 +621,27 @@ class AuthController extends KCBaseController
                 __('Selected user role is not enabled for registration', 'kivicare-clinic-management-system'),
                 ['status' => 400]
             );
+        }
+
+        // Block receptionist registration if the receptionist module is disabled
+        $receptionist_role = $this->kcbase->getReceptionistRole();
+        if ($user_role === $receptionist_role || $user_role === 'receptionist') {
+            $modules_data  = kcGetModules();
+            $module_config = $modules_data['module_config'] ?? [];
+            $receptionist_on = false;
+            foreach ($module_config as $mod) {
+                if (($mod['name'] ?? '') === 'receptionist') {
+                    $receptionist_on = ($mod['status'] === '1' || $mod['status'] === 1 || $mod['status'] === true);
+                    break;
+                }
+            }
+            if (!$receptionist_on) {
+                return new WP_Error(
+                    'role_not_allowed',
+                    __('Receptionist registration is currently disabled.', 'kivicare-clinic-management-system'),
+                    ['status' => 403]
+                );
+            }
         }
 
         // Default to allowing registration for KiviCare (since this is a medical system)
@@ -728,7 +749,7 @@ class AuthController extends KCBaseController
         if (is_wp_error($user)) {
             return $this->response(
                 null,
-                $user->get_error_message(),
+                wp_strip_all_tags($user->get_error_message()),
                 false,
                 401
             );

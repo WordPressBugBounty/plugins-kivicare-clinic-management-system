@@ -385,8 +385,7 @@ class StaticDataController extends KCBaseController
                     'sdm.doctor_id as doctorId',
                     'sdm.charges as service_base_price',
                     's.name as name',
-                    'sd.label as service_type',
-                    'sd.id as category_id',
+                    's.category as category_data',
                     's.created_at as created_at',
                     'u.display_name as doctor_name',
                     'c.name as clinic_name',
@@ -403,10 +402,6 @@ class StaticDataController extends KCBaseController
                 ->leftJoin(KCClinic::class, 'sdm.clinic_id', '=', 'c.id', 'c')
                 ->leftJoin(KCUser::class, 'u.ID', '=', 'sdm.doctor_id', 'u')
                 ->leftJoin(KCDoctorClinicMapping::class, 'dcm.doctor_id', '=', 'sdm.doctor_id', 'dcm')
-                ->leftJoin(KCStaticData::class, function ($join) {
-                    $join->on('s.type', '=', 'sd.value')
-                        ->onRaw("sd.type = 'service_type'");
-                }, null, null, 'sd')
                 ->whereRaw('dcm.clinic_id = sdm.clinic_id')
                 ->where('s.status', 1) // Only active services
                 ->where('sdm.status', 1); // Only active service mappings
@@ -417,6 +412,8 @@ class StaticDataController extends KCBaseController
 
             if(in_array($this->kcbase->getLoginUserRole(), [$this->kcbase->getPatientRole(),false])) {
                 // $doctorId = get_current_user_id();
+                // Patients and guests can only see public services
+                $query->where('sdm.is_public', 1);
                 $query->whereNotIn('s.type',apply_filters('kc_service_type_not_show_in_frontend', ['bill_service']));
             }
 
@@ -443,7 +440,7 @@ class StaticDataController extends KCBaseController
             }
 
             if (!empty($search)) {
-                $query->whereRaw("(s.name LIKE %s OR s.type LIKE %s OR sdm.charges LIKE %s)", [
+                $query->whereRaw("(s.name LIKE %s OR s.category LIKE %s OR sdm.charges LIKE %s)", [
                     '%' . $search . '%',
                     '%' . $search . '%',
                     '%' . $search . '%'
@@ -462,7 +459,7 @@ class StaticDataController extends KCBaseController
             }
 
             if (!empty($category)) {
-                $query->where('sd.id', '=', (int) $category);
+                $query->where('s.category', 'LIKE', '%"id":' . (int)$category . '%');
             }
 
 
@@ -575,8 +572,9 @@ class StaticDataController extends KCBaseController
                     }
                 }
 
-                // Format service type
-                $serviceType = !empty($service->service_type) ? kcGetStaticDataTypeLabel($service->service_type) : "";
+                // Handle category snapshot
+                $categoryData = $service->category_data;
+                $serviceType = $categoryData['label'] ?? '';
 
                 // Handle telemed services
                 if (($service->telemed_service ?? 'no') === 'yes') {
@@ -593,7 +591,7 @@ class StaticDataController extends KCBaseController
                     'service_id' => $service->serviceId,
                     'name' => $service->name,
                     'service_type' => $serviceType,
-                    'category_id' => $service->category_id,
+                    'category_id' => $categoryData['id'] ?? null,
                     'charges' => $formattedCharges,
                     'service_base_price' => $serviceBasePrice,
                     'doctor_id' => $service->doctorId,
@@ -1173,7 +1171,7 @@ class StaticDataController extends KCBaseController
                     // Get doctor IDs that already have sessions at these clinic(s)
                     $doctorIdsWithSessions = \App\models\KCClinicSession::query()
                         ->whereIn('clinic_id', $clinicIdArr)
-                        ->whereNull('parent_session_id') // Only get parent sessions
+                        ->whereNull('parent_id') // Only get parent sessions
                         ->select(['doctor_id'])
                         ->groupBy('doctor_id')
                         ->get()
@@ -1517,7 +1515,13 @@ class StaticDataController extends KCBaseController
             }
             // For multiple doctors, $is_telemed remains null to include all services
 
-            $services = KCServiceDoctorMapping::getActiveDoctorServices($doctorIds, $clinic_id === -1 ? 0 : $clinic_id, $is_telemed);
+            $isPublic = null;
+            $currentUserRole = $this->kcbase->getLoginUserRole();
+            if (!is_user_logged_in() || $currentUserRole === $this->kcbase->getPatientRole()) {
+                $isPublic = 1;
+            }
+
+            $services = KCServiceDoctorMapping::getActiveDoctorServices($doctorIds, $clinic_id === -1 ? 0 : $clinic_id, $is_telemed, $isPublic);
 
             // Convert to collection for easier manipulation
             $servicesCollection = collect($services);
@@ -2426,7 +2430,7 @@ class StaticDataController extends KCBaseController
         
         // If parsing fails for some reason, fallback to basic list
         if (empty($timezones)) {
-            $zonenlist = timezone_identifiers_list();
+            $zonenlist = timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC);
             foreach ($zonenlist as $zone) {
                 $timezones[] = [
                     'value' => $zone,

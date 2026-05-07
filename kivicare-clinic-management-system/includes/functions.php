@@ -1198,7 +1198,7 @@ function kcGetDoctorTimezone(int $doctorId): string
 
     $tz = get_user_meta($doctorId, 'timezone', true);
 
-    if (!empty($tz) && in_array($tz, timezone_identifiers_list(), true)) {
+    if (!empty($tz) && in_array($tz, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC), true)) {
         $cache[$doctorId] = $tz;
         return $tz;
     }

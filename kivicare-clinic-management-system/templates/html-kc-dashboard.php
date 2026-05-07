@@ -42,6 +42,20 @@ $dashboard_config = apply_filters('kivicare_dashboard_config', array(
     'user_role' => $current_user_role,
 ));
 
+
+$user_id = get_current_user_id();
+$preferences = get_user_meta($user_id, 'kc_user_preferences', true);
+$dark_mode = KCOption::get('dark_mode', 'false') === 'true';
+if (is_array($preferences) && isset($preferences['darkMode'])) {
+    $dark_mode = (bool)$preferences['darkMode'];
+}
+
+$titleFont = KCOption::get('title_font', 'Inter');
+$bodyFont = KCOption::get('body_font', 'Inter');
+$fontsToLoad = array_unique(array_filter([$titleFont, $bodyFont], function ($f) {
+    return $f && $f !== 'Inter';
+}));
+
 ?>
 <!DOCTYPE html>
 <?php
@@ -56,7 +70,7 @@ if ($theme_mode == 'true') {
     $dir = $is_rtl_language ? 'rtl' : 'ltr';
 }
 ?>
-<html <?php language_attributes(); ?> dir="<?php echo esc_attr($dir); ?>">
+<html data-bs-theme="<?php echo esc_attr($dark_mode ? 'dark' : 'light'); ?>" <?php language_attributes(); ?> dir="<?php echo esc_attr($dir); ?>">
 
 <head>
     <meta charset="<?php bloginfo('charset'); ?>">
@@ -77,26 +91,31 @@ if ($theme_mode == 'true') {
     wp_head();
 
 
+    if (!empty($fontsToLoad)) {
+        $fontFamilies = implode('|', array_map(function ($f) {
+            return str_replace(' ', '+', $f);
+        }, $fontsToLoad));
+        ?>
+        <link id="kivicare-google-fonts" rel="stylesheet"
+            href="https://fonts.googleapis.com/css?family=<?php echo esc_attr($fontFamilies); ?>:300,400,500,600,700&display=swap">
+        <?php
+    }
+
     do_action('kivicare_dashboard_head', $dashboard_config); ?>
 
 
 
 </head>
-<?php
-$user_id = get_current_user_id();
-$preferences = get_user_meta($user_id, 'kc_user_preferences', true);
-$dark_mode = false;
-if (is_array($preferences) && isset($preferences['darkMode'])) {
-    $dark_mode = (bool)$preferences['darkMode'];
-}
-?>
-<body data-bs-theme="<?php echo esc_attr($dark_mode ? 'dark' : 'light'); ?>" <?php body_class('kivicare-dashboard') ?>>
+<body <?php body_class('kivicare-dashboard') ?>>
 
     <!-- React Dashboard Mount Point -->
-    <div id="kc-dashboard">
-
-       
-    </div>
+    <div id="kc-dashboard"></div>
+    <style id="kivicare-dashboard-fonts-style">
+        :root {
+            --bs-heading-font-family: '<?php echo esc_attr($titleFont); ?>', sans-serif;
+            --bs-body-font-family: '<?php echo esc_attr($bodyFont); ?>', sans-serif;
+        }
+    </style>
     <style id="kivicare-dashboard-colors-style">
         <?php
         $generatedColors = KCOption::get('generated_colors', []);
@@ -104,8 +123,8 @@ if (is_array($preferences) && isset($preferences['darkMode'])) {
             echo $generatedColors;
         } else {
             ?>
-            [data-bs-theme="light"],
-            :root {
+            :root[data-bs-theme="light"],
+             {
                 <?php
                 if (!empty($generatedColors) && is_array($generatedColors)) {
                     foreach ($generatedColors as $property => $value) {
@@ -128,8 +147,11 @@ if (is_array($preferences) && isset($preferences['darkMode'])) {
                     --bs-theme-color: <?php echo esc_attr(KCOption::get('theme_color', '#007bff')); ?>;
                 <?php } ?>
             }
+
         <?php } ?>
     </style>
+
+
 
     <?php
     // Hook for additional body content

@@ -195,16 +195,53 @@ class Configurations extends SettingsController
     public function encounterModules()
     {
         if (isKiviCareProActive()) {
-            $response = apply_filters('kcpro_get_encounter_list', []);
-            return $response;
+            $incoming = apply_filters('kcpro_get_encounter_list', []);
+            $defaults = [
+                ['name' => 'problem', 'label' => 'Problem', 'status' => 1],
+                ['name' => 'observation', 'label' => 'Observations', 'status' => 1],
+                ['name' => 'note', 'label' => 'Note', 'status' => 1],
+                ['name' => 'report', 'label' => 'Medical Report', 'status' => 1],
+            ];
+
+            if (empty($incoming)) return $defaults;
+
+            $merged = [];
+            foreach ($defaults as $def) {
+                $match = null;
+                foreach ($incoming as $inc) {
+                    if ($inc['name'] === $def['name']) {
+                        $match = $inc;
+                        break;
+                    }
+                }
+                $merged[] = $match ? $match : $def;
+            }
+            return $merged;
         }
     }
 
     public function prescriptionModules()
     {
         if (isKiviCareProActive()) {
-            $response = apply_filters('kcpro_get_prescription_list', []);
-            return $response;
+            $incoming = apply_filters('kcpro_get_prescription_list', []);
+            $defaults = [
+                ['name' => 'prescription', 'label' => 'Prescription', 'status' => 1],
+            ];
+
+            if (empty($incoming)) return $defaults;
+
+            $merged = [];
+            foreach ($defaults as $def) {
+                $match = null;
+                foreach ($incoming as $inc) {
+                    if ($inc['name'] === $def['name']) {
+                        $match = $inc;
+                        break;
+                    }
+                }
+                $merged[] = $match ? $match : $def;
+            }
+            return $merged;
         }
     }
 

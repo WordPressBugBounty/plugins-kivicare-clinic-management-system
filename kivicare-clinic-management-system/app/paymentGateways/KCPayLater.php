@@ -117,6 +117,13 @@ class KCPayLater extends KCAbstractPaymentGateway {
     }
 
     /**
+     * Handle webhook (not applicable for manual/pay later gateway).
+     */
+    public function handle_webhook(string $raw_payload, array $headers): array {
+        return $this->create_payment_response('success', 'Webhooks not supported for Pay Later gateway', []);
+    }
+
+    /**
      * Get settings (override if needed)
      */
     public function get_settings() {

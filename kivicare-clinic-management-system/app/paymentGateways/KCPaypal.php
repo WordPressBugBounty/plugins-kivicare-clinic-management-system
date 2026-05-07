@@ -2,6 +2,8 @@
 namespace App\paymentGateways;
 
 use App\abstracts\KCAbstractPaymentGateway;
+use App\models\KCAppointment;
+use App\models\KCPaymentsAppointmentMapping;
 use Exception;
 use WP_Error;
 
@@ -118,11 +120,27 @@ class KCPaypal extends KCAbstractPaymentGateway
                 'validation' => ['required' => __('Client secret is required', 'kivicare-clinic-management-system')]
             ],
             [
-                'name' => 'currency',
-                'label' => __('Currency', 'kivicare-clinic-management-system'),
-                'type' => 'select',
-                'options' => kcCountryCurrencyList(),
+                'name'     => 'currency',
+                'label'    => __('Currency', 'kivicare-clinic-management-system'),
+                'type'     => 'select',
+                'options'  => kcCountryCurrencyList(),
                 'validation' => ['required' => __('Currency is required', 'kivicare-clinic-management-system')]
+            ],
+            [
+                'name'        => 'webhook_id',
+                'label'       => __('Webhook ID', 'kivicare-clinic-management-system'),
+                'placeholder' => 'WH-XXXXXXXX',
+                'type'        => 'input',
+                'inputType'   => 'text',
+                'description' => __('Paste the Webhook ID from your PayPal developer dashboard. Required for signature verification.', 'kivicare-clinic-management-system'),
+            ],
+            [
+                'name'        => 'webhook_url',
+                'label'       => __('Webhook URL', 'kivicare-clinic-management-system'),
+                'type'        => 'info',
+                'description' => __('Copy this URL and paste it into your PayPal developer dashboard under Webhooks. Enable the PAYMENT.SALE.COMPLETED and PAYMENT.ORDER.COMPLETED event types.', 'kivicare-clinic-management-system'),
+                'value'       => $this->get_webhook_url(),
+                'copyable'    => true,
             ]
         ];
     }
@@ -187,7 +205,7 @@ class KCPaypal extends KCAbstractPaymentGateway
                 ],
                 'redirect_urls' => [
                     'return_url' => $this->get_return_url($appointment_data['appointment_id']),
-                    'cancel_url' => $this->get_cancel_url($appointment_data['appointment_id'])
+                    'cancel_url' => $this->get_return_url($appointment_data['appointment_id'])
                 ]
             ];
 
@@ -242,8 +260,165 @@ class KCPaypal extends KCAbstractPaymentGateway
     }
 
     /**
-     * Handle PayPal payment callback using REST API
-     * @param array $callback_data Callback data from PayPal
+     * Handle PayPal Webhook notification.
+     * Verifies the signature using the PayPal Webhook ID from settings and the
+     * PayPal /v1/notifications/verify-webhook-signature REST API, then updates
+     * payment and appointment status accordingly.
+     *
+     * @param string $raw_payload Raw JSON body from PayPal
+     * @param array  $headers     HTTP headers (keys in HTTP_* server format or plain)
+     * @return array{status: string, message: string, data: array}
+     */
+    public function handle_webhook(string $raw_payload, array $headers): array
+    {
+        $this->log('Webhook: received payload: ' . $raw_payload);
+        try {
+            $payload = json_decode($raw_payload, true);
+            if (json_last_error() !== JSON_ERROR_NONE || empty($payload)) {
+                $this->log('Webhook: invalid JSON payload', 'error');
+                return $this->create_payment_response('failed', 'Invalid webhook payload', []);
+            }
+
+            // ── Signature verification ────────────────────────────────────────────
+            $webhook_id = $this->get_setting('webhook_id', '');
+            if (!empty($webhook_id)) {
+                $this->log('Webhook: starting signature verification for webhook_id: ' . $webhook_id);
+                $access_token = $this->get_access_token();
+                if ($access_token) {
+                    // Normalise header keys to UPPERCASE-WITH-DASHES
+                    $normalised = [];
+                    foreach ($headers as $k => $v) {
+                        $normalised[strtoupper(str_replace('_', '-', $k))] = $v;
+                    }
+
+                    $verify_body = [
+                        'auth_algo'         => $normalised['PAYPAL-AUTH-ALGO']         ?? '',
+                        'cert_url'          => $normalised['PAYPAL-CERT-URL']          ?? '',
+                        'transmission_id'   => $normalised['PAYPAL-TRANSMISSION-ID']   ?? '',
+                        'transmission_sig'  => $normalised['PAYPAL-TRANSMISSION-SIG']  ?? '',
+                        'transmission_time' => $normalised['PAYPAL-TRANSMISSION-TIME'] ?? '',
+                        'webhook_id'        => $webhook_id,
+                        'webhook_event'     => $payload,
+                    ];
+
+                    $verify_response = $this->make_paypal_rest_call(
+                        '/v1/notifications/verify-webhook-signature',
+                        'POST',
+                        $verify_body,
+                        $access_token
+                    );
+
+                    if (!$verify_response || ($verify_response['verification_status'] ?? '') !== 'SUCCESS') {
+                        $this->log('Webhook: signature verification FAILED', 'error');
+                        return $this->create_payment_response('failed', 'Webhook signature verification failed', []);
+                    }
+                } else {
+                    $this->log('Webhook: could not obtain access token for signature verification', 'error');
+                }
+            } else {
+                $this->log('Webhook: webhook_id not configured – skipping signature verification', 'error');
+            }
+
+            // ── Event routing ─────────────────────────────────────────────────────
+            $event_type = $payload['event_type'] ?? '';
+            $resource   = $payload['resource']   ?? [];
+            $this->log("Webhook: event_type={$event_type}, resource_id=" . ($resource['id'] ?? 'N/A'));
+
+            $handled_statuses = [
+                'PAYMENT.SALE.COMPLETED'       => 'completed',
+                'PAYMENT.ORDER.COMPLETED'      => 'completed',
+                'PAYMENT.CAPTURE.COMPLETED'    => 'completed',
+                'PAYMENT.SALE.PENDING'         => 'pending',
+                'PAYMENT.CAPTURE.PENDING'      => 'pending',
+                'PAYMENTS.PAYMENT.CREATED'     => 'completed',
+                'CHECKOUT.ORDER.APPROVED'      => 'completed',
+                'PAYMENT.SALE.DENIED'          => 'failed',
+                'PAYMENT.CAPTURE.DENIED'       => 'failed',
+                'PAYMENT.SALE.REFUNDED'        => 'refunded',
+                'PAYMENT.CAPTURE.REFUNDED'     => 'refunded',
+                'PAYMENT.SALE.REVERSED'        => 'refunded',
+            ];
+
+            if (!isset($handled_statuses[$event_type])) {
+                // Unhandled event type – respond 200 to stop PayPal retrying
+                return $this->create_payment_response('success', 'Event type not handled: ' . $event_type, ['event_type' => $event_type]);
+            }
+
+            $new_payment_status = $handled_statuses[$event_type];
+
+            // Resolve appointment via invoice_number stored on the resource
+            $invoice_number  = $resource['invoice_number']  // SALE
+                ?? $resource['purchase_units'][0]['invoice_id'] // ORDER/CAPTURE
+                ?? $resource['transactions'][0]['invoice_number'] // PAYMENT (legacy)
+                ?? null;
+            $gateway_txn_id  = $resource['id'] ?? null;
+
+            // invoice_number format: paypal_{appointment_id}_{timestamp}
+            $appointment_id = null;
+            if ($invoice_number && preg_match('/^paypal_(\d+)_/', $invoice_number, $m)) {
+                $appointment_id = (int) $m[1];
+                $this->log("Webhook: resolved appointment_id={$appointment_id} from invoice '{$invoice_number}'");
+            }
+
+            if (!$appointment_id) {
+                $this->log("Webhook: could not resolve appointment_id from invoice '{$invoice_number}'", 'error');
+                return $this->create_payment_response('failed', 'Appointment not resolved from webhook payload', []);
+            }
+
+            // ── Persist payment + appointment ────────────────────────────────────
+            $this->update_payment_record($appointment_id, $gateway_txn_id, $new_payment_status);
+
+            $this->log("Webhook processed: event={$event_type}, appointment_id={$appointment_id}, status={$new_payment_status}");
+
+            return $this->create_payment_response('success', 'Webhook processed', [
+                'appointment_id'    => $appointment_id,
+                'payment_status'    => $new_payment_status,
+                'transaction_id'    => $gateway_txn_id,
+                'event_type'        => $event_type,
+            ]);
+
+        } catch (Exception $e) {
+            $this->log('Webhook processing error: ' . $e->getMessage(), 'error');
+            return $this->create_payment_response('failed', 'Webhook processing error: ' . $e->getMessage(), []);
+        }
+    }
+
+    /**
+     * Update payment mapping and appointment status based on webhook outcome.
+     */
+    private function update_payment_record(int $appointment_id, ?string $transaction_id, string $payment_status): void
+    {
+        // Note: KCAppointmentPaymentService::confirmPayment is now managed by the controller handleWebhook
+        
+        if ($payment_status === 'completed') {
+            // No action needed here, controller handles completion logic
+        } else {
+            // Handle cancellation/failure cases manually if not success
+            if (in_array($payment_status, ['failed', 'refunded'], true)) {
+                $appt = KCAppointment::find($appointment_id);
+                if ($appt && $appt->status != 0) {
+                    $appt->update(['status' => 0]); // Cancelled
+                    do_action('kc_appointment_payment_cancelled', $appointment_id);
+                }
+            }
+
+            // Update mapping for non-completed states (e.g. pending)
+            if ($payment_status !== 'completed') {
+                $existing = KCPaymentsAppointmentMapping::query()->where('appointment_id', $appointment_id)->first();
+                if ($existing && $existing->paymentStatus !== 'completed') {
+                    $existing->update([
+                        'paymentStatus' => $payment_status,
+                        'transactionId' => $transaction_id ?? $existing->transactionId,
+                        'updatedAt'     => current_time('mysql'),
+                    ]);
+                }
+            }
+        }
+    }
+
+    /**
+     * Handle PayPal payment callback (redirect-based flow).
+     * @param array $callback_data Callback data from PayPal (paymentId, PayerID, etc.)
      * @return array Response data
      */
     public function handle_payment_callback($callback_data)
@@ -277,12 +452,14 @@ class KCPaypal extends KCAbstractPaymentGateway
                 $access_token
             );
 
+            error_log('[KCPaypal Debug] Execute response: ' . json_encode($response));
+
             if ($response && $response['state'] === 'approved') {
                 $transaction = $response['transactions'][0];
                 $related_resources = $transaction['related_resources'][0];
                 $sale = $related_resources['sale'];
 
-                if ($sale['state'] === 'completed') {
+                if (in_array($sale['state'], ['completed', 'pending'])) {
                     $this->log("PayPal payment completed: " . $sale['id']);
 
                     return $this->create_payment_response(
@@ -453,6 +630,11 @@ class KCPaypal extends KCAbstractPaymentGateway
         }
 
         return true;
+    }
+
+    public function is_webhook_configured(): bool
+    {
+        return !empty($this->get_setting('webhook_id'));
     }
 
     public function get_settings()

@@ -31,6 +31,44 @@
   ],
   "conditions": {
     "clinics": [],
-    "roles": ["patient", "doctor"]
+    "roles": ["kiviCare_patient", "kiviCare_doctor"],
+    "form_conditions": [
+      {
+        "conditions": [
+          {
+            "field": "blood_type",
+            "operator": "!=",
+            "value": "O+"
+          }
+        ],
+        "logic": "OR",
+        "actions": [
+          {
+            "type": "optional",
+            "target": "allergies"
+          },
+          {
+            "type": "show",
+            "target": "medical_history"
+          }
+        ]
+      },
+      {
+        "conditions": [
+          {
+            "field": "allergies",
+            "operator": "is_empty",
+            "value": null
+          }
+        ],
+        "logic": "AND",
+        "actions": [
+          {
+            "type": "show",
+            "target": "medical_history"
+          }
+        ]
+      }
+    ]
   }
 }

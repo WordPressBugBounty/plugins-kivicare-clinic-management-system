@@ -80,7 +80,22 @@ class KCRegisterLogin extends KCShortcodeAbstract
         $show_other_gender = KCOption::get('user_registration_form_setting', 'off');
 
         $enabled_user_roles = array_filter(KCOption::get('user_registration_shortcode_role_setting', []), fn($role) => $role == 'on');
-        
+
+        // Strip receptionist role if the receptionist module is disabled in Configurations
+        $modules_data     = kcGetModules();
+        $module_config    = $modules_data['module_config'] ?? [];
+        $receptionist_on  = false;
+        foreach ($module_config as $mod) {
+            if (($mod['name'] ?? '') === 'receptionist') {
+                $receptionist_on = ($mod['status'] === '1' || $mod['status'] === 1 || $mod['status'] === true);
+                break;
+            }
+        }
+        if (!$receptionist_on) {
+            $receptionist_role = $this->kcbase->getReceptionistRole();
+            unset($enabled_user_roles[$receptionist_role], $enabled_user_roles['receptionist']);
+        }
+
         // If patient_role_only is 'yes', only enable patient role
         if ($atts['patient_role_only'] === 'yes') {
             $enabled_user_roles = ['patient' => 'on'];
@@ -104,6 +119,12 @@ class KCRegisterLogin extends KCShortcodeAbstract
             if (in_array('clinic_admin', $requested_roles) || in_array($this->kcbase->getClinicAdminRole(), $requested_roles)) {
                 $disable_registration = "true";
             }
+        }
+
+        // Re-apply receptionist guard after any userroles override
+        if (!$receptionist_on) {
+            $receptionist_role = $this->kcbase->getReceptionistRole();
+            unset($enabled_user_roles[$receptionist_role], $enabled_user_roles['receptionist']);
         }
         
         // Pre-select clinic if clinic_id attribute is provided

@@ -1565,6 +1565,14 @@ class PatientController extends KCBaseController
                 }
             }
 
+            // Delete custom field data for appointments linked to this patient
+            $appointmentIds = KCAppointment::query()
+                ->where('patient_id', $id)
+                ->select(['id'])
+                ->get()
+                ->pluck('id')
+                ->toArray();
+                
             KCAppointment::query()->where('patient_id', $id)->delete();
 
             // Get encounter IDs for the patient
@@ -1582,11 +1590,70 @@ class PatientController extends KCBaseController
 
             KCPatientEncounter::query()->where('patient_id', $id)->delete();
 
-            // Delete custom field data
+            // Delete custom field data for patient module
             KCCustomFieldData::query()
                 ->where('module_type', '=', 'patient_module')
                 ->where('module_id', '=', $id)
                 ->delete();
+
+            // Delete Pro custom form data for patient module
+            if (class_exists('\KCProApp\models\KCCustomFormData') && class_exists('\KCProApp\models\KCCustomForm')) {
+                $patient_form_ids = \KCProApp\models\KCCustomForm::query()
+                    ->where('module_type', 'patient_module')
+                    ->pluck('id');
+
+                if (!empty($patient_form_ids)) {
+                    \KCProApp\models\KCCustomFormData::query()
+                        ->whereIn('form_id', $patient_form_ids)
+                        ->where('module_id', (int) $id)
+                        ->delete();
+                }
+            }
+
+            if (!empty($appointmentIds)) {
+                // Delete custom field data for appointments
+                KCCustomFieldData::query()
+                    ->where('module_type', 'appointment_module')
+                    ->whereIn('module_id', $appointmentIds)
+                    ->delete();
+
+                // Delete Pro custom form data for appointments
+                if (class_exists('\KCProApp\models\KCCustomFormData') && class_exists('\KCProApp\models\KCCustomForm')) {
+                    $appointment_form_ids = \KCProApp\models\KCCustomForm::query()
+                        ->where('module_type', 'appointment_module')
+                        ->pluck('id');
+
+                    if (!empty($appointment_form_ids)) {
+                        \KCProApp\models\KCCustomFormData::query()
+                            ->whereIn('form_id', $appointment_form_ids)
+                            ->whereIn('module_id', $appointmentIds)
+                            ->delete();
+                    }
+                }
+            }
+
+            // Delete custom field data for patient encounters linked to this patient
+            if (!empty($encounterIds)) {
+                // Delete custom field data for encounters
+                KCCustomFieldData::query()
+                    ->where('module_type', 'patient_encounter_module')
+                    ->whereIn('module_id', $encounterIds)
+                    ->delete();
+
+                // Delete Pro custom form data for encounters
+                if (class_exists('\KCProApp\models\KCCustomFormData') && class_exists('\KCProApp\models\KCCustomForm')) {
+                    $encounter_form_ids = \KCProApp\models\KCCustomForm::query()
+                        ->where('module_type', 'patient_encounter_module')
+                        ->pluck('id');
+
+                    if (!empty($encounter_form_ids)) {
+                        \KCProApp\models\KCCustomFormData::query()
+                            ->whereIn('form_id', $encounter_form_ids)
+                            ->whereIn('module_id', $encounterIds)
+                            ->delete();
+                    }
+                }
+            }
 
             // Hook for patient delete (before actual user deletion)
             do_action('kc_patient_delete', $id);
@@ -1747,6 +1814,23 @@ class PatientController extends KCBaseController
         try {
             $ids = $request->get_param('ids');
 
+            // Fetch form IDs once to be efficient
+            $patient_form_ids = [];
+            $appointment_form_ids = [];
+            $encounter_form_ids = [];
+            $has_custom_form_data_model = class_exists('\KCProApp\models\KCCustomFormData') && class_exists('\KCProApp\models\KCCustomForm');
+            if ($has_custom_form_data_model) {
+                $patient_form_ids = \KCProApp\models\KCCustomForm::query()
+                    ->where('module_type', 'patient_module')
+                    ->pluck('id');
+                $appointment_form_ids = \KCProApp\models\KCCustomForm::query()
+                    ->where('module_type', 'appointment_module')
+                    ->pluck('id');
+                $encounter_form_ids = \KCProApp\models\KCCustomForm::query()
+                    ->where('module_type', 'patient_encounter_module')
+                    ->pluck('id');
+            }
+
             $success_count = 0;
             $failed_count = 0;
             $failed_ids = [];
@@ -1763,12 +1847,97 @@ class PatientController extends KCBaseController
                     continue;
                 }
 
-                // Delete receptionist clinic mappings
-                KCPatientClinicMapping::table('pcm')
-                    ->where('patientId', '=', $id)
+                // Cleanup related data
+                KCMedicalHistory::query()->where('patient_id', $id)->delete();
+                KCMedicalProblem::query()->where('patient_id', $id)->delete();
+                KCPatientClinicMapping::query()->where('patient_id', $id)->delete();
+
+                // Sync deletion to Google Calendar
+                if (function_exists('isKiviCareProActive') && isKiviCareProActive()) {
+                    $appointments = KCAppointment::query()->where('patient_id', $id)->get();
+                    foreach ($appointments as $appointment) {
+                        GoogleCalendarIntegration::getInstance()->deleteAppointmentFromGoogleCalendars($appointment->id);
+                    }
+                }
+
+                // Get appointment IDs for cleanup
+                $appointmentIds = KCAppointment::query()
+                    ->where('patient_id', $id)
+                    ->pluck('id');
+
+                // Delete appointments
+                KCAppointment::query()->where('patient_id', $id)->delete();
+
+                // Get encounter IDs for cleanup
+                $encounterIds = KCPatientEncounter::query()
+                    ->where('patient_id', $id)
+                    ->pluck('id');
+
+                // Delete bills associated with these encounters
+                if (!empty($encounterIds)) {
+                    KCBill::query()->whereIn('encounter_id', $encounterIds)->delete();
+                }
+
+                // Delete encounters
+                KCPatientEncounter::query()->where('patient_id', $id)->delete();
+
+                // Delete Core Custom Field Data
+                KCCustomFieldData::query()
+                    ->where('module_type', '=', 'patient_module')
+                    ->where('module_id', '=', $id)
                     ->delete();
 
-                // Delete the receptionist record
+                if (!empty($appointmentIds)) {
+                    KCCustomFieldData::query()
+                        ->where('module_type', 'appointment_module')
+                        ->whereIn('module_id', $appointmentIds)
+                        ->delete();
+                }
+
+                if (!empty($encounterIds)) {
+                    KCCustomFieldData::query()
+                        ->where('module_type', 'patient_encounter_module')
+                        ->whereIn('module_id', $encounterIds)
+                        ->delete();
+                }
+
+                // Delete Pro Custom Form Data
+                if ($has_custom_form_data_model) {
+                    // Patient module
+                    if (!empty($patient_form_ids)) {
+                        \KCProApp\models\KCCustomFormData::query()
+                            ->whereIn('form_id', $patient_form_ids)
+                            ->where('module_id', (int) $id)
+                            ->delete();
+                    }
+
+                    // Appointment module
+                    if (!empty($appointment_form_ids) && !empty($appointmentIds)) {
+                        \KCProApp\models\KCCustomFormData::query()
+                            ->whereIn('form_id', $appointment_form_ids)
+                            ->whereIn('module_id', $appointmentIds)
+                            ->delete();
+                    }
+
+                    // Encounter module
+                    if (!empty($encounter_form_ids) && !empty($encounterIds)) {
+                        \KCProApp\models\KCCustomFormData::query()
+                            ->whereIn('form_id', $encounter_form_ids)
+                            ->whereIn('module_id', $encounterIds)
+                            ->delete();
+                    }
+                }
+
+                // Hook for patient delete
+                do_action('kc_patient_delete', $id);
+
+                // Delete patient user meta
+                delete_user_meta($id, 'basic_data');
+                delete_user_meta($id, 'first_name');
+                delete_user_meta($id, 'last_name');
+                delete_user_meta($id, 'patient_profile_image');
+
+                // Delete the patient record
                 $result = $patient->delete();
 
                 if (!$result) {
@@ -1781,7 +1950,9 @@ class PatientController extends KCBaseController
                 }
 
                 // Delete WordPress user
-                wp_delete_user($patient->ID);
+                if ($patient->ID) {
+                    wp_delete_user($patient->ID);
+                }
 
                 $success_count++;
             }

@@ -3,7 +3,7 @@
  * Plugin Name: KiviCare - Clinic & Patient Management System (EHR)
  * Plugin URI: https://kivicare.io
  * Description: KiviCare is an impressive clinic and patient management plugin (EHR). It comes with powerful shortcodes for appointment booking and patient registration.
- * Version: 4.3.0
+ * Version: 4.4.0
  * Author: iqonic design
  * Text Domain: kivicare-clinic-management-system
  * Domain Path: /languages
@@ -46,7 +46,7 @@ if (!defined('KIVI_CARE_PREFIX')) {
 }
 
 if (!defined('KIVI_CARE_VERSION')) {
-	define('KIVI_CARE_VERSION', "4.3.0");
+	define('KIVI_CARE_VERSION', "4.4.0");
 }
 
 if (!defined('KIVI_CARE_API_VERSION')) {
@@ -85,10 +85,29 @@ add_action('plugins_loaded', function () {
 			require_once(ABSPATH . 'wp-admin/includes/plugin.php');
 		}
 
+		if (!extension_loaded('mbstring')) {
+			add_action('admin_notices', function () {
+				?>
+				<div class="notice notice-error is-dismissible">
+					<p>
+						<?php
+						printf(
+							wp_kses(
+								__('<strong>KiviCare</strong>: The PHP <strong>mbstring</strong> extension is not enabled on your server. This extension is required for generating PDF files (invoices, appointments, bills, prescriptions, reports, etc.). Please contact your hosting provider to enable it.', 'kivicare-clinic-management-system'),
+								['strong' => []]
+							)
+						);
+						?>
+					</p>
+				</div>
+				<?php
+			});
+		}
+
 		$addons = [
 			'kivicare-pro/kivicare-clinic-management-system-pro.php' => [
 				'name' => 'KiviCare Pro',
-				'version' => '4.3.0',
+				'version' => '4.4.0',
 				'constant' => 'KIVI_CARE_PRO_VERSION'
 			],
 			'kivicare-body-chart-addon/kivicare-body-chart.php' => [
@@ -103,12 +122,12 @@ add_action('plugins_loaded', function () {
 			],
 			'kivicare-razorpay-addon/kivicare-razorpay-addon.php' => [
 				'name' => 'KiviCare Razorpay Addon',
-				'version' => '4.0.0',
+				'version' => '4.0.2',
 				'constant' => 'KIVI_CARE_RAZORPAY_VERSION'
 			],
 			'kivicare-stripe-addon/kivicare-stripepay-addon.php' => [
 				'name' => 'KiviCare Stripe Addon',
-				'version' => '4.0.0',
+				'version' => '4.0.3',
 				'constant' => 'KIVI_CARE_STRIPE_ADDON_VERSION'
 			],
 			'kivicare-telemed-addon/kivicare-telemed-addon.php' => [

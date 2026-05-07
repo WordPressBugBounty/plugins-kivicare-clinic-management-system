@@ -121,7 +121,7 @@ class KCTimeSlotService
         }
 
         // Validate service duration
-        if ($this->serviceDurationSum <= 0) {
+        if ($this->serviceDurationSum < 0) {
             throw new Exception("Invalid service duration provided");
         }
 

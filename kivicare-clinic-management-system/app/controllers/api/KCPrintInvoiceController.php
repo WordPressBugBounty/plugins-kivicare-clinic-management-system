@@ -13,8 +13,7 @@ use App\models\KCPatientEncounter;
 use App\models\KCBill;
 use WP_REST_Request;
 use WP_REST_Response;
-use Dompdf\Dompdf;
-use Dompdf\Options;
+use App\utils\KCPdfGenerator;
 
 defined('ABSPATH') or die('Something went wrong');
 
@@ -63,8 +62,9 @@ class KCPrintInvoiceController extends KCBaseController
 
             $appointment_data = $this->prepare_printable_appointment($appointment);
             $html = $this->render_print_template($appointment_data);
-            $this->output_pdf($html, $appointment_id);
-            exit;
+            $filename = 'invoice_' . $appointment_id . '_' . current_time('timestamp') . '.pdf';
+            
+            return KCPdfGenerator::generate($html, $filename);
 
         } catch (\Exception $e) {
             return $this->response(
@@ -75,38 +75,7 @@ class KCPrintInvoiceController extends KCBaseController
         }
     }
 
-    private function output_pdf($html, $appointment_id): void
-    {
-        $options = new Options();
-        $options->set('isHtml5ParserEnabled', true);
-        $options->set('isPhpEnabled', false);
-        $options->set('isRemoteEnabled', true);
 
-        $temp_dir = sys_get_temp_dir() . '/dompdf-cache';
-        if (!is_dir($temp_dir)) {
-            wp_mkdir_p($temp_dir);
-        }
-
-        $options->set('fontDir', $temp_dir);
-        $options->set('fontCache', $temp_dir);
-        $options->set('tempDir', $temp_dir);
-
-        $dompdf = new Dompdf($options);
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-
-        $filename = 'invoice_' . $appointment_id . '_' . current_time('timestamp') . '.pdf';
-
-        header('Content-Type: application/pdf');
-        header('Content-Disposition: inline; filename="' . $filename . '"');
-        header('Cache-Control: public, must-revalidate, max-age=0');
-        header('Pragma: public');
-        header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
-        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-
-        echo $dompdf->output(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-    }
 
     private function prepare_printable_appointment(KCAppointment $appointment): array
     {
@@ -201,6 +170,7 @@ class KCPrintInvoiceController extends KCBaseController
             'doctor' => $doctor ? [
                 'name' => $doctor->display_name,
                 'signature' => $doctor->getMeta('doctor_signature'),
+                'email' => $doctor->user_email,
                 'specialization' => $doctor_meta && !empty($doctor_meta['specialties']) ? $doctor_meta['specialties'][0]['label'] : '',
             ] : null,
             'clinic' => $clinic ? [

@@ -1076,8 +1076,8 @@ class ReceptionistsController extends KCBaseController
                     'last_name' => $receptionist->last_name,
                     'display_name' => $receptionist->display_name,
                     'email' => $receptionist->email,
-                    'receptionist_image_url' => wp_get_attachment_url($attachmentId),
-                    'receptionist_image_id' => $attachmentId,
+                    'receptionist_image_url' => wp_get_attachment_url($receptionist->profile_image_id),
+                    'receptionist_image_id' => $receptionist->profile_image_id,
                     'clinic' => array(
                         'clinic_id' => $receptionist->clinic_id,
                         'clinic_name' => $receptionist->clinic_name,

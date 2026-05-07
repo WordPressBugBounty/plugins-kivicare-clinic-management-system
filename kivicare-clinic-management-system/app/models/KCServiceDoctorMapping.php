@@ -10,6 +10,20 @@ defined('ABSPATH') or die('Something went wrong');
 class KCServiceDoctorMapping extends KCBaseModel
 {
     /**
+     * Override magic getter to handle JSON decoding for specific properties
+     */
+    public function __get(string $property)
+    {
+        $value = parent::__get($property);
+
+        if (in_array($property, ['category_data']) && is_string($value)) {
+            return json_decode($value, true);
+        }
+
+        return $value;
+    }
+
+    /**
      * Initialize the schema with validation rules
      */
     protected static function initSchema(): array{
@@ -98,6 +112,13 @@ class KCServiceDoctorMapping extends KCBaseModel
                     'nullable' => true,
                     'sanitizers' => ['intval'],
                 ],
+                'isPublic' => [
+                    'column' => 'is_public',
+                    'type' => 'int',
+                    'nullable' => true,
+                    'default' => 1,
+                    'sanitizers' => ['intval'],
+                ],
             ],
             'timestamps' => false, // We'll handle created_at manually
             'soft_deletes' => false,
@@ -175,6 +196,11 @@ class KCServiceDoctorMapping extends KCBaseModel
             $query->where('s.type', '=', $args['service_type']);
         }
         
+        // Filter by public status if provided
+        if (isset($args['is_public'])) {
+            $query->where('sdm.is_public', '=', $args['is_public']);
+        }
+        
         // Filter telemed services if requested
         if (isset($args['telemed_only'])) {
             if ($args['telemed_only'] === true) {
@@ -214,7 +240,7 @@ class KCServiceDoctorMapping extends KCBaseModel
      * @param bool $telemedOnly Whether to return only telemed services
      * @return Collection Collection of active services
      */
-    public static function getActiveDoctorServices($doctorIds, int $clinicId, bool|null $telemedOnly = null): Collection
+    public static function getActiveDoctorServices($doctorIds, int $clinicId, bool|null $telemedOnly = null, int|null $isPublic = null): Collection
     {
         $args = [
             'clinic_id' => $clinicId,
@@ -229,6 +255,10 @@ class KCServiceDoctorMapping extends KCBaseModel
         
         if (!is_null($telemedOnly)) {
             $args['telemed_only'] = $telemedOnly;
+        }
+
+        if (!is_null($isPublic)) {
+            $args['is_public'] = $isPublic;
         }
         
         return self::getServices($args);

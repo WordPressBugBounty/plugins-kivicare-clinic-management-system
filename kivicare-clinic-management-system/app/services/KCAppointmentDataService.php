@@ -178,42 +178,37 @@ class KCAppointmentDataService
         $doctorSessions = self::getDoctorSessions($doctorId, $clinicId, $date);
         $sessions = $doctorSessions;
         
+        $durationSum = $serviceDurationSum > 0 ? $serviceDurationSum : ($sessions[0]->timeSlot ?? 10);
+
         // PRIORITY: Check for service sessions first (if service mapping exists)
-        $serviceId = $requestData['service_id'];
-        if ($serviceId) {
-            // Get service-doctor-clinic mapping
-            $mappings = KCServiceDoctorMapping::query()
-                ->where('doctor_id', $doctorId)
-                ->where('clinic_id', $clinicId)
-                ->whereIn('service_id', is_array($serviceId) ? $serviceId : [$serviceId])
-                ->get();
+        // Note: $serviceId already contains mapping IDs (e.g., [8, 10]), not base service IDs
+        $serviceMappingIds = $requestData['service_id'];
 
-            if (count($mappings) > 0) {
-                $serviceSessions = [];
-                $mapping_ids = [];
-                
-                foreach ($mappings as $mapping) {
-                    $mapping_ids[] = $mapping->id;
-                    $serviceSessionResult = self::getServiceSessions($mapping->id, $date, $doctorId);
-                    $serviceSessionArray = is_array($serviceSessionResult) ? $serviceSessionResult : ($serviceSessionResult ? $serviceSessionResult->toArray() : []);
-                    $serviceSessions = array_merge($serviceSessions, $serviceSessionArray);
-                }
+        if ($serviceMappingIds) {
+            // $serviceMappingIds are already the mapping IDs, use them directly
+            $mappingIds = is_array($serviceMappingIds) ? $serviceMappingIds : [$serviceMappingIds];
+            $serviceSessions = [];
+            
+            foreach ($mappingIds as $mappingId) {
+                $serviceSessionResult = self::getServiceSessions($mappingId, $date, $doctorId);
+                $serviceSessionArray = is_array($serviceSessionResult) ? $serviceSessionResult : ($serviceSessionResult ? $serviceSessionResult->toArray() : []);
+                $serviceSessions = array_merge($serviceSessions, $serviceSessionArray);
+            }
 
-                // Check if they have ANY session defined across ANY day (for strict mode check)
-                $hasAnyServiceSessionAtAll = false;
-                if (!empty($mapping_ids) && class_exists('KCProApp\\models\\KCServiceSession')) {
-                    $serviceSessionClass = 'KCProApp\\models\\KCServiceSession';
-                    $hasAnyServiceSessionAtAll = $serviceSessionClass::query()->whereIn('mapping_id', $mapping_ids)->count() > 0;
-                }
+            // Check if they have ANY session defined across ANY day (for strict mode check)
+            $hasAnyServiceSessionAtAll = false;
+            if (!empty($mappingIds) && class_exists('KCProApp\\models\\KCServiceSession')) {
+                $serviceSessionClass = 'KCProApp\\models\\KCServiceSession';
+                $hasAnyServiceSessionAtAll = $serviceSessionClass::query()->whereIn('mapping_id', $mappingIds)->count() > 0;
+            }
 
-                if (!empty($serviceSessions)) {
-                    // Service sessions exist for THIS day, use them instead of doctor sessions
-                    $sessions = $serviceSessions;
-                } else if ($strict_service_session === 'on' && $hasAnyServiceSessionAtAll) {
-                    // Strict mode: they have service sessions globally, but none for THIS day.
-                    // Wipe doctor sessions so no slots are generated.
-                    $sessions = [];
-                }
+            if (!empty($serviceSessions)) {
+                // Service sessions exist for THIS day, use them instead of doctor sessions
+                $sessions = $serviceSessions;
+            } else if ($strict_service_session === 'on' && $hasAnyServiceSessionAtAll) {
+                // Strict mode: they have service sessions globally, but none for THIS day.
+                // Wipe doctor sessions so no slots are generated.
+                $sessions = [];
             }
         }
 
@@ -280,12 +275,12 @@ class KCAppointmentDataService
 
         // 3. Inject External Busy Slots (e.g., Google Calendar via Pro plugin)
         $appointments = self::injectExternalBusySlots($doctorId, $date, $appointments);
-
+        
         return [
             'date' => $date,
             'doctor_id' => $doctorId,
             'clinic_id' => $clinicId,
-            'service_duration_sum' =>  $serviceDurationSum > 0 ? $serviceDurationSum : ($sessions[0]->timeSlot ?? 10),
+            'service_duration_sum' => $durationSum,
             'sessions' => $sessions,
             'appointments' => $appointments,
             'appointment_id' => $appointmentIdToSkip,
@@ -355,7 +350,7 @@ class KCAppointmentDataService
             ->where('doctor_id', $doctorId)
             ->where('clinic_id', $clinicId)
             ->get();
-
+  
         // 4. Fetch service sessions if service ID provided (Pro addon)
         $serviceSessions = apply_filters('kc_fetch_service_sessions', collect([]), $serviceId, $doctorId, $clinicId);
 
@@ -518,12 +513,13 @@ class KCAppointmentDataService
         // Use pre-fetched slots from cache if available to avoid network requests
         $dayAppointments = self::injectExternalBusySlots($doctorId, $date, $dayAppointments, $cachedData['external_busy_slots'] ?? null);
         $serviceDurationSum = self::getServiceDurationSum($requestData['service_id'], $doctorId, $clinicId);
-
+        $durationSum = $serviceDurationSum > 0 ? $serviceDurationSum : ($cachedData['sessions'][0]->timeSlot ?? 10);
+        
         return [
             'date' => $date,
             'doctor_id' => $doctorId,
             'clinic_id' => $clinicId,
-            'service_duration_sum' =>  $serviceDurationSum > 0 ? $serviceDurationSum : ($sessions[0]->timeSlot ?? 10),
+            'service_duration_sum' => $durationSum,
             'sessions' => $sessions,
             'appointments' => $dayAppointments,
             'external_busy_slots' => $cachedData['external_busy_slots'] ?? [],

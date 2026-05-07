@@ -48,6 +48,7 @@ $admin_sidebar_group_headers = [
     _x('Financial', 'admin', 'kivicare-clinic-management-system'),
     _x('Settings', 'admin', 'kivicare-clinic-management-system'),
     _x('Support', 'admin', 'kivicare-clinic-management-system'),
+    _x('System', 'admin', 'kivicare-clinic-management-system')
 ];
 
 // Clinic Admin Group Headers
@@ -103,6 +104,8 @@ $admin_sidebar_labels = [
     _x('Get help', 'admin', 'kivicare-clinic-management-system'),
     _x('Get Pro', 'admin', 'kivicare-clinic-management-system'),
     _x('Request Features', 'admin', 'kivicare-clinic-management-system'),
+    // fix: added missing sidebar labels for translation
+    _x('Activity Logs', 'admin', 'kivicare-clinic-management-system'),
 ];
 
 $clinic_admin_sidebar_labels = [

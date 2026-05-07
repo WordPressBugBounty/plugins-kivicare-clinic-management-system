@@ -39,6 +39,40 @@
   "conditions": {
     "show_mode": [{"id": "encounter"}],
     "clinics": [],
-    "roles": ["doctor"]
+    "roles": ["kiviCare_doctor"],
+    "form_conditions": [
+      {
+        "conditions": [
+          {
+            "field": "follow_up",
+            "operator": ">",
+            "value": "2024-01-01"
+          }
+        ],
+        "logic": "AND",
+        "actions": [
+          {
+            "type": "required",
+            "target": "diagnosis"
+          }
+        ]
+      },
+      {
+        "conditions": [
+          {
+            "field": "follow_up",
+            "operator": "<",
+            "value": "2025-01-01"
+          }
+        ],
+        "logic": "AND",
+        "actions": [
+          {
+            "type": "disable",
+            "target": "prescription_needed"
+          }
+        ]
+      }
+    ]
   }
 }

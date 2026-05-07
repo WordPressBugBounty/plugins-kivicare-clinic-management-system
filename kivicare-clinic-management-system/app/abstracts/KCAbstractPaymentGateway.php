@@ -72,6 +72,16 @@ abstract class KCAbstractPaymentGateway {
      * @return array Response data
      */
     abstract public function handle_payment_callback($callback_data);
+
+    /**
+     * Handle incoming webhook from payment provider.
+     * Implementations MUST verify the payload signature before processing.
+     *
+     * @param string $raw_payload Raw request body (needed for HMAC verification)
+     * @param array  $headers     Associative array of HTTP request headers
+     * @return array{status: string, message: string, data: array} Normalised response
+     */
+    abstract public function handle_webhook(string $raw_payload, array $headers): array;
     
     /**
      * Get gateway ID
@@ -191,8 +201,26 @@ abstract class KCAbstractPaymentGateway {
     protected function get_cancel_url($appointment_id) {
         return rest_url('kivicare/v1/appointments/payment-cancel?appointment_id=' . $appointment_id . '&gateway='.$this->gateway_id);
     }
+
+    /**
+     * Get the public webhook URL for this gateway.
+     * Exposes: wp-json/kivicare/v1/appointments/payment-webhook?gateway={gateway_id}
+     *
+     * @return string
+     */
+    public function get_webhook_url(): string {
+        return rest_url('kivicare/v1/appointments/payment-webhook?gateway=' . $this->gateway_id);
+    }
     
     public function init_hook(){} 
+    
+    /**
+     * Check if the gateway has a webhook configured and ready.
+     * @return bool
+     */
+    public function is_webhook_configured(): bool {
+        return false;
+    }
 
     public function get_fields(): array {
         return $this->settings_fields;

@@ -1015,7 +1015,7 @@ class DoctorListWidget extends KCElementorWidgetAbstract
 
                 // Get services from database
                 // fix: use ->values() before ->toArray() to ensure service data maintains standard indexed arrays
-                $services = KCServiceDoctorMapping::getActiveDoctorServices($doctorId, (int) $clinic_id)
+                $services = KCServiceDoctorMapping::getActiveDoctorServices($doctorId, (int) $clinic_id, null, 1)
                     ->pluck('service_name')
                     ->values()
                     ->toArray();

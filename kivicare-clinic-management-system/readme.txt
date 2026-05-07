@@ -3,8 +3,8 @@ Contributors: iqonicdesign
 Tags: clinic management, patient management, doctor management, appointment management, clinic management solution
 Requires PHP: 8.0 
 Requires at least: 3.0.1
-Tested up to: 6.9.1
-Stable tag: 4.3.0
+Tested up to: 6.9.4
+Stable tag: 4.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,7 +23,7 @@ After 3+ years of development and refinement, KiviCare now features a completely
 ###  [DEMO](https://demo.kivicare.io/?utm_source=wordpressorg&utm_medium=wordpressorg-demo) | [PRO](https://kivicare.io/product/doctor-patient-clinic-appointment-plugin-wordpress/?utm_source=wordpressorg&utm_medium=wordpressorg-pro) | [WP Theme](https://kivicare.io/product/clinic-management-wordpress-theme-and-plugin/?utm_source=wordpressorg&utm_medium=wordpressorg-theme) | [Zoom Telemed](https://kivicare.io/product/zoom-and-google-meet-telemedicine-addons/?utm_source=wordpressorg&utm_medium=wordpressorg-telemed) | [Google Meet Telemed](https://kivicare.io/product/zoom-and-google-meet-telemedicine-addons/?utm_source=wordpressorg&utm_medium=wordpressorg-telemed) | [Mobile App](https://kivicare.io/product/ehr-management-flutter-mobile-app/?utm_source=wordpressorg&utm_medium=wordpressorg-app) | [Docs](https://documentation.iqonic.design/kivicare-wordpress?utm_source=wordpressorg&utm_medium=wordpressorg-docs)
 
 
-**A WordPress plugin that doesn't feel like one.**  
+**A WordPress plugin that doesn't feel like one.**
 
 ---
 
@@ -217,6 +217,24 @@ Free version support is available through our comprehensive Documentation and Vi
 We'd love to hear from you! Contact us at hello@iqonic.design or submit a feature request through our website.
 
 == Changelog ==
+
+= Version 4.4.0 – 07 May 2026
+
+### 🚀 New Features
+- [New] Integrated Webhook for PayPal payment gateway.
+- [New] Added option to set service as Private or Public during service creation.
+- [New] Added encounter medical report settings to enable or disable reports for encounters via settings.
+- [New] Enabled clinic admin modification in the Edit Clinic module.
+
+### 🔧 Fixes & Improvements
+- [Fixed] Appointment Shortcode: Automatically skips clinic selection when only one clinic is available and ensures all available services are displayed correctly.
+- [Fixed] Encounter Template: Resolved list visibility issues when permissions are restricted, added option to hide reports, improved UI consistency with global theme support, and fixed various translation issues.
+- [Fixed] Date Format: Resolved consistency issues for site-wide custom date formats and fixed appointment slot date display.
+- [Fixed] Doctor Sessions: Resolved session handling issues for doctors associated with multiple clinics.
+- [Fixed] Service Management: New services created during encounter closure are now visible in the service list.
+- [Fixed] Clinic Selection: Automatically select clinic when only the default clinic is available, preventing redundant selection steps.
+- [Fixed] Resolved multiple translation issues for better localization.
+
 
 = Version 4.3.0 – 13 Apr 2026
 

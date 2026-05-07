@@ -90,7 +90,7 @@ class MigrateAppointmentsToUTC extends KCAbstractMigration {
 
         // Get WordPress timezone
         $wp_timezone_string = wp_timezone_string();
-        if (empty($wp_timezone_string) || !in_array($wp_timezone_string, timezone_identifiers_list())) {
+        if (empty($wp_timezone_string) || !in_array($wp_timezone_string, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
             $wp_timezone_string = 'UTC';
             $this->log("WARNING: Invalid WordPress timezone, using UTC as fallback");
         }

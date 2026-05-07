@@ -22,9 +22,11 @@ use App\models\KCUserMeta;
 use App\models\KCUser;
 use App\models\KCPatientMedicalReport;
 use App\services\KCAppointmentDataService;
+use App\services\KCAppointmentPaymentService;
 use App\services\KCTimeSlotService;
 use App\controllers\api\SettingsController\AppointmentSetting;
 use App\models\KCCustomFieldData;
+use App\models\KCMedicalHistory;
 use DateInterval;
 use DateTime;
 use Exception;
@@ -499,7 +501,8 @@ class AppointmentsController extends KCBaseController
                     'type' => 'string',
                     'sanitize_callback' => 'sanitize_text_field',
                 ]
-            ]
+                ],
+            'encryption'          => false,
         ]);
 
         // Payment failure/cancel callback
@@ -528,7 +531,8 @@ class AppointmentsController extends KCBaseController
                     'type' => 'string',
                     'sanitize_callback' => 'sanitize_text_field',
                 ]
-            ]
+            ],
+            'encryption'          => false,
         ]);
 
         // Payment verification endpoint
@@ -564,7 +568,24 @@ class AppointmentsController extends KCBaseController
                     'required' => false,
                     'sanitize_callback' => 'sanitize_text_field',
                 ]
-            ]
+            ],
+            'encryption'          => false,
+        ]);
+
+        // Universal payment webhook endpoint - called directly by payment providers
+        $this->registerRoute('/' . $this->route . '/payment-webhook', [
+            'methods'             => 'POST',
+            'callback'            => [$this, 'handlePaymentWebhook'],
+            'permission_callback' => '__return_true', // Must be public; signature verified inside gateway
+            'args'                => [
+                'gateway' => [
+                    'description'       => 'Gateway identifier (e.g. paypal)',
+                    'type'              => 'string',
+                    'required'          => true,
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+            ],
+            'encryption'          => false,
         ]);
 
         // Regenerate video conference link
@@ -736,8 +757,7 @@ class AppointmentsController extends KCBaseController
         }
 
         // If it's a valid timezone identifier, return as is
-                if (in_array($timezone, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
-
+        if (in_array($timezone, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC))) {
             return $timezone;
         }
 
@@ -814,7 +834,7 @@ class AppointmentsController extends KCBaseController
                 'validate_callback' => function ($param) {
                     $formatted = $this->formatTimezoneString($param);
                     // Either a valid identifier or a strictly formatted offset ±HH:MM
-                    return in_array($formatted, timezone_identifiers_list()) || preg_match('/^[+-][0-9]{2}:[0-9]{2}$/', $formatted);
+                    return in_array($formatted, timezone_identifiers_list(\DateTimeZone::ALL_WITH_BC)) || preg_match('/^[+-][0-9]{2}:[0-9]{2}$/', $formatted);
                 },
                 'sanitize_callback' => 'sanitize_text_field',
             ],
@@ -2714,6 +2734,10 @@ class AppointmentsController extends KCBaseController
                 ->where('a.id', '=', $id)
                 ->first();
 
+            if (empty($appointment)) {
+                return $this->response(null, __('Appointment not found', 'kivicare-clinic-management-system'), false, 404);
+            }
+
             $encounter = KCPatientEncounter::table('pe')
                 ->select([
                     'pe.id',
@@ -3683,8 +3707,39 @@ class AppointmentsController extends KCBaseController
             return $this->response(null, __('appointment not found', 'kivicare-clinic-management-system'), false, 404);
         }
 
+        $encounter = KCPatientEncounter::query()->where('appointmentId', $id)->first();
+        $encounterId = $encounter ? $encounter->id : null;
+
         KCAppointmentServiceMapping::query()->where('appointment_id', $id)->delete();
-        KCPatientEncounter::query()->where('appointment_id', $id)->delete();
+
+        if ($encounterId) {
+            // Delete custom field data for patient encounter
+            KCCustomFieldData::query()
+                ->where('module_type', 'patient_encounter_module')
+                ->where('module_id', $encounterId)
+                ->delete();
+
+            // Delete Pro custom form data
+            if (class_exists('\KCProApp\models\KCCustomFormData') && class_exists('\KCProApp\models\KCCustomForm')) {
+                $encounter_form_ids = \KCProApp\models\KCCustomForm::query()
+                    ->where('module_type', 'patient_encounter_module')
+                    ->pluck('id');
+
+                if (!empty($encounter_form_ids)) {
+                    \KCProApp\models\KCCustomFormData::query()
+                        ->whereIn('form_id', $encounter_form_ids)
+                        ->where('module_id', (int) $encounterId)
+                        ->delete();
+                }
+            }
+
+            // Delete related medical history
+            KCMedicalHistory::query()->where('encounterId', $encounterId)->delete();
+
+            // Delete encounter
+            $encounter->delete();
+        }
+
         
         if ($bill) {
             KCBillItem::query()->where('bill_id', $bill->id)->delete();
@@ -3698,6 +3753,20 @@ class AppointmentsController extends KCBaseController
             ->where('module_type', 'appointment_module')
             ->where('module_id', $id)
             ->delete();
+
+        // Delete Pro custom form data
+        if (class_exists('\KCProApp\models\KCCustomFormData') && class_exists('\KCProApp\models\KCCustomForm')) {
+            $appointment_form_ids = \KCProApp\models\KCCustomForm::query()
+                ->where('module_type', 'appointment_module')
+                ->pluck('id');
+
+            if (!empty($appointment_form_ids)) {
+                \KCProApp\models\KCCustomFormData::query()
+                    ->whereIn('form_id', $appointment_form_ids)
+                    ->where('module_id', (int) $id)
+                    ->delete();
+            }
+        }
 
 
         if ($telemed_provider = KCTelemedFactory::get_provider_by_doctor_id($appointment->doctorId)) {
@@ -3826,201 +3895,117 @@ class AppointmentsController extends KCBaseController
             'Appointment status updated successfully'
         );
     }
-
-
     /**
      * Handle payment success callback
-     * 
-     * @param \WP_REST_Request $request
-     * @return \WP_REST_Response
      */
     public function handlePaymentSuccess(WP_REST_Request $request): WP_REST_Response
     {
         global $wpdb;
 
+        $params        = $request->get_params();
+        $appointmentId = $params['appointment_id'] ?? null;
+        $gateway       = $params['gateway'] ?? null;
+        $payment_id    = $params['paymentId'] ?? '';
+
         try {
-            $wpdb->query('START TRANSACTION');
 
-            $params = $request->get_params();
-            $appointmentId = $params['appointment_id'];
-            $gateway = $params['gateway'];
-            $payment_id = $params['payment_id'] ?? '';
+            if (empty($appointmentId) || empty($gateway)) {
+                throw new Exception('Missing required parameters');
+            }
 
-            // Find the appointment
+            // Validate appointment
             $appointment = KCAppointment::find($appointmentId);
             if (!$appointment) {
-                return $this->response(
-                    ['error' => 'Appointment not found'],
-                    __('Appointment not found', 'kivicare-clinic-management-system'),
-                    false,
-                    404
-                );
+                throw new Exception('Appointment not found');
             }
 
-            // Get the payment gateway instance
+            // Validate gateway
             $paymentGateway = KCPaymentGatewayFactory::get_available_gateway($gateway);
             if (!$paymentGateway) {
-                return $this->response(
-                    ['error' => 'Payment gateway not found'],
-                    __('Payment gateway not found', 'kivicare-clinic-management-system'),
-                    false,
-                    404
+                throw new Exception('Payment gateway not found');
+            }
+
+            // ⚠️ External call OUTSIDE transaction
+            $paymentResult = $paymentGateway->handle_payment_callback($params);
+
+            if (empty($paymentResult) || $paymentResult['status'] === 'failed') {
+                throw new Exception($paymentResult['message'] ?? 'Payment failed');
+            }
+
+            // DB operations inside transaction
+            $wpdb->query('START TRANSACTION');
+
+            if (!$paymentGateway->is_webhook_configured()) {
+                KCAppointmentPaymentService::confirmPayment(
+                    $appointmentId,
+                    $gateway,
+                    array_merge($paymentResult['data'] ?? [], [
+                        'payment_id' => $payment_id
+                    ])
                 );
             }
-
-            // Process the payment callback
-            $paymentResult = $paymentGateway->handle_payment_callback($params);
-            if ($paymentResult['status'] === "failed") {
-                throw new Exception($paymentResult['message'], 1);
-            }
-
-            // Update appointment status to confirmed
-            KCAppointment::find($appointmentId)->update([
-                'status' => 1 // Confirmed status
-            ]);
-
-            // update payment mapping
-            $paymentData = [
-                'paymentMode' => $gateway,
-                'paymentStatus' => 'completed',
-                'transactionId' => $paymentResult['data']['transaction_id'] ?? null,
-                'paymentId' => $payment_id,
-                'updatedAt' => current_time('mysql')
-            ];
-
-            // Check if payment mapping already exists
-            $existingPayment = KCPaymentsAppointmentMapping::query()->where('appointment_id', $appointmentId)->first();
-
-            if ($existingPayment) {
-                $existingPayment->update($paymentData);
-            } else {
-                $paymentData['appointmentId'] = $appointmentId;
-                $paymentData['createdAt'] = current_time('mysql');
-                $existingPayment = KCPaymentsAppointmentMapping::create($paymentData);
-            }
-
-            $telemed_services = KCAppointmentServiceMapping::table('asm')
-                ->select(['sdm.*', 'asm.*'])
-                ->leftJoin(KCService::class, 'asm.service_id', '=', 's.id', 's')
-                ->leftJoin(KCServiceDoctorMapping::class, 'sdm.service_id', '=', 's.id', 'sdm')
-                ->where('appointment_id', $appointmentId)
-                ->where('sdm.telemed_service', '=', 'yes')
-                ->where('sdm.clinic_id', '=', $appointment->clinicId)
-                ->get();
-
-
-            if ($telemed_services->count() > 0) {
-
-                $telemedProvider = KCTelemedFactory::get_provider_by_doctor_id($appointment->doctorId);
-
-                $appointment_start_str = $appointment->appointmentStartDate . ' ' . $appointment->appointmentStartTime;
-                $start_dt = new \DateTime($appointment->appointmentStartTime);
-                $end_dt   = new \DateTime($appointment->appointmentEndTime);
-                $duration_minutes = max(($end_dt->getTimestamp() - $start_dt->getTimestamp()) / 60, 30);
-
-                $is_meeting_link = $telemedProvider?->create_meeting(array(
-                    'topic' => $telemed_services->map(fn($service) => $service->name)->join(', ') ?? 'Telemed Service',
-                    'type' => 'scheduled',
-                    'start_time' => $appointment_start_str,
-                    'duration' => $duration_minutes,
-                    'timezone' => wp_timezone_string(),
-                    'password' => '',
-                    'waiting_room' => false,
-                    'auto_recording' => false,
-                    'host_video' => true,
-                    'participant_video' => true,
-                    'mute_upon_entry' => true,
-                    'patient_id' => $appointment->patientId,
-                    'doctor_id' => $appointment->doctorId,
-                    'appointment_id' => $appointmentId
-                ));
-            }
-
-
-            // Trigger payment success hook
-            do_action('kc_appointment_payment_completed', $appointmentId, $paymentResult['data']);
 
             $wpdb->query('COMMIT');
 
-            // After commit, sync to Google Calendar (non-transactional)
-            if (function_exists('isKiviCareProActive') && isKiviCareProActive()) {
-                // Reload appointment to get latest confirmed status
-                $confirmedAppointment = KCAppointment::find($appointmentId);
-                if ($confirmedAppointment) {
-                    $this->syncAppointmentToGoogleCalendars($appointmentId, $confirmedAppointment->toArray(), 1);
-                }
-            }
+            // Build redirect
+            $redirectUrl = $this->resolveRedirectUrl($appointmentId, $paymentGateway);
 
-            // Redirect to success page or return success response
-            $redirectUrl = home_url('/appointment-success/?appointment_id=' . $appointmentId);
-            $page_id = json_decode($existingPayment->extra ?? '{}', true)['is_from_frontend'];
+            $responseUrl = add_query_arg([
+                'payment_status' => 'completed',
+                'payment_id'     => $payment_id,
+                'message'        => __('Payment completed successfully', 'kivicare-clinic-management-system'),
+                'appointment_id' => $appointmentId
+            ], $redirectUrl);
 
-            if ($page_id !== false) {
-                if (is_numeric($page_id)) {
-                    $redirectUrl = get_permalink($page_id);
-                } else {
-                    $redirectUrl = $page_id;
-                }
-            }
             if ($request->get_method() === 'POST') {
                 return $this->response([
                     'status' => 'success',
                     'message' => __('Payment completed successfully', 'kivicare-clinic-management-system'),
                     'data' => [
                         'appointment_id' => $appointmentId,
-                        'payment_id' => $payment_id,
+                        'payment_id'     => $payment_id,
                     ],
-                    'redirect_url' => add_query_arg([
-                        'payment_status' => 'completed',
-                        'payment_id' => $payment_id,
-                        'message' => __('Payment completed successfully', 'kivicare-clinic-management-system')
-                    ], $page_id !== false && is_numeric($page_id) ? $redirectUrl : $redirectUrl . '/appointments/view/' . $appointmentId)
+                    'redirect_url' => $responseUrl
                 ]);
             }
-            wp_safe_redirect(add_query_arg([
-                'payment_status' => 'completed',
-                'payment_id' => $payment_id,
-                'message' => 'Payment completed successfully'
-            ], $page_id !== false && is_numeric($page_id) ? $redirectUrl : $redirectUrl . '/appointments/view/' . $appointmentId));
+
+            wp_safe_redirect($responseUrl);
             exit;
+
         } catch (\Exception $e) {
+
             $wpdb->query('ROLLBACK');
-            
-            $appointmentId = $request->get_param('appointment_id');
-            
-            // Cancel the appointment when payment is not successful
-            if ($appointmentId) {
-                $apptQuery = KCAppointment::query()->where('id', $appointmentId)->first();
-                if ($apptQuery) {
-                    $apptQuery->update(['status' => 0]);
+
+            // Fail-safe appointment update
+            if (!empty($appointmentId)) {
+                $appt = KCAppointment::query()->where('id', $appointmentId)->first();
+                if ($appt) {
+                    $appt->update(['status' => 0]);
                 }
             }
 
-            // Check if payment mapping already exists
-            $existingPayment = KCPaymentsAppointmentMapping::query()->where('appointment_id', $appointmentId)->first();
-            
+            // Update payment mapping
+            $existingPayment = KCPaymentsAppointmentMapping::query()
+                ->where('appointment_id', $appointmentId)
+                ->first();
+
             if ($existingPayment) {
                 $existingPayment->update(['paymentStatus' => 'cancelled']);
             }
-            
-            if ($appointmentId) {
+
+            if (!empty($appointmentId)) {
                 do_action('kc_appointment_payment_cancelled', $appointmentId);
             }
 
-            // Redirect to success page or return success response
-            $page_id = json_decode($existingPayment->extra ?? '{}', true)['is_from_frontend'];
-            $redirectUrl = home_url(); // Default fallback
+            // Even in failure → reuse SAME redirect logic
+            $paymentGateway = $paymentGateway ?? null;
+            $redirectUrl = $this->resolveRedirectUrl($appointmentId, $paymentGateway);
 
-            if ($page_id !== false) {
-                if (is_numeric($page_id)) {
-                    $redirectUrl = get_permalink($page_id);
-                } else {
-                    $redirectUrl = $page_id;
-                }
-            } else {
-                $user_role = $this->kcbase->getPatientRole();
-                $redirectUrl = kc_get_dashboard_url($user_role);
-            }
+            $responseUrl = add_query_arg([
+                'payment_status' => 'failed',
+                'error' => $e->getMessage(),
+                'appointment_id' => $appointmentId
+            ], $redirectUrl);
 
             if ($request->get_method() === 'POST') {
                 return $this->response([
@@ -4030,21 +4015,42 @@ class AppointmentsController extends KCBaseController
                         'appointment_id' => $appointmentId,
                         'payment_id' => $existingPayment->paymentId ?? null,
                     ],
-                    'redirect_url' => add_query_arg([
-                        'payment_status' => 'failed',
-                        'error' => $e->getMessage(),
-                    ], $page_id !== false && is_numeric($page_id) ? $redirectUrl : $redirectUrl . '/appointments/view/' . $appointmentId)
+                    'redirect_url' => $responseUrl
                 ]);
             }
 
-            wp_safe_redirect(add_query_arg([
-                'payment_status' => 'failed',
-                'error' => $e->getMessage(),
-            ], $page_id !== false && is_numeric($page_id) ? $redirectUrl : $redirectUrl . '/appointments/view/' . $appointmentId));
+            wp_safe_redirect($responseUrl);
             exit;
         }
     }
 
+    private function resolveRedirectUrl($appointmentId, $paymentGateway = null): string
+    {
+        $existingPayment = KCPaymentsAppointmentMapping::query()
+            ->where('appointment_id', $appointmentId)
+            ->first();
+
+        $extra   = json_decode($existingPayment->extra ?? '{}', true);
+        $pageRef = $extra['is_from_frontend'] ?? null;
+
+        // Resolve base URL
+        if (!empty($pageRef)) {
+            $baseUrl = is_numeric($pageRef)
+                ? get_permalink((int) $pageRef)
+                : $pageRef;
+        } else {
+            $user_role = $this->kcbase->getPatientRole();
+            $baseUrl   = kc_get_dashboard_url($user_role);
+        }
+
+        $baseUrl = trailingslashit($baseUrl);
+
+        // If webhook exists → always go to payment-status
+        if ( empty($pageRef) && $paymentGateway && $paymentGateway->is_webhook_configured()) {
+            return $baseUrl . 'payment-status/' . $appointmentId;
+        }
+        return $baseUrl;
+    }
 
     /**
      * Handle payment cancellation/failure callback
@@ -4109,7 +4115,8 @@ class AppointmentsController extends KCBaseController
 
         wp_safe_redirect(add_query_arg([
             'payment_status' => 'cancelled',
-            'message' => __('Payment was cancelled', 'kivicare-clinic-management-system')
+            'message' => __('Payment was cancelled', 'kivicare-clinic-management-system'),
+            'appointment_id' => $appointmentId
         ], $finalUrl));
         exit;
     }
@@ -4226,6 +4233,81 @@ class AppointmentsController extends KCBaseController
                 500
             );
         }
+    }
+
+    /**
+     * Handle incoming webhook from a payment gateway.
+     * Endpoint: POST /wp-json/kivicare/v1/appointments/payment-webhook?gateway={id}
+     *
+     * The raw body is passed to the gateway's handle_webhook() for signature
+     * verification and state updates. Responds HTTP 200 for valid/handled events
+     * so the provider stops retrying.
+     *
+     * @param \WP_REST_Request $request
+     * @return \WP_REST_Response
+     */
+    public function handlePaymentWebhook(WP_REST_Request $request): WP_REST_Response
+    {
+        $gateway_id = sanitize_text_field($request->get_param('gateway') ?? '');
+
+        if (empty($gateway_id)) {
+            return $this->response(
+                ['error' => 'Missing gateway parameter'],
+                __('Missing gateway parameter', 'kivicare-clinic-management-system'),
+                false,
+                400
+            );
+        }
+
+        $gateway = KCPaymentGatewayFactory::get_available_gateway($gateway_id);
+        if (!$gateway) {
+            return $this->response(
+                ['error' => 'Gateway not found'],
+                __('Payment gateway not found', 'kivicare-clinic-management-system'),
+                false,
+                404
+            );
+        }
+
+        // Read raw body — must be done before WP parses it
+        $raw_payload = $request->get_body();
+
+        // Collect all HTTP_* headers from $_SERVER
+        $headers = [];
+        foreach ($_SERVER as $key => $value) {
+            if (strpos($key, 'HTTP_') === 0) {
+                // Convert HTTP_PAYPAL_TRANSMISSION_ID => PAYPAL-TRANSMISSION-ID
+                $header_name = str_replace('_', '-', substr($key, 5));
+                $headers[$header_name] = $value;
+            }
+        }
+
+        $result = $gateway->handle_webhook($raw_payload, $headers);
+
+        // Manage appointment confirmation based on webhook result
+        if ($result['status'] === 'success' && !empty($result['data']['appointment_id'])) {
+            $appointmentId = (int) $result['data']['appointment_id'];
+            $paymentStatus = $result['data']['payment_status'] ?? '';
+
+            if ($paymentStatus === 'completed') {
+                KCAppointmentPaymentService::confirmPayment($appointmentId, $gateway_id, array_merge($result['data'], [
+                    'source' => 'webhook'
+                ]));
+            }
+        }
+
+        KCErrorLogger::instance()->error(
+            "[Webhook] gateway={$gateway_id} status={$result['status']} msg={$result['message']}"
+        );
+
+        // Always return 200 for provider to acknowledge receipt.
+        // Failures are logged; returning 4xx causes providers to retry indefinitely.
+        return $this->response(
+            $result,
+            $result['message'],
+            $result['status'] === 'success',
+            200
+        );
     }
 
     /**
@@ -4667,6 +4749,19 @@ class AppointmentsController extends KCBaseController
         try {
             $ids = $request->get_param('ids');
 
+            // Fetch form IDs once to be efficient
+            $appointment_form_ids = [];
+            $encounter_form_ids = [];
+            $has_custom_form_data_model = class_exists('\KCProApp\models\KCCustomFormData') && class_exists('\KCProApp\models\KCCustomForm');
+            if ($has_custom_form_data_model) {
+                $appointment_form_ids = \KCProApp\models\KCCustomForm::query()
+                    ->where('module_type', 'appointment_module')
+                    ->pluck('id');
+                $encounter_form_ids = \KCProApp\models\KCCustomForm::query()
+                    ->where('module_type', 'patient_encounter_module')
+                    ->pluck('id');
+            }
+
             $success_count = 0;
             $failed_count = 0;
             $failed_ids = [];
@@ -4686,9 +4781,33 @@ class AppointmentsController extends KCBaseController
                 try {
                     // Delete related data
                     $bill = KCBill::query()->where('appointment_id', $id)->first();
+                    
+                    $encounter = KCPatientEncounter::query()->where('appointment_id', $id)->first();
+                    $encounterId = $encounter ? $encounter->id : null;
 
                     KCAppointmentServiceMapping::query()->where('appointment_id', $id)->delete();
-                    KCPatientEncounter::query()->where('appointment_id', $id)->delete();
+
+                    if ($encounterId) {
+                        // Delete custom field data for patient encounter
+                        KCCustomFieldData::query()
+                            ->where('module_type', 'patient_encounter_module')
+                            ->where('module_id', $encounterId)
+                            ->delete();
+
+                        // Delete Pro custom form data
+                        if ($has_custom_form_data_model && !empty($encounter_form_ids)) {
+                            \KCProApp\models\KCCustomFormData::query()
+                                ->whereIn('form_id', $encounter_form_ids)
+                                ->where('module_id', (int) $encounterId)
+                                ->delete();
+                        }
+
+                        // Delete related medical history
+                        KCMedicalHistory::query()->where('encounterId', $encounterId)->delete();
+
+                        // Delete encounter
+                        $encounter->delete();
+                    }
                     
                     KCBill::query()->where('appointment_id', $id)->delete();
                     if ($bill) {
@@ -4702,6 +4821,14 @@ class AppointmentsController extends KCBaseController
                         ->where('module_type', 'appointment_module')
                         ->where('module_id', $id)
                         ->delete();
+
+                    // Delete Pro custom form data
+                    if ($has_custom_form_data_model && !empty($appointment_form_ids)) {
+                        \KCProApp\models\KCCustomFormData::query()
+                            ->whereIn('form_id', $appointment_form_ids)
+                            ->where('module_id', (int) $id)
+                            ->delete();
+                    }
 
 
                     // Cancel telemed meeting if exists

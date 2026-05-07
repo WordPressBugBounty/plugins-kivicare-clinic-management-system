@@ -44,9 +44,9 @@ class KCDoctorControllerFilters
         }
     }
 
-    public function handleDoctorUpdate($doctorId, $request): void
+    public function handleDoctorUpdate($doctorData, $request): void
     {
-        $doctorId = (int) $doctorId;
+        $doctorId = (int) $doctorData['id'];
         if ($doctorId <= 0 || !$request instanceof WP_REST_Request) {
             return;
         }

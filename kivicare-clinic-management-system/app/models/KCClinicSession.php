@@ -244,6 +244,8 @@ class KCClinicSession extends KCBaseModel
                 }
             }
 
+            $parent_id = null; // Track parent ID across all days
+
             // Process each enabled day
             foreach ($enabled_days as $day) {
                 $day_id = sanitize_text_field($day['id']); // e.g., 'monday'
@@ -268,7 +270,7 @@ class KCClinicSession extends KCBaseModel
                         'startTime' => static::formatTimeForDatabase($main_session['start']), // Use helper from your class
                         'endTime' => static::formatTimeForDatabase($main_session['end']),   // Use helper from your class
                         'timeSlot' => $time_slot,
-                        'parentId' => null, // Primary session for the day
+                        'parentId' => $parent_id,
                         'createdAt' => current_time('mysql')
                     ];
 
@@ -280,12 +282,25 @@ class KCClinicSession extends KCBaseModel
                         // Depending on requirements, you might want to throw an exception or continue
                         $day_sessions = $session_id; // Assign error to be caught later
                     } else {
+                        // Track first session ID for consistency across all days
+                        if ($parent_id === null) {
+                            $parent_id = $session_id;
+                        }
+
                         $day_sessions = [array_merge($session_data, ['id' => $session_id, 'type' => 'primary_session'])];
                     }
                 } else {
                     // With Breaks for this day: Create split sessions.
-                    // Pass NULL initially; the first session will become the parent.
-                    $day_sessions = static::createSplitSessions($doctor_id, $clinic_id, $day, $time_slot, null);
+                    // Pass parent_id; the first session will become the parent if it's null
+                    $day_sessions = static::createSplitSessions($doctor_id, $clinic_id, $day, $time_slot, $parent_id);
+
+                    // Update parent_id if it was set in split sessions
+                    if (!empty($day_sessions) && is_array($day_sessions)) {
+                        $first = reset($day_sessions);
+                        if (isset($first['id']) && $parent_id === null) {
+                            $parent_id = $first['id'];
+                        }
+                    }
                 }
 
                 if (is_wp_error($day_sessions)) {
@@ -380,7 +395,7 @@ class KCClinicSession extends KCBaseModel
         // 2. Identify and create session slots between breaks
         $current_start_minutes = $main_start_minutes;
         $first_session_created = false; // Flag to track if the first session is created
-        $parent_session_id_for_day = null; // To store the ID of the first session
+        $parent_session_id_for_day = $parent_session_id; // Use passed-in parent ID or null
 
         foreach ($processed_breaks as $break) {
             // Create session before the current break (if there's time)
@@ -392,7 +407,7 @@ class KCClinicSession extends KCBaseModel
                     'startTime' => static::formatTimeForDatabase(static::minutesToTime($current_start_minutes)),
                     'endTime' => static::formatTimeForDatabase(static::minutesToTime($break['start'])),
                     'timeSlot' => $time_slot,
-                    'parentId' => $parent_session_id_for_day, // Use the first session's ID as parent
+                    'parentId' => $parent_session_id_for_day, // Use the passed-in or first session's ID as parent
                     'createdAt' => current_time('mysql')
                 ];
 
@@ -400,8 +415,8 @@ class KCClinicSession extends KCBaseModel
                 if (!is_wp_error($session_id)) {
                     $sessions[] = array_merge($session_data, ['id' => $session_id, 'type' => 'split_session']);
 
-                    // Set the parent ID for subsequent sessions if this is the first session
-                    if (!$first_session_created) {
+                    // Only create a new parent ID if one wasn't passed in (for first day)
+                    if (!$first_session_created && $parent_session_id === null) {
                         $parent_session_id_for_day = $session_id;
                         $first_session_created = true;
                     }

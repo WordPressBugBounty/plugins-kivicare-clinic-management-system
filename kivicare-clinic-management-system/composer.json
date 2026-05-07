@@ -19,8 +19,8 @@
         "iqonic/vite-for-wp": "dev-dev",
         "illuminate/collections": "^12.12",
         "woocommerce/action-scheduler": "^3.9",
-        "dompdf/dompdf": "^3.1",
-        "paragonie/sodium_compat": "^2.5"
+        "paragonie/sodium_compat": "^2.5",
+        "mpdf/mpdf": "^8.2.3"
     },
     "config": {
         "autoloader-suffix": "KiviCareLite",
@@ -31,5 +31,13 @@
             "type": "vcs",
             "url": "https://gitlab.com/dharmil_gmits/iqonic-vite-for-wp.git"
         }
-    ]
+    ],
+   "scripts": {
+        "post-install-cmd": [
+            "php -r \"\\$keep=['DejaVuSans.ttf','DejaVuSans-Bold.ttf','FreeSerif.ttf','FreeSerifBold.ttf','XB Riyaz.ttf','XB RiyazBd.ttf','TaameyDavidCLM-Medium.ttf','.gitignore']; \\$dir='vendor/mpdf/mpdf/ttfonts'; if(is_dir(\\$dir)){ foreach(new DirectoryIterator(\\$dir) as \\$f){ if(!\\$f->isDot()){ \\$fn=\\$f->getFilename(); \\$s=in_array(\\$fn,\\$keep)||preg_match('/\\\\.(txt|license)$/i',\\$fn); if(!\\$s) @unlink(\\$f->getPathname()); } } }\""
+        ],
+        "post-update-cmd": [
+            "php -r \"\\$keep=['DejaVuSans.ttf','DejaVuSans-Bold.ttf','FreeSerif.ttf','FreeSerifBold.ttf','XB Riyaz.ttf','XB RiyazBd.ttf','TaameyDavidCLM-Medium.ttf','.gitignore']; \\$dir='vendor/mpdf/mpdf/ttfonts'; if(is_dir(\\$dir)){ foreach(new DirectoryIterator(\\$dir) as \\$f){ if(!\\$f->isDot()){ \\$fn=\\$f->getFilename(); \\$s=in_array(\\$fn,\\$keep)||preg_match('/\\\\.(txt|license)$/i',\\$fn); if(!\\$s) @unlink(\\$f->getPathname()); } } }\""
+        ]
+    }
 }

@@ -71,20 +71,8 @@ final class KCApp
         add_filter('determine_current_user', [$this, 'validate_current_user_status'], 99);
 
         // WooCommerce integration
-        add_filter('woocommerce_rest_check_permissions', function ($permission) {
+        add_filter('woocommerce_rest_check_permissions', [$this, 'kc_patient_woocommerce_permissions'], 10, 4);
 
-            if (isset($_SERVER['HTTP_APP_VERSION'])) {
-
-                $app_version = sanitize_text_field( wp_unslash( $_SERVER['HTTP_APP_VERSION'] ) ) ?? '';
-
-                // Compare with your constant
-                if (defined('KIVI_CARE_API_VERSION') && $app_version === KIVI_CARE_API_VERSION) {
-                    return true;
-                }
-            }
-
-            return $permission;
-        });
         
         // Register custom cron schedule for 5-minute intervals (more frequent checking)
         // Register the filter during WordPress 'init' so it's available at the right time.
@@ -103,7 +91,7 @@ final class KCApp
         // Redirect user to dashboard after login
 		add_filter( 'login_redirect', [$this, 'kc_redirect_kivicare_user_to_dashboard'], 999, 3 );
 
-        add_filter('init',[$this,'kivicare_migrate_apt_booking_steps']);
+
 
         // Restrict media library visibility
         add_filter('ajax_query_attachments_args', [$this, 'restrict_media_library']);
@@ -124,41 +112,7 @@ final class KCApp
         return ( current_user_can( 'administrator' ) ) ? $show_admin_bar : false;
     }
 
-    public function kivicare_migrate_apt_booking_steps(){
-        if (empty(get_option(KIVI_CARE_PREFIX.'is_appointment_widget_migrated'))) {
-            // Migrate appointment widget order if needed
-            $widget_order_list = get_option(KIVI_CARE_PREFIX . 'widget_order_list');
-            if (!empty($widget_order_list)) {
-                $detail_info_index = -1;
-                $file_uploads_custom_index = -1;
-                foreach ($widget_order_list as $index => $step) {
-                    if ($step['att_name'] === 'detail-info') {
-                        $detail_info_index = $index;
-                    } elseif ($step['att_name'] === 'file-uploads-custom') {
-                        $file_uploads_custom_index = $index;
-                    }
-                }
 
-                if ($detail_info_index !== -1 && $file_uploads_custom_index !== -1 && $file_uploads_custom_index < $detail_info_index) {
-                    $file_uploads_custom_step = $widget_order_list[$file_uploads_custom_index];
-                    unset($widget_order_list[$file_uploads_custom_index]);
-                    $widget_order_list = array_values($widget_order_list);
-
-                    // Re-find detail-info index as it might have shifted
-                    foreach ($widget_order_list as $index => $step) {
-                        if ($step['att_name'] === 'detail-info') {
-                            $detail_info_index = $index;
-                            break;
-                        }
-                    }
-
-                    array_splice($widget_order_list, $detail_info_index + 1, 0, [$file_uploads_custom_step]);
-                    update_option(KIVI_CARE_PREFIX . 'widget_order_list', $widget_order_list);
-                }
-            }
-            update_option(KIVI_CARE_PREFIX.'is_appointment_widget_migrated', 'yes');
-        }
-    }
 
     /**
      * Redirects KiviCare users to their appropriate dashboard after login.
@@ -373,4 +327,69 @@ final class KCApp
         }
         return $query;
     }
+
+    /**
+     * Grant scoped WooCommerce REST API access to authenticated patients.
+     *
+     * WC patient use-cases: read own orders (for online payment confirmation),
+     * read products (to browse/book services). No write access. No cross-patient data.
+     *
+     * This filter runs AFTER WooCommerce has resolved OAuth / Application Password auth,
+     * so get_current_user_id() is non-zero only when credentials are valid.
+     *
+     * @param bool   $permission  Current permission value from WC.
+     * @param string $context     'read', 'create', 'edit', 'delete', 'batch'.
+     * @param int    $object_id   Object being accessed (0 for collection requests).
+     * @param string $post_type   WC post type (e.g., 'shop_order', 'product').
+     * @return bool
+     */
+    public function kc_patient_woocommerce_permissions( $permission, $context, $object_id, $post_type ) {
+        // Already permitted — don't interfere.
+        if ( $permission ) {
+            return $permission;
+        }
+
+        // Require an authenticated user. If OAuth/App-Password validation failed,
+        // get_current_user_id() returns 0 and we deny immediately.
+        $user_id = get_current_user_id();
+        if ( ! $user_id ) {
+            return false;
+        }
+
+        // Only apply to the patient role.
+        $patient_role = KCBase::get_instance()->getPatientRole();
+        if ( KCBase::get_instance()->getUserRoleById( $user_id ) !== $patient_role ) {
+            return $permission;
+        }
+
+        // Patients get read-only access only.
+        if ( $context !== 'read' ) {
+            return false;
+        }
+
+        // Allowed endpoints: their own orders and publicly-readable products.
+        switch ( $post_type ) {
+            case 'shop_order':
+                // Collection request (object_id = 0): WC automatically filters by
+                // customer ID when ?customer=<id> is passed. We still grant permission
+                // here; the controller enforces per-customer scoping via query args.
+                if ( $object_id ) {
+                    // Single-order access: enforce ownership.
+                    $order = wc_get_order( $object_id );
+                    if ( ! $order || (int) $order->get_customer_id() !== $user_id ) {
+                        return false;
+                    }
+                }
+                return true;
+
+            case 'product':
+                // Patients may read product listings (clinic services exposed as WC products).
+                // No object-level ownership check needed — products are public catalog data.
+                return true;
+        }
+
+        // Deny access to all other WC endpoints (customers, coupons, reports, webhooks, etc.).
+        return false;
+    }
+
 }
