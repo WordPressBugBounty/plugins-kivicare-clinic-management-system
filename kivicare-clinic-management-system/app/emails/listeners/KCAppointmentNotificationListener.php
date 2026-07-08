@@ -55,20 +55,27 @@ class KCAppointmentNotificationListener
         
         // Added kc_appointment_payment_completed to handle notifications after successful patient payment
         add_action('kivicare_after_payment_processed', [$this, 'handlePaymentProcessed'], 10, 2);
-        add_action('kivicare_after_payment_processed', [$this, 'handleAppointmentBooked'], 10, 2);
-        add_action('kc_appointment_payment_completed', [$this, 'handlePaymentProcessed'], 10, 2);
         add_action('kc_appointment_payment_completed', [$this, 'handleAppointmentBooked'], 10, 2);
 
         // Additional hooks for better integration
-        add_action('kivicare_appointment_updated', [$this, 'handleAppointmentUpdated'], 10, 2);
+        add_action('kc_appointment_updated', [$this, 'handleAppointmentUpdated'], 10, 4);
         add_action('kivicare_appointment_confirmed', [$this, 'handleAppointmentConfirmed'], 10, 1);
 
-        // Appointment Reminder Hooks
-        if (!apply_filters('kivicare_pro_handle_reminder', false)) {
-            add_action('kivicare_appointment_reminder', [$this, 'handleAppointmentReminder'], 10, 1);
-        }
+        // Appointment email reminder hook. Pro handles SMS/WhatsApp on its own reminder hook.
+        add_action('kivicare_appointment_reminder', [$this, 'handleAppointmentReminder'], 10, 1);
 
         // Removed Pro hooks - moving to KCPro\notifications\listeners\KCFollowupNotificationListener
+    }
+
+    /**
+     * Log appointment notification lifecycle details with safe context only.
+     */
+    private function logNotificationEvent(string $level, string $message, array $context = []): void
+    {
+        $allowedLevels = ['debug', 'info', 'warning', 'error'];
+        $level = in_array($level, $allowedLevels, true) ? $level : 'info';
+
+        KCErrorLogger::instance()->{$level}('[Appointment Notifications] ' . $message, $context);
     }
 
 
@@ -83,11 +90,18 @@ class KCAppointmentNotificationListener
             // Validate appointment exists and get its data
             $appointment = KCAppointment::find($appointmentId);
             if (!$appointment) {
+                $this->logNotificationEvent('warning', 'Reminder skipped because appointment was not found.', [
+                    'appointment_id' => $appointmentId,
+                ]);
                 return;
             }
 
             // Check if appointment is valid for reminder (not cancelled)
             if ($appointment->status === KCAppointment::STATUS_CANCELLED) {
+                $this->logNotificationEvent('info', 'Reminder skipped for cancelled appointment.', [
+                    'appointment_id' => $appointmentId,
+                    'status' => $appointment->status,
+                ]);
                 return;
             }
 
@@ -95,20 +109,26 @@ class KCAppointmentNotificationListener
             $reminderSettings = KCOption::get('email_appointment_reminder', []);
 
             if (!is_array($reminderSettings) || !isset($reminderSettings['status']) || ($reminderSettings['status'] !== true && $reminderSettings['status'] !== 'on')) {
-                return;
-            }
-
-            if (apply_filters('kivicare_pro_handle_reminder', false)) {
+                $this->logNotificationEvent('info', 'Reminder skipped because email reminders are disabled.', [
+                    'appointment_id' => $appointmentId,
+                ]);
                 return;
             }
 
             // Get appointment data
             $fullAppointmentData = $this->getAppointmentDataForEmail($appointmentId);
             if (!$fullAppointmentData) {
+                $this->logNotificationEvent('error', 'Reminder skipped because appointment email data could not be resolved.', [
+                    'appointment_id' => $appointmentId,
+                ]);
                 return;
             }
 
             if (!$this->shouldSendReminder($appointment, $reminderSettings)) {
+                $this->logNotificationEvent('info', 'Reminder skipped because appointment is outside reminder window.', [
+                    'appointment_id' => $appointmentId,
+                    'reminder_hours' => isset($reminderSettings['time']) ? intval($reminderSettings['time']) : 24,
+                ]);
                 return;
             }
 
@@ -120,6 +140,14 @@ class KCAppointmentNotificationListener
                     $fullAppointmentData,
                     'patient',
                 );
+
+                if (!$patientResult) {
+                    $this->logNotificationEvent('error', 'Patient reminder email failed.', [
+                        'appointment_id' => $appointmentId,
+                        'template' => $templateName,
+                        'recipient' => 'patient',
+                    ]);
+                }
             }
             // Send email reminder to doctor
             if ($this->shouldSendEmailReminder($reminderSettings)) {
@@ -129,6 +157,14 @@ class KCAppointmentNotificationListener
                     $fullAppointmentData,
                     'doctor',
                 );
+
+                if (!$doctorResult) {
+                    $this->logNotificationEvent('error', 'Doctor reminder email failed.', [
+                        'appointment_id' => $appointmentId,
+                        'template' => $templateName,
+                        'recipient' => 'doctor',
+                    ]);
+                }
             }
 
             // Update reminder mapping to track what's been sent
@@ -211,13 +247,20 @@ class KCAppointmentNotificationListener
     {
         try {
             $appointmentStatus = KCAppointment::find($appointmentId)?->status;
-            if (in_array($appointmentStatus, [KCAppointment::STATUS_CANCELLED, KCAppointment::STATUS_PENDING]))
+            if (in_array($appointmentStatus, [KCAppointment::STATUS_CANCELLED, KCAppointment::STATUS_PENDING])) {
+                $this->logNotificationEvent('info', 'Booking notifications skipped due to appointment status.', [
+                    'appointment_id' => $appointmentId,
+                    'status' => $appointmentStatus,
+                ]);
                 return;
+            }
             // Get complete appointment data
             $fullAppointmentData = $this->getAppointmentDataForEmail($appointmentId);
 
             if (!$fullAppointmentData) {
-                KCErrorLogger::instance()->error("Failed to get appointment data for ID: {$appointmentId}");
+                $this->logNotificationEvent('error', 'Booking notifications skipped because appointment email data could not be resolved.', [
+                    'appointment_id' => $appointmentId,
+                ]);
                 return;
             }
 
@@ -225,6 +268,10 @@ class KCAppointmentNotificationListener
             if (!$this->isTelemedAppointment($fullAppointmentData)) {
                 $this->sendPatientBookingNotification($fullAppointmentData);
                 $this->sendDoctorBookingNotification($fullAppointmentData);
+            } else {
+                $this->logNotificationEvent('info', 'Standard patient/doctor booking emails skipped for telemed appointment.', [
+                    'appointment_id' => $appointmentId,
+                ]);
             }
             
             $this->sendClinicBookingNotification($fullAppointmentData);
@@ -250,6 +297,9 @@ class KCAppointmentNotificationListener
             $fullAppointmentData = $this->getAppointmentDataForEmail($appointmentId);
 
             if (!$fullAppointmentData) {
+                $this->logNotificationEvent('error', 'Cancellation notification skipped because appointment email data could not be resolved.', [
+                    'appointment_id' => $appointmentId,
+                ]);
                 return;
             }
 
@@ -273,6 +323,10 @@ class KCAppointmentNotificationListener
             $fullAppointmentData = $this->getAppointmentDataForEmail($appointmentId);
 
             if (!$fullAppointmentData) {
+                $this->logNotificationEvent('error', 'Payment notification skipped because appointment email data could not be resolved.', [
+                    'appointment_id' => $appointmentId,
+                    'payment_keys' => array_keys($paymentData),
+                ]);
                 return;
             }
 
@@ -288,26 +342,42 @@ class KCAppointmentNotificationListener
     }
 
     /**
-     * Handle appointment updated
+     * Handle appointment updated / rescheduled
+     *
+     * Hooked to kc_appointment_updated (fired by AppointmentsController::updateAppointment).
+     * Signature: int $appointmentId, array $updateData, KCAppointment $appointment, WP_REST_Request $request
      */
-    public function handleAppointmentUpdated(int $appointmentId, array $appointmentData): void
+    public function handleAppointmentUpdated(int $appointmentId, array $updateData, $appointment = null, $request = null): void
     {
         try {
-            $fullAppointmentData = $this->getAppointmentDataForEmail($appointmentId);
-
-            if (!$fullAppointmentData) {
+            $currentAppointment = $appointment instanceof KCAppointment ? $appointment : KCAppointment::find($appointmentId);
+            if ($currentAppointment && (int) $currentAppointment->status === KCAppointment::STATUS_CANCELLED) {
+                $this->logNotificationEvent('info', 'Reschedule notification skipped for cancelled appointment.', [
+                    'appointment_id' => $appointmentId,
+                    'status' => $currentAppointment->status,
+                ]);
                 return;
             }
 
-            // Send update notifications
-            $this->sendAppointmentUpdateNotifications($fullAppointmentData);
+            $fullAppointmentData = $this->getAppointmentDataForEmail($appointmentId);
 
-            // Reschedule reminder
+            if (!$fullAppointmentData) {
+                $this->logNotificationEvent('error', 'Reschedule notification skipped because appointment email data could not be resolved.', [
+                    'appointment_id' => $appointmentId,
+                    'updated_fields' => array_keys($updateData),
+                ]);
+                return;
+            }
+
+            // Send rescheduling notifications to all parties
+            $this->sendAppointmentRescheduleNotifications($fullAppointmentData);
+
+            // Reschedule reminder for the new time
             $this->unscheduleReminder($appointmentId);
             $this->scheduleReminder($appointmentId, $fullAppointmentData);
 
         } catch (\Exception $e) {
-            KCErrorLogger::instance()->error("Error sending appointment update notifications: " . $e->getMessage());
+            KCErrorLogger::instance()->error("Error sending appointment reschedule notifications: " . $e->getMessage());
         }
     }
 
@@ -320,6 +390,9 @@ class KCAppointmentNotificationListener
             $fullAppointmentData = $this->getAppointmentDataForEmail($appointmentId);
 
             if (!$fullAppointmentData) {
+                $this->logNotificationEvent('error', 'Confirmation notification skipped because appointment email data could not be resolved.', [
+                    'appointment_id' => $appointmentId,
+                ]);
                 return;
             }
 
@@ -338,11 +411,17 @@ class KCAppointmentNotificationListener
     {
         $templateName = KIVI_CARE_PREFIX . 'book_appointment';
 
-        return $this->emailSender->sendAppointmentNotification(
+        $result = $this->emailSender->sendAppointmentNotification(
             $templateName,
             $appointmentData,
             'patient'
         );
+
+        if (!$result) {
+            $this->logNotificationEvent('error', 'Patient booking email failed.', $this->getNotificationLogContext($appointmentData, $templateName, 'patient'));
+        }
+
+        return $result;
     }
 
     /**
@@ -352,11 +431,17 @@ class KCAppointmentNotificationListener
     {
         $templateName = KIVI_CARE_PREFIX . 'doctor_book_appointment';
 
-        return $this->emailSender->sendAppointmentNotification(
+        $result = $this->emailSender->sendAppointmentNotification(
             $templateName,
             $appointmentData,
             'doctor'
         );
+
+        if (!$result) {
+            $this->logNotificationEvent('error', 'Doctor booking email failed.', $this->getNotificationLogContext($appointmentData, $templateName, 'doctor'));
+        }
+
+        return $result;
     }
 
     /**
@@ -366,16 +451,23 @@ class KCAppointmentNotificationListener
     {
         // Check if clinic notifications are enabled
         if (!$this->isClinicNotificationEnabled($appointmentData['clinic']['id'] ?? 0)) {
+            $this->logNotificationEvent('info', 'Clinic booking email skipped because clinic notifications are disabled.', $this->getNotificationLogContext($appointmentData, KIVI_CARE_PREFIX . 'clinic_book_appointment', 'clinic'));
             return false;
         }
 
         $templateName = KIVI_CARE_PREFIX . 'clinic_book_appointment';
 
-        return $this->emailSender->sendAppointmentNotification(
+        $result = $this->emailSender->sendAppointmentNotification(
             $templateName,
             $appointmentData,
             'clinic'
         );
+
+        if (!$result) {
+            $this->logNotificationEvent('error', 'Clinic booking email failed.', $this->getNotificationLogContext($appointmentData, $templateName, 'clinic'));
+        }
+
+        return $result;
     }
 
     /**
@@ -385,6 +477,9 @@ class KCAppointmentNotificationListener
     {
         // Check if this is a telemed appointment
         if (!$this->isTelemedAppointment($appointmentData)) {
+            $this->logNotificationEvent('debug', 'Video conference emails skipped because appointment is not telemed.', [
+                'appointment_id' => $appointmentData['appointment']['id'] ?? 0,
+            ]);
             return;
         }
 
@@ -395,20 +490,28 @@ class KCAppointmentNotificationListener
         // Send Zoom link if available
         if ($zoomLink) {
             // To patient
-            $this->emailSender->sendVideoConferenceLink(
+            $patientResult = $this->emailSender->sendVideoConferenceLink(
                 'zoom',
                 $appointmentData,
                 $zoomLink,
                 'patient'
             );
 
+            if (!$patientResult) {
+                $this->logNotificationEvent('error', 'Zoom patient video-link email failed.', $this->getNotificationLogContext($appointmentData, KIVI_CARE_PREFIX . 'zoom_link', 'patient'));
+            }
+
             // To doctor
-            $this->emailSender->sendVideoConferenceLink(
+            $doctorResult = $this->emailSender->sendVideoConferenceLink(
                 'zoom',
                 $appointmentData,
                 $zoomLink,
                 'doctor'
             );
+
+            if (!$doctorResult) {
+                $this->logNotificationEvent('error', 'Zoom doctor video-link email failed.', $this->getNotificationLogContext($appointmentData, KIVI_CARE_PREFIX . 'doctor_zoom_link', 'doctor'));
+            }
         }
 
         // Send Meet link if available
@@ -419,20 +522,36 @@ class KCAppointmentNotificationListener
             }
 
             // To patient
-            $this->emailSender->sendVideoConferenceLink(
+            $patientResult = $this->emailSender->sendVideoConferenceLink(
                 'meet',
                 $appointmentData,
                 $meetLink,
                 'patient'
             );
 
+            if (!$patientResult) {
+                $this->logNotificationEvent('error', 'Google Meet patient video-link email failed.', $this->getNotificationLogContext($appointmentData, KIVI_CARE_PREFIX . 'meet_link', 'patient'));
+            }
+
             // To doctor
-            $this->emailSender->sendVideoConferenceLink(
+            $doctorResult = $this->emailSender->sendVideoConferenceLink(
                 'meet',
                 $appointmentData,
                 $meetLink,
                 'doctor'
             );
+
+            if (!$doctorResult) {
+                $this->logNotificationEvent('error', 'Google Meet doctor video-link email failed.', $this->getNotificationLogContext($appointmentData, KIVI_CARE_PREFIX . 'doctor_meet_link', 'doctor'));
+            }
+        }
+
+        if (!$zoomLink && !$meetLink) {
+            $this->logNotificationEvent('warning', 'Telemed appointment has no video link available for email.', [
+                'appointment_id' => $appointmentData['appointment']['id'] ?? 0,
+                'has_zoom_link' => false,
+                'has_meet_link' => false,
+            ]);
         }
     }
 
@@ -444,18 +563,19 @@ class KCAppointmentNotificationListener
         $templateName = KIVI_CARE_PREFIX . 'cancel_appointment';
 
         // Send to patient
-        $this->emailSender->sendAppointmentNotification(
+        $result = $this->emailSender->sendAppointmentNotification(
             $templateName,
             $appointmentData,
-            'patient'
+            'patient',
+            ['data_snapshot' => $appointmentData]
         );
 
-        // Send to doctor
-        $this->emailSender->sendAppointmentNotification(
-            $templateName,
-            $appointmentData,
-            'doctor'
-        );
+        if (!$result) {
+            $this->logNotificationEvent('error', 'Patient cancellation email failed.', $this->getNotificationLogContext($appointmentData, $templateName, 'patient'));
+        }
+
+        // Professional cancellation notifications require their own template/settings.
+        do_action('kivicare_after_patient_cancel_appointment_notification', $appointmentData);
     }
 
     /**
@@ -465,33 +585,55 @@ class KCAppointmentNotificationListener
     {
         $templateName = KIVI_CARE_PREFIX . 'payment_confirmation';
 
-        $this->emailSender->sendAppointmentNotification(
+        $result = $this->emailSender->sendAppointmentNotification(
             $templateName,
             $appointmentData,
             'patient'
         );
+
+        if (!$result) {
+            $this->logNotificationEvent('error', 'Payment confirmation email failed.', $this->getNotificationLogContext($appointmentData, $templateName, 'patient'));
+        }
     }
 
     /**
-     * Send appointment update notifications
+     * Send appointment reschedule notifications to patient, doctor, and clinic
      */
-    private function sendAppointmentUpdateNotifications(array $appointmentData): void
+    private function sendAppointmentRescheduleNotifications(array $appointmentData): void
     {
-        $templateName = KIVI_CARE_PREFIX . 'appointment_updated';
-
-        // Send to patient
-        $this->emailSender->sendAppointmentNotification(
-            $templateName,
+        $patientResult = $this->emailSender->sendAppointmentNotification(
+            KIVI_CARE_PREFIX . 'appointment_rescheduled',
             $appointmentData,
             'patient'
         );
 
-        // Send to doctor
-        $this->emailSender->sendAppointmentNotification(
-            $templateName,
+        if (!$patientResult) {
+            $this->logNotificationEvent('error', 'Patient reschedule email failed.', $this->getNotificationLogContext($appointmentData, KIVI_CARE_PREFIX . 'appointment_rescheduled', 'patient'));
+        }
+
+        $doctorResult = $this->emailSender->sendAppointmentNotification(
+            KIVI_CARE_PREFIX . 'doctor_appointment_rescheduled',
             $appointmentData,
             'doctor'
         );
+
+        if (!$doctorResult) {
+            $this->logNotificationEvent('error', 'Doctor reschedule email failed.', $this->getNotificationLogContext($appointmentData, KIVI_CARE_PREFIX . 'doctor_appointment_rescheduled', 'doctor'));
+        }
+
+        if ($this->isClinicNotificationEnabled($appointmentData['clinic']['id'] ?? 0)) {
+            $clinicResult = $this->emailSender->sendAppointmentNotification(
+                KIVI_CARE_PREFIX . 'clinic_appointment_rescheduled',
+                $appointmentData,
+                'clinic'
+            );
+
+            if (!$clinicResult) {
+                $this->logNotificationEvent('error', 'Clinic reschedule email failed.', $this->getNotificationLogContext($appointmentData, KIVI_CARE_PREFIX . 'clinic_appointment_rescheduled', 'clinic'));
+            }
+        } else {
+            $this->logNotificationEvent('info', 'Clinic reschedule email skipped because clinic notifications are disabled.', $this->getNotificationLogContext($appointmentData, KIVI_CARE_PREFIX . 'clinic_appointment_rescheduled', 'clinic'));
+        }
     }
 
     /**
@@ -502,11 +644,31 @@ class KCAppointmentNotificationListener
         $templateName = KIVI_CARE_PREFIX . 'appointment_confirmed';
 
         // Send to patient
-        $this->emailSender->sendAppointmentNotification(
+        $result = $this->emailSender->sendAppointmentNotification(
             $templateName,
             $appointmentData,
             'patient'
         );
+
+        if (!$result) {
+            $this->logNotificationEvent('error', 'Patient appointment confirmation email failed.', $this->getNotificationLogContext($appointmentData, $templateName, 'patient'));
+        }
+    }
+
+    /**
+     * Build safe notification log context without message bodies or PII-heavy fields.
+     */
+    private function getNotificationLogContext(array $appointmentData, string $templateName, string $recipient): array
+    {
+        return [
+            'appointment_id' => $appointmentData['appointment']['id'] ?? 0,
+            'template' => $templateName,
+            'recipient' => $recipient,
+            'patient_id' => $appointmentData['patient']['id'] ?? 0,
+            'doctor_id' => $appointmentData['doctor']['id'] ?? 0,
+            'clinic_id' => $appointmentData['clinic']['id'] ?? 0,
+            'appointment_status' => $appointmentData['appointment']['status'] ?? null,
+        ];
     }
 
     /**
@@ -518,6 +680,9 @@ class KCAppointmentNotificationListener
             // Get appointment
             $appointment = KCAppointment::find($appointmentId);
             if (!$appointment) {
+                $this->logNotificationEvent('warning', 'Appointment email data lookup failed because appointment was not found.', [
+                    'appointment_id' => $appointmentId,
+                ]);
                 return null;
             }
 
@@ -525,15 +690,38 @@ class KCAppointmentNotificationListener
             $patient = KCPatient::find($appointment->patientId);
             $patientUser = $patient ? get_userdata($patient->id) : null;
             $patientBasicData = $patient ? json_decode(get_user_meta($patient->id, 'basic_data', true) ?: '{}', true) : [];
+            if (!$patient || !$patientUser) {
+                $this->logNotificationEvent('warning', 'Appointment email data has missing patient user/model.', [
+                    'appointment_id' => $appointmentId,
+                    'patient_id' => (int) $appointment->patientId,
+                    'has_patient_model' => (bool) $patient,
+                    'has_patient_user' => (bool) $patientUser,
+                ]);
+            }
 
             // Get doctor data
             $doctor = KCDoctor::find($appointment->doctorId);
             $doctorUser = $doctor ? get_userdata($doctor->id) : null;
             $doctorBasicData = $doctor ? json_decode(get_user_meta($doctor->id, 'basic_data', true) ?: '{}', true) : [];
+            if (!$doctor || !$doctorUser) {
+                $this->logNotificationEvent('warning', 'Appointment email data has missing doctor user/model.', [
+                    'appointment_id' => $appointmentId,
+                    'doctor_id' => (int) $appointment->doctorId,
+                    'has_doctor_model' => (bool) $doctor,
+                    'has_doctor_user' => (bool) $doctorUser,
+                ]);
+            }
 
             // Get clinic data
             $clinic = KCClinic::find($appointment->clinicId);
             $clinicAdminBasicData = $clinic ? json_decode(get_user_meta($clinic->clinicAdminId, 'basic_data', true) ?: '{}', true) : [];
+            $clinicTelephone = $clinic->telephoneNo ?? $clinic->telephone_no ?? '';
+            if (!$clinic) {
+                $this->logNotificationEvent('warning', 'Appointment email data has missing clinic model.', [
+                    'appointment_id' => $appointmentId,
+                    'clinic_id' => (int) $appointment->clinicId,
+                ]);
+            }
 
             // Get services
             $services = $this->getAppointmentServices($appointmentId);
@@ -578,7 +766,7 @@ class KCAppointmentNotificationListener
                     'id' => $clinic->id ?? 0,
                     'name' => $clinic->name ?? '',
                     'email' => $clinic->email ?? '',
-                    'telephone_no' => $clinic->telephone_no ?? '',
+                    'telephone_no' => $clinicTelephone,
                     'address' => $clinic->address ?? '',
                     'city' => $clinic->city ?? '',
                     'postal_code' => $clinic->postal_code ?? '',
@@ -589,14 +777,11 @@ class KCAppointmentNotificationListener
                     'mobile_number' => $this->format_phone(
                         !empty($clinicAdminBasicData['mobile_number'])
                             ? $clinicAdminBasicData['mobile_number']
-                            : ($clinic->telephone_no ?? '')
+                            : ''
                     ),
                     'clinic_address' => $this->formatClinicAddress($clinic), // Formatted address
-                    'clinic_phone' => $this->format_phone(
-                        !empty($clinicAdminBasicData['mobile_number'])
-                            ? $clinicAdminBasicData['mobile_number']
-                            : ($clinic->telephone_no ?? '')
-                    ),
+                    'clinic_contact_number' => $this->format_phone($clinicTelephone),
+                    'clinic_phone' => $this->format_phone($clinicTelephone)
                 ],
                 'services' => $services,
                 'isFollowUp' => (get_post_meta($appointmentId, '_kc_is_follow_up', true) === 'yes' || get_post_meta($appointmentId, '_kc_is_follow_up', true) === '1'),
@@ -776,6 +961,9 @@ class KCAppointmentNotificationListener
     private function scheduleReminder(int $appointmentId, array $appointmentData): void
     {
         if (!function_exists('as_schedule_single_action')) {
+            $this->logNotificationEvent('warning', 'Reminder scheduling skipped because Action Scheduler is unavailable.', [
+                'appointment_id' => $appointmentId,
+            ]);
             return;
         }
 
@@ -785,14 +973,11 @@ class KCAppointmentNotificationListener
 
             // Check if reminders are enabled
             $isEmailEnabled = isset($reminderSettings['status']) && ($reminderSettings['status'] === 'on' || $reminderSettings['status'] === true);
-            $isSmsEnabled = isset($reminderSettings['sms_status']) && ($reminderSettings['sms_status'] === 'on' || $reminderSettings['sms_status'] === true);
-            $isWhatsappEnabled = isset($reminderSettings['whatapp_status']) && ($reminderSettings['whatapp_status'] === 'on' || $reminderSettings['whatapp_status'] === true);
 
-            if (!$isEmailEnabled && !$isSmsEnabled && !$isWhatsappEnabled) {
-                return;
-            }
-
-            if (apply_filters('kivicare_pro_handle_reminder', false)) {
+            if (!$isEmailEnabled) {
+                $this->logNotificationEvent('info', 'Email reminder scheduling skipped because email reminders are disabled.', [
+                    'appointment_id' => $appointmentId,
+                ]);
                 return;
             }
 
@@ -831,6 +1016,13 @@ class KCAppointmentNotificationListener
                     [$appointmentId],
                     'kivicare-reminders'
                 );
+            } else {
+                $this->logNotificationEvent('info', 'Reminder scheduling skipped because calculated reminder time is in the past.', [
+                    'appointment_id' => $appointmentId,
+                    'reminder_timestamp' => $reminderTimestamp,
+                    'current_timestamp' => time(),
+                    'reminder_hours' => $reminderHours,
+                ]);
             }
 
 
@@ -845,6 +1037,9 @@ class KCAppointmentNotificationListener
     private function unscheduleReminder(int $appointmentId): void
     {
         if (!function_exists('as_unschedule_action')) {
+            $this->logNotificationEvent('warning', 'Reminder unschedule skipped because Action Scheduler is unavailable.', [
+                'appointment_id' => $appointmentId,
+            ]);
             return;
         }
 
@@ -866,17 +1061,26 @@ class KCAppointmentNotificationListener
         $appointmentData = $this->getAppointmentDataForEmail($appointmentId);
 
         if (!$appointmentData) {
+            $this->logNotificationEvent('error', 'Prescription email skipped because appointment email data could not be resolved.', [
+                'appointment_id' => $appointmentId,
+            ]);
             return false;
         }
 
         // Add prescription to appointment data
         $appointmentData['prescription'] = $prescriptionContent;
 
-        return $this->emailSender->sendAppointmentNotification(
+        $result = $this->emailSender->sendAppointmentNotification(
             KIVI_CARE_PREFIX . 'book_prescription',
             $appointmentData,
             'patient'
         );
+
+        if (!$result) {
+            $this->logNotificationEvent('error', 'Prescription email failed.', $this->getNotificationLogContext($appointmentData, KIVI_CARE_PREFIX . 'book_prescription', 'patient'));
+        }
+
+        return $result;
     }
 
     /**
@@ -887,17 +1091,27 @@ class KCAppointmentNotificationListener
         $appointmentData = $this->getAppointmentDataForEmail($appointmentId);
 
         if (!$appointmentData) {
+            $this->logNotificationEvent('error', 'Invoice email skipped because appointment email data could not be resolved.', [
+                'appointment_id' => $appointmentId,
+                'invoice_keys' => array_keys($invoiceData),
+            ]);
             return false;
         }
 
         // Add invoice data to appointment data
         $appointmentData = array_merge($appointmentData, $invoiceData);
 
-        return $this->emailSender->sendAppointmentNotification(
+        $result = $this->emailSender->sendAppointmentNotification(
             KIVI_CARE_PREFIX . 'patient_invoice',
             $appointmentData,
             'patient'
         );
+
+        if (!$result) {
+            $this->logNotificationEvent('error', 'Invoice email failed.', $this->getNotificationLogContext($appointmentData, KIVI_CARE_PREFIX . 'patient_invoice', 'patient'));
+        }
+
+        return $result;
     }
 
     /**
@@ -908,17 +1122,27 @@ class KCAppointmentNotificationListener
         $appointmentData = $this->getAppointmentDataForEmail($appointmentId);
 
         if (!$appointmentData) {
+            $this->logNotificationEvent('error', 'Encounter close email skipped because appointment email data could not be resolved.', [
+                'appointment_id' => $appointmentId,
+                'encounter_keys' => array_keys($encounterData),
+            ]);
             return false;
         }
 
         // Add encounter data to appointment data
         $appointmentData = array_merge($appointmentData, $encounterData);
 
-        return $this->emailSender->sendAppointmentNotification(
+        $result = $this->emailSender->sendAppointmentNotification(
             KIVI_CARE_PREFIX . 'encounter_close',
             $appointmentData,
             'patient'
         );
+
+        if (!$result) {
+            $this->logNotificationEvent('error', 'Encounter close email failed.', $this->getNotificationLogContext($appointmentData, KIVI_CARE_PREFIX . 'encounter_close', 'patient'));
+        }
+
+        return $result;
     }
 
     /**

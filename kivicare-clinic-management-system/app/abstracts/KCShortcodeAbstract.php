@@ -162,7 +162,15 @@ abstract class KCShortcodeAbstract
     }
 
     /**
-     * Check if the shortcode is present in the current page content
+     * Check if the shortcode is present in the current page content.
+     *
+     * Handles three scenarios:
+     *  1. Standard WP post — scan $post->post_content.
+     *  2. Queried object fallback — scan get_queried_object()->post_content.
+     *  3. KiviCare dynamic-router pages (single-doctor.php, single-service.php,
+     *     single-clinic.php) — no post_content exists; shortcodes are rendered
+     *     directly inside PHP template files. Detect via the kivicare_type query
+     *     var registered by the theme's Dynamic_Router component.
      *
      * @return bool
      */
@@ -170,17 +178,35 @@ abstract class KCShortcodeAbstract
     {
         global $post;
 
-        // Check current post content
+        // 1. Standard WP post content check.
         if ($post instanceof \WP_Post && !empty($post->post_content)) {
             if (has_shortcode($post->post_content, $this->tag)) {
                 return true;
             }
         }
 
-        // Check current queried object if global post is not reliable
+        // 2. Queried-object fallback (note: \WP_Post needed — we are inside a namespace).
         $queried_object = get_queried_object();
-        if ($queried_object instanceof WP_Post && !empty($queried_object->post_content)) {
+        if ($queried_object instanceof \WP_Post && !empty($queried_object->post_content)) {
             if (has_shortcode($queried_object->post_content, $this->tag)) {
+                return true;
+            }
+        }
+
+        // 3. KiviCare theme dynamic-router pages.
+        //    The theme's Dynamic_Router registers 'kivicare_type' as a query var and
+        //    loads custom PHP templates that call do_shortcode() directly — there is
+        //    no WP post to scan. Enqueue assets for any single-entity route so that
+        //    shortcodes such as kivicareBookAppointmentButton work correctly.
+        $kivicare_type = get_query_var('kivicare_type');
+        if ($kivicare_type) {
+            $single_types = ['doctor', 'service', 'clinic'];
+            if (\in_array($kivicare_type, $single_types, true)) {
+                return true;
+            }
+
+            // Allow themes / add-ons to opt in additional route types.
+            if (apply_filters('kc_shortcode_present_on_route', false, $kivicare_type, $this->tag)) {
                 return true;
             }
         }

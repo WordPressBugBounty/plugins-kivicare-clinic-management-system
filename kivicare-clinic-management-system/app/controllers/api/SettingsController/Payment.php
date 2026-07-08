@@ -80,7 +80,7 @@ class Payment extends SettingsController
     public function getPaymentGateway(WP_REST_Request $request): WP_REST_Response
     {
         if (!is_null($request->get_param('id'))) {
-            if ($paymentGateway = KCPaymentGatewayFactory::get_available_gateway($request->get_param('id'))) {
+            if ($paymentGateway = KCPaymentGatewayFactory::get_available_gateway($request->get_param('id'), false)) {
                 $data = [
                     'fields' => $paymentGateway->get_fields(),
                     'settings' => $paymentGateway->get_settings(),
@@ -112,7 +112,7 @@ class Payment extends SettingsController
             return new WP_Error('missing_id', __('Payment Gateway ID is required', 'kivicare-clinic-management-system'), ['status' => 400]);
         }
 
-        $gateway = KCPaymentGatewayFactory::get_available_gateway($data['id']);
+        $gateway = KCPaymentGatewayFactory::get_available_gateway($data['id'], false);
         if (!$gateway) {
             return new WP_Error('gateway_not_found', __('Payment Gateway not found', 'kivicare-clinic-management-system'), ['status' => 404]);
         }

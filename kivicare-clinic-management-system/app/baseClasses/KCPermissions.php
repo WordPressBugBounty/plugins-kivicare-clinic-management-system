@@ -20,6 +20,7 @@ class KCPermissions
     private static $role_capabilities = [
         KIVI_CARE_PREFIX . 'patient'    => [
             'read'                      => ['status' => 1],
+            'upload_files'              => ['status' => 1],
             'dashboard'                 => ['status' => 1],
             'patient_dashboard'         => ['status' => 1],
             'patient_profile'           => ['status' => 1],
@@ -63,6 +64,7 @@ class KCPermissions
         ],
         KIVI_CARE_PREFIX . 'doctor' => [
             'read'                              => ['status' => 1],
+            'upload_files'                      => ['status' => 1],
             'dashboard'                         => ['status' => 1],
             'doctor_dashboard'                  => ['status' => 1],
             'settings_view'                     => ['status' => 1],
@@ -164,6 +166,7 @@ class KCPermissions
         ],
         KIVI_CARE_PREFIX . 'receptionist' => [
             'read'                              => ['status' => 1],
+            'upload_files'                      => ['status' => 1],
             'settings_view'                     => ['status' => 1],
             'dashboard'                         => ['status' => 1],
             'receptionist_dashboard'            => ['status' => 1],
@@ -277,6 +280,9 @@ class KCPermissions
         ],
         KIVI_CARE_PREFIX . 'clinic_admin' => [
             'read'                              => ['status' => 1],
+            'edit_posts'                        => ['status' => 1],
+            'delete_posts'                      => ['status' => 1],
+            'upload_files'                      => ['status' => 1],
             'dashboard'                         => ['status' => 1],
             'setting'                           => ['status' => 1],
             'clinic_admin_dashboard'            => ['status' => 1],
@@ -660,7 +666,7 @@ class KCPermissions
             if ($role) {
                 foreach ($capabilities as $capability => $config) {
                     if ($config['status'] == 1) {
-                        $cap_name = $capability === 'read' ? 'read' : $prefix . $capability;
+                        $cap_name = self::is_wordpress_capability($capability) ? $capability : $prefix . $capability;
                         $role->add_cap($cap_name);
                     }
                 }
@@ -687,7 +693,7 @@ class KCPermissions
         }
 
         $prefix = defined('KIVI_CARE_PREFIX') ? KIVI_CARE_PREFIX : KIVI_CARE_PREFIX . 'kc_';
-        $cap_name = $capability === 'read' ? 'read' : $prefix . $capability;
+        $cap_name = self::is_wordpress_capability($capability) ? $capability : $prefix . $capability;
 
         // Check if user has the specific capability
         if (user_can($user, $cap_name)) {
@@ -700,6 +706,14 @@ class KCPermissions
         }
 
         return false;
+    }
+
+    /**
+     * Check if a capability is a native WordPress primitive capability.
+     */
+    private static function is_wordpress_capability($capability)
+    {
+        return in_array($capability, ['read', 'edit_posts', 'delete_posts', 'upload_files'], true);
     }
 
     /**
@@ -718,7 +732,7 @@ class KCPermissions
         $permissions = [];
 
         foreach (self::$role_capabilities[$role] as $capability => $config) {
-            $cap_name = $capability === 'read' ? 'read' : $prefix . $capability;
+            $cap_name = self::is_wordpress_capability($capability) ? $capability : $prefix . $capability;
             $permissions[$capability] = [
                 'name' => $cap_name,
                 'status' => $config['status']

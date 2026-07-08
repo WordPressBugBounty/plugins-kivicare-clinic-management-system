@@ -257,6 +257,7 @@ class General extends SettingsController
 
                     // Get allowed roles from KCBase
                     $allowed_roles = KCBase::get_instance()->KCGetRoles();
+                    $default_logout_url = $this->getApplicationLoginUrl();
 
                     $sanitized = [];
                     foreach ($value as $role => $url) {
@@ -266,6 +267,10 @@ class General extends SettingsController
                             $url = $url ?? '';
                             // Sanitize URL - esc_url_raw removes invalid characters and validates URL format
                             $sanitized_url = esc_url_raw($url);
+                            if (!empty($sanitized_url) && !$this->isValidApplicationLogoutRedirect($sanitized_url)) {
+                                $sanitized_url = $default_logout_url;
+                            }
+
                             // Only add if URL is valid after sanitization
                             if (!empty($sanitized_url)) {
                                 $sanitized[$role] = $sanitized_url;
@@ -400,7 +405,7 @@ class General extends SettingsController
 
             // Sanitize login and logout redirects - only include valid KiviCare roles
             $allowed_roles = KCBase::get_instance()->KCGetRoles();
-            $default_logout_url = wp_login_url();
+            $default_logout_url = $this->getApplicationLoginUrl();
             $dashboard_handler = \App\admin\KCDashboardPermalinkHandler::instance();
 
             // Initialize redirects with default URLs for all allowed roles if not set
@@ -421,14 +426,6 @@ class General extends SettingsController
                 }
             }
 
-            // Add administrator role
-            if (!isset($response['loginRedirects']['administrator'])) {
-                $response['loginRedirects']['administrator'] = $dashboard_handler->get_dashboard_url('administrator');
-            }
-            if (!isset($response['logoutRedirects']['administrator'])) {
-                $response['logoutRedirects']['administrator'] = $default_logout_url;
-            }
-
             $sanitized_login_redirects = [];
             foreach ($response['loginRedirects'] as $role => $url) {
                 if (in_array($role, $allowed_roles, true)) {
@@ -440,7 +437,8 @@ class General extends SettingsController
             $sanitized_logout_redirects = [];
             foreach ($response['logoutRedirects'] as $role => $url) {
                 if (in_array($role, $allowed_roles, true)) {
-                    $sanitized_logout_redirects[$role] = !empty($url) ? esc_url_raw($url) : $default_logout_url;
+                    $url = esc_url_raw($url ?? '');
+                    $sanitized_logout_redirects[$role] = !empty($url) && $this->isValidApplicationLogoutRedirect($url) ? $url : $default_logout_url;
                 }
             }
             $response['logoutRedirects'] = $sanitized_logout_redirects;
@@ -537,7 +535,7 @@ class General extends SettingsController
         $this->updateOption('user_registration_shortcode_role_setting', $settings['role'] ?? ['kiviCare_doctor' => 'on', 'kiviCare_receptionist' => 'on', 'kiviCare_patient' => 'on'], $updated, $errors);
         $this->updateOption('user_registration_form_setting', $settings['showOtherGender'] ?? 'off', $updated, $errors);
         $this->updateOption('login_redirect', $settings['loginRedirects'] ?? [], $updated, $errors);
-        $this->updateOption('logout_redirect', $settings['logoutRedirects'] ?? [], $updated, $errors);
+        $this->updateOption('logout_redirect', $this->normalizeLogoutRedirects($settings['logoutRedirects'] ?? []), $updated, $errors);
         $this->updateOption('encounter_edit_after_close_status', $settings['allowEncounterEdit'] ?? 'off', $updated, $errors);
 
         // Update reCAPTCHA settings
@@ -601,6 +599,59 @@ class General extends SettingsController
         } catch (\Exception $e) {
             $errors[$key] = $e->getMessage();
         }
+    }
+
+    /**
+     * Normalize role-wise logout redirects before saving settings.
+     *
+     * @param array $redirects Logout redirect URLs keyed by role.
+     * @return array
+     */
+    private function normalizeLogoutRedirects(array $redirects): array
+    {
+        $allowed_roles = KCBase::get_instance()->KCGetRoles();
+        $default_logout_url = $this->getApplicationLoginUrl();
+        $normalized = [];
+
+        foreach ($redirects as $role => $url) {
+            if (!in_array($role, $allowed_roles, true)) {
+                continue;
+            }
+
+            $url = esc_url_raw($url ?? '');
+            $normalized[$role] = !empty($url) && $this->isValidApplicationLogoutRedirect($url) ? $url : $default_logout_url;
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * Get the KiviCare application login/register page URL.
+     *
+     * @return string
+     */
+    private function getApplicationLoginUrl(): string
+    {
+        return wp_login_url();
+    }
+
+    /**
+     * Check whether a saved logout redirect should be honored.
+     *
+     * @param string $url Redirect URL.
+     * @return bool
+     */
+    private function isValidApplicationLogoutRedirect(string $url): bool
+    {
+        $path = wp_parse_url($url, PHP_URL_PATH);
+
+        if (empty($path)) {
+            return false;
+        }
+
+        $basename = basename(untrailingslashit($path));
+
+        return $basename !== 'wp-login.php' && $basename !== 'wp-admin';
     }
 
     /**

@@ -128,6 +128,11 @@ class KCClinic extends KCBaseModel
                     'nullable' => true,
                     'sanitizers' => ['sanitize_text_field'],
                 ],
+                'googleMapUrl' => [
+                    'column' => 'google_map_url',
+                    'type' => 'text',
+                    'nullable' => true,
+                ],
             ],
             'timestamps' => false, // We'll handle created_at manually
             'soft_deletes' => false,

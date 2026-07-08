@@ -5,6 +5,7 @@ namespace App\baseClasses;
 use App\admin\AdminMenu;
 use App\admin\KCDashboardPermalinkHandler;
 use App\controllers\KCRestAPI;
+use App\controllers\filters\KCCacheExclusionFilter;
 use App\controllers\filters\KCDoctorControllerFilters;
 use App\controllers\filters\KCPatientControllerFilters;
 use App\controllers\api\AppointmentsController;
@@ -39,6 +40,10 @@ final class KCApp
         // Initialize permalink handler for dashboard routes
         KCDashboardPermalinkHandler::instance();
 
+        // Cache-plugin exclusions (LiteSpeed, WP Rocket, W3TC, etc.)
+        // Kept separate so adding/removing a cache integration never touches routing code.
+        KCCacheExclusionFilter::get_instance();
+
         // Initialize REST API
         new KCEmailTemplateManager();
         $this->load_depandencies();
@@ -72,6 +77,7 @@ final class KCApp
 
         // WooCommerce integration
         add_filter('woocommerce_rest_check_permissions', [$this, 'kc_patient_woocommerce_permissions'], 10, 4);
+        add_filter('woocommerce_prevent_admin_access', [$this, 'allow_kivicare_report_media_upload_access'], 10, 1);
 
         
         // Register custom cron schedule for 5-minute intervals (more frequent checking)
@@ -90,6 +96,7 @@ final class KCApp
 
         // Redirect user to dashboard after login
 		add_filter( 'login_redirect', [$this, 'kc_redirect_kivicare_user_to_dashboard'], 999, 3 );
+        add_filter('logout_redirect', [$this, 'kc_redirect_kivicare_user_to_login'], 999, 3);
 
 
 
@@ -131,13 +138,13 @@ final class KCApp
             return $redirect_to;
         }
         $login_redirects = KCOption::get('login_redirect', []);
-        $role = $user->roles[0] ?? '';
+        $role = $this->kc_get_user_app_role($user);
+
+        if (empty($role)) {
+            return $redirect_to;
+        }
 
         apply_filters('kc_login_redirect_role', $role, $user, KCDashboardPermalinkHandler::instance()->get_dashboard_url($role));
-        // Redirect admin to WordPress dashboard by default, but allow customization via filter
-        if($role == 'administrator'){
-            return apply_filters('kc_login_redirect_admin', home_url('wp-admin'), $user);
-        }
         // Check if a custom redirect is set for this role
         if (!empty($login_redirects[$role])) {
             error_log(apply_filters('kc_login_redirect_url', $login_redirects[$role], $role));
@@ -145,6 +152,79 @@ final class KCApp
         }
         // Default redirects based on role
         return apply_filters('kc_login_redirect_url', KCDashboardPermalinkHandler::instance()->get_dashboard_url($role) ?? home_url(), $role);
+    }
+
+    /**
+     * Redirect KiviCare users to the application login page after logout.
+     *
+     * @param string $redirect_to Redirect URL.
+     * @param string $requested_redirect_to Requested redirect URL.
+     * @param \WP_User|null $user Logged-out user.
+     * @return string
+     */
+    public function kc_redirect_kivicare_user_to_login($redirect_to, $requested_redirect_to, $user) {
+        if (!$user instanceof \WP_User) {
+            return $redirect_to;
+        }
+
+        $role = $this->kc_get_user_app_role($user);
+
+        if (empty($role)) {
+            return $redirect_to;
+        }
+
+        $logout_redirects = KCOption::get('logout_redirect', []);
+		$allowed_roles = array_merge(['administrator'], KCBase::get_instance()->KCGetRoles());
+
+        if (!in_array($role, $allowed_roles, true)) {
+            return $redirect_to;
+        }
+
+        if (!empty($logout_redirects[$role]) && $this->kc_is_valid_application_logout_redirect($logout_redirects[$role])) {
+            return apply_filters('kc_logout_redirect_url', $logout_redirects[$role], $role);
+        }
+
+        return apply_filters('kc_logout_redirect_url', $this->kc_get_application_login_url(), $role);
+    }
+
+    /**
+     * Get the KiviCare application login/register page URL.
+     *
+     * @return string
+     */
+    public function kc_get_application_login_url() {
+        return wp_login_url();
+    }
+
+    /**
+     * Get the KiviCare application role for a user.
+     *
+     * @param \WP_User $user User object.
+     * @return string
+     */
+    private function kc_get_user_app_role($user) {
+        $allowed_roles = array_merge(['administrator'], KCBase::get_instance()->KCGetRoles());
+        $roles = array_intersect($allowed_roles, (array) $user->roles);
+
+        return !empty($roles) ? array_shift($roles) : '';
+    }
+
+    /**
+     * Check whether a saved logout redirect should be honored.
+     *
+     * @param string $url Redirect URL.
+     * @return bool
+     */
+    private function kc_is_valid_application_logout_redirect($url) {
+        $path = wp_parse_url($url, PHP_URL_PATH);
+
+        if (empty($path)) {
+            return false;
+        }
+
+        $basename = basename(untrailingslashit($path));
+
+        return $basename !== 'wp-login.php' && $basename !== 'wp-admin';
     }
 
     public function load_depandencies()
@@ -326,6 +406,52 @@ final class KCApp
             $query['author'] = $user_id;
         }
         return $query;
+    }
+
+    /**
+     * Prevent WooCommerce from redirecting scoped KiviCare media uploads to My Account.
+     *
+     * WooCommerce blocks wp-admin for non-admin/non-shop-manager users. The WordPress
+     * media modal uploads reports through wp-admin/async-upload.php, so allow only
+     * KiviCare report/encounter media requests for users with upload permissions.
+     *
+     * @param bool $prevent Whether WooCommerce should prevent admin access.
+     * @return bool
+     */
+    public function allow_kivicare_report_media_upload_access($prevent)
+    {
+        $user_id = get_current_user_id();
+
+        if (!$user_id || !KCBase::get_instance()->userHasKivicareRole($user_id) || !current_user_can('upload_files')) {
+            return $prevent;
+        }
+
+        return $this->is_kivicare_report_media_request() ? false : $prevent;
+    }
+
+    /**
+     * Check whether the current request is a KiviCare report/encounter media request.
+     */
+    private function is_kivicare_report_media_request(): bool
+    {
+        $script = isset($_SERVER['SCRIPT_NAME']) ? basename(sanitize_text_field(wp_unslash($_SERVER['SCRIPT_NAME']))) : '';
+        $action = isset($_REQUEST['action']) ? sanitize_key(wp_unslash($_REQUEST['action'])) : '';
+
+        $is_media_endpoint = in_array($script, ['async-upload.php', 'media-upload.php'], true)
+            || (defined('DOING_AJAX') && DOING_AJAX && in_array($action, ['upload-attachment', 'query-attachments', 'kc_upload_report'], true));
+
+        if (!$is_media_endpoint) {
+            return false;
+        }
+
+        $view_path = isset($_SERVER['HTTP_X_KC_VIEW_PATH']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_X_KC_VIEW_PATH'])) : '';
+        $referer = isset($_SERVER['HTTP_REFERER']) ? esc_url_raw(wp_unslash($_SERVER['HTTP_REFERER'])) : '';
+
+        return strpos($view_path, 'medical-report') !== false
+            || strpos($view_path, 'encounter') !== false
+            || strpos($referer, 'medical-report') !== false
+            || strpos($referer, 'encounter') !== false
+            || $action === 'kc_upload_report';
     }
 
     /**

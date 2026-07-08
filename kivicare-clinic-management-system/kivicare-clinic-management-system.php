@@ -3,7 +3,7 @@
  * Plugin Name: KiviCare - Clinic & Patient Management System (EHR)
  * Plugin URI: https://kivicare.io
  * Description: KiviCare is an impressive clinic and patient management plugin (EHR). It comes with powerful shortcodes for appointment booking and patient registration.
- * Version: 4.4.0
+ * Version: 4.5.0
  * Author: iqonic design
  * Text Domain: kivicare-clinic-management-system
  * Domain Path: /languages
@@ -46,7 +46,7 @@ if (!defined('KIVI_CARE_PREFIX')) {
 }
 
 if (!defined('KIVI_CARE_VERSION')) {
-	define('KIVI_CARE_VERSION', "4.4.0");
+	define('KIVI_CARE_VERSION', "4.5.0");
 }
 
 if (!defined('KIVI_CARE_API_VERSION')) {
@@ -107,7 +107,7 @@ add_action('plugins_loaded', function () {
 		$addons = [
 			'kivicare-pro/kivicare-clinic-management-system-pro.php' => [
 				'name' => 'KiviCare Pro',
-				'version' => '4.4.0',
+				'version' => '4.4.1',
 				'constant' => 'KIVI_CARE_PRO_VERSION'
 			],
 			'kivicare-body-chart-addon/kivicare-body-chart.php' => [
@@ -117,32 +117,32 @@ add_action('plugins_loaded', function () {
 			],
 			'kivicare-google-meet/kivicare-googlemeet.php' => [
 				'name' => 'KiviCare Google Meet Addon',
-				'version' => '4.0.0',
+				'version' => '4.0.2',
 				'constant' => 'KIVICARE_GOOGLE_MEET_ADDON_VERSION'
 			],
 			'kivicare-razorpay-addon/kivicare-razorpay-addon.php' => [
 				'name' => 'KiviCare Razorpay Addon',
-				'version' => '4.0.2',
+				'version' => '4.0.3',
 				'constant' => 'KIVI_CARE_RAZORPAY_VERSION'
 			],
 			'kivicare-stripe-addon/kivicare-stripepay-addon.php' => [
 				'name' => 'KiviCare Stripe Addon',
-				'version' => '4.0.3',
+				'version' => '4.0.4',
 				'constant' => 'KIVI_CARE_STRIPE_ADDON_VERSION'
 			],
 			'kivicare-telemed-addon/kivicare-telemed-addon.php' => [
 				'name' => 'KiviCare Telemed Addon',
-				'version' => '4.0.0',
+				'version' => '4.0.1',
 				'constant' => 'KIVICARE_TELEMED_VERSION'
 			],
 			'kivicare-webhook-addon/kivicare-webhooks-addon.php' => [
 				'name' => 'KiviCare Webhooks Addon',
-				'version' => '4.0.1',
+				'version' => '4.0.2',
 				'constant' => 'KIVICARE_WEBHOOKS_ADDON_VERSION'
 			],
 			'kivicare-api/kivicare-api.php' => [
 				'name' => 'KiviCare API',
-				'version' => '10.2.0',
+				'version' => '10.1.0',
 				'constant' => 'KIVICARE_API_VERSION'
 			],
 		];

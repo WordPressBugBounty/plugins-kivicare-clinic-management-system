@@ -190,7 +190,14 @@ abstract class KCAbstractPaymentGateway {
      * @return string Return URL
      */
     protected function get_return_url($appointment_id) {
-        return rest_url('kivicare/v1/appointments/payment-success?appointment_id=' . $appointment_id . '&gateway='.$this->gateway_id);   
+        $expires = time() + 300; // 5-minute window for the gateway redirect
+        $token   = hash_hmac('sha256', $appointment_id . '|' . $this->gateway_id . '|' . $expires, AUTH_KEY);
+        return rest_url(
+            'kivicare/v1/appointments/payment-success?appointment_id=' . $appointment_id
+            . '&gateway=' . $this->gateway_id
+            . '&kc_expires=' . $expires
+            . '&kc_token=' . $token
+        );
     }
     
     /**
@@ -199,7 +206,14 @@ abstract class KCAbstractPaymentGateway {
      * @return string Cancel URL
      */
     protected function get_cancel_url($appointment_id) {
-        return rest_url('kivicare/v1/appointments/payment-cancel?appointment_id=' . $appointment_id . '&gateway='.$this->gateway_id);
+        $expires = time() + 300;
+        $token   = hash_hmac('sha256', $appointment_id . '|' . $this->gateway_id . '|' . $expires, AUTH_KEY);
+        return rest_url(
+            'kivicare/v1/appointments/payment-cancel?appointment_id=' . $appointment_id
+            . '&gateway=' . $this->gateway_id
+            . '&kc_expires=' . $expires
+            . '&kc_token=' . $token
+        );
     }
 
     /**
@@ -220,6 +234,16 @@ abstract class KCAbstractPaymentGateway {
      */
     public function is_webhook_configured(): bool {
         return false;
+    }
+
+    /**
+     * Whether REST payment success/cancel callbacks should redirect the browser.
+     * Window/embedded gateways can return false to let frontend JS handle the result.
+     *
+     * @return bool
+     */
+    public function should_redirect_after_callback(): bool {
+        return true;
     }
 
     public function get_fields(): array {

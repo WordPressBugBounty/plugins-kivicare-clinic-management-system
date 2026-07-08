@@ -667,11 +667,10 @@ class AuthController extends KCBaseController
 
         $logout_redirects = KCOption::get('logout_redirect', []);
 
-        // Initialize redirect_url with empty string
-        $redirect_url = '';
 
-        // Check if a custom redirect is set for this role using the short key
-        if (!empty($logout_redirects[$role])) {
+        $redirect_url= wp_login_url();
+        // Check if a custom redirect is set for this role using the short key.
+        if (!empty($logout_redirects[$role]) && $this->isValidApplicationLogoutRedirect($logout_redirects[$role])) {
             $redirect_url = apply_filters('kc_logout_redirect_url', $logout_redirects[$role], $role);
         }
 
@@ -886,16 +885,31 @@ class AuthController extends KCBaseController
     {
         $login_redirects = KCOption::get('login_redirect', []);
 
-        // Redirect to wp-admin if admin
-        if($role == 'administrator'){
-            return home_url('wp-admin');
-        }
         // Check if a custom redirect is set for this role using the short key
         if (!empty($login_redirects[$role])) {
             return apply_filters('kc_login_redirect_url', $login_redirects[$role], $role);
         }
         // Default redirects based on role
         return apply_filters('kc_login_redirect_url', KCDashboardPermalinkHandler::instance()->get_dashboard_url($role) ?? home_url(), $role);
+    }
+    /**
+     * Check whether a saved logout redirect should be honored.
+     *
+     * @param string $url Redirect URL.
+     * @return bool
+     */
+    private function isValidApplicationLogoutRedirect(string $url): bool
+    {
+        $path = wp_parse_url($url, PHP_URL_PATH);
+
+        if (empty($path)) {
+            return false;
+        }
+
+        $path = untrailingslashit($path);
+        $basename = basename($path);
+
+        return $basename !== 'wp-login.php' && $basename !== 'wp-admin';
     }
 
     /**
@@ -911,7 +925,7 @@ class AuthController extends KCBaseController
         }
 
         foreach ($user->roles as $role) {
-            if (in_array($role, $this->kcbase->KCGetRoles())) {
+            if (in_array($role, ['administrator',...$this->kcbase->KCGetRoles()])) {
                 return true;
             }
         }
@@ -1011,11 +1025,13 @@ class AuthController extends KCBaseController
         $user = get_userdata($user_id);
 
         if (!$user) {
+            KCErrorLogger::instance()->error('sendWelcomeEmail failed: user data not found for ID ' . $user_id);
             return false;
         }
 
         // Prepare user data for template
         $userData = [
+            'id' => $user_id,
             'user_name' => $user->display_name ?: $username,
             'user_email' => $user->user_email,
             'user_password' => $password,
@@ -1038,8 +1054,12 @@ class AuthController extends KCBaseController
             $templateName = KIVI_CARE_PREFIX . 'clinic_admin_registration';
         }
 
-        // Send email using template
-        return $this->emailSender->sendUserRegistrationEmail($templateName, $userData);
+        // Send email using template directly (bypasses context-based queuing so password is available)
+        $result = $this->emailSender->sendEmailByTemplate($templateName, $user->user_email, $userData);
+        if (!$result) {
+            KCErrorLogger::instance()->error('sendWelcomeEmail failed: email could not be sent to user ' . $user_id . ' using template ' . $templateName);
+        }
+        return $result;
     }
 
     /**

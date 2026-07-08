@@ -5,6 +5,8 @@ use App\abstracts\KCShortcodeAbstract;
 use App\baseClasses\KCPaymentGatewayFactory;
 use App\models\KCOption;
 use App\models\KCClinic;
+use App\models\KCServiceDoctorMapping;
+use App\models\KCDoctor;
 
 class KCBookAppointment extends KCShortcodeAbstract
 {
@@ -84,6 +86,8 @@ class KCBookAppointment extends KCShortcodeAbstract
 
         $show_print_button = isset($widgetSettings['widget_print']) ? filter_var($widgetSettings['widget_print'], FILTER_VALIDATE_BOOLEAN) : false;
 
+        $service_ids = array_filter(array_map('absint', explode(',', (string) ($atts['service_id'] ?? ''))));
+
         // Get default clinic ID
         $default_clinic_id = KCClinic::kcGetDefaultClinicId();
 
@@ -91,9 +95,16 @@ class KCBookAppointment extends KCShortcodeAbstract
         $clinic_id = !empty($atts['clinic_id']) ? $atts['clinic_id'] : 0;
         if (empty($clinic_id)) {
             if (isKiviCareProActive()) {
-                $clinics = KCClinic::query()->where('status', 1)->get();
-                if ($clinics->count() === 1) {
-                    $clinic_id = $clinics->first()->id;
+                if (!empty($service_ids)) {
+                    $single_clinic_id = $this->get_single_clinic_id_for_services($service_ids);
+                    if (!empty($single_clinic_id)) {
+                        $clinic_id = $single_clinic_id;
+                    }
+                } else {
+                    $clinics = KCClinic::query()->where('status', 1)->get();
+                    if ($clinics->count() === 1) {
+                        $clinic_id = $clinics->first()->id;
+                    }
                 }
                 // improvement: If a default clinic is explicitly set and only one clinic is found or user wants skip, we honor it.
                 // However, we only auto-skip if it's the only choice to avoid restricting multi-clinic setups unless forced.
@@ -119,6 +130,15 @@ class KCBookAppointment extends KCShortcodeAbstract
             }
         }
 
+        $current_url = set_url_scheme('http://' . sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'] ?? '')) . sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'] ?? '')));
+
+        $service_ids_attr = implode(',', $service_ids);
+        $doctor_id = !empty($atts['doctor_id']) ? absint($atts['doctor_id']) : 0;
+
+        if (empty($doctor_id) && !empty($clinic_id) && !empty($service_ids)) {
+            $doctor_id = $this->get_single_doctor_id_for_services($service_ids, (int) $clinic_id);
+        }
+
         $data_attrs = [
             'data-form-id' => esc_attr($atts['form_id']),
             'data-title' => esc_attr($atts['title']),
@@ -128,10 +148,11 @@ class KCBookAppointment extends KCShortcodeAbstract
             'data-payment-gateways' => esc_attr(wp_json_encode($paymentGateways)),
             'data-current-user-id' => get_current_user_id(),
             'data-page-id' => get_the_ID(),
+            'data-page-url' => esc_url($current_url),
             'data-show-print-button' => $show_print_button ? 'true' : 'false',
             'data-clinic-id' => esc_attr($clinic_id),
-            'data-doctor-id' => esc_attr($atts['doctor_id']),
-            'data-service-id' => esc_attr($atts['service_id']),
+            'data-doctor-id' => esc_attr($doctor_id),
+            'data-service-id' => esc_attr($service_ids_attr),
             'data-timezone' => esc_attr($timezone_string),
             'data-default-clinic-id' => esc_attr($default_clinic_id),
             'data-primary-color' => isset($widgetSettings['primaryColor']) ? esc_attr($widgetSettings['primaryColor']) : '',
@@ -155,21 +176,21 @@ class KCBookAppointment extends KCShortcodeAbstract
 
         // Check for payment_id parameter
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        if (isset($_GET['payment_id']) && sanitize_text_field( wp_unslash( $_GET['payment_id'] ) ) !== '') {
+        if (isset($_GET['payment_id']) && sanitize_text_field(wp_unslash($_GET['payment_id'])) !== '') {
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             $query_params['payment_id'] = sanitize_text_field(wp_unslash($_GET['payment_id']));
         }
 
         // Check for message parameter
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        if (isset($_GET['message']) && sanitize_text_field( wp_unslash( $_GET['message'] ) ) !== '') {
+        if (isset($_GET['message']) && sanitize_text_field(wp_unslash($_GET['message'])) !== '') {
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             $query_params['message'] = sanitize_text_field(wp_unslash($_GET['message']));
         }
 
         // Check for appointment_id parameter
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        if (isset($_GET['appointment_id']) && sanitize_text_field( wp_unslash( $_GET['appointment_id'] ) ) !== '') {
+        if (isset($_GET['appointment_id']) && sanitize_text_field(wp_unslash($_GET['appointment_id'])) !== '') {
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             $query_params['appointment_id'] = sanitize_text_field(wp_unslash($_GET['appointment_id']));
         }
@@ -195,7 +216,171 @@ class KCBookAppointment extends KCShortcodeAbstract
                 <h3 class="kc-book-appointment-title"><?php echo esc_html($atts['title']); ?></h3>
             <?php endif; ?>
 
+            <div class="kivi-widget">
+                <div class="container-fluid" id="kivicare-widget-main-content">
+                    <div class="widget-layout" id="widgetOrders">
+                        <div class="iq-card iq-card-lg iq-bg-primary widget-tabs" style="overflow: hidden;">
+                            <ul class="tab-list" id="kivicare-animate-ul">
+                                <?php for ($i = 0; $i < 5; $i++): ?>
+                                    <?php $this->render_loading_tab(); ?>
+                                <?php endfor; ?>
+                            </ul>
+                        </div>
+                        <div class="widget-pannel alert-relative">
+                            <div class="iq-card iq-card-sm tab-content" id="wizard-tab">
+                                <div class="iq-fade active">
+                                    <div>
+                                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
+                                            <div class="iq-kivi-tab-panel-title-animation">
+                                                <h3 class="iq-kivi-tab-panel-title">
+                                                    <div class="skeleton-element " style="width: 150px; height: 30px;"
+                                                        role="status" aria-label="Loading content"></div>
+                                                </h3>
+                                            </div>
+                                            <div class="iq-kivi-search">
+                                                <div class="skeleton-element "
+                                                    style="width: 200px; height: 40px; border-radius: 10px;" role="status"
+                                                    aria-label="Loading content"></div>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="widget-content">
+                                            <div class="card-list-data flex-column gap-2 h-100">
+                                                <div class="d-flex flex-column gap-1 pt-2">
+                                                    <div class="card-list-data text-center pt-2 mb-3">
+                                                        <div class="card-list pe-2 pt-1">
+                                                            <div class="kc-card-list">
+                                                                <?php for ($i = 0; $i < 3; $i++): ?>
+                                                                    <?php $this->render_loading_card(); ?>
+                                                                <?php endfor; ?>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <?php
+    }
+
+    private function render_loading_tab(): void
+    {
+        ?>
+        <li class="tab-item">
+            <div class="tab-link" style="cursor: default;"><span class="sidebar-heading-text">
+                    <div class="skeleton-element " style="width: 120px; height: 20px;" role="status"
+                        aria-label="Loading content"></div>
+                </span>
+                <div class="mb-0 mt-1">
+                    <div class="skeleton-element " style="width: 180px; height: 14px;" role="status"
+                        aria-label="Loading content"></div>
+                </div>
+            </div>
+        </li>
+        <?php
+    }
+
+    private function render_loading_card(): void
+    {
+        ?>
+        <div class="iq-client-widget">
+            <div class="btn-border01 w-100">
+                <div class="iq-card iq-card-lg iq-fancy-design iq-card-border p-3">
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        <div class="skeleton-element " style="width: 90px; height: 90px; border-radius: 50%;" role="status" aria-label="Loading content">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center mb-2">
+                        <div class="skeleton-element " style="width: 60%; height: 24px;" role="status" aria-label="Loading content">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center mb-3">
+                        <div class="skeleton-element " style="width: 80%; height: 16px;" role="status" aria-label="Loading content">
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div class="skeleton-element " style="width: 40px; height: 16px;" role="status" aria-label="Loading content"></div>
+                            <div class="skeleton-element " style="width: 120px; height: 16px;" role="status" aria-label="Loading content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * Resolve a single active clinic that supports every preselected service.
+     *
+     * @param array $service_ids KC service IDs.
+     * @return int
+     */
+    private function get_single_clinic_id_for_services(array $service_ids): int
+    {
+        $service_count = count($service_ids);
+        if ($service_count === 0) {
+            return 0;
+        }
+
+        $mappings = KCServiceDoctorMapping::query()
+            ->whereIn('service_id', $service_ids)
+            ->where('status', 1)
+            ->select(['clinic_id', 'service_id'])
+            ->get()
+            ->groupBy('clinicId')
+            ->filter(function ($clinic_mappings) use ($service_count) {
+                return $clinic_mappings->pluck('serviceId')->unique()->count() === $service_count;
+            });
+        if ($mappings->count() !== 1) {
+            return 0;
+        }
+
+        $clinic_id = (int) $mappings->keys()->first();
+        $clinic = KCClinic::find($clinic_id);
+
+        return $clinic && (int) $clinic->status === 1 ? $clinic_id : 0;
+    }
+
+    /**
+     * Resolve a single active doctor in a clinic that supports every service.
+     *
+     * @param array $service_ids KC service IDs.
+     * @param int   $clinic_id Clinic ID.
+     * @return int
+     */
+    private function get_single_doctor_id_for_services(array $service_ids, int $clinic_id): int
+    {
+        $service_count = count($service_ids);
+        if ($service_count === 0 || $clinic_id <= 0) {
+            return 0;
+        }
+
+        $mappings = KCServiceDoctorMapping::query()
+            ->whereIn('service_id', $service_ids)
+            ->where('clinic_id', $clinic_id)
+            ->where('status', 1)
+            ->select(['doctor_id', 'service_id'])
+            ->get()
+            ->groupBy('doctorId')
+            ->filter(function ($doctor_mappings) use ($service_count) {
+                return $doctor_mappings->pluck('serviceId')->unique()->count() === $service_count;
+            });
+
+        if ($mappings->count() !== 1) {
+            return 0;
+        }
+
+        $doctor_id = (int) $mappings->keys()->first();
+        $doctor = KCDoctor::find($doctor_id);
+
+        return $doctor && (int) $doctor->userStatus === 0 ? $doctor_id : 0;
     }
 }

@@ -165,6 +165,10 @@ class KCEmailNotificationInit
             // Fetch data based on module
             $data = $this->fetchDataByModule($context['module'], $context['entity_id']);
 
+            if (empty($data) && !empty($context['options']['data_snapshot']) && is_array($context['options']['data_snapshot'])) {
+                $data = $context['options']['data_snapshot'];
+            }
+
             if (empty($data)) {
                 KCErrorLogger::instance()->error("KiviCare Email Context Error: No data found for module '{$context['module']}' with ID {$context['entity_id']}");
                 return;
@@ -188,8 +192,14 @@ class KCEmailNotificationInit
             $templateManager = new KCEmailTemplateManager();
             $template = $templateManager->getTemplate($context['template_name'], 'mail');
 
-            if (!$template) {
-                KCErrorLogger::instance()->error("KiviCare Email Context Error: Template '{$context['template_name']}' not found.");
+            if (is_wp_error($template)) {
+                $code    = $template->get_error_code();
+                $message = $template->get_error_message();
+                if ($code === 'template_not_published') {
+                    KCErrorLogger::instance()->info("KiviCare Email Context: {$message}");
+                } else {
+                    KCErrorLogger::instance()->error("KiviCare Email Context: {$message}");
+                }
                 return;
             }
 
@@ -359,25 +369,35 @@ class KCEmailNotificationInit
      */
     private function getRecipientEmail(array $data, string $recipientType): ?string
     {
+        $recipient = null;
+
         // Special case: if data has 'user' key (for user module), use it directly
         if (isset($data['user']['email'])) {
-            return $data['user']['email'];
+            $recipient = $data['user'];
+        } else {
+            $recipient = $data[$recipientType] ?? null;
         }
 
-        // Otherwise use recipient type
-        switch ($recipientType) {
-            case 'patient':
-                return $data['patient']['email'] ?? null;
-
-            case 'doctor':
-                return $data['doctor']['email'] ?? null;
-
-            case 'clinic':
-                return $data['clinic']['email'] ?? null;
-
-            default:
-                return null;
+        if (empty($recipient['email'])) {
+            return null;
         }
+        // Check if recipient is active
+        // For clinics: 1 is active, 0 is inactive
+        // For users (patient, doctor, receptionist, etc.): 0 is active, 1 is inactive
+        if (isset($recipient['status'])) {
+            $status = (int) $recipient['status'];
+            if ($recipientType === 'clinic') {
+                if ($status === 0) {
+                    return null;
+                }
+            } else {
+                if ($status === 1) {
+                    return null;
+                }
+            }
+        }
+
+        return $recipient['email'];
     }
 
     /**
@@ -439,6 +459,7 @@ class KCEmailNotificationInit
                 'last_name' => $patient->lastName,
                 'display_name' => $patient->displayName,
                 'contact_number' => $patient->contactNumber,
+                'status' => $patient->status,
             ] : null,
             'doctor' => $doctor ? [
                 'id' => $doctor->id,
@@ -447,6 +468,7 @@ class KCEmailNotificationInit
                 'last_name' => $doctor->lastName,
                 'display_name' => $doctor->displayName,
                 'contact_number' => $doctor->contactNumber,
+                'status' => $doctor->status,
             ] : null,
             'clinic' => $clinic ? [
                 'id' => $clinic->id,
@@ -455,6 +477,7 @@ class KCEmailNotificationInit
                 'address' => $clinic->address,
                 'city' => $clinic->city,
                 'country' => $clinic->country,
+                'status' => $clinic->status,
             ] : null,
         ];
     }
@@ -488,6 +511,7 @@ class KCEmailNotificationInit
                 'city' => $patient->city,
                 'country' => $patient->country,
                 'postal_code' => $patient->postalCode,
+                'status' => $patient->status,
             ]
         ];
     }
@@ -519,6 +543,7 @@ class KCEmailNotificationInit
                 'address' => $doctor->address,
                 'city' => $doctor->city,
                 'country' => $doctor->country,
+                'status' => $doctor->status,
             ]
         ];
     }
@@ -554,17 +579,20 @@ class KCEmailNotificationInit
                 'first_name' => $patient->firstName,
                 'last_name' => $patient->lastName,
                 'display_name' => $patient->displayName,
+                'status' => $patient->status,
             ] : null,
             'doctor' => $doctor ? [
                 'id' => $doctor->id,
                 'email' => $doctor->email,
                 'first_name' => $doctor->firstName,
                 'last_name' => $doctor->lastName,
+                'status' => $doctor->status,
             ] : null,
             'clinic' => $clinic ? [
                 'id' => $clinic->id,
                 'name' => $clinic->name,
                 'email' => $clinic->email,
+                'status' => $clinic->status,
             ] : null,
         ];
     }
@@ -601,6 +629,7 @@ class KCEmailNotificationInit
                 'email' => $patient->email,
                 'first_name' => $patient->firstName,
                 'last_name' => $patient->lastName,
+                'status' => $patient->status,
             ] : null,
         ];
     }
@@ -637,11 +666,13 @@ class KCEmailNotificationInit
                 'email' => $patient->email,
                 'first_name' => $patient->firstName,
                 'last_name' => $patient->lastName,
+                'status' => $patient->status,
             ] : null,
             'doctor' => $doctor ? [
                 'id' => $doctor->id,
                 'first_name' => $doctor->firstName,
                 'last_name' => $doctor->lastName,
+                'status' => $doctor->status,
             ] : null,
         ];
     }
@@ -672,6 +703,7 @@ class KCEmailNotificationInit
                 'last_name' => $user->last_name,
                 'display_name' => $user->display_name,
                 'contact_number' => $basicData['mobile_number'] ?? '',
+                'status' => $user->user_status,
             ]
         ];
     }

@@ -199,7 +199,7 @@ class PatientController extends KCBaseController
     public function validateDob($param)
     {
         if (empty($param)) {
-            return new WP_Error('invalid_dob', __('Date of birth is required', 'kivicare-clinic-management-system'));
+            return true;
         }
         $date = \DateTime::createFromFormat('Y-m-d', $param);
         if (!$date || $date->format('Y-m-d') !== $param) {
@@ -491,7 +491,7 @@ class PatientController extends KCBaseController
             'dob' => [
                 'description' => 'Date of birth (YYYY-MM-DD)',
                 'type' => 'string',
-                'required' => true,
+                'required' => false,
                 'validate_callback' => [$this, 'validateDob'],
                 'sanitize_callback' => 'sanitize_text_field',
             ],
@@ -1271,7 +1271,7 @@ class PatientController extends KCBaseController
             $patient->gender = $params['gender'];
             $patient->bloodGroup = $params['blood_group'];
             $patient->contactNumber = $params['mobile_number'];
-            $patient->dob = $params['dob'];
+            $patient->dob = $params['dob'] ?? '';
             $patient->address = $params['address'];
             $patient->city = $params['city'];
             $patient->country = $params['country'];
@@ -1459,7 +1459,7 @@ class PatientController extends KCBaseController
             $patient->gender = $params['gender'];
             $patient->bloodGroup = $params['blood_group'];
             $patient->contactNumber = $params['mobile_number'];
-            $patient->dob = $params['dob'];
+            $patient->dob = $params['dob'] ?? '';
             $patient->address = $params['address'];
             $patient->city = $params['city'];
             $patient->country = $params['country'];

@@ -37,12 +37,14 @@ class ListingData extends SettingsController
             'methods' => 'GET',
             'callback' => [$this, 'getListingData'],
             'permission_callback' => [$this, 'checkPermission'],
+            'args' => $this->getListingEndpointArgs(),
         ]);
 
         $this->registerRoute("/{$this->route}/static-data", [
             'methods' => 'GET',
             'callback' => [$this, 'getListingData'],
             'permission_callback' => [$this, 'checkPermission'],
+            'args' => $this->getListingEndpointArgs(),
         ]);
 
         $this->registerRoute("/{$this->route}/edit", [
@@ -70,6 +72,177 @@ class ListingData extends SettingsController
             'permission_callback' => [$this, 'checkPermission'],
             'args' => $this->getExportEndpointArgs()
         ]);
+    }
+
+    /**
+     * Get arguments for listing endpoints.
+     *
+     * @return array
+     */
+    private function getListingEndpointArgs(): array
+    {
+        return [
+            'searchTerm' => [
+                'description'       => __('Search term to filter listing data.', 'kivicare-clinic-management-system'),
+                'type'              => 'string',
+                'required'          => false,
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'type' => [
+                'description'       => __('Static data type filter.', 'kivicare-clinic-management-system'),
+                'type'              => 'string',
+                'required'          => false,
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
+            'status' => [
+                'description'       => __('Filter by status. Use 0 for inactive or 1 for active.', 'kivicare-clinic-management-system'),
+                'type'              => ['integer', 'string', 'null'],
+                'required'          => false,
+                'validate_callback' => function ($param) {
+                    if ($param === null || $param === '') {
+                        return true;
+                    }
+
+                    if (!is_numeric($param) || !in_array((int) $param, [0, 1], true)) {
+                        return new WP_Error('invalid_status', __('Status must be 0 (inactive) or 1 (active).', 'kivicare-clinic-management-system'));
+                    }
+
+                    return true;
+                },
+                'sanitize_callback' => [$this, 'sanitizeListingStatusArg'],
+            ],
+            'page' => [
+                'description'       => __('Current pagination page.', 'kivicare-clinic-management-system'),
+                'type'              => 'integer',
+                'required'          => false,
+                'default'           => 1,
+                'minimum'           => 1,
+                'sanitize_callback' => 'absint',
+            ],
+            'perPage' => [
+                'description'       => __('Number of records per page.', 'kivicare-clinic-management-system'),
+                'type'              => 'integer',
+                'required'          => false,
+                'default'           => 10,
+                'minimum'           => 1,
+                'maximum'           => 100,
+                'sanitize_callback' => 'absint',
+            ],
+            'sort' => [
+                'description'       => __('Sort configuration JSON. Example: [{"field":"id","type":"desc"}].', 'kivicare-clinic-management-system'),
+                'type'              => ['string', 'array'],
+                'required'          => false,
+                'validate_callback' => [$this, 'validateListingSortArg'],
+                'sanitize_callback' => [$this, 'sanitizeListingSortArg'],
+            ],
+        ];
+    }
+
+    /**
+     * Sanitize listing status while preserving empty/null as no filter.
+     *
+     * @param mixed $param Status request parameter.
+     * @return int|string|null
+     */
+    public function sanitizeListingStatusArg($param)
+    {
+        if ($param === null || $param === '') {
+            return $param;
+        }
+
+        return (int) $param;
+    }
+
+    /**
+     * Validate the sort argument used by listing endpoints.
+     *
+     * @param mixed $param Sort request parameter.
+     * @return true|WP_Error
+     */
+    public function validateListingSortArg($param)
+    {
+        if (empty($param)) {
+            return true;
+        }
+
+        $sort = $this->parseListingSortArg($param);
+        if (empty($sort)) {
+            return new WP_Error('invalid_sort', __('Sort must be valid JSON.', 'kivicare-clinic-management-system'));
+        }
+
+        $field = $sort['field'] ?? '';
+        $type = strtolower($sort['type'] ?? '');
+
+        if ($field === '' || $type === '' || $type === 'none') {
+            return true;
+        }
+
+        if (!in_array($field, $this->getListingSortableFields(), true)) {
+            return new WP_Error('invalid_sort_field', __('Invalid sort field.', 'kivicare-clinic-management-system'));
+        }
+
+        if (!in_array($type, ['asc', 'desc'], true)) {
+            return new WP_Error('invalid_sort_type', __('Sort type must be asc, desc, or none.', 'kivicare-clinic-management-system'));
+        }
+
+        return true;
+    }
+
+    /**
+     * Sanitize the sort argument while preserving the existing frontend format.
+     *
+     * @param mixed $param Sort request parameter.
+     * @return array|string
+     */
+    public function sanitizeListingSortArg($param)
+    {
+        if (empty($param)) {
+            return [];
+        }
+
+        $sort = $this->parseListingSortArg($param);
+        if (empty($sort)) {
+            return [];
+        }
+
+        $field = sanitize_text_field($sort['field'] ?? '');
+        $type = strtolower(sanitize_key($sort['type'] ?? ''));
+
+        if (!in_array($field, $this->getListingSortableFields(), true) || !in_array($type, ['asc', 'desc', 'none'], true)) {
+            return [];
+        }
+
+        return [wp_json_encode([
+            'field' => $field,
+            'type' => $type,
+        ])];
+    }
+
+    /**
+     * Parse sort argument from array/string input.
+     *
+     * @param mixed $param Sort request parameter.
+     * @return array
+     */
+    private function parseListingSortArg($param): array
+    {
+        $rawSort = is_array($param) ? reset($param) : $param;
+        if (!is_string($rawSort) || trim($rawSort) === '') {
+            return [];
+        }
+
+        $decoded = json_decode(stripslashes($rawSort), true);
+        return is_array($decoded) ? kcRecursiveSanitizeTextField($decoded) : [];
+    }
+
+    /**
+     * Allowed sortable database fields for listing data.
+     *
+     * @return string[]
+     */
+    private function getListingSortableFields(): array
+    {
+        return ['id', 'type', 'value', 'label', 'status', 'createdAt'];
     }
 
     public function getListingData(WP_REST_Request $request): WP_REST_Response
@@ -108,8 +281,8 @@ class ListingData extends SettingsController
             $query->where('type', 'LIKE', '%' . strtolower(trim($params['type'])) . '%');
         }
 
-        if (isset($params['status']) && is_numeric($params['status'])) {
-            $query->where('status', (int)$params['status']);
+        if ($request->has_param('status') && $params['status'] !== '' && $params['status'] !== null) {
+            $query->where('status', $params['status']);
         }
 
         $total = $query->count();

@@ -449,7 +449,7 @@ class PrescriptionController extends KCBaseController
             $templateManager = KCEmailTemplateManager::getInstance();
             $template = $templateManager->getTemplate(KIVI_CARE_PREFIX . 'patient_prescription');
 
-            if ($template) {
+            if (!is_wp_error($template)) {
                 $templateProcessor = new KCEmailTemplateProcessor();
                 $emailData = [
                     'prescription' => $prescriptionText,

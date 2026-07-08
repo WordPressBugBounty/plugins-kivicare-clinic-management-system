@@ -150,8 +150,14 @@ class KCEmailSender
             // Get email template
             $template = $this->templateManager->getTemplate($templateName, 'mail');
 
-            if (!$template) {
-                KCErrorLogger::instance()->error("Email template not found: {$templateName}");
+            if (is_wp_error($template)) {
+                $code = $template->get_error_code();
+                $message = $template->get_error_message();
+                if ($code === 'template_not_published') {
+                    KCErrorLogger::instance()->info("KCEmailSender: {$message}");
+                } else {
+                    KCErrorLogger::instance()->error("KCEmailSender: {$message}");
+                }
                 return false;
             }
 
@@ -202,12 +208,14 @@ class KCEmailSender
      * @param string $templateName Email template name
      * @param array $appointmentData Appointment data (must contain appointment['id'])
      * @param string $recipientType Recipient type (patient, doctor, clinic)
+     * @param array $options Additional context options.
      * @return bool
      */
     public function sendAppointmentNotification(
         string $templateName,
         array $appointmentData,
-        string $recipientType = 'patient'
+        string $recipientType = 'patient',
+        array $options = []
     ): bool {
         // Extract appointment ID from data
         $appointmentId = $appointmentData['appointment']['id'] ?? null;
@@ -233,9 +241,9 @@ class KCEmailSender
             'appointment',
             (int) $appointmentId,
             $recipientType,
-            [
+            array_merge($options, [
                 'custom_data' => $customData
-            ] 
+            ])
         );
     }
 
@@ -463,4 +471,3 @@ class KCEmailSender
         }
     }
 }
-

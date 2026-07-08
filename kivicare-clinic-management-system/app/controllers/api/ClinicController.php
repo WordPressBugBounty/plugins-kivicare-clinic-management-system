@@ -329,7 +329,7 @@ class ClinicController extends KCBaseController
         $this->registerRoute('/' . $this->route . '/(?P<id>\d+)/change-admin', [
             'methods' => 'POST',
             'callback' => [$this, 'changeClinicAdmin'],
-            'permission_callback' => [$this, 'checkPermission'],
+            'permission_callback' => fn() => $this->kcbase->getLoginUserRole()==='administrator',
         ]);
     }
 
@@ -531,7 +531,12 @@ class ClinicController extends KCBaseController
                 'description' => 'Clinic admin timezone (IANA timezone identifier)',
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_text_field',
-            ]
+            ],
+            'google_map_url' => [
+                'description' => 'Google Map URL for clinic location',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
         ];
     }
 
@@ -917,7 +922,8 @@ class ClinicController extends KCBaseController
                     'clinic_admin_name' => $clinic_admin_name,
                     'clinic_admin_email' => $clinic_admin_email,
                     'created_at' => $clinic->createdAt,
-                    'updated_at' => $clinic->updatedAt
+                    'updated_at' => $clinic->updatedAt,
+                    'google_map_url' => $clinic->googleMapUrl ?? '',
                 ];
 
                 $clinicsData[] = $clinicData;
@@ -1155,6 +1161,7 @@ class ClinicController extends KCBaseController
                 'is_holiday' => in_array((int)$clinic->id, $holidayClinicIds, true),
                 'total_satisfaction' => 0.0, // Default value, Pro plugin will override if active
                 'is_admin_found' => $isAdminFound,
+                'google_map_url' => $clinic->googleMapUrl ?? '',
             ], $adminData);
 
             // Allow Pro plugin to modify clinic data
@@ -1215,7 +1222,7 @@ class ClinicController extends KCBaseController
             $clinicData = [
                 'name' => $params['name'],
                 'email' => $params['email'],
-                'specialties' => is_array($params['specialties']) ? json_encode($params['specialties']) : $params['specialties'],
+                'specialties' => is_array($params['specialties']) ? json_encode($params['specialties'], JSON_UNESCAPED_UNICODE) : $params['specialties'],
                 'status' => ($params['status'] === 'active') ? 1 : 0,
                 'clinic_contact' => $params['clinic_contact'],
                 'address' => $params['address'],
@@ -1223,6 +1230,7 @@ class ClinicController extends KCBaseController
                 'country' => $params['country'],
                 'postal_code' => $params['postal_code'],
                 'description' => $params['description'] ?? '',
+                'google_map_url' => $params['google_map_url'] ?? '',
                 'created_at' => current_time('mysql')
             ];
 
@@ -1241,7 +1249,7 @@ class ClinicController extends KCBaseController
             $admin_user_id = null;
 
             // Create clinic admin user if admin data is provided
-            $username = sanitize_user($params['first_name'] . '_' . $params['last_name'] . '_' . time());
+            $username = kcGenerateUsername(($params['first_name'] ?? '') . ' ' . ($params['last_name'] ?? ''), $params['user_email'] ?? '');
             $password = wp_generate_password(12);
 
             $admin_user_id = wp_create_user($username, $password, $params['user_email']);
@@ -1282,7 +1290,7 @@ class ClinicController extends KCBaseController
 
             update_user_meta($admin_user_id, 'first_name', $params['first_name']);
             update_user_meta($admin_user_id, 'last_name', $params['last_name']);
-            update_user_meta($admin_user_id, 'basic_data', json_encode($admin_data));
+            update_user_meta($admin_user_id, 'basic_data', json_encode($admin_data, JSON_UNESCAPED_UNICODE));
             update_user_meta($admin_user_id, 'clinic_id', $clinic->id);
 
             // Store admin profile image if provided
@@ -1304,6 +1312,7 @@ class ClinicController extends KCBaseController
                 'status' => (int) $clinic->status,
                 'clinic_image_url' => $clinic->profile_image ? wp_get_attachment_url($clinic->profile_image) : '',
                 'created_at' => $clinic->created_at,
+                'google_map_url' => $clinic->google_map_url ?? '',
                 'admin_id' => $admin_user_id
             ];
 
@@ -1452,7 +1461,7 @@ class ClinicController extends KCBaseController
                     }
 
                     // Update basic_data meta
-                    $admin->updateMeta('basic_data', json_encode($adminData));
+                    $admin->updateMeta('basic_data', json_encode($adminData, JSON_UNESCAPED_UNICODE));
                 }
             }
 
@@ -1499,6 +1508,7 @@ class ClinicController extends KCBaseController
                 'specialties' => 'specialties',
                 'status' => 'status',
                 'clinic_image_id' => 'profileImage',
+                'google_map_url' => 'googleMapUrl',
             ];
 
             // default clinic status is 1
@@ -1551,7 +1561,8 @@ class ClinicController extends KCBaseController
                     ? wp_get_attachment_url($updatedClinic->profileImage)
                     : null,
                 'updated_at' => $updatedClinic->updated_at,
-                'admin' => $this->getFormattedAdminData($clinic->clinicAdminId)
+                'admin' => $this->getFormattedAdminData($clinic->clinicAdminId),
+                'google_map_url' => $updatedClinic->googleMapUrl ?? '',
             ];
 
             do_action('kcpro_clinic_update',$clinicData);
@@ -2656,7 +2667,7 @@ class ClinicController extends KCBaseController
                 return new \WP_Error('missing_email', __('Administrator email is required', 'kivicare-clinic-management-system'));
             }
 
-            $username = sanitize_user($first_name . '_' . $last_name . '_' . time());
+            $username = kcGenerateUsername($first_name . ' ' . $last_name, $email);
             $password = wp_generate_password(12);
 
             $admin_user_id = wp_create_user($username, $password, $email);
@@ -2682,7 +2693,7 @@ class ClinicController extends KCBaseController
 
             update_user_meta($admin_user_id, 'first_name', $first_name);
             update_user_meta($admin_user_id, 'last_name', $last_name);
-            update_user_meta($admin_user_id, 'basic_data', json_encode($admin_data));
+            update_user_meta($admin_user_id, 'basic_data', json_encode($admin_data, JSON_UNESCAPED_UNICODE));
             
             if (!empty($params['admin_image_id'])) {
                 update_user_meta($admin_user_id, 'clinic_admin_profile_image', (int) $params['admin_image_id']);
@@ -2701,7 +2712,7 @@ class ClinicController extends KCBaseController
                 $basic_data['first_name'] = $first_name;
                 $basic_data['last_name'] = $last_name;
                 $basic_data['clinic_id'] = $clinic->id;
-                update_user_meta($admin_user_id, 'basic_data', json_encode($basic_data));
+                update_user_meta($admin_user_id, 'basic_data', json_encode($basic_data, JSON_UNESCAPED_UNICODE));
             }
         }
 

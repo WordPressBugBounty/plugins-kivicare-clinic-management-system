@@ -107,12 +107,12 @@ class KCPayLater extends KCAbstractPaymentGateway {
      * @return array Response data
      */
     public function handle_payment_callback($callback_data) {
-        // For pay later/manual, no callback is expected - return pending
-        $appointment_id = $callback_data['appointment_id'] ?? 0;
+        // Pay Later has no real payment callback. Returning 'failed' intentionally
+        // prevents the payment-success REST endpoint from auto-confirming appointments
+        // via the manual gateway — an admin must confirm Pay Later bookings explicitly.
         return $this->create_payment_response(
-            'pending',
-            'Pay Later option selected - awaiting manual payment',
-            ['appointment_id' => $appointment_id]
+            'failed',
+            'Pay Later bookings require manual confirmation by an administrator.'
         );
     }
 

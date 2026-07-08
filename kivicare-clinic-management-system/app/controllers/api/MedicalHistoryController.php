@@ -3,9 +3,11 @@
 namespace App\controllers\api;
 
 use App\baseClasses\KCBaseController;
+use App\models\KCClinic;
 use App\models\KCMedicalHistory;
 use App\models\KCPatient;
 use App\models\KCPatientEncounter;
+use App\models\KCReceptionistClinicMapping;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
@@ -27,7 +29,7 @@ class MedicalHistoryController extends KCBaseController
         $this->registerRoute('/' . $this->route, [
             'methods' => 'GET',
             'callback' => [$this, 'getMedicalHistories'],
-            'permission_callback' => [$this, 'checkPermission'],
+            'permission_callback' => [$this, 'checkListPermission'],
             'args' => $this->getListEndpointArgs()
         ]);
 
@@ -35,7 +37,7 @@ class MedicalHistoryController extends KCBaseController
         $this->registerRoute('/' . $this->route . '/(?P<id>\d+)', [
             'methods' => 'GET',
             'callback' => [$this, 'getMedicalHistory'],
-            'permission_callback' => [$this, 'checkPermission'],
+            'permission_callback' => [$this, 'checkSinglePermission'],
             'args' => $this->getSingleEndpointArgs()
         ]);
 
@@ -51,7 +53,7 @@ class MedicalHistoryController extends KCBaseController
         $this->registerRoute('/' . $this->route . '/(?P<id>\d+)', [
             'methods' => 'PUT',
             'callback' => [$this, 'updateMedicalHistory'],
-            'permission_callback' => [$this, 'checkUpdatePermission'],
+            'permission_callback' => [$this, 'checkUpdatePermissionWithOwnership'],
             'args' => $this->getUpdateEndpointArgs()
         ]);
 
@@ -59,7 +61,7 @@ class MedicalHistoryController extends KCBaseController
         $this->registerRoute('/' . $this->route . '/(?P<id>\d+)', [
             'methods' => 'DELETE',
             'callback' => [$this, 'deleteMedicalHistory'],
-            'permission_callback' => [$this, 'checkDeletePermission'],
+            'permission_callback' => [$this, 'checkDeletePermissionWithOwnership'],
             'args' => $this->getSingleEndpointArgs()
         ]);
     }
@@ -178,21 +180,221 @@ class MedicalHistoryController extends KCBaseController
         return $args;
     }
 
-    public function checkPermission($request)
+    public function checkListPermission($request)
     {
-        return $this->checkCapability('medical_records_list');
+        if (!$this->checkCapability('medical_records_list')) {
+            return false;
+        }
+
+        if ($request->get_param('encounter_id') > 0) {
+            $encounter = KCPatientEncounter::find($request->get_param('encounter_id'));
+            if (!$encounter) {
+                return false;
+            }
+
+            $targetPatientId = $request->get_param('patient_id') > 0 ? $request->get_param('patient_id') : (int) $encounter->patientId;
+            return $this->canAccessMedicalHistoryTarget($targetPatientId, $request->get_param('encounter_id'));
+        }
+
+        if ($request->get_param('patient_id') > 0 && $this->kcbase->getLoginUserRole() === $this->kcbase->getPatientRole()) {
+            return $request->get_param('patient_id') === (int) get_current_user_id();
+        }
+
+        return true;
     }
+
+    public function checkSinglePermission($request)
+    {
+        if (!$this->checkCapability('medical_records_list')) {
+            return false;
+        }
+
+        return $this->canAccessMedicalHistoryId($request->get_param('id'));
+    }
+
     public function checkCreatePermission($request)
     {
-        return $this->checkCapability('medical_records_add');
+        if (!$this->checkCapability('medical_records_add')) {
+            return false;
+        }
+
+        return $this->canAccessMedicalHistoryTarget(
+            $request->get_param('patient_id'),
+            $request->get_param('encounter_id')
+        );
     }
-    public function checkUpdatePermission($request)
+
+    public function checkUpdatePermissionWithOwnership($request)
     {
-        return $this->checkCapability('medical_records_add');
+        if (!$this->checkCapability('medical_records_add')) {
+            return false;
+        }
+
+        $history = KCMedicalHistory::find($request->get_param('id'));
+        if (!$history || !$this->canAccessMedicalHistory($history)) {
+            return false;
+        }
+
+        $targetPatientId = $request->get_param('patient_id') !== null
+            ? $request->get_param('patient_id')
+            : (int) $history->patientId;
+        $targetEncounterId = $request->get_param('encounter_id') !== null
+            ? $request->get_param('encounter_id')
+            : (int) $history->encounterId;
+
+        return $this->canAccessMedicalHistoryTarget($targetPatientId, $targetEncounterId);
     }
-    public function checkDeletePermission($request)
+
+    public function checkDeletePermissionWithOwnership($request)
     {
-        return $this->checkCapability('medical_records_delete');
+        if (!$this->checkCapability('medical_records_delete')) {
+            return false;
+        }
+
+        return $this->canAccessMedicalHistoryId(absint($request->get_param('id')));
+    }
+
+    /**
+     * Restrict medical history list query to records owned by the current user's role scope.
+     *
+     * @param mixed $query KC query builder instance.
+     * @return void
+     */
+    private function scopeMedicalHistoryQueryByCurrentUser($query): void
+    {
+        $role = $this->kcbase->getLoginUserRole();
+        $currentUserId = get_current_user_id();
+
+        if ($role === 'administrator') {
+            return;
+        }
+
+        if ($role === $this->kcbase->getPatientRole()) {
+            $query->where('patientId', $currentUserId);
+            return;
+        }
+
+        $allowedEncounterIds = $this->getCurrentUserAllowedEncounterIds();
+        $query->whereIn('encounterId', $allowedEncounterIds);
+    }
+
+    /**
+     * Check whether the current user may access a medical history record.
+     */
+    private function canAccessMedicalHistory(KCMedicalHistory $history): bool
+    {
+        return $this->canAccessMedicalHistoryTarget((int) $history->patientId, (int) $history->encounterId);
+    }
+
+    /**
+     * Check whether the current user may access a medical history record by ID.
+     */
+    private function canAccessMedicalHistoryId(int $historyId): bool
+    {
+        if ($historyId <= 0) {
+            return false;
+        }
+
+        $history = KCMedicalHistory::find($historyId);
+        return $history && $this->canAccessMedicalHistory($history);
+    }
+
+    /**
+     * Check whether the current user may access a patient/encounter target.
+     */
+    private function canAccessMedicalHistoryTarget(int $patientId, int $encounterId): bool
+    {
+        if ($patientId <= 0 || $encounterId <= 0) {
+            return false;
+        }
+
+        $role = $this->kcbase->getLoginUserRole();
+        $currentUserId = get_current_user_id();
+
+        if ($role === 'administrator') {
+            return true;
+        }
+
+        $encounter = KCPatientEncounter::find($encounterId);
+        if (!$encounter || (int) $encounter->patientId !== $patientId) {
+            return false;
+        }
+
+        if ($role === $this->kcbase->getPatientRole()) {
+            return $patientId === (int) $currentUserId && (int) $encounter->patientId === (int) $currentUserId;
+        }
+
+        if ($role === $this->kcbase->getDoctorRole()) {
+            return (int) $encounter->doctorId === (int) $currentUserId;
+        }
+
+        if ($role === $this->kcbase->getReceptionistRole()) {
+            return in_array((int) $encounter->clinicId, $this->getReceptionistClinicIds($currentUserId), true);
+        }
+
+        if ($role === $this->kcbase->getClinicAdminRole()) {
+            $clinic = KCClinic::find((int) $encounter->clinicId);
+            return $clinic && (int) $clinic->clinicAdminId === (int) $currentUserId;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get encounter IDs visible to the current doctor/receptionist/clinic admin.
+     *
+     * @return int[]
+     */
+    private function getCurrentUserAllowedEncounterIds(): array
+    {
+        $role = $this->kcbase->getLoginUserRole();
+        $currentUserId = get_current_user_id();
+        $query = KCPatientEncounter::query()->select(['id']);
+
+        if ($role === $this->kcbase->getDoctorRole()) {
+            $query->where('doctorId', $currentUserId);
+        } elseif ($role === $this->kcbase->getReceptionistRole()) {
+            $clinicIds = $this->getReceptionistClinicIds($currentUserId);
+            if (empty($clinicIds)) {
+                return [];
+            }
+
+            $query->whereIn('clinicId', $clinicIds);
+        } elseif ($role === $this->kcbase->getClinicAdminRole()) {
+            $clinicIds = KCClinic::query()
+                ->where('clinicAdminId', $currentUserId)
+                ->select(['id'])
+                ->get()
+                ->map(fn($clinic) => (int) $clinic->id)
+                ->toArray();
+
+            if (empty($clinicIds)) {
+                return [];
+            }
+
+            $query->whereIn('clinicId', $clinicIds);
+        } else {
+            return [];
+        }
+
+        return $query->get()
+            ->map(fn($encounter) => (int) $encounter->id)
+            ->toArray();
+    }
+
+    /**
+     * Get clinic IDs assigned to a receptionist.
+     *
+     * @return int[]
+     */
+    private function getReceptionistClinicIds(int $receptionistId): array
+    {
+        return KCReceptionistClinicMapping::query()
+            ->where('receptionistId', $receptionistId)
+            ->select(['clinic_id'])
+            ->get()
+            ->map(fn($row) => (int) $row->clinicId)
+            ->toArray();
     }
 
     public function getMedicalHistories(WP_REST_Request $request): WP_REST_Response
@@ -209,6 +411,8 @@ class MedicalHistoryController extends KCBaseController
         if (!empty($params['type'])) {
             $query->where('type', $params['type']);
         }
+
+        $this->scopeMedicalHistoryQueryByCurrentUser($query);
 
         if (!empty($params['type'])) {
             $module_map = [
@@ -255,6 +459,10 @@ class MedicalHistoryController extends KCBaseController
             return $this->response(null, __('Medical history not found', 'kivicare-clinic-management-system'), false, 404);
         }
 
+        if (!$this->canAccessMedicalHistory($history)) {
+            return $this->response(null, __('You do not have permission to access this medical history.', 'kivicare-clinic-management-system'), false, 403);
+        }
+
         $data = [
             'id' => $history->id,
             'patient_id' => $history->patientId,
@@ -272,6 +480,10 @@ class MedicalHistoryController extends KCBaseController
     public function createMedicalHistory(WP_REST_Request $request): WP_REST_Response
     {
         $params = $request->get_params();
+
+        if (!$this->canAccessMedicalHistoryTarget((int) $params['patient_id'], (int) $params['encounter_id'])) {
+            return $this->response(null, __('You do not have permission to add medical history for this patient encounter.', 'kivicare-clinic-management-system'), false, 403);
+        }
 
         if (isset($params['type'])) {
             $module_map = [
@@ -338,7 +550,18 @@ class MedicalHistoryController extends KCBaseController
             return $this->response(null, __('Medical history not found', 'kivicare-clinic-management-system'), false, 404);
         }
 
+        if (!$this->canAccessMedicalHistory($history)) {
+            return $this->response(null, __('You do not have permission to update this medical history.', 'kivicare-clinic-management-system'), false, 403);
+        }
+
         $params = $request->get_params();
+
+        $targetPatientId = isset($params['patient_id']) ? (int) $params['patient_id'] : (int) $history->patientId;
+        $targetEncounterId = isset($params['encounter_id']) ? (int) $params['encounter_id'] : (int) $history->encounterId;
+
+        if (!$this->canAccessMedicalHistoryTarget($targetPatientId, $targetEncounterId)) {
+            return $this->response(null, __('You do not have permission to move this medical history to the selected patient encounter.', 'kivicare-clinic-management-system'), false, 403);
+        }
 
         if (isset($params['patient_id']))
             $history->patientId = $params['patient_id'];
@@ -376,6 +599,10 @@ class MedicalHistoryController extends KCBaseController
 
         if (!$history) {
             return $this->response(null, __('Medical history not found', 'kivicare-clinic-management-system'), false, 404);
+        }
+
+        if (!$this->canAccessMedicalHistory($history)) {
+            return $this->response(null, __('You do not have permission to delete this medical history.', 'kivicare-clinic-management-system'), false, 403);
         }
 
         if (!$history->delete()) {

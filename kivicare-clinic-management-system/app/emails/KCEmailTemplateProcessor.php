@@ -123,8 +123,8 @@ class KCEmailTemplateProcessor
         // Appointment data mapping
         if (isset($data['appointment'])) {
             $appointment = $data['appointment'];
-            $mapping['appointment_date'] = $appointment['appointment_start_date'] ?? '';
-            $mapping['appointment_time'] = $appointment['appointment_start_time'] ?? '';
+            $mapping['appointment_date'] = kcGetFormatedDate($appointment['appointment_start_date']) ?? '';
+            $mapping['appointment_time'] = kcGetFormatedTime($appointment['appointment_start_time']) ?? '';
             $mapping['appointment_id'] = $appointment['id'] ?? '';
             $mapping['service_name'] = $appointment['service_name'] ?? '';
             $mapping['total_amount'] = $appointment['total_amount'] ?? '';
@@ -154,8 +154,8 @@ class KCEmailTemplateProcessor
             $clinic = $data['clinic'];
             $mapping['clinic_name'] = $clinic['name'] ?? '';
             $mapping['clinic_email'] = $clinic['email'] ?? '';
-            $mapping['clinic_contact_number'] = $clinic['telephone_no'] ?? '';
-            $mapping['clinic_phone'] = $clinic['telephone_no'] ?? $clinic['mobile_number'] ?? '';
+            $mapping['clinic_contact_number'] = $clinic['clinic_contact_number'] ?? '';
+            $mapping['clinic_phone'] = $clinic['clinic_phone'] ?? '';
             $mapping['clinic_address'] = $this->formatClinicAddress($clinic);
         }
 
@@ -215,10 +215,10 @@ class KCEmailTemplateProcessor
     {
         switch ($keyName) {
             case 'current_date':
-                return current_time('Y-m-d');
+                return kcGetFormatedDate(current_time('Y-m-d'));
                 
             case 'current_date_time':
-                return current_time('Y-m-d H:i:s');
+                return kcGetFormatedTime(current_time('Y-m-d H:i:s'));
                 
             case 'login_url':
                 return wp_login_url();
@@ -369,4 +369,3 @@ class KCEmailTemplateProcessor
         return apply_filters('kivicare_email_template_sample_data', $sampleData, $templateName);
     }
 }
-

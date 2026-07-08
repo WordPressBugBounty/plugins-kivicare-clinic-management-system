@@ -4,6 +4,7 @@ namespace App\emails;
 
 use App\baseClasses\KCErrorLogger;
 use App\baseClasses\KCNotificationDynamicKeys;
+use WP_Error;
 use WP_Post;
 use WP_Query;
 
@@ -361,6 +362,27 @@ class KCEmailTemplateManager
                 'post_type'    => $templatePostType,
                 'post_status'  => 'publish',
             ],
+            [
+                'post_name'    => $this->prefix . 'appointment_rescheduled',
+                'post_content' => '<p>Dear {{patient_name}},</p><p>Your appointment has been rescheduled.</p><p><strong>New Appointment Details:</strong></p><p>Date: {{appointment_date}}<br>Time: {{appointment_time}}<br>Doctor: {{doctor_name}}<br>Service: {{service_name}}</p><p>Clinic: {{clinic_name}}<br>Address: {{clinic_address}}</p><p>If you have any questions, please contact us at {{clinic_phone}}.</p><p>Thank you,<br>{{clinic_name}}</p>',
+                'post_title'   => 'Appointment Rescheduled (Patient)',
+                'post_type'    => $templatePostType,
+                'post_status'  => 'publish',
+            ],
+            [
+                'post_name'    => $this->prefix . 'doctor_appointment_rescheduled',
+                'post_content' => '<p>Hello Dr. {{doctor_name}},</p><p>An appointment has been rescheduled.</p><p><strong>Updated Appointment Details:</strong></p><p>Patient: {{patient_name}}<br>Date: {{appointment_date}}<br>Time: {{appointment_time}}<br>Service: {{service_name}}<br>Clinic: {{clinic_name}}</p><p>Thank you.</p>',
+                'post_title'   => 'Appointment Rescheduled (Doctor)',
+                'post_type'    => $templatePostType,
+                'post_status'  => 'publish',
+            ],
+            [
+                'post_name'    => $this->prefix . 'clinic_appointment_rescheduled',
+                'post_content' => '<p>Appointment Rescheduled</p><p>An appointment at {{clinic_name}} has been rescheduled on {{current_date}}.</p><p>Patient: {{patient_name}}<br>Doctor: {{doctor_name}}<br>New Date: {{appointment_date}}<br>New Time: {{appointment_time}}<br>Service: {{service_name}}</p><p>Thank you.</p>',
+                'post_title'   => 'Appointment Rescheduled (Clinic)',
+                'post_type'    => $templatePostType,
+                'post_status'  => 'publish',
+            ],
         ];
 
 
@@ -462,20 +484,41 @@ class KCEmailTemplateManager
     }
 
     /**
-     * Get template by name
+     * Get template by name.
+     *
+     * Returns WP_Post on success.
+     * Returns WP_Error 'template_not_found'     if no post exists with this name.
+     * Returns WP_Error 'template_not_published' if the post exists but is not published.
      */
-    public function getTemplate(string $templateName, string $type = 'mail'): ?WP_Post
+    public function getTemplate(string $templateName, string $type = 'mail'): WP_Post|WP_Error
     {
-        $postType =  $this->mailTemplatePostType;
+        $postType = $this->mailTemplatePostType;
 
-        $query = new WP_Query([
-            'post_type' => $postType,
-            'name' => $templateName,
-            'post_status' => 'any',
-            'posts_per_page' => 1
+        // Check whether the template exists at all (any status).
+        $anyQuery = new WP_Query([
+            'post_type'      => $postType,
+            'name'           => $templateName,
+            'post_status'    => 'any',
+            'posts_per_page' => 1,
         ]);
 
-        return $query->have_posts() ? $query->posts[0] : null;
+        if (!$anyQuery->have_posts()) {
+            return new WP_Error(
+                'template_not_found',
+                "Email template '{$templateName}' does not exist."
+            );
+        }
+
+        $post = $anyQuery->posts[0];
+
+        if ($post->post_status !== 'publish') {
+            return new WP_Error(
+                'template_not_published',
+                "Email template '{$templateName}' exists but is not published (status: {$post->post_status})."
+            );
+        }
+
+        return $post;
     }
 
     /**
@@ -540,7 +583,9 @@ class KCEmailTemplateManager
             KIVI_CARE_PREFIX . 'payment_pending', // hook kc_payment_pending is never fired
         ];
 
-        $templateResult = collect($templateResult)->sortBy('ID')->map(function ($value) {
+        $templateResult = collect($templateResult)->sortBy(function($value) {
+            return strlen($value->post_name);
+        })->map(function ($value) {
             $value->base_post_name = preg_replace('/-\d+$/', '', $value->post_name);
             $value->content_sid = get_post_meta($value->ID, 'content_sid', true);
             return $value;
@@ -588,7 +633,8 @@ class KCEmailTemplateManager
                 $prefix . 'patient_report',
                 $prefix . 'follow_up_appointment',
                 $prefix . 'follow_up_appointment_reminder',
-                $prefix . 'appointment_rescheduled_by_gcal'
+                $prefix . 'appointment_rescheduled_by_gcal',
+                $prefix . 'appointment_rescheduled',
             ],
             'doctor' => [
                 $prefix . 'doctor_registration',
@@ -599,11 +645,13 @@ class KCEmailTemplateManager
                 $prefix . 'follow_up_appointment_for_staff',
                 $prefix . 'doctor_appointment_rescheduled_by_gcal',
                 $prefix . 'appointment_gcal_revert',
+                $prefix . 'doctor_appointment_rescheduled',
             ],
             'clinic' => [
                 $prefix . 'clinic_admin_registration',
                 $prefix . 'clinic_book_appointment',
-                $prefix . 'follow_up_appointment_for_staff'
+                $prefix . 'follow_up_appointment_for_staff',
+                $prefix . 'clinic_appointment_rescheduled',
             ],
             'receptionist' => [
                 $prefix . 'receptionist_register',
@@ -664,7 +712,7 @@ class KCEmailTemplateManager
     {
         $template = $this->getTemplate($templateName, $type);
 
-        if (!$template) {
+        if (is_wp_error($template)) {
             return false;
         }
 
@@ -683,7 +731,7 @@ class KCEmailTemplateManager
     {
         $template = $this->getTemplate($templateName, $type);
 
-        if (!$template) {
+        if (is_wp_error($template)) {
             return false;
         }
 

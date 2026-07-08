@@ -3,8 +3,8 @@ Contributors: iqonicdesign
 Tags: clinic management, patient management, doctor management, appointment management, clinic management solution
 Requires PHP: 8.0 
 Requires at least: 3.0.1
-Tested up to: 6.9.4
-Stable tag: 4.4.0
+Tested up to: 7.0.0
+Stable tag: 4.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,7 +23,7 @@ After 3+ years of development and refinement, KiviCare now features a completely
 ###  [DEMO](https://demo.kivicare.io/?utm_source=wordpressorg&utm_medium=wordpressorg-demo) | [PRO](https://kivicare.io/product/doctor-patient-clinic-appointment-plugin-wordpress/?utm_source=wordpressorg&utm_medium=wordpressorg-pro) | [WP Theme](https://kivicare.io/product/clinic-management-wordpress-theme-and-plugin/?utm_source=wordpressorg&utm_medium=wordpressorg-theme) | [Zoom Telemed](https://kivicare.io/product/zoom-and-google-meet-telemedicine-addons/?utm_source=wordpressorg&utm_medium=wordpressorg-telemed) | [Google Meet Telemed](https://kivicare.io/product/zoom-and-google-meet-telemedicine-addons/?utm_source=wordpressorg&utm_medium=wordpressorg-telemed) | [Mobile App](https://kivicare.io/product/ehr-management-flutter-mobile-app/?utm_source=wordpressorg&utm_medium=wordpressorg-app) | [Docs](https://documentation.iqonic.design/kivicare-wordpress?utm_source=wordpressorg&utm_medium=wordpressorg-docs)
 
 
-**A WordPress plugin that doesn't feel like one.**
+**A WordPress plugin that doesn't feel like one.**  
 
 ---
 
@@ -218,13 +218,64 @@ We'd love to hear from you! Contact us at hello@iqonic.design or submit a featur
 
 == Changelog ==
 
-= Version 4.4.0 – 07 May 2026
+= Version 4.5.0 - 08 Jul 2026
 
 ### 🚀 New Features
-- [New] Integrated Webhook for PayPal payment gateway.
+- [New] Added secure appointment report document download and preview support.
+- [New] Added appointment rescheduling email templates with dynamic notification keys.
+- [New] Added localized payment status labels in appointment details.
+- [New] Added Google Map URL support for clinic and doctor records with database migration.
+- [New] Added option to resend appointment meeting links.
+
+### 🛡️ Security Improvements
+- [Fixed] Patched missing authorization on the payment success endpoint.
+- [Fixed] Secured payment verification and cancellation callbacks with HMAC token validation and restricted permission checks.
+- [Fixed] Improved protection for medical history and listing requests.
+- [Fixed] Restricted clinic admin changes to prevent unauthorized updates.
+
+### 🔧 Fixes & Improvements
+- [Fixed] Patient registration email issue.
+- [Fixed] Reminder email subject issue when Pro is active.
+- [Fixed] Appointment status handling and notification integration.
+- [Fixed] Disabled email templates are no longer sent.
+- [Fixed] Date and time values are now formatted correctly in email notifications.
+- [Fixed] Register shortcode phone number validation issue.
+- [Fixed] Patient form and appointment notification behavior.
+- [Fixed] Dynamic booking redirect URL support.
+- [Fixed] Booking widget preselection flow.
+- [Fixed] Follow-up chain selection and redirect behavior.
+- [Fixed] Duplicate Google Calendar entries by updating existing calendar events instead of creating new ones.
+- [Fixed] WooCommerce service booking now reuses existing products where applicable.
+- [Fixed] WooCommerce payment gateway redirection now uses the return URL filter.
+- [Fixed] Payment callbacks are now gateway-aware.
+- [Fixed] New services now default to active status.
+- [Fixed] Service category editing issue when updating existing services.
+- [Fixed] Bill validation now allows optional `service_total` and `total_amount`.
+- [Fixed] Undefined API endpoint path in the API client.
+- [Fixed] Import upload MIME type normalization.
+- [Fixed] Module query invalidation after import.
+- [Fixed] mPDF fatal error by mapping missing fonts while preserving complex language support.
+- [Fixed] Shortcode presence detection for dynamic router pages.
+- [Fixed] Clinic phone mapping in email template data.
+- [Fixed] Medical metadata JSON encoding for Unicode content.
+- [Fixed] Username generation logic.
+- [Fixed] Mobile calendar scrolling.
+- [Fixed] UI issues across dashboard components.
+- [Improvement] Excluded KiviCare pages from cache plugins.
+- [Improvement] Updated documentation links in components.
+- [Improvement] Updated composer dependencies.
+- [Improvement] Updated translations and localization strings.
+- [Improvement] Improved responsive typography and navbar layout.
+- [Improvement] Replaced encounter billing route component with the shared billing details component.
+- [Improvement] Fixed bundle script generation.
+
+= Version 4.4.0 – 06 May 2026
+
+### 🚀 New Features
 - [New] Added option to set service as Private or Public during service creation.
-- [New] Added encounter medical report settings to enable or disable reports for encounters via settings.
 - [New] Enabled clinic admin modification in the Edit Clinic module.
+- [New] Integrated Webhook for PayPal payment gateway.
+- [New] Added encounter medical report settings to enable or disable reports for encounters via settings.
 
 ### 🔧 Fixes & Improvements
 - [Fixed] Appointment Shortcode: Automatically skips clinic selection when only one clinic is available and ensures all available services are displayed correctly.
@@ -795,6 +846,5 @@ Due to the major UI redesign, translation strings have new keys. If you use cust
 = 1.0.0 - 22/10/2020 =
 
 * Initial stable release
-
 
 

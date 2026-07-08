@@ -150,7 +150,7 @@ class BillController extends KCBaseController
             'service_total' => [
                 'description' => 'Total of all services',
                 'type' => 'number',
-                'required' => true,
+                'required' => false,
             ],
             'taxTotal' => [
                 'description' => 'Total tax amount',
@@ -165,7 +165,7 @@ class BillController extends KCBaseController
             'total_amount' => [
                 'description' => 'Total payable amount',
                 'type' => 'number',
-                'required' => true,
+                'required' => false,
             ],
         ];
     }
@@ -284,6 +284,7 @@ class BillController extends KCBaseController
                 'bills.*',
                 'patients.display_name as patient_name',
                 'patients.user_email as patient_email',
+                'patients.user_status as patient_status',
                 'pi.meta_value as patient_profile_image',
                 'clinics.name as clinic_name',
                 'clinics.email as clinic_email',
@@ -435,6 +436,7 @@ class BillController extends KCBaseController
                 'patient' => [
                     'name' => $bill->patient_name,
                     'email' => $bill->patient_email,
+                    'status' => $bill->patient_status,
                     'dob' => !empty($patientBasicData['dob']) ? kcGetFormatedDate($patientBasicData['dob']) : null,
                     'gender' => $patientBasicData['gender'] ?? null,
                     'patient_image_url' => $bill->patient_profile_image ? wp_get_attachment_url($bill->patient_profile_image) : '',

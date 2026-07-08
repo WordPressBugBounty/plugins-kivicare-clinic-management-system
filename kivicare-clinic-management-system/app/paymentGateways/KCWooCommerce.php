@@ -6,6 +6,7 @@ use App\baseClasses\KCErrorLogger;
 use App\models\KCPatient;
 use App\models\KCAppointment;
 use App\models\KCServiceDoctorMapping;
+use App\services\KCAppointmentPaymentService;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -110,7 +111,7 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
                 );
             }
             
-            // Create WooCommerce product for appointment
+            // Create or reuse WooCommerce products for appointment services.
             $product_ids = $this->create_appointment_product($appointment_data);
             
             if (empty($product_ids)) {
@@ -251,11 +252,23 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
 
         $product_ids = [];
         foreach ($appointment_data['services'] as $service) {
-            // Create new product for each appointment to avoid configuration conflicts
+            $service_id = (int) $service['id'];
+            $service_title = sanitize_text_field($service['title']);
+
+            $existing_product_id = $this->find_existing_product($service_id);
+
+            if ($existing_product_id) {
+                $this->update_reusable_product($existing_product_id, $service_title, $service, $appointment_data);
+                $product_ids[] = $existing_product_id;
+                continue;
+            }
+
+            // Create one reusable product per KiviCare service.
             $product = new \WC_Product_Simple();
-            
+             
             // Basic product setup
-            $product->set_name($service['title']);
+            $product->set_name($service_title);
+            $product->set_slug(sanitize_title('kc-service-' . $service_id . '-' . $service_title));
             $product->set_status('publish');
             // Use individual service price, not total subtotal
             $service_price = $service['price'] ?? $appointment_data['subtotal'];
@@ -286,11 +299,10 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
             // SKU and attributes
             $product->set_sku('');
             $product->set_attributes([]);
-            
+             
             // Custom meta data
-            $product->update_meta_data('kivicare_service_id', $service['id']);
-            $product->update_meta_data('kivicare_doctor_id', $appointment_data['doctor_id']);
-            $product->update_meta_data('kivicare_clinic_id', $appointment_data['clinic_id']);
+            $product->update_meta_data('kivicare_service_id', $service_id);
+            $product->update_meta_data('kivicare_wc_service_product', 'yes');
             $product->update_meta_data('_thumbnail_id', $appointment_data['thumbnail_id'] ?? 0);
             
             $product_ids[] = $product->save();
@@ -299,40 +311,80 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
     }
 
     /**
-     * Find existing WooCommerce product for service/doctor/clinic combination
-     * @param int $service_id Service ID
-     * @param int $doctor_id Doctor ID
-     * @param int $clinic_id Clinic ID
-     * @return int|null Product ID if found, null otherwise
+     * Keep the reusable service product in sync with current service booking data.
+     *
+     * @param int    $product_id Product ID.
+     * @param string $service_title Service title.
+     * @param array  $service Service data.
+     * @param array  $appointment_data Appointment data.
      */
-    private function find_existing_product($service_id, $doctor_id, $clinic_id) {
-        // Use WooCommerce's built-in product query function
+    private function update_reusable_product($product_id, $service_title, $service, $appointment_data) {
+        $product = wc_get_product($product_id);
+
+        if (!$product) {
+            return;
+        }
+
+        $service_price = $service['price'] ?? $appointment_data['subtotal'];
+
+        $product->set_name($service_title);
+        $product->set_price($service_price);
+        $product->set_regular_price($service_price);
+        $product->set_virtual(true);
+        $product->set_sold_individually(true);
+        $product->set_catalog_visibility('hidden');
+        $product->delete_meta_data('kivicare_wc_generated_product');
+        $product->delete_meta_data('kivicare_wc_unique_product_key');
+        $product->update_meta_data('kivicare_wc_service_product', 'yes');
+        $product->save();
+    }
+
+    /**
+     * Find reusable WooCommerce product for a KiviCare service.
+     *
+     * @param int $service_id Service ID.
+     * @return int|null Product ID if found, null otherwise.
+     */
+    private function find_existing_product($service_id) {
         $products = wc_get_products([
-            'status' => 'publish',
+            'status' => ['publish', 'private'],
             'limit' => 1,
+            'return' => 'ids',
             'meta_query' => [
                 'relation' => 'AND',
                 [
                     'key' => 'kivicare_service_id',
-                    'value' => $service_id,
+                    'value' => (int) $service_id,
                     'compare' => '='
                 ],
                 [
-                    'key' => 'kivicare_doctor_id',
-                    'value' => $doctor_id,
-                    'compare' => '='
-                ],
-                [
-                    'key' => 'kivicare_clinic_id',
-                    'value' => $clinic_id,
+                    'key' => 'kivicare_wc_service_product',
+                    'value' => 'yes',
                     'compare' => '='
                 ]
             ]
         ]);
 
-        return !empty($products) ? $products[0]->get_id() : null;
+        if (!empty($products)) {
+            return (int) $products[0];
+        }
+
+        $products = wc_get_products([
+            'status' => ['publish', 'private'],
+            'limit' => 1,
+            'return' => 'ids',
+            'meta_query' => [
+                [
+                    'key' => 'kivicare_service_id',
+                    'value' => (int) $service_id,
+                    'compare' => '='
+                ]
+            ]
+        ]);
+
+        return !empty($products) ? (int) $products[0] : null;
     }
-    
+
     /**
      * Create WooCommerce order
      * @param int $product_id Product ID
@@ -376,7 +428,9 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
             WC()->cart->empty_cart();
             
             foreach ($product_ids as $product_id) {
-                WC()->cart->add_to_cart($product_id, 1, '', '', $temp);
+                $cart_item_data = $temp;
+                $cart_item_data['kivicare_unique_cart_key'] = wp_generate_uuid4();
+                WC()->cart->add_to_cart($product_id, 1, '', '', $cart_item_data);
             }
 
             // Store applied taxes in session to be added as fees during cart calculation
@@ -405,7 +459,14 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
         $order = wc_create_order($args);
 
         foreach ($product_ids as $product_id) {
-            $order->add_product(wc_get_product($product_id), 1);
+            $item_id = $order->add_product(wc_get_product($product_id), 1);
+            $item = $order->get_item($item_id);
+
+            if ($item) {
+                $item->add_meta_data('kivicare_appointment_id', $appointment_data['appointment_id']);
+                $item->add_meta_data('doctor_id', $appointment_data['doctor_id']);
+                $item->save();
+            }
         }
 
         // Add Taxes as Fees
@@ -476,9 +537,11 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
                     as_unschedule_all_actions('kivicare_wc_auto_cancel_appointment', ['appointment_id' => $appointment_id]);
                 }
             } 
+
             if ( ! empty( $redirect_url ) ) {
-                wp_safe_redirect( esc_url_raw( $redirect_url ) );
-                exit;
+                add_filter('woocommerce_get_return_url', function($url) use($redirect_url){
+                    return $redirect_url;
+                });
             }
         }
     }
@@ -537,8 +600,8 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
         if ($appointment_data && is_array($appointment_data)) {
             // Extract values with null coalescing for safety
             $kivicare_appointment_id = $appointment_data['kivicare_appointment_id'] ?? '';
-            $kivicare_doctor_id = $appointment_data['kivicare_doctor_id'] ?? '';
-            $kivicare_widget_type = $appointment_data['kivicare_widget_type'] ?? '';
+            $kivicare_doctor_id = $appointment_data['doctor_id'] ?? '';
+            $kivicare_widget_type = $appointment_data['widgetType'] ?? '';
 
             // Update post meta directly
             update_post_meta((int) $order, 'kivicare_appointment_id', $kivicare_appointment_id);
@@ -571,6 +634,10 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
     public function handle_product_delete($post_id) {
         // Only process products
         if ('product' !== get_post_type($post_id)) {
+            return;
+        }
+
+        if ('yes' === get_post_meta($post_id, 'kivicare_wc_generated_product', true)) {
             return;
         }
 
@@ -674,19 +741,19 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
             return;
         }
 
-        $status_map = ['status' => 2]; // Default/Pending
         if ($new_status === 'completed' || $new_status === 'processing') {
-            $status_map = ['status' => 1]; // Paid/Booked
+            $paymentData = [
+                'order_id' => $order_id,
+                'transaction_id' => ($order instanceof \WC_Order) ? $order->get_transaction_id() : null
+            ];
+            KCAppointmentPaymentService::confirmPayment($appointment_id, 'woocommerce', $paymentData);
         } elseif ($new_status === 'cancelled' || $new_status === 'failed') {
-            $status_map = ['status' => 0]; // Cancelled
+            $appointment = KCAppointment::find($appointment_id);
+            if ($appointment) {
+                $appointment->update(['status' => 0]); // Cancelled
+                do_action('kc_appointment_status_update', $appointment_id, 0, $appointment);
+            }
         }
-        
-        $appointment = KCAppointment::find($appointment_id);
-        if ($appointment) {
-            $appointment->update($status_map);
-        }
-
-        do_action('kc_appointment_status_update', $appointment_id, $status_map['status'], $appointment);
     }
 
     /**

@@ -64,7 +64,28 @@ class KCPrintInvoiceController extends KCBaseController
             $html = $this->render_print_template($appointment_data);
             $filename = 'invoice_' . $appointment_id . '_' . current_time('timestamp') . '.pdf';
             
-            return KCPdfGenerator::generate($html, $filename);
+            //// FIX: Prevent PDF generation fatal errors (black screen on download) while maintaining complex language translations (like Gujarati).
+            // mPDF 7+ removed the 'UnBatang_0613.ttf' (Korean) font from its core package to save space. 
+            // When autoLangToFont is enabled, mPDF sometimes falsely detects a Korean character in the invoice data 
+            // and crashes trying to load this missing font. We cannot disable autoLangToFont entirely because 
+            // complex languages (like Gujarati) require it to render properly.
+            // Instead, we map the 'unbatang' font key to 'freeserif' (a font that IS included and supports many scripts). 
+            // This allows mPDF to bypass the missing font bug without crashing, while Gujarati translates and renders correctly.
+
+            $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+            $fontData = $defaultFontConfig['fontdata'];
+            
+            // Map the missing Korean font to freeserif to prevent fatal errors
+            // when mPDF falsely detects Korean characters.
+            $fontData['unbatang'] = $fontData['freeserif'];
+
+            $config = [
+                'autoLangToFont' => true,
+                'autoScriptToLang' => true,
+                'fontdata' => $fontData
+            ];
+            
+            KCPdfGenerator::generate($html, $filename, 'I', $config);
 
         } catch (\Exception $e) {
             return $this->response(

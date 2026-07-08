@@ -241,7 +241,7 @@ class SetupWizardController extends KCBaseController
                 'profile_image' => $adminProfileImageId,
             ];
 
-            update_user_meta($user_id, 'basic_data', json_encode($user_meta));
+            update_user_meta($user_id, 'basic_data', json_encode($user_meta, JSON_UNESCAPED_UNICODE));
             update_user_meta($user_id, 'first_name', $user_meta['first_name']);
             update_user_meta($user_id, 'last_name', $user_meta['last_name']);
 
@@ -651,7 +651,7 @@ class SetupWizardController extends KCBaseController
                 'postal_code' => $demo_recep_data['postal_code'],
                 'dob' => $demo_recep_data['dob']
             ];
-            update_user_meta($user_id, 'basic_data', json_encode($basic_data));
+            update_user_meta($user_id, 'basic_data', json_encode($basic_data, JSON_UNESCAPED_UNICODE));
             // Set user role
             $user = new \WP_User($user_id);
             $user->set_role('kiviCare_receptionist');

@@ -634,6 +634,11 @@ class DoctorController extends KCBaseController
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_text_field',
             ],
+            'google_map_url' => [
+                'description' => 'Doctor Google Map URL',
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ],
         ];
 
         return apply_filters('kc_doctor_create_endpoint_args', $args);
@@ -1217,6 +1222,7 @@ class DoctorController extends KCBaseController
 
                 'created_at' => $doctorData->user_registered,
                 'timezone' => $doctorData->timezone ?? null,
+                'google_map_url' => $basicData['google_map_url'] ?? '',
                 'service_count' => (int) $serviceCount,
                 'review_count' => (int) $reviewCount
             ];
@@ -1312,6 +1318,7 @@ class DoctorController extends KCBaseController
             $doctor->status = $params['status'];
             $doctor->qualifications = $params['qualifications'];
             $doctor->specialties = $params['specialties'];
+            $doctor->googleMapUrl = $params['google_map_url'] ?? '';
 
             if (array_key_exists('profile_image', $params)) {
                 if (!empty($params['profile_image'])) {
@@ -1516,6 +1523,7 @@ class DoctorController extends KCBaseController
                 'qualifications' => 'qualifications',
                 'no_of_experience' => 'experience',
                 'specialties' => 'specialties',
+                'google_map_url' => 'googleMapUrl',
             ];
 
             // Load existing basic_data values to the model properties
@@ -1567,6 +1575,7 @@ class DoctorController extends KCBaseController
                 'doctor_image_id' => ['profileImage', 'absint', 'doctor_profile_image'],
                 'status' => ['status', null, null],
                 'timezone' => ['timezone', 'sanitize_text_field', 'timezone'],
+                'google_map_url' => ['googleMapUrl', 'sanitize_text_field', null],
             ];
 
             // Apply partial updates
@@ -1664,7 +1673,7 @@ class DoctorController extends KCBaseController
             // Get all clinics for this doctor
             $doctorClinics = KCDoctorClinicMapping::table('dcm')
                 ->select([
-                    "c.id as clinic_id",
+                    "c.id as clinicId",
                     "c.name as clinic_name",
                     "c.email as clinic_email",
                     "c.profile_image as clinic_profile_image"
@@ -1701,6 +1710,7 @@ class DoctorController extends KCBaseController
                 'city' => $basicData['city'] ?? '',
                 'country' => $basicData['country'] ?? '',
                 'postal_code' => $basicData['postal_code'] ?? '',
+                'google_map_url' => $basicData['google_map_url'] ?? '',
                 'specialties' => $basicData['specialties'] ?? [],
                 'qualifications' => $basicData['qualifications'] ?? [],
                 'experience_years' => $basicData['no_of_experience'] ?? '',

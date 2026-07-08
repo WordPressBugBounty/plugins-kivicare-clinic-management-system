@@ -153,18 +153,20 @@ class KCPaymentGatewayFactory
     }
 
     /**
-     * Get available gateway by gateway id
-     * @param string $gateway_id Gateway identifier
-     * @return \App\abstracts\KCAbstractPaymentGateway|null Gateway data or null if not found/enabled
+     * Get a gateway instance by ID.
+     *
+     * @param string $gateway_id      Gateway identifier
+     * @param bool   $enabled_only    When true (default), returns null for disabled gateways.
+     *                                Pass false from admin contexts that must access any gateway.
+     * @return \App\abstracts\KCAbstractPaymentGateway|null
      */
-    public static function get_available_gateway($gateway_id): KCAbstractPaymentGateway|null
+    public static function get_available_gateway($gateway_id, bool $enabled_only = true): KCAbstractPaymentGateway|null
     {
-        // Ensure gateways are initialized
         if (empty(self::$gateways)) {
             self::init();
         }
 
-        // Allow dynamic Knit Pay IDs (e.g., knit_pay_65) to bypass the exact key check
+        // Allow dynamic Knit Pay IDs (e.g., knit_pay_65)
         if (strpos($gateway_id, 'knit_pay_') === 0 && isset(self::$gateways['knit_pay'])) {
             return self::create_gateway($gateway_id);
         }
@@ -173,6 +175,16 @@ class KCPaymentGatewayFactory
             return null;
         }
 
-        return self::create_gateway($gateway_id);
+        $gateway = self::create_gateway($gateway_id);
+
+        if (!$gateway) {
+            return null;
+        }
+
+        if ($enabled_only && !$gateway->is_enabled()) {
+            return null;
+        }
+
+        return $gateway;
     }
 }

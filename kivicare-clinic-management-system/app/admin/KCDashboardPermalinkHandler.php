@@ -37,7 +37,10 @@ class KCDashboardPermalinkHandler
         add_filter('rewrite_rules_array', [$this, 'add_dashboard_rewrite_rules']);
         add_filter('query_vars', [$this, 'register_query_vars']);
         add_filter('template_include', [$this, 'handle_template_include'], 99);
+        add_filter('woocommerce_login_redirect', [$this, 'redirect_woocommerce_user_to_dashboard'], 999, 2);
+        add_filter('woocommerce_logout_default_redirect_url', [$this, 'get_application_login_url'], 999);
         add_action('init', [$this, 'add_permalink_tags']);
+
 
 
         // Get roles from KCBase and transform into dashboard routes
@@ -85,6 +88,58 @@ class KCDashboardPermalinkHandler
             self::$instance = new self();
         }
         return self::$instance;
+    }
+
+    /**
+     * Redirect WooCommerce login requests for KiviCare users to the app dashboard.
+     *
+     * @param string $redirect Redirect URL.
+     * @param \WP_User $user Logged-in user.
+     * @return string
+     */
+    public function redirect_woocommerce_user_to_dashboard($redirect, $user)
+    {
+        if (!$user instanceof \WP_User) {
+            return $redirect;
+        }
+
+        $role = $this->get_user_app_role($user);
+
+        if (empty($role)) {
+            return $redirect;
+        }
+
+        $login_redirects = KCOption::get('login_redirect', []);
+
+        if (!empty($login_redirects[$role])) {
+            return apply_filters('kc_login_redirect_url', $login_redirects[$role], $role);
+        }
+
+        return apply_filters('kc_login_redirect_url', $this->get_dashboard_url($role) ?? home_url(), $role);
+    }
+
+    /**
+     * Get the default application login URL for WooCommerce logout.
+     *
+     * @return string
+     */
+    public function get_application_login_url()
+    {
+        return wp_login_url();
+    }
+
+    /**
+     * Get the KiviCare application role for a user.
+     *
+     * @param \WP_User $user User object.
+     * @return string
+     */
+    private function get_user_app_role($user)
+    {
+        $allowed_roles = array_merge(['administrator'], KCBase::get_instance()->KCGetRoles());
+        $roles = array_intersect($allowed_roles, (array) $user->roles);
+
+        return !empty($roles) ? array_shift($roles) : '';
     }
 
     /**
@@ -164,7 +219,7 @@ class KCDashboardPermalinkHandler
         $dashboard_path = get_query_var('kc_dashboard_path');  // Get the full path
 
         // Check if this is a KiviCare dashboard request
-        if (!empty($dashboard_type) && in_array($dashboard_type, array_keys($this->dashboard_routes))) {
+        if (!empty($dashboard_type) && \in_array($dashboard_type, array_keys($this->dashboard_routes))) {
 
             // Verify user permissions for the requested dashboard type
             if (!$this->verify_dashboard_access($dashboard_type)) {
@@ -199,9 +254,28 @@ class KCDashboardPermalinkHandler
                 // fix: added 'jquery-ui-core' to prevent deregistration conflict with Qi Addons for Elementor
                 $allowed_scripts = apply_filters('kc_allowed_scripts', ['kc-dashboard-script', 'heartbeat', 'wp-util', 'wp-api-request', 'underscore', 'backbone', 'clipboard', 'media-views', 'media-editor', 'media-models', 'thickbox', 'imgareaselect', 'jquery-ui-core']);
 
+                // Explicitly dequeue theme stylesheets that begin with 'wp-' and therefore
+                // bypass the prefix guard in the general loop below.  The KiviCare theme
+                // registers its assets under 'wp-rig-*' handles, which collide with the
+                // guard that is meant only to protect WordPress core assets (wp-components, etc.).
+                // Use the kc_denied_styles filter to add more handles from child themes or plugins.
+                $denied_styles = apply_filters('kc_denied_styles', [
+                    'wp-rig-global',
+                    'wp-rig-dummy',
+                    'wp-rig-button',
+                    'wp-rig-woocommerce',
+                    'wp-rig-sidebar',
+                    'wp-rig-widgets',
+                    'wp-rig-rtl',
+                ]);
+                foreach ($denied_styles as $handle) {
+                    wp_dequeue_style($handle);
+                    wp_deregister_style($handle);
+                }
+
                 foreach ($wp_styles->queue as $handle) {
                     if (
-                        !in_array($handle, $allowed_styles) &&
+                        !\in_array($handle, $allowed_styles) &&
                         strpos($handle, 'wp-') !== 0 &&
                         strpos($handle, 'media-') !== 0
                     ) {
@@ -213,7 +287,7 @@ class KCDashboardPermalinkHandler
                 foreach ($wp_scripts->queue as $handle) {
 
                     if (
-                        !in_array($handle, $allowed_scripts) &&
+                        !\in_array($handle, $allowed_scripts) &&
                         strpos($handle, 'wp-') !== 0 &&
                         strpos($handle, 'media-') !== 0  &&
                         $handle !== 'jquery' &&
@@ -224,7 +298,6 @@ class KCDashboardPermalinkHandler
                         wp_deregister_script($handle);
                     }
                 }
-
 
                 // Now enqueue only your needed assets
                 $this->enqueue_dashboard_assets($dashboard_type);
@@ -377,7 +450,7 @@ class KCDashboardPermalinkHandler
             function_exists('kcGetSetupWizardOptions') &&
             is_array(kcGetSetupWizardOptions()) &&
             KCBase::get_instance()->getLoginUserRole() === 'administrator' &&
-            !in_array('clinic-setup', $segments)
+            !\in_array('clinic-setup', $segments)
         ) {
             $setupClinicStep = [
                 "getting_started" => 'clinic-setup',

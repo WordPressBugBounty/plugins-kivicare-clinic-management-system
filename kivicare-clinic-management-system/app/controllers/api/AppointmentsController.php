@@ -24,6 +24,8 @@ use App\models\KCPatientMedicalReport;
 use App\services\KCAppointmentDataService;
 use App\services\KCAppointmentPaymentService;
 use App\services\KCTimeSlotService;
+use App\emails\listeners\KCAppointmentNotificationListener;
+use App\emails\KCEmailTemplateManager;
 use App\controllers\api\SettingsController\AppointmentSetting;
 use App\models\KCCustomFieldData;
 use App\models\KCMedicalHistory;
@@ -105,11 +107,12 @@ class AppointmentsController extends KCBaseController
 
         $appointmentData['status'] = $status;
 
-        // Use addAppointmentToGoogleCalendars which correctly detects whether a Google Meet
-        // event already exists (via meeting->eventId) and UPDATES it instead of CREATING a
-        // new duplicate. updateAppointmentToGoogleCalendars relies on storedEvents which is
-        // empty for fresh payment-success bookings, causing it to always create a new event.
-        GoogleCalendarIntegration::getInstance()->addAppointmentToGoogleCalendars(
+        // Use updateAppointmentToGoogleCalendars so edits and status changes (including
+        // cancellations) patch the EXISTING Google Calendar event rather than creating a
+        // second duplicate entry. updateAppointmentToGoogleCalendars reads the stored
+        // event ID from kc_appointment_google_events_{id} and falls through to creating
+        // a new event only when no stored ID is found — so first-time sync also works.
+        GoogleCalendarIntegration::getInstance()->updateAppointmentToGoogleCalendars(
             $appointmentId,
             $appointmentData,
             $clinic,
@@ -331,6 +334,20 @@ class AppointmentsController extends KCBaseController
             // 'args' => ['id' => $this->getCommonArgs()['id']]
         ]);
 
+        // Print/view secure appointment report document
+        $this->registerRoute('/' . $this->route . '/print-report/(?P<id>\d+)', [
+            'methods' => 'GET',
+            'callback' => [$this, 'printReport'],
+            'permission_callback' => [$this, 'checkPermission'],
+            'args' => [
+                'id' => [
+                    'description' => __('Attachment ID', 'kivicare-clinic-management-system'),
+                    'type' => 'integer',
+                    'required' => true,
+                ],
+            ]
+        ]);
+
 
         // Create appointment
         $this->registerRoute('/' . $this->route, [
@@ -460,9 +477,11 @@ class AppointmentsController extends KCBaseController
 
         // Payment success callback
         $this->registerRoute('/' . $this->route . '/payment-success', [
-            'methods' => 'GET, POST',
+            'methods' => 'GET',
             'callback' => [$this, 'handlePaymentSuccess'],
-            'permission_callback' => '__return_true',
+            'permission_callback' => function (WP_REST_Request $req) {
+                return $this->canAccessPaymentCallback($req, 'payment-success');
+            },
             'args' => [
                 'appointment_id' => [
                     'description' => 'Appointment ID',
@@ -480,13 +499,18 @@ class AppointmentsController extends KCBaseController
                     'validate_callback' => function ($param) {
                         $available_gateways = array_map(function ($gateway) {
                             return $gateway['id'];
-                        }, KCPaymentGatewayFactory::get_available_gateways(false));
-                        return in_array($param, $available_gateways) || $param === 'knit_pay';
+                        }, KCPaymentGatewayFactory::get_available_gateways(true));
+                        return in_array($param, $available_gateways) || strpos($param, 'knit_pay_') === 0;
                     },
                     'sanitize_callback' => 'sanitize_text_field',
                 ],
                 // specific parameters
                 'paymentId' => [
+                    'description' => 'Payment ID (camelCase)',
+                    'type' => 'string',
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+                'payment_id' => [
                     'description' => 'Payment ID',
                     'type' => 'string',
                     'sanitize_callback' => 'sanitize_text_field',
@@ -496,12 +520,19 @@ class AppointmentsController extends KCBaseController
                     'type' => 'string',
                     'sanitize_callback' => 'sanitize_text_field',
                 ],
-                'token' => [
-                    'description' => 'Payment Token',
+                'kc_token' => [
+                    'description' => 'HMAC Token',
+                    'required' => true,
                     'type' => 'string',
                     'sanitize_callback' => 'sanitize_text_field',
-                ]
                 ],
+                'kc_expires' => [
+                    'description' => 'HMAC Token Expiry',
+                    'required' => true,
+                    'type' => 'integer',
+                    'sanitize_callback' => 'absint',
+                ]
+            ],
             'encryption'          => false,
         ]);
 
@@ -509,7 +540,9 @@ class AppointmentsController extends KCBaseController
         $this->registerRoute('/' . $this->route . '/payment-cancel', [
             'methods' => 'GET',
             'callback' => [$this, 'handlePaymentCancel'],
-            'permission_callback' => '__return_true', // Public endpoint for payment gateway callbacks
+            'permission_callback' => function (WP_REST_Request $req) {
+                return $this->canAccessPaymentCallback($req, 'payment-cancel');
+            },
             'args' => [
                 'appointment_id' => [
                     'description' => 'Appointment ID',
@@ -530,43 +563,18 @@ class AppointmentsController extends KCBaseController
                     'description' => 'Payment Token',
                     'type' => 'string',
                     'sanitize_callback' => 'sanitize_text_field',
-                ]
-            ],
-            'encryption'          => false,
-        ]);
-
-        // Payment verification endpoint
-        $this->registerRoute('/' . $this->route . '/payment-verify', [
-            'methods' => 'POST',
-            'callback' => [$this, 'handlePaymentVerification'],
-            'permission_callback' => '__return_true', // Public endpoint for payment verification
-            'args' => [
-                'payment_status' => [
-                    'description' => 'Payment Status',
-                    'type' => 'string',
+                ],
+                'kc_token' => [
+                    'description' => 'HMAC Token',
                     'required' => true,
+                    'type' => 'string',
                     'sanitize_callback' => 'sanitize_text_field',
                 ],
-                'payment_id' => [
-                    'description' => 'Payment ID from gateway',
-                    'type' => 'string',
+                'kc_expires' => [
+                    'description' => 'HMAC Token Expiry',
                     'required' => true,
-                    'sanitize_callback' => 'sanitize_text_field',
-                ],
-                'appointment_id' => [
-                    'description' => 'Appointment ID',
                     'type' => 'integer',
-                    'required' => false,
-                    'validate_callback' => function ($param) {
-                        return empty($param) || (is_numeric($param) && $param > 0);
-                    },
                     'sanitize_callback' => 'absint',
-                ],
-                'message' => [
-                    'description' => 'Payment message',
-                    'type' => 'string',
-                    'required' => false,
-                    'sanitize_callback' => 'sanitize_text_field',
                 ]
             ],
             'encryption'          => false,
@@ -592,37 +600,17 @@ class AppointmentsController extends KCBaseController
         $this->registerRoute('/' . $this->route . '/(?P<id>\d+)/regenerate-video-conference', [
             'methods' => 'GET',
             'callback' => [$this, 'handleRegenerateVideoLink'],
-            'permission_callback' => function (WP_REST_Request $request) {
+            'permission_callback' => [$this, 'canManageAppointmentVideoConference'],
+            'args' => [
+                'id' => $this->getCommonArgs()['id'],
+            ]
+        ]);
 
-                return match ($this->kcbase->getLoginUserRole()) {
-                    'administrator' => true,
-                    $this->kcbase->getDoctorRole() => function ($param) use ($request) {
-                            $appointment = KCAppointment::find($request->get_param('id'));
-                            if (!$appointment) {
-                                return false;
-                            }
-                            // Doctors can only regenerate their own appointments
-                            return $appointment->doctorId === get_current_user_id();
-                        },
-                    $this->kcbase->getClinicAdminRole() => function ($param) use ($request) {
-                            $appointment = KCAppointment::find($request->get_param('id'));
-                            if (!$appointment) {
-                                return false;
-                            }
-                            return $appointment->clinicId === KCClinic::getClinicIdForCurrentUser();
-                        },
-                    $this->kcbase->getReceptionistRole() => function ($param) use ($request) {
-                            $appointment = KCAppointment::find($request->get_param('id'));
-                            if (!$appointment) {
-                                return false;
-                            }
-                            // Receptionists can regenerate any appointment in their clinic
-                            return $appointment->clinicId === KCClinic::getClinicIdForCurrentUser();
-                        },
-                    default => false
-                };
-
-            },
+        // Resend existing meeting link to the patient only
+        $this->registerRoute('/' . $this->route . '/(?P<id>\d+)/resend-meeting-link', [
+            'methods' => 'POST',
+            'callback' => [$this, 'handleResendMeetingLink'],
+            'permission_callback' => [$this, 'canManageAppointmentVideoConference'],
             'args' => [
                 'id' => $this->getCommonArgs()['id'],
             ]
@@ -636,6 +624,35 @@ class AppointmentsController extends KCBaseController
             'args' => $this->getExportEndpointArgs()
         ]);
 
+    }
+
+    /**
+     * Check whether the current staff user can manage video conference actions for an appointment.
+     */
+    public function canManageAppointmentVideoConference(WP_REST_Request $request): bool
+    {
+        $appointment = KCAppointment::find($request->get_param('id'));
+        if (!$appointment) {
+            return false;
+        }
+
+        $role = $this->kcbase->getLoginUserRole();
+        if ($role === 'administrator') {
+            return true;
+        }
+
+        if ($role === $this->kcbase->getDoctorRole()) {
+            return (int) $appointment->doctorId === (int) get_current_user_id();
+        }
+
+        if (
+            $role === $this->kcbase->getClinicAdminRole()
+            || $role === $this->kcbase->getReceptionistRole()
+        ) {
+            return (int) $appointment->clinicId === (int) KCClinic::getClinicIdForCurrentUser();
+        }
+
+        return false;
     }
 
     /**
@@ -743,7 +760,6 @@ class AppointmentsController extends KCBaseController
             ]
         ];
     }
-
     /**
      * Format timezone string (e.g. UTC+2.5 to +02:30, America/New_York)
      *
@@ -1059,6 +1075,15 @@ class AppointmentsController extends KCBaseController
                     return empty($param) || (is_numeric($param) && $param > 0);
                 },
                 'sanitize_callback' => 'absint',
+            ],
+            'page_url' => [
+                'description' => 'Current frontend booking URL for dynamic template routes',
+                'type' => 'string',
+                'required' => false,
+                'validate_callback' => function ($param) {
+                    return empty($param) || wp_validate_redirect($param, false) !== false;
+                },
+                'sanitize_callback' => 'esc_url_raw',
             ],
             'timezone' => [
                 'description' => 'Timezone for appointment',
@@ -2678,6 +2703,55 @@ class AppointmentsController extends KCBaseController
     }
 
     /**
+     * Print (stream) a secure appointment report document.
+     *
+     * @param \WP_REST_Request $request
+     * @return \WP_REST_Response|\WP_Error
+     */
+    public function printReport(WP_REST_Request $request)
+    {
+        $id = $request->get_param('id');
+
+        // Get file path for the attachment
+        $file_path = get_attached_file((int) $id);
+        if (!$file_path || !file_exists($file_path)) {
+            return new \WP_Error('not_found', __('File not found', 'kivicare-clinic-management-system'), ['status' => 404]);
+        }
+        
+        $post = get_post($id);
+        $title = $post ? $post->post_title : '';
+        if (!$title) {
+            $title = get_the_title((int) $id);
+        }
+        
+        $mime_type = mime_content_type($file_path);
+        $file_name = basename($file_path);
+        $extension = pathinfo($file_name, PATHINFO_EXTENSION);
+        
+        // Clean title to be a safe filename
+        $safe_title = sanitize_file_name($title);
+        // Ensure extension is appended if not already present
+        if ($safe_title && $extension && stripos($safe_title, '.' . $extension) === false) {
+            $safe_title .= '.' . $extension;
+        }
+        
+        $download_name = $safe_title ?: $file_name;
+
+        // Proper headers for file stream
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Expose-Headers: Content-Type, Content-Length, Content-Disposition');
+        header('Content-Description: File Transfer');
+        header('Content-Type: ' . $mime_type);
+        header('Content-Disposition: inline; filename="' . $download_name . '"');
+        header('Content-Length: ' . filesize($file_path));
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        readfile($file_path);
+        exit;
+    }
+
+    /**
      * Get appointment details by ID
      * 
      * @param \WP_REST_Request $request
@@ -3125,6 +3199,9 @@ class AppointmentsController extends KCBaseController
             $paymentMode = !empty($params['paymentGateway']) ? $params['paymentGateway'] : 'offline';
             $status = $params['status'] ?? 0;
 
+            $is_offline_mode = in_array($paymentMode, ['offline', 'manual']);
+
+
             // Enforce payment gateway requirement for Patients IF grand_total > 0
             if ($this->kcbase->getLoginUserRole() === $this->kcbase->getPatientRole()) {
                 // Check grand_total
@@ -3139,7 +3216,12 @@ class AppointmentsController extends KCBaseController
                             400
                         );
                     }
-                    $status = KCAppointment::STATUS_PENDING;
+                    
+                    if ($is_offline_mode) {
+                        $status = KCAppointment::STATUS_BOOKED;
+                    } else {
+                        $status = KCAppointment::STATUS_PENDING;
+                    }
                 } else {
                     // Free appointment (0 price)
                     $paymentMode = 'offline';
@@ -3147,8 +3229,10 @@ class AppointmentsController extends KCBaseController
                 }
             } else {
                 // For other roles, if payment gateway selected, set pending
-                if ($paymentMode !== 'offline') {
+                if (!$is_offline_mode) {
                     $status = KCAppointment::STATUS_PENDING;
+                } else {
+                    $status = KCAppointment::STATUS_BOOKED; // Default to booked for offline/manual for other roles
                 }
             }
 
@@ -3260,6 +3344,7 @@ class AppointmentsController extends KCBaseController
                     'patientId' => $params['patientId'],
                     'doctorId' => $params['doctorId'],
                     'clinicId' => $clinicId,
+                    'encounterDate' => $appointmentDate,
                     'addedBy' => get_current_user_id(),
                     'createdAt' => current_time('mysql'),
                     'status' => 1
@@ -3320,10 +3405,21 @@ class AppointmentsController extends KCBaseController
                     throw new Exception($gatewayResponce['message'], 1);
                 }
 
+                // If payment is completed instantly by the gateway (e.g. WooCommerce), update status to BOOKED
+                if (isset($gatewayResponce['status']) && $gatewayResponce['status'] === 'completed') {
+                    $appointment->status = KCAppointment::STATUS_BOOKED;
+                    $appointment->save();
+                    
+                    $status = KCAppointment::STATUS_BOOKED;
+                    $responseData['status'] = $status;
+                }
+
                 do_action('kivicare_before_payment_processed', $appointmentId, $gatewayResponce);
 
                 $user_role = $this->kcbase->getPatientRole();
                 $redirectUrl = kc_get_dashboard_url($user_role);
+
+                $frontendRedirectRef = $this->getFrontendRedirectRef($request);
 
                 $inserted_appointment_mapping_id = KCPaymentsAppointmentMapping::create([
                     'appointmentId' => $appointmentId,
@@ -3335,7 +3431,7 @@ class AppointmentsController extends KCBaseController
                     'paymentId' => $gatewayResponce['data']['payment_id'] ?? '',
                     'payerId' => '',
                     'payerEmail' => '',
-                    'extra' => json_encode(['is_from_frontend' => $request->get_param('page_id') ?? $redirectUrl]),
+                    'extra' => json_encode(['is_from_frontend' => $frontendRedirectRef ?: $redirectUrl]),
                     'notificationStatus' => 0,
                     'createdAt' => current_time('mysql'),
                     'updatedAt' => current_time('mysql')
@@ -3343,12 +3439,16 @@ class AppointmentsController extends KCBaseController
                 if ($inserted_appointment_mapping_id == 0) {
                     throw new Exception(__('Failed to create payment mapping', 'kivicare-clinic-management-system'));
                 }
+                // Attach HMAC token to bind appointment_id to the payment data
+                $expires = time() + 300;
+                $gatewayResponce['data']['kc_token'] = hash_hmac('sha256', $appointmentId . '|' . ($gatewayResponce['gateway'] ?? '') . '|' . $expires, AUTH_KEY);
+                $gatewayResponce['data']['kc_expires'] = $expires;
+
                 $responseData['payment_response'] = $gatewayResponce;
             }
 
-            if ($status !== KCAppointment::STATUS_PENDING) {
-                do_action('kc_after_create_appointment', $appointmentId, $appointmentData, $request);
-            }
+            do_action('kc_after_create_appointment', $appointmentId, $appointmentData, $request);
+
 
             $wpdb->query('COMMIT'); // Commit transaction
 
@@ -3412,6 +3512,8 @@ class AppointmentsController extends KCBaseController
                     404
                 );
             }
+
+            $oldStatus = (int) $appointment->status;
 
             // Validate entities still exist
             $doctor = KCDoctor::find($appointment->doctorId);
@@ -3653,6 +3755,16 @@ class AppointmentsController extends KCBaseController
             // Trigger hook for appointment update
             do_action('kc_appointment_updated', $params['id'], $updateData, $appointment, $request);
 
+            // Fire status-change hooks so notification integrations (email, Google Calendar, etc.)
+            // behave identically whether status is changed via updateAppointment or updateStatus.
+            if (isset($params['status']) && (int) $params['status'] !== $oldStatus) {
+                $newStatus = (int) $params['status'];
+                if ($newStatus === KCAppointment::STATUS_CANCELLED) {
+                    do_action('kc_appointment_cancelled', $params['id']);
+                }
+                do_action('kc_appointment_status_update', $params['id'], $newStatus, $appointment);
+            }
+
             $wpdb->query('COMMIT'); // Commit transaction
 
             // fix: Use correct appointment data for Google Calendar sync
@@ -3706,6 +3818,8 @@ class AppointmentsController extends KCBaseController
         if (!$appointment) {
             return $this->response(null, __('appointment not found', 'kivicare-clinic-management-system'), false, 404);
         }
+
+        do_action('kc_appointment_cancelled', $id);
 
         $encounter = KCPatientEncounter::query()->where('appointmentId', $id)->first();
         $encounterId = $encounter ? $encounter->id : null;
@@ -3808,7 +3922,8 @@ class AppointmentsController extends KCBaseController
 
         $encounter = KCPatientEncounter::table('e')
             ->select([
-                'e.id'
+                'e.id',
+                'e.encounter_date'
             ])
             ->where('e.appointment_id', $id)
             ->first();
@@ -3818,7 +3933,7 @@ class AppointmentsController extends KCBaseController
             // Create encounter if not present
             if (!empty($appointment) && empty($encounter)) {
                 $encounter = KCPatientEncounter::create([
-                    'encounterDate' => gmdate('Y-m-d'),
+                    'encounterDate' => !empty($appointment->appointmentStartDate) ? $appointment->appointmentStartDate : gmdate('Y-m-d'),
                     'clinicId' => $appointment->clinicId,
                     'doctorId' => $appointment->doctorId,
                     'patientId' => $appointment->patientId,
@@ -3829,6 +3944,15 @@ class AppointmentsController extends KCBaseController
                     'createdAt' => current_time('mysql', true),
                 ]);
                 $encounterId = $encounter->id ?? $encounter;
+            } else if (!empty($encounter)) {
+                $encounterId = $encounter->id;
+                // Update existing encounter date if it's empty or invalid
+                if (empty($encounter->encounterDate) || $encounter->encounterDate === '0000-00-00') {
+                    $newDate = !empty($appointment->appointmentStartDate) ? $appointment->appointmentStartDate : gmdate('Y-m-d');
+                    KCPatientEncounter::query()->where('id', $encounterId)->update([
+                        'encounterDate' => $newDate
+                    ]);
+                }
             } else {
                 $encounterId = $encounter->id ?? $encounter;
             }
@@ -3895,6 +4019,75 @@ class AppointmentsController extends KCBaseController
             'Appointment status updated successfully'
         );
     }
+
+    /**
+     * Authorize public payment success/cancel callbacks.
+     *
+     * Gateway return URLs must include a short-lived HMAC token.
+     *
+     * @param WP_REST_Request $request REST request.
+     * @param string          $context Log context.
+     * @return bool
+     */
+    private function canAccessPaymentCallback(WP_REST_Request $request, string $context): bool
+    {
+        $logger        = KCErrorLogger::instance();
+        $appointmentId = absint($request->get_param('appointment_id'));
+        $gateway       = sanitize_text_field($request->get_param('gateway') ?? '');
+        $ip            = sanitize_text_field($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+
+        $logger->debug("[{$context}] permission check", [
+            'appointment_id' => $appointmentId,
+            'gateway'        => $gateway,
+            'ip'             => $ip,
+        ]);
+
+        if (empty($appointmentId)) {
+            $logger->warning("[{$context}] permission denied - missing appointment_id", ['ip' => $ip]);
+            return false;
+        }
+
+        $token   = sanitize_text_field($request->get_param('kc_token') ?? '');
+        $expires = absint($request->get_param('kc_expires') ?? 0);
+
+        if ($gateway === '' || $token === '' || $expires <= 0) {
+            $logger->warning("[{$context}] permission denied - missing HMAC parameters", [
+                'appointment_id' => $appointmentId,
+                'gateway'        => $gateway,
+                'ip'             => $ip,
+            ]);
+            return false;
+        }
+
+        if (time() > $expires) {
+            $logger->warning("[{$context}] permission denied - HMAC token expired", [
+                'appointment_id' => $appointmentId,
+                'gateway'        => $gateway,
+                'expired_at'     => $expires,
+                'ip'             => $ip,
+            ]);
+            return false;
+        }
+
+        $expected = hash_hmac('sha256', $appointmentId . '|' . $gateway . '|' . $expires, AUTH_KEY);
+
+        if (!hash_equals($expected, $token)) {
+            $logger->warning("[{$context}] permission denied - HMAC token mismatch", [
+                'appointment_id' => $appointmentId,
+                'gateway'        => $gateway,
+                'ip'             => $ip,
+            ]);
+            return false;
+        }
+
+        $logger->info("[{$context}] permission granted via HMAC token", [
+            'appointment_id' => $appointmentId,
+            'gateway'        => $gateway,
+        ]);
+
+        return true;
+    }
+
     /**
      * Handle payment success callback
      */
@@ -3902,10 +4095,18 @@ class AppointmentsController extends KCBaseController
     {
         global $wpdb;
 
+        $logger        = KCErrorLogger::instance();
         $params        = $request->get_params();
         $appointmentId = $params['appointment_id'] ?? null;
         $gateway       = $params['gateway'] ?? null;
-        $payment_id    = $params['paymentId'] ?? '';
+        $payment_id    = $params['paymentId'] ?? $params['payment_id'] ?? '';
+
+        $logger->info('[handlePaymentSuccess] invoked', [
+            'appointment_id' => $appointmentId,
+            'gateway'        => $gateway,
+            'payment_id'     => $payment_id,
+            'method'         => $request->get_method(),
+        ]);
 
         try {
 
@@ -3919,23 +4120,57 @@ class AppointmentsController extends KCBaseController
                 throw new Exception('Appointment not found');
             }
 
+            $logger->debug('[handlePaymentSuccess] appointment found', [
+                'appointment_id' => $appointmentId,
+                'current_status' => $appointment->status,
+            ]);
+
             // Validate gateway
             $paymentGateway = KCPaymentGatewayFactory::get_available_gateway($gateway);
             if (!$paymentGateway) {
                 throw new Exception('Payment gateway not found');
             }
 
-            // ⚠️ External call OUTSIDE transaction
+            $logger->debug('[handlePaymentSuccess] gateway resolved', ['gateway' => $gateway]);
+
+            // External call OUTSIDE transaction
             $paymentResult = $paymentGateway->handle_payment_callback($params);
 
-            if (empty($paymentResult) || $paymentResult['status'] === 'failed') {
+            $logger->debug('[handlePaymentSuccess] gateway callback result', [
+                'appointment_id' => $appointmentId,
+                'gateway'        => $gateway,
+                'status'         => $paymentResult['status'] ?? null,
+                'message'        => $paymentResult['message'] ?? null,
+            ]);
+
+            if (empty($paymentResult) || ($paymentResult['status'] ?? '') !== 'success') {
                 throw new Exception($paymentResult['message'] ?? 'Payment failed');
+            }
+
+            // Cross-check: ensure this payment_id isn't already mapped to a different appointment
+            $paymentIdToCheck = $paymentResult['data']['payment_id'] ?? $params['payment_id'] ?? '';
+            if (!empty($paymentIdToCheck)) {
+                $existingMapping = KCPaymentsAppointmentMapping::query()
+                    ->where('payment_id', $paymentIdToCheck)
+                    ->first();
+                if ($existingMapping && (int)$existingMapping->appointmentId !== (int)$appointmentId) {
+                    $logger->error('[handlePaymentSuccess] payment_id already associated with a different appointment', [
+                        'payment_id'          => $paymentIdToCheck,
+                        'request_appointment' => $appointmentId,
+                        'existing_appointment' => $existingMapping->appointmentId,
+                    ]);
+                    throw new Exception('Payment ID is already associated with a different appointment');
+                }
             }
 
             // DB operations inside transaction
             $wpdb->query('START TRANSACTION');
 
             if (!$paymentGateway->is_webhook_configured()) {
+                $logger->info('[handlePaymentSuccess] confirming payment (no webhook configured)', [
+                    'appointment_id' => $appointmentId,
+                    'gateway'        => $gateway,
+                ]);
                 KCAppointmentPaymentService::confirmPayment(
                     $appointmentId,
                     $gateway,
@@ -3943,9 +4178,20 @@ class AppointmentsController extends KCBaseController
                         'payment_id' => $payment_id
                     ])
                 );
+            } else {
+                $logger->info('[handlePaymentSuccess] skipping confirmPayment — webhook configured, awaiting async confirmation', [
+                    'appointment_id' => $appointmentId,
+                    'gateway'        => $gateway,
+                ]);
             }
 
             $wpdb->query('COMMIT');
+
+            $logger->info('[handlePaymentSuccess] completed successfully', [
+                'appointment_id' => $appointmentId,
+                'gateway'        => $gateway,
+                'payment_id'     => $payment_id,
+            ]);
 
             // Build redirect
             $redirectUrl = $this->resolveRedirectUrl($appointmentId, $paymentGateway);
@@ -3957,7 +4203,7 @@ class AppointmentsController extends KCBaseController
                 'appointment_id' => $appointmentId
             ], $redirectUrl);
 
-            if ($request->get_method() === 'POST') {
+            if (!$this->shouldRedirectPaymentCallback($paymentGateway)) {
                 return $this->response([
                     'status' => 'success',
                     'message' => __('Payment completed successfully', 'kivicare-clinic-management-system'),
@@ -3975,6 +4221,13 @@ class AppointmentsController extends KCBaseController
         } catch (\Exception $e) {
 
             $wpdb->query('ROLLBACK');
+
+            $logger->error('[handlePaymentSuccess] failed', [
+                'appointment_id' => $appointmentId,
+                'gateway'        => $gateway,
+                'error'          => $e->getMessage(),
+                'trace'          => $e->getTraceAsString(),
+            ]);
 
             // Fail-safe appointment update
             if (!empty($appointmentId)) {
@@ -4007,7 +4260,7 @@ class AppointmentsController extends KCBaseController
                 'appointment_id' => $appointmentId
             ], $redirectUrl);
 
-            if ($request->get_method() === 'POST') {
+            if (!$this->shouldRedirectPaymentCallback($paymentGateway)) {
                 return $this->response([
                     'status' => 'failed',
                     'message' => $e->getMessage(),
@@ -4022,6 +4275,49 @@ class AppointmentsController extends KCBaseController
             wp_safe_redirect($responseUrl);
             exit;
         }
+    }
+
+    /**
+     * Whether a payment callback should redirect after processing.
+     *
+     * @param mixed $paymentGateway Gateway instance.
+     * @return bool
+     */
+    private function shouldRedirectPaymentCallback($paymentGateway): bool
+    {
+        if (!$paymentGateway || !method_exists($paymentGateway, 'should_redirect_after_callback')) {
+            return true;
+        }
+
+        return (bool) apply_filters(
+            'kc_payment_callback_should_redirect',
+            $paymentGateway->should_redirect_after_callback(),
+            $paymentGateway
+        );
+    }
+
+    /**
+     * Resolve frontend booking context for payment redirects.
+     *
+     * Static shortcode pages send page_id. Dynamic theme templates do not have a
+     * real page ID, so they send the current same-site URL as page_url.
+     *
+     * @param WP_REST_Request $request REST request.
+     * @return int|string|null
+     */
+    private function getFrontendRedirectRef(WP_REST_Request $request)
+    {
+        $pageId = absint($request->get_param('page_id'));
+        if ($pageId > 0) {
+            return $pageId;
+        }
+
+        $pageUrl = esc_url_raw($request->get_param('page_url') ?? '');
+        if (!empty($pageUrl)) {
+            return wp_validate_redirect($pageUrl, false) !== false ? $pageUrl : null;
+        }
+
+        return null;
     }
 
     private function resolveRedirectUrl($appointmentId, $paymentGateway = null): string
@@ -4063,6 +4359,7 @@ class AppointmentsController extends KCBaseController
         $params = $request->get_params();
         $appointmentId = $params['appointment_id'];
         $gateway = $params['gateway'];
+        $paymentGateway = KCPaymentGatewayFactory::get_available_gateway($gateway);
 
         // Find the appointment
         $appointment = KCAppointment::find($appointmentId);
@@ -4093,146 +4390,27 @@ class AppointmentsController extends KCBaseController
         // Trigger payment cancellation hook
         do_action('kc_appointment_payment_cancelled', $appointmentId);
 
-        $page_id = json_decode($existingPayment->extra ?? '{}', true)['is_from_frontend'];
-        $redirectUrl = home_url();
+        $finalUrl = $this->resolveRedirectUrl($appointmentId, $paymentGateway);
 
-        if ($page_id !== false) {
-            // Check if numeric ID or URL string
-            if (is_numeric($page_id)) {
-                $redirectUrl = get_permalink($page_id);
-            } else {
-                $redirectUrl = $page_id;
-            }
-        } else {
-            $user_role = $this->kcbase->getPatientRole();
-            $redirectUrl = kc_get_dashboard_url($user_role);
-        }
-
-        // Correct redirection path based on context
-        $finalUrl = ($page_id !== false && is_numeric($page_id))
-            ? $redirectUrl
-            : $redirectUrl . '/appointments/add';
-
-        wp_safe_redirect(add_query_arg([
+        $responseUrl = add_query_arg([
             'payment_status' => 'cancelled',
             'message' => __('Payment was cancelled', 'kivicare-clinic-management-system'),
             'appointment_id' => $appointmentId
-        ], $finalUrl));
-        exit;
-    }
+        ], $finalUrl);
 
-    /**
-     * Handle payment verification
-     * This endpoint is used to verify payment status and return appointment details
-     * 
-     * @param \WP_REST_Request $request
-     * @return \WP_REST_Response
-     */
-    public function handlePaymentVerification(WP_REST_Request $request): WP_REST_Response
-    {
-        try {
-            $params = $request->get_params();
-            $payment_status = $params['payment_status'];
-            $payment_id = $params['payment_id'];
-            $appointment_id = $params['appointment_id'] ?? null;
-            $message = $params['message'] ?? '';
-
-            // Log the verification request
-            KCErrorLogger::instance()->error("Payment verification requested - Payment ID: {$payment_id}, Status: {$payment_status}");
-
-            // Initialize response data
-            $response_data = [
-                'payment_id' => $payment_id,
-                'payment_status' => $payment_status,
-                'message' => $message
-            ];
-
-            // If payment status is completed, try to get appointment details
-            if ($payment_status === 'completed') {
-                if ($appointment_id) {
-                    // Get appointment details
-                    $appointment = KCAppointment::table('a')
-                        ->leftJoin(KCAppointmentServiceMapping::class, 'a.id', '=', 'asm.appointment_id', 'asm')
-                        ->leftJoin(KCService::class, 'asm.service_id', '=', 's.id', 's')
-                        ->leftJoin(KCPatient::class, 'a.patient_id', '=', 'p.ID', 'p')
-                        ->leftJoin(KCDoctor::class, 'a.doctor_id', '=', 'd.ID', 'd')
-                        ->leftJoin(KCClinic::class, 'a.clinic_id', '=', 'c.id', 'c')
-                        ->select([
-                            'a.id',
-                            'a.appointment_start_date',
-                            'a.appointment_start_time',
-                            'a.appointment_end_time',
-                            'a.status',
-                            'p.display_name as patient_name',
-                            'p.user_email as patient_email',
-                            'd.display_name as doctor_name',
-                            'c.name as clinic_name',
-                            's.name as service_name',
-                            's.price as service_price'
-                        ])
-                        ->where('a.id', $appointment_id)
-                        ->first();
-
-                    if ($appointment) {
-                        $response_data['appointment'] = $appointment;
-                        $response_data['status'] = 'success';
-
-                        return $this->response(
-                            $response_data,
-                            __('Payment verified successfully', 'kivicare-clinic-management-system')
-                        );
-                    } else {
-                        return $this->response(
-                            $response_data,
-                            __('Appointment not found', 'kivicare-clinic-management-system'),
-                            false,
-                            404
-                        );
-                    }
-                } else {
-                    // No appointment ID provided, just verify payment status
-                    $response_data['status'] = 'success';
-
-                    return $this->response(
-                        $response_data,
-                        __('Payment status verified', 'kivicare-clinic-management-system')
-                    );
-                }
-            } else {
-                // Payment not completed
-                if ($appointment_id) {
-                    $apptQuery = KCAppointment::query()->where('id', $appointment_id)->first();
-                    if ($apptQuery && $apptQuery->status !== 1) { // Only cancel if not confirmed
-                        $apptQuery->update(['status' => 0]);
-                        
-                        $existingPayment = KCPaymentsAppointmentMapping::query()->where('appointment_id', $appointment_id)->first();
-                        if ($existingPayment) {
-                            $existingPayment->update(['paymentStatus' => 'cancelled']);
-                        }
-                        
-                    }
-                }
-
-                $response_data['status'] = 'failed';
-
-                return $this->response(
-                    $response_data,
-                    __('Payment verification failed', 'kivicare-clinic-management-system'),
-                    false,
-                    400
-                );
-            }
-
-        } catch (Exception $e) {
-            KCErrorLogger::instance()->error('Payment Verification Error: ' . $e->getMessage());
-
-            return $this->response(
-                ['error' => 'Payment verification failed'],
-                __('Payment verification failed', 'kivicare-clinic-management-system'),
-                false,
-                500
-            );
+        if (!$this->shouldRedirectPaymentCallback($paymentGateway)) {
+            return $this->response([
+                'status' => 'cancelled',
+                'message' => __('Payment was cancelled', 'kivicare-clinic-management-system'),
+                'data' => [
+                    'appointment_id' => $appointmentId,
+                ],
+                'redirect_url' => $responseUrl,
+            ]);
         }
+
+        wp_safe_redirect($responseUrl);
+        exit;
     }
 
     /**
@@ -4367,7 +4545,7 @@ class AppointmentsController extends KCBaseController
             $wpdb->query('COMMIT');
 
             return $this->response(
-                ['status' => 'success', 'message' => __('Telemed link regenerated successfully', 'kivicare-clinic-management-system')],
+                ['status' => 'success', 'message' => __('Telemed link regenerated successfully', 'kivicare-clinic-management-system'),'data'=>$is_meeting_link],
                 __('Telemed link regenerated successfully', 'kivicare-clinic-management-system'),
                 true,
                 200
@@ -4384,6 +4562,214 @@ class AppointmentsController extends KCBaseController
                 500
             );
         }
+    }
+
+    /**
+     * Resend the existing video conference meeting link to the patient only.
+     */
+    public function handleResendMeetingLink(WP_REST_Request $request): WP_REST_Response
+    {
+        try {
+            $appointmentId = $request->get_param('id');
+            $appointment = KCAppointment::find($appointmentId);
+
+            if (!$appointment) {
+                return $this->response(
+                    ['error' => __('Appointment not found', 'kivicare-clinic-management-system')],
+                    __('Appointment not found', 'kivicare-clinic-management-system'),
+                    false,
+                    404
+                );
+            }
+
+            $meeting = $this->getPatientMeetingLinkForAppointment($appointment);
+            if (empty($meeting['link'])) {
+                return $this->response(
+                    ['error' => __('Meeting link not found for this appointment.', 'kivicare-clinic-management-system')],
+                    __('Meeting link not found for this appointment.', 'kivicare-clinic-management-system'),
+                    false,
+                    404
+                );
+            }
+
+            $appointmentData = KCAppointmentNotificationListener::get_instance()->getAppointmentDataForEmail($appointmentId);
+            if (empty($appointmentData)) {
+                return $this->response(
+                    ['error' => __('Appointment email data not found.', 'kivicare-clinic-management-system')],
+                    __('Appointment email data not found.', 'kivicare-clinic-management-system'),
+                    false,
+                    404
+                );
+            }
+
+            if (!empty($meeting['event_link'])) {
+                $appointmentData['meet_event_link'] = $meeting['event_link'];
+            }
+
+            $templateName = $this->getPatientMeetingLinkTemplateName($meeting['type']);
+            $templateValidation = $this->validateEmailTemplateForResponse($templateName, $meeting['type']);
+            if (is_wp_error($templateValidation)) {
+                return $this->response(
+                    [
+                        'error' => $templateValidation->get_error_message(),
+                        'template' => $templateName,
+                    ],
+                    $templateValidation->get_error_message(),
+                    false,
+                    400
+                );
+            }
+
+            $sent = $this->emailSender->sendVideoConferenceLink(
+                $meeting['type'],
+                $appointmentData,
+                $meeting['link'],
+                'patient'
+            );
+
+            if (!$sent) {
+                return $this->response(
+                    ['error' => __('Failed to send meeting link email.', 'kivicare-clinic-management-system')],
+                    __('Failed to send meeting link email.', 'kivicare-clinic-management-system'),
+                    false,
+                    500
+                );
+            }
+
+            return $this->response(
+                ['status' => 'success'],
+                __('Meeting link sent to patient successfully.', 'kivicare-clinic-management-system'),
+                true,
+                200
+            );
+        } catch (Exception $e) {
+            KCErrorLogger::instance()->error('Resend Meeting Link Error: ' . $e->getMessage());
+
+            return $this->response(
+                ['error' => $e->getMessage()],
+                __('Failed to resend meeting link.', 'kivicare-clinic-management-system'),
+                false,
+                500
+            );
+        }
+    }
+
+    /**
+     * Get the patient email template slug for a meeting provider.
+     */
+    private function getPatientMeetingLinkTemplateName(string $type): string
+    {
+        return $type === 'zoom'
+            ? KIVI_CARE_PREFIX . 'zoom_link'
+            : KIVI_CARE_PREFIX . 'meet_link';
+    }
+
+    /**
+     * Validate email template before queueing, so API users get immediate feedback.
+     */
+    private function validateEmailTemplateForResponse(string $templateName, string $meetingType)
+    {
+        $template = (new KCEmailTemplateManager())->getTemplate($templateName, 'mail');
+
+        if (!is_wp_error($template)) {
+            return true;
+        }
+
+        $code = $template->get_error_code();
+
+        if ($code === 'template_not_found') {
+            return new WP_Error(
+                'template_not_found',
+                sprintf(
+                    /* translators: %s: Email template slug. */
+                    __('Meeting link email template "%s" is missing. Please create or restore this template from KiviCare email template settings, then try again.', 'kivicare-clinic-management-system'),
+                    $templateName
+                )
+            );
+        }
+
+        if ($code === 'template_not_published') {
+            return new WP_Error(
+                'template_not_published',
+                sprintf(
+                    /* translators: 1: Meeting module label. 2: Email template slug. */
+                    __('%1$s meeting link email is disabled by the administrator. Please enable the "%2$s" email template from KiviCare email template settings, then try again.', 'kivicare-clinic-management-system'),
+                    $this->getMeetingTypeLabel($meetingType),
+                    $templateName
+                )
+            );
+        }
+
+        return $template;
+    }
+
+    /**
+     * Human-readable meeting provider label for API messages.
+     */
+    private function getMeetingTypeLabel(string $meetingType): string
+    {
+        return $meetingType === 'zoom'
+            ? __('Zoom', 'kivicare-clinic-management-system')
+            : __('Google Meet', 'kivicare-clinic-management-system');
+    }
+
+    /**
+     * Resolve the patient-safe meeting link for Zoom or Google Meet.
+     */
+    private function getPatientMeetingLinkForAppointment(KCAppointment $appointment): array
+    {
+        $appointmentId = absint($appointment->id);
+
+        if (class_exists('KCTApp\\models\\KCTAppointmentZoomMapping')) {
+            try {
+                $zoomMapping = \KCTApp\models\KCTAppointmentZoomMapping::query()
+                    ->where('appointmentId', $appointmentId)
+                    ->first();
+
+                if ($zoomMapping && !empty($zoomMapping->joinUrl)) {
+                    $link = $zoomMapping->joinUrl;
+                    $patientUser = get_userdata((int) $appointment->patientId);
+                    if ($patientUser && !empty($patientUser->display_name)) {
+                        $link = add_query_arg([
+                            'prefer' => '1',
+                            'uname' => $patientUser->display_name,
+                        ], $link);
+                    }
+
+                    return [
+                        'type' => 'zoom',
+                        'link' => $link,
+                        'event_link' => '',
+                    ];
+                }
+            } catch (Exception $e) {
+                KCErrorLogger::instance()->error('Resend Meeting Link Zoom Lookup Error: ' . $e->getMessage());
+            }
+        }
+
+        if (class_exists('KCGMApp\\models\\KCGMAppointmentGoogleMeetMapping')) {
+            try {
+                $meetMapping = \KCGMApp\models\KCGMAppointmentGoogleMeetMapping::query()
+                    ->where('appointmentId', $appointmentId)
+                    ->first();
+
+                if ($meetMapping && !empty($meetMapping->url)) {
+                    return [
+                        'type' => 'meet',
+                        'link' => $meetMapping->url,
+                        'event_link' => $meetMapping->eventUrl ?? '',
+                    ];
+                }
+            } catch (Exception $e) {
+                KCErrorLogger::instance()->error('Resend Meeting Link Google Meet Lookup Error: ' . $e->getMessage());
+            }
+        }
+
+        return [
+            'type' => '',
+            'link' => '',
+            'event_link' => '',
+        ];
     }
 
     /**
@@ -4779,6 +5165,8 @@ class AppointmentsController extends KCBaseController
                 }
 
                 try {
+                    do_action('kc_appointment_cancelled', $id);
+
                     // Delete related data
                     $bill = KCBill::query()->where('appointment_id', $id)->first();
                     

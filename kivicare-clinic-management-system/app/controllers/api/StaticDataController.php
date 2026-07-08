@@ -1939,6 +1939,8 @@ class StaticDataController extends KCBaseController
             $clinicId = $request ? $request->get_param('clinic_id') : null;
             $doctorId = $request ? $request->get_param('doctor_id') : null;
             $search = $request ? $request->get_param('search') : null;
+            $preselectedService = $request ? $request->get_param('preselected_service') : null;
+            $serviceId = $request ? $request->get_param('service_id') : null;
 
             $clinicsQuery = KCClinic::query();
             
@@ -1962,6 +1964,41 @@ class StaticDataController extends KCBaseController
                 } else {
                     return ['clinics' => [], 'pagination' => null, 'settings' => ['showClinicImage' => false, 'showClinicAddress' => false, 'clinicContactDetails' => null]];
                 }
+            }
+
+            $preselectedServiceIds = [];
+            if (!empty($preselectedService)) {
+                $preselectedServiceIds = array_filter(array_map('absint', explode(',', $preselectedService)));
+            } elseif (!empty($serviceId)) {
+                $preselectedServiceIds = [absint($serviceId)];
+            }
+
+            if (!empty($preselectedServiceIds)) {
+                $serviceCount = count($preselectedServiceIds);
+                $serviceClinicQuery = KCServiceDoctorMapping::query()
+                    ->whereIn('service_id', $preselectedServiceIds)
+                    ->where('status', 1);
+
+                if (!empty($doctorId)) {
+                    $serviceClinicQuery->where('doctor_id', (int) $doctorId);
+                }
+
+                $serviceClinicMappings = $serviceClinicQuery->select(['clinic_id', 'doctor_id', 'service_id'])
+                    ->get();
+
+                $clinicIdsWithServices = $serviceClinicMappings->groupBy('clinicId')
+                    ->filter(function ($mappings) use ($serviceCount) {
+                        return $mappings->pluck('serviceId')->unique()->count() === $serviceCount;
+                    })
+                    ->keys()
+                    ->values()
+                    ->toArray();
+
+                if (empty($clinicIdsWithServices)) {
+                    return ['clinics' => [], 'pagination' => null];
+                }
+
+                $clinicsQuery->whereIn('id', $clinicIdsWithServices);
             }
 
             // Handle search
@@ -2107,6 +2144,7 @@ class StaticDataController extends KCBaseController
             $doctorId = $request ? $request->get_param('doctor_id') : null;
             $search = $request ? $request->get_param('search') : null;
             $serviceId = $request ? $request->get_param('service_id') : null;
+            $preselectedService = $request ? $request->get_param('preselected_service') : null;
 
             // Start with basic doctor query for active doctors
             $doctorsQuery = KCDoctor::query()->where('user_status', 0); // 0 means active in WordPress
@@ -2124,13 +2162,32 @@ class StaticDataController extends KCBaseController
                 });
             }
 
-            if (!empty($serviceId)) {
-                $doctorIdsFromService = KCServiceDoctorMapping::query()
-                    ->where('service_id', (int) $serviceId)
-                    ->select(['doctor_id'])
-                    ->get()
-                    ->map(fn($row) => $row->doctorId)
-                    ->unique()
+            $preselectedServiceIds = [];
+            if (!empty($preselectedService)) {
+                $preselectedServiceIds = array_filter(array_map('absint', explode(',', $preselectedService)));
+            } elseif (!empty($serviceId)) {
+                $preselectedServiceIds = [absint($serviceId)];
+            }
+
+            if (!empty($preselectedServiceIds)) {
+                $serviceCount = count($preselectedServiceIds);
+                $serviceDoctorQuery = KCServiceDoctorMapping::query()
+                    ->whereIn('service_id', $preselectedServiceIds)
+                    ->where('status', 1);
+
+                if (!empty($clinicId)) {
+                    $serviceDoctorQuery->where('clinic_id', (int) $clinicId);
+                }
+
+                $serviceDoctorMappings = $serviceDoctorQuery->select(['doctor_id', 'clinic_id', 'service_id'])
+                    ->get();
+
+                $doctorIdsFromService = $serviceDoctorMappings->groupBy('doctorId')
+                    ->filter(function ($mappings) use ($serviceCount) {
+                        return $mappings->pluck('serviceId')->unique()->count() === $serviceCount;
+                    })
+                    ->keys()
+                    ->values()
                     ->toArray();
 
                 if (!empty($doctorIdsFromService)) {

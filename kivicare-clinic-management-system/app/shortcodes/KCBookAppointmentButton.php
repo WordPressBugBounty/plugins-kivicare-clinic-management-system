@@ -68,6 +68,8 @@ class KCBookAppointmentButton extends KCShortcodeAbstract
             }
         }
 
+        $current_url = set_url_scheme('http://' . sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'] ?? '')) . sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'] ?? '')));
+
         $data_attrs = [
             'data-form-id' => '0',
             'data-title' => '',
@@ -77,6 +79,7 @@ class KCBookAppointmentButton extends KCShortcodeAbstract
             'data-payment-gateways' => esc_attr(wp_json_encode($paymentGateways)),
             'data-current-user-id' => get_current_user_id(),
             'data-page-id' => get_the_ID(),
+            'data-page-url' => esc_url($current_url),
             'data-show-print-button' => $show_print_button ? 'true' : 'false',
             'data-query-params' => esc_attr(wp_json_encode([])),
             'data-clinic-id' => $selected_clinic_id,
@@ -193,6 +196,13 @@ class KCBookAppointmentButton extends KCShortcodeAbstract
             // Open button
             var openBtn = document.getElementById('kc-open-' + modalId);
             if (openBtn) openBtn.addEventListener('click', openModal);
+
+            // Payment gateways redirect back with payment_status in the URL.
+            // Auto-open the modal so the React widget can show success/failure.
+            var params = new URLSearchParams(window.location.search || '');
+            if (params.get('payment_status') && params.get('appointment_id')) {
+                setTimeout(openModal, 100);
+            }
 
             // Escape key
             document.addEventListener('keydown', function(e) {
