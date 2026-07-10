@@ -115,6 +115,7 @@ class DoctorSessionController extends KCBaseController
                 'description' => 'Sort results by specified field',
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_text_field',
+                'validate_callback' => [$this, 'validateOrderBy'],
             ],
             'order' => [
                 'description' => 'Sort direction (asc or desc)',
@@ -488,6 +489,7 @@ class DoctorSessionController extends KCBaseController
                 'description' => 'Sort results by specified field',
                 'type' => 'string',
                 'sanitize_callback' => 'sanitize_text_field',
+                'validate_callback' => [$this, 'validateOrderBy'],
             ],
             'order' => [
                 'description' => 'Sort direction (asc or desc)',
@@ -558,6 +560,48 @@ class DoctorSessionController extends KCBaseController
         // Example: Only allow users with 'delete_posts' capability
         return $this->checkCapability('doctor_session_delete');
     }
+
+    /**
+     * Validate doctor session sort field.
+     *
+     * @param string $param
+     * @return bool|WP_Error
+     */
+    public function validateOrderBy($param)
+    {
+        if ($param === '') {
+            return true;
+        }
+
+        if (!array_key_exists($param, $this->getDoctorSessionSortFields())) {
+            return new WP_Error('invalid_orderby', __('Invalid sort field', 'kivicare-clinic-management-system'));
+        }
+
+        return true;
+    }
+
+    /**
+     * Map allowed request sort fields to fixed SQL identifiers.
+     *
+     * @return array<string, string>
+     */
+    private function getDoctorSessionSortFields(): array
+    {
+        return [
+            'id' => 'kc_doctor_sessions.id',
+            'doctor_id' => 'kc_doctor_sessions.doctor_id',
+            'clinic_id' => 'kc_doctor_sessions.clinic_id',
+            'doctor_name' => 'kc_doctors.display_name',
+            'clinic_name' => 'kc_clinics.name',
+            'day' => 'kc_doctor_sessions.day',
+            'start_time' => 'kc_doctor_sessions.start_time',
+            'end_time' => 'kc_doctor_sessions.end_time',
+            'time_slot' => 'kc_doctor_sessions.time_slot',
+            'status' => 'kc_doctor_sessions.status',
+            'created_at' => 'kc_doctor_sessions.created_at',
+        ];
+    }
+
     public function getDoctorSessions(WP_REST_Request $request): WP_REST_Response
     {
         try {
@@ -645,19 +689,8 @@ class DoctorSessionController extends KCBaseController
             // Apply sorting with proper field mapping
             $order = !empty($params['order']) && strtolower($params['order']) === 'desc' ? 'DESC' : 'ASC';
             if (!empty($params['orderby'])) {
-                $orderby = $params['orderby'];
-
-                // Map frontend field names to database fields
-                $fieldMapping = [
-                    'doctor_name' => 'kc_doctors.display_name',
-                    'clinic_name' => 'kc_clinics.name',
-                    'time_slot' => 'kc_doctor_sessions.time_slot'
-                ];
-
-                // Use mapped field if exists, otherwise use the field as-is with table prefix
-                $sortField = isset($fieldMapping[$orderby])
-                    ? $fieldMapping[$orderby]
-                    : 'kc_doctor_sessions.' . $orderby;
+                $sortFields = $this->getDoctorSessionSortFields();
+                $sortField = $sortFields[$params['orderby']] ?? 'kc_doctor_sessions.doctor_id';
 
                 $query->orderBy($sortField, $order);
             } else {
@@ -1277,9 +1310,12 @@ class DoctorSessionController extends KCBaseController
             }
 
             // Apply sorting
-            $order = !empty($params['order']) && strtolower($params['order']) === 'desc' ? 'desc' : 'asc';
+            $order = !empty($params['order']) && strtolower($params['order']) === 'desc' ? 'DESC' : 'ASC';
             if (!empty($params['orderby'])) {
-                $query->orderBy($params['orderby'], $order);
+                $sortFields = $this->getDoctorSessionSortFields();
+                $sortField = $sortFields[$params['orderby']] ?? 'kc_doctor_sessions.id';
+
+                $query->orderBy($sortField, $order);
             } else {
                 $query->orderBy('kc_doctor_sessions.id', 'DESC');
             }

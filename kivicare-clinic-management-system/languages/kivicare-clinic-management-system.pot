@@ -2,40 +2,35 @@
 # This file is distributed under the same license as the KiviCare - Clinic & Patient Management System (EHR) plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 4.5.0\n"
+"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 4.5.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/kivicare-clinic-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-08T07:11:32+00:00\n"
+"POT-Creation-Date: 2026-07-10T09:58:57+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.11.0\n"
+"X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: kivicare-clinic-management-system\n"
 
 #. Plugin Name of the plugin
-#: kivicare-clinic-management-system.php
 msgid "KiviCare - Clinic & Patient Management System (EHR)"
 msgstr ""
 
 #. Plugin URI of the plugin
-#: kivicare-clinic-management-system.php
 msgid "https://kivicare.io"
 msgstr ""
 
 #. Description of the plugin
-#: kivicare-clinic-management-system.php
 msgid "KiviCare is an impressive clinic and patient management plugin (EHR). It comes with powerful shortcodes for appointment booking and patient registration."
 msgstr ""
 
 #. Author of the plugin
-#: kivicare-clinic-management-system.php
 msgid "iqonic design"
 msgstr ""
 
 #. Author URI of the plugin
-#: kivicare-clinic-management-system.php
 msgid "https://iqonic.design"
 msgstr ""
 
@@ -956,6 +951,7 @@ msgstr ""
 #: app/controllers/api/ClinicController.php:198
 #: app/controllers/api/DoctorController.php:219
 #: app/controllers/api/DoctorServiceController.php:210
+#: app/controllers/api/DoctorSessionController.php:577
 #: app/controllers/api/PatientController.php:243
 msgid "Invalid sort field"
 msgstr ""
@@ -1695,84 +1691,84 @@ msgstr ""
 msgid "hr"
 msgstr ""
 
-#: app/controllers/api/DoctorSessionController.php:676
+#: app/controllers/api/DoctorSessionController.php:709
 #: app/dashboard/utils/helper.js:197
 msgid "Mon"
 msgstr ""
 
-#: app/controllers/api/DoctorSessionController.php:677
+#: app/controllers/api/DoctorSessionController.php:710
 #: app/dashboard/utils/helper.js:198
 msgid "Tue"
 msgstr ""
 
-#: app/controllers/api/DoctorSessionController.php:678
+#: app/controllers/api/DoctorSessionController.php:711
 #: app/dashboard/utils/helper.js:199
 msgid "Wed"
 msgstr ""
 
-#: app/controllers/api/DoctorSessionController.php:679
+#: app/controllers/api/DoctorSessionController.php:712
 #: app/dashboard/utils/helper.js:200
 msgid "Thu"
 msgstr ""
 
-#: app/controllers/api/DoctorSessionController.php:680
+#: app/controllers/api/DoctorSessionController.php:713
 #: app/dashboard/utils/helper.js:201
 msgid "Fri"
 msgstr ""
 
-#: app/controllers/api/DoctorSessionController.php:681
+#: app/controllers/api/DoctorSessionController.php:714
 #: app/dashboard/utils/helper.js:202
 msgid "Sat"
 msgstr ""
 
-#: app/controllers/api/DoctorSessionController.php:682
+#: app/controllers/api/DoctorSessionController.php:715
 #: app/dashboard/utils/helper.js:196
 msgid "Sun"
 msgstr ""
 
-#: app/controllers/api/DoctorSessionController.php:767
+#: app/controllers/api/DoctorSessionController.php:800
 msgid "Doctor sessions retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/DoctorSessionController.php:786
-#: app/controllers/api/DoctorSessionController.php:1026
-#: app/controllers/api/DoctorSessionController.php:1117
+#: app/controllers/api/DoctorSessionController.php:819
+#: app/controllers/api/DoctorSessionController.php:1059
+#: app/controllers/api/DoctorSessionController.php:1150
 msgid "Doctor session not found"
 msgstr ""
 
-#: app/controllers/api/DoctorSessionController.php:868
+#: app/controllers/api/DoctorSessionController.php:901
 msgid "Doctor session retrieved successfully"
 msgstr ""
 
 #. translators: 1: Doctor's name, 2: Day of the week, 3: Session start time, 4: Session end time, 5: Clinic name
-#: app/controllers/api/DoctorSessionController.php:932
+#: app/controllers/api/DoctorSessionController.php:965
 msgid "A session already exists for %1$s at %5$s on %2$s from %3$s to %4$s"
 msgstr ""
 
-#: app/controllers/api/DoctorSessionController.php:1034
+#: app/controllers/api/DoctorSessionController.php:1067
 msgid "You can only update your own sessions"
 msgstr ""
 
-#: app/controllers/api/DoctorSessionController.php:1083
+#: app/controllers/api/DoctorSessionController.php:1116
 #: app/models/KCClinicSession.php:189
 #: app/dashboard/views/doctorSession/DoctorSessionForm.jsx:288
 msgid "Doctor session updated successfully"
 msgstr ""
 
-#: app/controllers/api/DoctorSessionController.php:1126
+#: app/controllers/api/DoctorSessionController.php:1159
 msgid "You can only delete your own sessions"
 msgstr ""
 
-#: app/controllers/api/DoctorSessionController.php:1139
-#: app/controllers/api/DoctorSessionController.php:1188
+#: app/controllers/api/DoctorSessionController.php:1172
+#: app/controllers/api/DoctorSessionController.php:1221
 msgid "Doctor sessions deleted successfully"
 msgstr ""
 
-#: app/controllers/api/DoctorSessionController.php:1190
+#: app/controllers/api/DoctorSessionController.php:1223
 msgid "No doctor sessions deleted"
 msgstr ""
 
-#: app/controllers/api/DoctorSessionController.php:1375
+#: app/controllers/api/DoctorSessionController.php:1411
 msgid "Doctor sessions export data retrieved successfully"
 msgstr ""
 
