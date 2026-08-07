@@ -153,6 +153,35 @@ class KCPaymentGatewayFactory
     }
 
     /**
+     * Get enabled payment method configuration safe for frontend/mobile clients.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public static function get_payment_methods_config(): array
+    {
+        $methods = [];
+
+        foreach (self::get_available_gateways(false) as $gateway_data) {
+            $gateway = $gateway_data['instance'] ?? null;
+
+            if (!$gateway instanceof KCAbstractPaymentGateway || !$gateway->is_enabled()) {
+                continue;
+            }
+
+            $gateway_methods = $gateway->get_public_config();
+
+            if (!isset($gateway_methods['paymentMethod'])) {
+                $methods = array_merge($methods, array_values($gateway_methods));
+                continue;
+            }
+
+            $methods[] = $gateway_methods;
+        }
+
+        return apply_filters('kc_payment_methods_config', $methods);
+    }
+
+    /**
      * Get a gateway instance by ID.
      *
      * @param string $gateway_id      Gateway identifier

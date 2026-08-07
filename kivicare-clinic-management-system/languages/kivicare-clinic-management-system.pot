@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the KiviCare - Clinic & Patient Management System (EHR) plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 4.5.1\n"
+"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 4.5.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/kivicare-clinic-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-10T09:58:57+00:00\n"
+"POT-Creation-Date: 2026-08-07T07:00:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: kivicare-clinic-management-system\n"
@@ -53,15 +53,15 @@ msgstr ""
 
 #: app/admin/AdminMenu.php:32
 #: app/admin/AdminMenu.php:42
-#: app/baseClasses/KCApp.php:284
+#: app/baseClasses/KCApp.php:288
 msgid "KiviCare"
 msgstr ""
 
-#: app/admin/KCDashboardPermalinkHandler.php:231
+#: app/admin/KCDashboardPermalinkHandler.php:235
 msgid "You do not have sufficient permissions to access this dashboard."
 msgstr ""
 
-#: app/admin/KCDashboardPermalinkHandler.php:231
+#: app/admin/KCDashboardPermalinkHandler.php:235
 #: templates/html-kc-dashboard.php:22
 msgid "Access Denied"
 msgstr ""
@@ -70,11 +70,11 @@ msgstr ""
 msgid "Every 5 Minutes"
 msgstr ""
 
-#: app/baseClasses/KCApp.php:323
+#: app/baseClasses/KCApp.php:327
 msgid "<strong>ERROR</strong>: Your account is inactive. Please contact the administrator."
 msgstr ""
 
-#: app/baseClasses/KCApp.php:336
+#: app/baseClasses/KCApp.php:340
 msgid "<strong>ERROR</strong>: Your clinic is inactive. Please contact the administrator."
 msgstr ""
 
@@ -213,15 +213,15 @@ msgctxt "admin"
 msgid "Activity Logs"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:344
+#: app/controllers/api/AppointmentsController.php:345
 msgid "Attachment ID"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1050
+#: app/controllers/api/AppointmentsController.php:1051
 msgid "Invalid payment method selected."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1139
+#: app/controllers/api/AppointmentsController.php:1140
 #: app/controllers/api/ClinicController.php:2227
 #: app/controllers/api/DoctorController.php:2199
 #: app/controllers/api/DoctorServiceController.php:1679
@@ -233,40 +233,40 @@ msgstr ""
 msgid "Format must be csv, xls, or pdf"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1159
-#: app/controllers/api/AppointmentsController.php:1173
+#: app/controllers/api/AppointmentsController.php:1160
+#: app/controllers/api/AppointmentsController.php:1174
 #: app/controllers/api/PatientController.php:206
 msgid "Invalid date format. Use YYYY-MM-DD"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1185
+#: app/controllers/api/AppointmentsController.php:1186
 #: app/controllers/api/DoctorServiceController.php:1695
 #: app/controllers/api/PatientController.php:629
 msgid "Invalid clinic ID"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1196
+#: app/controllers/api/AppointmentsController.php:1197
 #: app/controllers/api/DoctorController.php:1481
 msgid "Invalid doctor ID"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1207
+#: app/controllers/api/AppointmentsController.php:1208
 msgid "Invalid patient ID"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1218
+#: app/controllers/api/AppointmentsController.php:1219
 msgid "Status must be 0 (Cancelled), 1 (Booked), 2 (Pending), 3 (Check-Out), or 4 (Check-In)"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1229
+#: app/controllers/api/AppointmentsController.php:1230
 msgid "Time frame must be all, upcoming, or past"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1380
-#: app/controllers/api/AppointmentsController.php:1581
-#: app/controllers/api/AppointmentsController.php:1785
-#: app/controllers/api/AppointmentsController.php:3034
-#: app/controllers/api/AppointmentsController.php:3523
+#: app/controllers/api/AppointmentsController.php:1436
+#: app/controllers/api/AppointmentsController.php:1637
+#: app/controllers/api/AppointmentsController.php:1841
+#: app/controllers/api/AppointmentsController.php:3090
+#: app/controllers/api/AppointmentsController.php:3579
 #: app/controllers/api/DoctorController.php:1074
 #: app/controllers/api/DoctorController.php:1134
 #: app/controllers/api/DoctorController.php:1506
@@ -279,12 +279,12 @@ msgstr ""
 msgid "Doctor not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1404
-#: app/controllers/api/AppointmentsController.php:1604
-#: app/controllers/api/AppointmentsController.php:1809
-#: app/controllers/api/AppointmentsController.php:2176
-#: app/controllers/api/AppointmentsController.php:3054
-#: app/controllers/api/AppointmentsController.php:3533
+#: app/controllers/api/AppointmentsController.php:1460
+#: app/controllers/api/AppointmentsController.php:1660
+#: app/controllers/api/AppointmentsController.php:1865
+#: app/controllers/api/AppointmentsController.php:2232
+#: app/controllers/api/AppointmentsController.php:3110
+#: app/controllers/api/AppointmentsController.php:3589
 #: app/controllers/api/ClinicController.php:993
 #: app/controllers/api/ClinicController.php:1346
 #: app/controllers/api/ClinicController.php:1637
@@ -296,89 +296,89 @@ msgstr ""
 msgid "Clinic not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1417
-#: app/controllers/api/AppointmentsController.php:3151
+#: app/controllers/api/AppointmentsController.php:1473
+#: app/controllers/api/AppointmentsController.php:3207
 #: app/controllers/api/frontend/KCBookAppoinmentShortcode.php:208
 msgid "No valid services found for the provided IDs"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1445
+#: app/controllers/api/AppointmentsController.php:1501
 msgid "Appointment summary retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1456
+#: app/controllers/api/AppointmentsController.php:1512
 msgid "Failed to generate appointment summary"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1506
-#: app/controllers/api/AppointmentsController.php:1766
+#: app/controllers/api/AppointmentsController.php:1562
+#: app/controllers/api/AppointmentsController.php:1822
 msgid "Only same-day booking is allowed."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1558
+#: app/controllers/api/AppointmentsController.php:1614
 msgid "Failed to generate appointment slots"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1613
-#: app/controllers/api/AppointmentsController.php:1818
+#: app/controllers/api/AppointmentsController.php:1669
+#: app/controllers/api/AppointmentsController.php:1874
 msgid "Missing service data"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1733
+#: app/controllers/api/AppointmentsController.php:1789
 msgid "Month slot availability retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1776
+#: app/controllers/api/AppointmentsController.php:1832
 msgid "Booking is not available for the selected date."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1898
+#: app/controllers/api/AppointmentsController.php:1954
 msgid "No available slots found for the selected date and doctor"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1905
+#: app/controllers/api/AppointmentsController.php:1961
 msgid "Appointment slots retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2468
-#: app/controllers/api/AppointmentsController.php:2982
+#: app/controllers/api/AppointmentsController.php:2524
+#: app/controllers/api/AppointmentsController.php:3038
 #: app/controllers/api/DashboardController.php:593
 msgid "Appointments retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2529
-#: app/controllers/api/AppointmentsController.php:2812
-#: app/controllers/api/AppointmentsController.php:3510
-#: app/controllers/api/AppointmentsController.php:3920
-#: app/controllers/api/AppointmentsController.php:4369
-#: app/controllers/api/AppointmentsController.php:4510
-#: app/controllers/api/AppointmentsController.php:4578
-#: app/controllers/api/AppointmentsController.php:4579
-#: app/controllers/api/AppointmentsController.php:5162
-#: app/controllers/api/KCPrintInvoiceController.php:58
+#: app/controllers/api/AppointmentsController.php:2585
+#: app/controllers/api/AppointmentsController.php:2868
+#: app/controllers/api/AppointmentsController.php:3566
+#: app/controllers/api/AppointmentsController.php:3976
+#: app/controllers/api/AppointmentsController.php:4425
+#: app/controllers/api/AppointmentsController.php:4566
+#: app/controllers/api/AppointmentsController.php:4634
+#: app/controllers/api/AppointmentsController.php:4635
+#: app/controllers/api/AppointmentsController.php:5218
+#: app/controllers/api/KCPrintInvoiceController.php:126
 #: app/controllers/api/SettingsController/CustomFields.php:988
 msgid "Appointment not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2694
+#: app/controllers/api/AppointmentsController.php:2750
 msgid "Appointment retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2698
+#: app/controllers/api/AppointmentsController.php:2754
 msgid "Failed to retrieve appointment"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2718
+#: app/controllers/api/AppointmentsController.php:2774
 #: app/helpers/KCExportHelper.php:139
 msgid "File not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2986
+#: app/controllers/api/AppointmentsController.php:3042
 msgid "Failed to retrieve appointments"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3065
-#: app/controllers/api/AppointmentsController.php:3543
+#: app/controllers/api/AppointmentsController.php:3121
+#: app/controllers/api/AppointmentsController.php:3599
 #: app/controllers/api/PatientController.php:1129
 #: app/controllers/api/PatientController.php:1399
 #: app/controllers/api/PatientController.php:1553
@@ -389,185 +389,185 @@ msgstr ""
 msgid "Patient not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3119
-#: app/controllers/api/AppointmentsController.php:3589
+#: app/controllers/api/AppointmentsController.php:3175
+#: app/controllers/api/AppointmentsController.php:3645
 msgid "Selected time slot is not available"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3167
+#: app/controllers/api/AppointmentsController.php:3223
 msgid "Telemed services cannot be booked as telemed addon is not active"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3214
+#: app/controllers/api/AppointmentsController.php:3270
 msgid "Please select a payment method to proceed."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3269
+#: app/controllers/api/AppointmentsController.php:3325
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1085
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1203
 msgid "Failed to create appointment"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3306
-#: app/controllers/api/AppointmentsController.php:4519
+#: app/controllers/api/AppointmentsController.php:3362
+#: app/controllers/api/AppointmentsController.php:4575
 msgid "Telemed provider not found for the selected doctor"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3328
+#: app/controllers/api/AppointmentsController.php:3384
 msgid "Failed to create telemed meeting link"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3440
+#: app/controllers/api/AppointmentsController.php:3496
 msgid "Failed to create payment mapping"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3461
+#: app/controllers/api/AppointmentsController.php:3517
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1077
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1189
 msgid "Appointment created successfully"
 msgstr ""
 
 #. translators: %s: Error message
-#: app/controllers/api/AppointmentsController.php:3474
+#: app/controllers/api/AppointmentsController.php:3530
 msgid "Failed to create appointment: %s"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3499
+#: app/controllers/api/AppointmentsController.php:3555
 msgid "New appointment date and time are required"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3554
+#: app/controllers/api/AppointmentsController.php:3610
 msgid "No services found for this appointment"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3670
+#: app/controllers/api/AppointmentsController.php:3726
 msgid "Failed to update Google Meet event"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3712
-#: app/controllers/api/AppointmentsController.php:3752
-#: app/controllers/api/AppointmentsController.php:3796
+#: app/controllers/api/AppointmentsController.php:3768
+#: app/controllers/api/AppointmentsController.php:3808
+#: app/controllers/api/AppointmentsController.php:3852
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1085
 msgid "Failed to update appointment"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3785
+#: app/controllers/api/AppointmentsController.php:3841
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1041
 msgid "Appointment updated successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3819
+#: app/controllers/api/AppointmentsController.php:3875
 msgid "appointment not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3893
+#: app/controllers/api/AppointmentsController.php:3949
 msgid "Failed to delete Appointment"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4202
-#: app/controllers/api/AppointmentsController.php:4209
+#: app/controllers/api/AppointmentsController.php:4258
+#: app/controllers/api/AppointmentsController.php:4265
 msgid "Payment completed successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4397
-#: app/controllers/api/AppointmentsController.php:4404
+#: app/controllers/api/AppointmentsController.php:4453
+#: app/controllers/api/AppointmentsController.php:4460
 #: app/dashboard/views/paymentGateways/RazorpayCheckout.jsx:73
 #: app/dashboard/views/paymentGateways/StripeCheckout.jsx:123
 msgid "Payment was cancelled"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4434
+#: app/controllers/api/AppointmentsController.php:4490
 msgid "Missing gateway parameter"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4444
+#: app/controllers/api/AppointmentsController.php:4500
 msgid "Payment gateway not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4548
-#: app/controllers/api/AppointmentsController.php:4549
+#: app/controllers/api/AppointmentsController.php:4604
+#: app/controllers/api/AppointmentsController.php:4605
 msgid "Telemed link regenerated successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4560
+#: app/controllers/api/AppointmentsController.php:4616
 msgid "Failed to regenerate telemed link"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4588
-#: app/controllers/api/AppointmentsController.php:4589
+#: app/controllers/api/AppointmentsController.php:4644
+#: app/controllers/api/AppointmentsController.php:4645
 msgid "Meeting link not found for this appointment."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4598
-#: app/controllers/api/AppointmentsController.php:4599
+#: app/controllers/api/AppointmentsController.php:4654
+#: app/controllers/api/AppointmentsController.php:4655
 msgid "Appointment email data not found."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4632
-#: app/controllers/api/AppointmentsController.php:4633
+#: app/controllers/api/AppointmentsController.php:4688
+#: app/controllers/api/AppointmentsController.php:4689
 msgid "Failed to send meeting link email."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4641
+#: app/controllers/api/AppointmentsController.php:4697
 #: app/dashboard/views/appointments/AppointmentsList.jsx:1480
 msgid "Meeting link sent to patient successfully."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4650
+#: app/controllers/api/AppointmentsController.php:4706
 msgid "Failed to resend meeting link."
 msgstr ""
 
 #. translators: %s: Email template slug.
-#: app/controllers/api/AppointmentsController.php:4685
+#: app/controllers/api/AppointmentsController.php:4741
 msgid "Meeting link email template \"%s\" is missing. Please create or restore this template from KiviCare email template settings, then try again."
 msgstr ""
 
 #. translators: 1: Meeting module label. 2: Email template slug.
-#: app/controllers/api/AppointmentsController.php:4696
+#: app/controllers/api/AppointmentsController.php:4752
 msgid "%1$s meeting link email is disabled by the administrator. Please enable the \"%2$s\" email template from KiviCare email template settings, then try again."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4712
+#: app/controllers/api/AppointmentsController.php:4768
 msgid "Zoom"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4713
+#: app/controllers/api/AppointmentsController.php:4769
 #: app/dashboard/utils/activityLogHelpers.js:93
 #: app/dashboard/views/settings/googleMeet/GoogleMeet.jsx:152
 #: app/dashboard/views/settings/SettingsSideBar.jsx:191
 msgid "Google Meet"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4950
+#: app/controllers/api/AppointmentsController.php:5006
 msgid "No appointments found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5112
+#: app/controllers/api/AppointmentsController.php:5168
 msgid "Appointments data retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5120
+#: app/controllers/api/AppointmentsController.php:5176
 msgid "Failed to export appointments data"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5234
+#: app/controllers/api/AppointmentsController.php:5290
 msgid "Failed to delete appointment"
 msgstr ""
 
 #. translators: %d: number of appointments
-#: app/controllers/api/AppointmentsController.php:5262
+#: app/controllers/api/AppointmentsController.php:5318
 msgid "%d appointment has been deleted."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5273
+#: app/controllers/api/AppointmentsController.php:5329
 msgid "Failed to delete appointments"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5362
+#: app/controllers/api/AppointmentsController.php:5418
 msgid "Appointment IDs are required"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5366
+#: app/controllers/api/AppointmentsController.php:5422
 msgid "Invalid appointment ID in array"
 msgstr ""
 
@@ -669,7 +669,7 @@ msgid "Invalid gender value"
 msgstr ""
 
 #: app/controllers/api/AuthController.php:399
-#: app/controllers/api/AuthController.php:1321
+#: app/controllers/api/AuthController.php:1329
 msgid "Invalid user role"
 msgstr ""
 
@@ -706,49 +706,49 @@ msgstr ""
 msgid "Confirm password is required"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:621
-#: app/controllers/api/AuthController.php:1285
+#: app/controllers/api/AuthController.php:622
+#: app/controllers/api/AuthController.php:630
 msgid "Selected user role is not enabled for registration"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:641
+#: app/controllers/api/AuthController.php:638
 msgid "Receptionist registration is currently disabled."
 msgstr ""
 
-#: app/controllers/api/AuthController.php:680
+#: app/controllers/api/AuthController.php:688
 msgid "Logout successful"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:768
+#: app/controllers/api/AuthController.php:776
 msgid "Only patients can login through the booking system."
 msgstr ""
 
-#: app/controllers/api/AuthController.php:813
+#: app/controllers/api/AuthController.php:821
 msgid "You do not have permission to login from this form."
 msgstr ""
 
-#: app/controllers/api/AuthController.php:825
+#: app/controllers/api/AuthController.php:833
 msgid "You do not have permission to access this site."
 msgstr ""
 
-#: app/controllers/api/AuthController.php:875
+#: app/controllers/api/AuthController.php:883
 msgid "Login successful"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1127
+#: app/controllers/api/AuthController.php:1135
 msgid "Password Reset Request - KiviCare"
 msgstr ""
 
 #. translators: %s: Password reset URL
-#: app/controllers/api/AuthController.php:1130
+#: app/controllers/api/AuthController.php:1138
 msgid "Someone has requested a password reset for your account.\\n\\nTo reset your password, visit the following address:\\n%s\\n\\nIf this was a mistake, just ignore this email and nothing will happen."
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1227
+#: app/controllers/api/AuthController.php:1235
 msgid "Username already exists"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1235
+#: app/controllers/api/AuthController.php:1243
 #: app/controllers/api/ClinicController.php:1477
 #: app/controllers/api/DoctorController.php:1547
 #: app/controllers/api/PatientController.php:1444
@@ -757,7 +757,7 @@ msgstr ""
 msgid "Email already exists"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1244
+#: app/controllers/api/AuthController.php:1252
 #: app/controllers/api/ClinicController.php:148
 #: app/controllers/api/PatientController.php:154
 #: app/controllers/api/ReceptionistsController.php:151
@@ -776,123 +776,123 @@ msgstr ""
 msgid "Contact number is required"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1255
+#: app/controllers/api/AuthController.php:1263
 msgid "Invalid contact number format"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1271
+#: app/controllers/api/AuthController.php:1279
 msgid "Mobile number already exists"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1449
+#: app/controllers/api/AuthController.php:1457
 msgid "Failed to create user"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1544
+#: app/controllers/api/AuthController.php:1552
 msgid "Registration successful."
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1553
+#: app/controllers/api/AuthController.php:1561
 msgid "Registration failed. Please try again."
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1588
+#: app/controllers/api/AuthController.php:1596
 msgid "User not found"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1611
+#: app/controllers/api/AuthController.php:1619
 msgid "Failed to send password reset email. Please contact support."
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1619
+#: app/controllers/api/AuthController.php:1627
 msgid "Password reset email sent successfully"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1652
+#: app/controllers/api/AuthController.php:1660
 msgid "Password reset successful"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1672
-#: app/controllers/api/AuthController.php:1761
+#: app/controllers/api/AuthController.php:1680
+#: app/controllers/api/AuthController.php:1769
 msgid "User not authenticated"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1682
+#: app/controllers/api/AuthController.php:1690
 msgid "Current password is incorrect"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1692
+#: app/controllers/api/AuthController.php:1700
 #: app/dashboard/components/profile/ChangePassword.jsx:58
 msgid "New password and confirm password do not match"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1702
+#: app/controllers/api/AuthController.php:1710
 msgid "New password must be different from current password"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1741
+#: app/controllers/api/AuthController.php:1749
 #: app/dashboard/components/profile/ChangePassword.jsx:79
 msgid "Password changed successfully"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1780
+#: app/controllers/api/AuthController.php:1788
 msgid "Your account has been deleted successfully"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1788
+#: app/controllers/api/AuthController.php:1796
 msgid "Something went wrong while deleting your account"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1967
+#: app/controllers/api/AuthController.php:1975
 msgid "Registration settings retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1973
+#: app/controllers/api/AuthController.php:1981
 msgid "Failed to retrieve registration settings"
 msgstr ""
 
-#: app/controllers/api/BillController.php:232
+#: app/controllers/api/BillController.php:315
 msgid "Encounter ID is required"
 msgstr ""
 
-#: app/controllers/api/BillController.php:246
-#: app/controllers/api/BillController.php:503
-#: app/controllers/api/BillController.php:684
+#: app/controllers/api/BillController.php:329
+#: app/controllers/api/BillController.php:586
+#: app/controllers/api/BillController.php:767
 #: app/controllers/api/EncounterController.php:1153
 #: app/controllers/api/EncounterController.php:1283
 #: app/controllers/api/PrescriptionController.php:434
 msgid "Encounter not found"
 msgstr ""
 
-#: app/controllers/api/BillController.php:267
+#: app/controllers/api/BillController.php:350
 msgid "Bill not found for this encounter"
 msgstr ""
 
-#: app/controllers/api/BillController.php:473
+#: app/controllers/api/BillController.php:556
 msgid "Bill retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/BillController.php:475
+#: app/controllers/api/BillController.php:558
 msgid "Bill not found"
 msgstr ""
 
-#: app/controllers/api/BillController.php:494
+#: app/controllers/api/BillController.php:577
 msgid "A bill already exists for this encounter."
 msgstr ""
 
-#: app/controllers/api/BillController.php:666
+#: app/controllers/api/BillController.php:749
 msgid "Bill created successfully"
 msgstr ""
 
-#: app/controllers/api/BillController.php:669
+#: app/controllers/api/BillController.php:752
 msgid "Failed to create bill"
 msgstr ""
 
-#: app/controllers/api/BillController.php:859
+#: app/controllers/api/BillController.php:942
 msgid "Bill updated successfully"
 msgstr ""
 
-#: app/controllers/api/BillController.php:862
+#: app/controllers/api/BillController.php:945
 msgid "Failed to update bill"
 msgstr ""
 
@@ -1229,103 +1229,103 @@ msgstr ""
 msgid "Active schedules retrieved"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:70
+#: app/controllers/api/ConfigController.php:72
 msgid "Configuration key is required"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:75
+#: app/controllers/api/ConfigController.php:77
 msgid "Configuration key can only contain letters, numbers, underscores, and dashes"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:103
-#: app/controllers/api/ConfigController.php:775
+#: app/controllers/api/ConfigController.php:105
+#: app/controllers/api/ConfigController.php:777
 msgid "Invalid configuration group"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:121
+#: app/controllers/api/ConfigController.php:123
 msgid "Language parameter is required"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:124
+#: app/controllers/api/ConfigController.php:126
 msgid "Invalid language code"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:346
+#: app/controllers/api/ConfigController.php:348
 msgid "Configuration data must be an object"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:361
+#: app/controllers/api/ConfigController.php:363
 msgid "User preferences must be an object"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:735
+#: app/controllers/api/ConfigController.php:737
 msgid "Configuration data retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:739
+#: app/controllers/api/ConfigController.php:741
 msgid "Failed to retrieve configuration data"
 msgstr ""
 
 #. translators: %s: Configuration group name
-#: app/controllers/api/ConfigController.php:779
+#: app/controllers/api/ConfigController.php:781
 msgid "%s configuration retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:783
+#: app/controllers/api/ConfigController.php:785
 msgid "Failed to retrieve configuration group"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:829
+#: app/controllers/api/ConfigController.php:831
 #: app/dashboard/views/settings/customNotification/CustomNotificationEdit.jsx:780
 #: app/dashboard/views/settings/encounterBodyChart/EncounterBodyChart.jsx:181
 msgid "Configuration updated successfully"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:831
+#: app/controllers/api/ConfigController.php:833
 msgid "Configuration updated with some errors"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:836
+#: app/controllers/api/ConfigController.php:838
 #: app/dashboard/views/settings/encounterBodyChart/EncounterBodyChart.jsx:183
 msgid "Failed to update configuration"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:879
+#: app/controllers/api/ConfigController.php:881
 msgid "System status retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:883
+#: app/controllers/api/ConfigController.php:885
 msgid "Failed to retrieve system status"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:902
-#: app/controllers/api/ConfigController.php:934
-#: app/controllers/api/ConfigController.php:1247
+#: app/controllers/api/ConfigController.php:904
+#: app/controllers/api/ConfigController.php:936
+#: app/controllers/api/ConfigController.php:1110
 msgid "User not logged in"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:911
+#: app/controllers/api/ConfigController.php:913
 msgid "User preferences retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:915
+#: app/controllers/api/ConfigController.php:917
 msgid "Failed to retrieve user preferences"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:951
+#: app/controllers/api/ConfigController.php:953
 msgid "User preferences updated successfully"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:953
-#: app/controllers/api/ConfigController.php:958
+#: app/controllers/api/ConfigController.php:955
+#: app/controllers/api/ConfigController.php:960
 msgid "Failed to update user preferences"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:1269
+#: app/controllers/api/ConfigController.php:1132
 msgid "Language switched successfully"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:1273
+#: app/controllers/api/ConfigController.php:1136
 msgid "Failed to switch language"
 msgstr ""
 
@@ -1673,10 +1673,10 @@ msgstr ""
 
 #: app/controllers/api/DoctorServiceController.php:2035
 #: app/dashboard/views/appointments/AppointmentsList.jsx:762
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:54
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:60
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:69
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:82
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:75
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:81
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:90
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:103
 #: app/dashboard/views/encounter/components/PrescriptionModule.jsx:266
 #: app/dashboard/views/settings/webHook/components/WebhookForm.jsx:1899
 msgid "N/A"
@@ -1902,16 +1902,16 @@ msgstr ""
 msgid "Invalid file path detected"
 msgstr ""
 
-#: app/controllers/api/KCPrintInvoiceController.php:32
+#: app/controllers/api/KCPrintInvoiceController.php:33
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:193
 msgid "Appointment ID"
 msgstr ""
 
-#: app/controllers/api/KCPrintInvoiceController.php:48
+#: app/controllers/api/KCPrintInvoiceController.php:116
 msgid "Appointment ID is required"
 msgstr ""
 
-#: app/controllers/api/KCPrintInvoiceController.php:163
+#: app/controllers/api/KCPrintInvoiceController.php:231
 #: app/models/KCPaymentsAppointmentMapping.php:208
 #: app/dashboard/components/BillDetails.jsx:92
 #: app/dashboard/components/EditBillModal.jsx:534
@@ -1923,7 +1923,7 @@ msgstr ""
 msgid "Paid"
 msgstr ""
 
-#: app/controllers/api/KCPrintInvoiceController.php:222
+#: app/controllers/api/KCPrintInvoiceController.php:290
 msgid "Invoice template not found"
 msgstr ""
 
@@ -2318,7 +2318,7 @@ msgstr ""
 #: app/dashboard/views/clinics/ClinicForm.jsx:1079
 #: app/dashboard/views/doctors/DoctorForm.jsx:1196
 #: app/dashboard/views/encounter/EncounterDashbord.jsx:384
-#: app/dashboard/views/importData/ImportData.jsx:75
+#: app/dashboard/views/importData/ImportData.jsx:80
 #: app/dashboard/views/patients/PatientForm.jsx:938
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:638
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:200
@@ -2900,9 +2900,9 @@ msgstr ""
 #: app/dashboard/views/clinics/ClinicForm.jsx:583
 #: app/dashboard/views/clinics/ClinicForm.jsx:953
 #: app/dashboard/views/doctors/DoctorForm.jsx:924
-#: app/dashboard/views/importData/ImportData.jsx:71
-#: app/dashboard/views/importData/ImportData.jsx:96
-#: app/dashboard/views/importData/ImportData.jsx:519
+#: app/dashboard/views/importData/ImportData.jsx:76
+#: app/dashboard/views/importData/ImportData.jsx:101
+#: app/dashboard/views/importData/ImportData.jsx:510
 #: app/dashboard/views/patients/PatientForm.jsx:774
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:476
 #: app/dashboard/views/settings/customForm/Builder.jsx:227
@@ -3512,38 +3512,38 @@ msgstr ""
 msgid "Whether the request is from the mobile app (allows inactive clinics in some cases)"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:235
+#: app/controllers/api/StaticDataController.php:252
 msgid "staticDataType parameter is required for staticData requests"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:246
+#: app/controllers/api/StaticDataController.php:263
 msgid "Invalid dataType parameter"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:254
+#: app/controllers/api/StaticDataController.php:271
 msgid "Data retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:363
+#: app/controllers/api/StaticDataController.php:380
 msgid "Invalid staticDataType parameter"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:2403
+#: app/controllers/api/StaticDataController.php:2418
 #: app/paymentGateways/KCKnitPay.php:101
 #: app/dashboard/views/settings/customField/CustomField.jsx:998
 #: app/dashboard/views/settings/listings/Listings.jsx:664
 msgid "Label is required"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:2418
+#: app/controllers/api/StaticDataController.php:2433
 msgid "Specialty already exists"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:2438
+#: app/controllers/api/StaticDataController.php:2453
 msgid "Failed to create specialty"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:2445
+#: app/controllers/api/StaticDataController.php:2460
 #: app/dashboard/views/clinics/ClinicForm.jsx:703
 msgid "Specialty added successfully"
 msgstr ""
@@ -4320,9 +4320,9 @@ msgid "Enable or disable Knit Pay payment gateway."
 msgstr ""
 
 #: app/paymentGateways/KCKnitPay.php:70
-#: app/paymentGateways/KCKnitPay.php:224
+#: app/paymentGateways/KCKnitPay.php:249
 #: app/paymentGateways/KCPaypal.php:124
-#: app/paymentGateways/KCPaypal.php:732
+#: app/paymentGateways/KCPaypal.php:750
 msgid "Currency"
 msgstr ""
 
@@ -4382,20 +4382,20 @@ msgstr ""
 msgid "Icon"
 msgstr ""
 
-#: app/paymentGateways/KCKnitPay.php:183
+#: app/paymentGateways/KCKnitPay.php:208
 msgid "Cannot enable Knit Pay. The Knit Pay plugin is not active."
 msgstr ""
 
-#: app/paymentGateways/KCKnitPay.php:220
+#: app/paymentGateways/KCKnitPay.php:245
 msgid "You must add at least one payment configuration to enable Knit Pay."
 msgstr ""
 
 #. translators: %s: Field label
-#: app/paymentGateways/KCKnitPay.php:230
+#: app/paymentGateways/KCKnitPay.php:255
 msgid "%s is required to enable Knit Pay."
 msgstr ""
 
-#: app/paymentGateways/KCKnitPay.php:260
+#: app/paymentGateways/KCKnitPay.php:285
 msgid "No configurations found"
 msgstr ""
 
@@ -4424,7 +4424,7 @@ msgid "Enable or disable PayPal payment gateway."
 msgstr ""
 
 #: app/paymentGateways/KCPaypal.php:96
-#: app/paymentGateways/KCPaypal.php:731
+#: app/paymentGateways/KCPaypal.php:749
 msgid "Mode"
 msgstr ""
 
@@ -4445,7 +4445,7 @@ msgid "Mode is required"
 msgstr ""
 
 #: app/paymentGateways/KCPaypal.php:108
-#: app/paymentGateways/KCPaypal.php:729
+#: app/paymentGateways/KCPaypal.php:747
 #: app/dashboard/views/settings/customNotification/CustomNotificationEdit.jsx:1110
 #: app/dashboard/views/settings/webHook/components/WebhookForm.jsx:1156
 #: app/dashboard/views/settings/zoomTelemed/ZoomTelemedDoctorConfiguration.jsx:250
@@ -4458,7 +4458,7 @@ msgid "Client ID is required"
 msgstr ""
 
 #: app/paymentGateways/KCPaypal.php:116
-#: app/paymentGateways/KCPaypal.php:730
+#: app/paymentGateways/KCPaypal.php:748
 #: app/dashboard/views/settings/customNotification/CustomNotificationEdit.jsx:1122
 #: app/dashboard/views/settings/webHook/components/WebhookForm.jsx:1172
 #: app/dashboard/views/settings/zoomTelemed/ZoomTelemedDoctorConfiguration.jsx:265
@@ -4488,7 +4488,7 @@ msgid "Copy this URL and paste it into your PayPal developer dashboard under Web
 msgstr ""
 
 #. translators: %s: field label
-#: app/paymentGateways/KCPaypal.php:747
+#: app/paymentGateways/KCPaypal.php:765
 msgid "%s is required to enable PayPal."
 msgstr ""
 
@@ -4583,7 +4583,7 @@ msgstr ""
 #: app/dashboard/views/doctors/DoctorForm.jsx:1057
 #: app/dashboard/views/doctors/DoctorsList.jsx:373
 #: app/dashboard/views/doctors/DoctorsList.jsx:805
-#: app/dashboard/views/importData/ImportData.jsx:76
+#: app/dashboard/views/importData/ImportData.jsx:81
 #: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:91
 msgid "Specialization"
 msgstr ""
@@ -6358,7 +6358,7 @@ msgstr ""
 #: app/dashboard/components/profile/ChangePassword.jsx:190
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1840
 #: app/dashboard/views/appointments/AppointmentsList.jsx:1468
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:122
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:144
 #: app/dashboard/views/appointments/components/ReviewModal.jsx:111
 #: app/dashboard/views/billings/BillingsList.jsx:745
 #: app/dashboard/views/clinics/ClinicForm.jsx:1142
@@ -6395,7 +6395,7 @@ msgstr ""
 #: app/dashboard/views/followup/FollowupDashboard.jsx:235
 #: app/dashboard/views/followup/FollowupDashboard.jsx:262
 #: app/dashboard/views/followup/FollowupDashboard.jsx:793
-#: app/dashboard/views/importData/ImportData.jsx:593
+#: app/dashboard/views/importData/ImportData.jsx:586
 #: app/dashboard/views/patients/PatientConsentsTab.jsx:53
 #: app/dashboard/views/patients/PatientForm.jsx:1158
 #: app/dashboard/views/patients/PatientsList.jsx:1101
@@ -6547,7 +6547,7 @@ msgstr ""
 #: app/dashboard/views/calendar/CalendarPage.jsx:876
 #: app/dashboard/views/dashboard/Dashboard.jsx:1019
 #: app/dashboard/views/encounter/tabs/FollowupTab.jsx:351
-#: app/dashboard/views/importData/ImportData.jsx:672
+#: app/dashboard/views/importData/ImportData.jsx:665
 #: app/dashboard/views/patients/PatientTreatmentDashboard.jsx:276
 #: app/dashboard/views/settings/SMSWhatsappTemplate/TestMessageModal.jsx:47
 #: app/dashboard/views/settings/webHook/components/EventLogs.jsx:451
@@ -8514,7 +8514,7 @@ msgstr ""
 
 #: app/dashboard/utils/activityLogHelpers.js:144
 #: app/dashboard/utils/activityLogHelpers.js:176
-#: app/dashboard/views/importData/ImportData.jsx:149
+#: app/dashboard/views/importData/ImportData.jsx:154
 msgid "service"
 msgstr ""
 
@@ -8667,7 +8667,7 @@ msgstr ""
 
 #: app/dashboard/utils/activityLogHelpers.js:202
 #: app/dashboard/views/encounter/components/PrescriptionModule.jsx:495
-#: app/dashboard/views/importData/ImportData.jsx:608
+#: app/dashboard/views/importData/ImportData.jsx:601
 #: app/dashboard/views/settings/customForm/Builder.jsx:1142
 msgid "Import"
 msgstr ""
@@ -10457,51 +10457,51 @@ msgstr ""
 msgid "Failed to delete selected appointments. Please try again."
 msgstr ""
 
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:41
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:62
 msgid "Confirm your Appointment"
 msgstr ""
 
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:43
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:64
 msgid "Please review the details below to ensure everything is correct before proceeding."
 msgstr ""
 
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:48
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:69
 msgid "Appointment Summary:"
 msgstr ""
 
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:51
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:72
 msgid "Clinic:"
 msgstr ""
 
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:57
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:78
 msgid "Doctor:"
 msgstr ""
 
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:63
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:84
 msgid "Service:"
 msgstr ""
 
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:75
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:96
 msgid "Date and Time:"
 msgstr ""
 
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:88
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:109
 msgid "Price:"
 msgstr ""
 
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:91
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:112
 msgid "Free"
 msgstr ""
 
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:100
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:121
 msgid "Payment Gateway:"
 msgstr ""
 
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:132
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:154
 msgid "Confirming..."
 msgstr ""
 
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:135
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:157
 msgid "Confirm"
 msgstr ""
 
@@ -10887,7 +10887,7 @@ msgstr ""
 
 #: app/dashboard/views/billings/BillingsList.jsx:608
 #: app/dashboard/views/encounter/components/PrescriptionModule.jsx:545
-#: app/dashboard/views/importData/ImportData.jsx:60
+#: app/dashboard/views/importData/ImportData.jsx:65
 #: app/dashboard/views/reports/ChartCard.jsx:123
 msgid "CSV"
 msgstr ""
@@ -11161,7 +11161,7 @@ msgstr ""
 #: app/dashboard/views/encounter/components/PrescriptionModule.jsx:608
 #: app/dashboard/views/encounter/components/PrevEncounterOffcanvas.jsx:183
 #: app/dashboard/views/encounter/tabs/bodyChart/BodyChartList.jsx:110
-#: app/dashboard/views/importData/ImportData.jsx:166
+#: app/dashboard/views/importData/ImportData.jsx:171
 #: app/dashboard/views/settings/appConfiguration/AppConfigurationMain.jsx:237
 #: app/dashboard/views/settings/customForm/CustomForm.jsx:72
 #: app/dashboard/views/settings/encounterBodyChart/EncounterBodyChart.jsx:62
@@ -11226,7 +11226,7 @@ msgstr ""
 #: app/dashboard/views/doctorService/DoctorServiceForm.jsx:1204
 #: app/dashboard/views/encounter/components/PrescriptionModule.jsx:672
 #: app/dashboard/views/encounter/EncounterDashbord.jsx:432
-#: app/dashboard/views/importData/ImportData.jsx:552
+#: app/dashboard/views/importData/ImportData.jsx:543
 #: app/dashboard/views/settings/googleMeet/GoogleMeet.jsx:297
 #: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:152
 #: app/dashboard/views/taxes/components/TaxForm.jsx:280
@@ -11298,8 +11298,8 @@ msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:911
 #: app/dashboard/views/doctors/DoctorForm.jsx:884
-#: app/dashboard/views/importData/ImportData.jsx:69
-#: app/dashboard/views/importData/ImportData.jsx:94
+#: app/dashboard/views/importData/ImportData.jsx:74
+#: app/dashboard/views/importData/ImportData.jsx:99
 #: app/dashboard/views/patients/PatientForm.jsx:691
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:436
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:65
@@ -11312,8 +11312,8 @@ msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:932
 #: app/dashboard/views/doctors/DoctorForm.jsx:904
-#: app/dashboard/views/importData/ImportData.jsx:70
-#: app/dashboard/views/importData/ImportData.jsx:95
+#: app/dashboard/views/importData/ImportData.jsx:75
+#: app/dashboard/views/importData/ImportData.jsx:100
 #: app/dashboard/views/patients/PatientForm.jsx:712
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:456
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:83
@@ -12927,7 +12927,7 @@ msgid "Report Date"
 msgstr ""
 
 #: app/dashboard/views/encounter/components/MedicalReport.jsx:527
-#: app/dashboard/views/importData/ImportData.jsx:423
+#: app/dashboard/views/importData/ImportData.jsx:413
 #: app/dashboard/views/settings/encounterBodyChart/EncounterBodyChart.jsx:81
 msgid "Upload File"
 msgstr ""
@@ -14572,211 +14572,211 @@ msgstr ""
 msgid "Manually copy JSON language files from plugin folder resources/assets/lang to wp-content/uploads/kiviCare_lang."
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:61
+#: app/dashboard/views/importData/ImportData.jsx:66
 msgid "XLSX"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:67
+#: app/dashboard/views/importData/ImportData.jsx:72
 msgid "Doctors Import"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:72
-#: app/dashboard/views/importData/ImportData.jsx:97
+#: app/dashboard/views/importData/ImportData.jsx:77
+#: app/dashboard/views/importData/ImportData.jsx:102
 msgid "Country Calling Code"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:73
-#: app/dashboard/views/importData/ImportData.jsx:98
+#: app/dashboard/views/importData/ImportData.jsx:78
+#: app/dashboard/views/importData/ImportData.jsx:103
 msgid "Country Code"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:74
+#: app/dashboard/views/importData/ImportData.jsx:79
 msgid "Contact"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:80
+#: app/dashboard/views/importData/ImportData.jsx:85
 msgid "Patients Import"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:82
+#: app/dashboard/views/importData/ImportData.jsx:87
 msgid "first_name"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:83
+#: app/dashboard/views/importData/ImportData.jsx:88
 msgid "last_name"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:84
-#: app/dashboard/views/importData/ImportData.jsx:108
+#: app/dashboard/views/importData/ImportData.jsx:89
+#: app/dashboard/views/importData/ImportData.jsx:113
 msgid "email"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:85
-#: app/dashboard/views/importData/ImportData.jsx:109
+#: app/dashboard/views/importData/ImportData.jsx:90
+#: app/dashboard/views/importData/ImportData.jsx:114
 msgid "country_calling_code"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:86
-#: app/dashboard/views/importData/ImportData.jsx:110
+#: app/dashboard/views/importData/ImportData.jsx:91
+#: app/dashboard/views/importData/ImportData.jsx:115
 msgid "country_code"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:87
-#: app/dashboard/views/importData/ImportData.jsx:111
+#: app/dashboard/views/importData/ImportData.jsx:92
+#: app/dashboard/views/importData/ImportData.jsx:116
 msgid "contact"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:88
+#: app/dashboard/views/importData/ImportData.jsx:93
 msgid "gender"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:92
+#: app/dashboard/views/importData/ImportData.jsx:97
 msgid "Receptionists Import"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:99
+#: app/dashboard/views/importData/ImportData.jsx:104
 msgid "Contact "
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:100
+#: app/dashboard/views/importData/ImportData.jsx:105
 msgid "Gender  "
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:105
+#: app/dashboard/views/importData/ImportData.jsx:110
 msgid "Clinics Import"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:107
-#: app/dashboard/views/importData/ImportData.jsx:150
+#: app/dashboard/views/importData/ImportData.jsx:112
+#: app/dashboard/views/importData/ImportData.jsx:155
 msgid "clinic_name"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:112
+#: app/dashboard/views/importData/ImportData.jsx:117
 msgid "specialization"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:113
+#: app/dashboard/views/importData/ImportData.jsx:118
 msgid "address"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:114
+#: app/dashboard/views/importData/ImportData.jsx:119
 msgid "city"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:115
+#: app/dashboard/views/importData/ImportData.jsx:120
 msgid "country"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:116
+#: app/dashboard/views/importData/ImportData.jsx:121
 msgid "postal_code"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:117
+#: app/dashboard/views/importData/ImportData.jsx:122
 msgid "clinic_admin_first_name"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:118
+#: app/dashboard/views/importData/ImportData.jsx:123
 msgid "clinic_admin_last_name"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:119
+#: app/dashboard/views/importData/ImportData.jsx:124
 msgid "clinic_admin_email"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:120
+#: app/dashboard/views/importData/ImportData.jsx:125
 msgid "clinic_admin_country_calling_code"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:121
+#: app/dashboard/views/importData/ImportData.jsx:126
 msgid "clinic_admin_country_code"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:122
+#: app/dashboard/views/importData/ImportData.jsx:127
 msgid "clinic_admin_contact"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:123
+#: app/dashboard/views/importData/ImportData.jsx:128
 msgid "clinic_admin_gender"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:127
+#: app/dashboard/views/importData/ImportData.jsx:132
 msgid "Services Import"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:129
+#: app/dashboard/views/importData/ImportData.jsx:134
 msgid "category"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:130
-#: app/dashboard/views/importData/ImportData.jsx:158
+#: app/dashboard/views/importData/ImportData.jsx:135
+#: app/dashboard/views/importData/ImportData.jsx:163
 msgid "name"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:131
+#: app/dashboard/views/importData/ImportData.jsx:136
 msgid "charges"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:132
+#: app/dashboard/views/importData/ImportData.jsx:137
 msgid "doctor_id"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:136
+#: app/dashboard/views/importData/ImportData.jsx:141
 msgid "Custom Fields Import"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:138
+#: app/dashboard/views/importData/ImportData.jsx:143
 msgid "module"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:139
+#: app/dashboard/views/importData/ImportData.jsx:144
 msgid "label"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:140
+#: app/dashboard/views/importData/ImportData.jsx:145
 msgid "input_type"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:144
+#: app/dashboard/views/importData/ImportData.jsx:149
 msgid "Appointments Import"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:146
+#: app/dashboard/views/importData/ImportData.jsx:151
 msgid "date"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:147
+#: app/dashboard/views/importData/ImportData.jsx:152
 msgid "start_time"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:148
+#: app/dashboard/views/importData/ImportData.jsx:153
 msgid "end_time"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:151
+#: app/dashboard/views/importData/ImportData.jsx:156
 msgid "doctor_name"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:152
+#: app/dashboard/views/importData/ImportData.jsx:157
 msgid "patient_name"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:156
+#: app/dashboard/views/importData/ImportData.jsx:161
 msgid "Prescriptions Import"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:159
+#: app/dashboard/views/importData/ImportData.jsx:164
 msgid "frequency"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:160
+#: app/dashboard/views/importData/ImportData.jsx:165
 msgid "duration"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:164
+#: app/dashboard/views/importData/ImportData.jsx:169
 msgid "Listings Import"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:167
+#: app/dashboard/views/importData/ImportData.jsx:172
 #: app/dashboard/views/settings/customField/CustomField.jsx:325
 #: app/dashboard/views/settings/customForm/CustomForm.jsx:75
 #: app/dashboard/views/settings/customNotification/CustomNotification.jsx:44
@@ -14787,103 +14787,102 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:181
+#: app/dashboard/views/importData/ImportData.jsx:186
 msgid "Please select a file format first"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:194
-#: app/dashboard/views/importData/ImportData.jsx:228
-#: app/dashboard/views/importData/ImportData.jsx:288
+#: app/dashboard/views/importData/ImportData.jsx:199
+#: app/dashboard/views/importData/ImportData.jsx:233
 msgid "Please select a file to import"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:213
+#: app/dashboard/views/importData/ImportData.jsx:218
 msgid "File format invalid. Expected"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:213
+#: app/dashboard/views/importData/ImportData.jsx:218
 msgid "file for"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:213
+#: app/dashboard/views/importData/ImportData.jsx:218
 msgid "format"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:223
+#: app/dashboard/views/importData/ImportData.jsx:228
 msgid "Please select a file format"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:280
-msgid "Failed to load file for upload"
+#: app/dashboard/views/importData/ImportData.jsx:259
+msgid "Please select a valid uploaded file to import"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:283
-msgid "Please select a valid file to import"
-msgstr ""
-
-#: app/dashboard/views/importData/ImportData.jsx:348
+#: app/dashboard/views/importData/ImportData.jsx:334
 msgid "Import failed. Please try again."
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:389
+#: app/dashboard/views/importData/ImportData.jsx:379
 #: app/dashboard/views/settings/listings/Listings.jsx:581
 #: app/dashboard/views/settings/listings/Listings.jsx:709
 msgid "Select Type"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:399
+#: app/dashboard/views/importData/ImportData.jsx:389
 msgid "Choose file format..."
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:466
+#: app/dashboard/views/importData/ImportData.jsx:457
 msgid "Click here to download sample file"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:479
+#: app/dashboard/views/importData/ImportData.jsx:470
 msgid "Following fields are required in"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:479
+#: app/dashboard/views/importData/ImportData.jsx:470
 msgid "file"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:480
+#: app/dashboard/views/importData/ImportData.jsx:471
 msgid "Following fields are required in file"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:499
+#: app/dashboard/views/importData/ImportData.jsx:490
 msgid "Send Notification when user register"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:540
+#: app/dashboard/views/importData/ImportData.jsx:531
 msgid "SMS/WhatsApp"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:553
+#: app/dashboard/views/importData/ImportData.jsx:544
 msgid "If notification is enabled, demo import will take time."
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:578
+#: app/dashboard/views/importData/ImportData.jsx:570
+msgid "Importing data"
+msgstr ""
+
+#: app/dashboard/views/importData/ImportData.jsx:571
 msgid "Importing data, please wait..."
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:603
+#: app/dashboard/views/importData/ImportData.jsx:596
 msgid "Importing..."
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:635
+#: app/dashboard/views/importData/ImportData.jsx:628
 msgid "Import Summary"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:639
+#: app/dashboard/views/importData/ImportData.jsx:632
 msgid "Total Rows"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:645
+#: app/dashboard/views/importData/ImportData.jsx:638
 msgid "Successfully Inserted"
 msgstr ""
 
-#: app/dashboard/views/importData/ImportData.jsx:666
+#: app/dashboard/views/importData/ImportData.jsx:659
 msgid "Import More File"
 msgstr ""
 

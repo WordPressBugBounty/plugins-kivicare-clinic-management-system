@@ -3,13 +3,13 @@
     "file": "assets/ElementorWidget-Dt1GIzI_.css",
     "src": "_ElementorWidget-Dt1GIzI_.css"
   },
-  "_GdprReconsentModal-BYBt48Di.js": {
-    "file": "assets/GdprReconsentModal-BYBt48Di.js",
+  "_GdprReconsentModal-CuOj2gIe.js": {
+    "file": "assets/GdprReconsentModal-CuOj2gIe.js",
     "name": "GdprReconsentModal",
     "imports": [
       "_react-CI6q7jDD.js",
-      "_useEncounterBodyChart-DVWIyoOj.js",
-      "_TransitionRoutes-B-saGUIi.js"
+      "_useEncounterBodyChart-D9Xsu8JE.js",
+      "_TransitionRoutes-BV45Fy88.js"
     ],
     "css": [
       "assets/GdprReconsentModal-b78jFB3r.css"
@@ -19,12 +19,12 @@
     "file": "assets/GdprReconsentModal-b78jFB3r.css",
     "src": "_GdprReconsentModal-b78jFB3r.css"
   },
-  "_TransitionRoutes-B-saGUIi.js": {
-    "file": "assets/TransitionRoutes-B-saGUIi.js",
+  "_TransitionRoutes-BV45Fy88.js": {
+    "file": "assets/TransitionRoutes-BV45Fy88.js",
     "name": "TransitionRoutes",
     "imports": [
       "_react-CI6q7jDD.js",
-      "_useEncounterBodyChart-DVWIyoOj.js"
+      "_useEncounterBodyChart-D9Xsu8JE.js"
     ],
     "dynamicImports": [
       "node_modules/@stripe/stripe-js/lib/index.mjs",
@@ -42,20 +42,20 @@
     "file": "assets/TransitionRoutes-DzRRekcl.css",
     "src": "_TransitionRoutes-DzRRekcl.css"
   },
-  "_queryClient-DkXoH6wk.js": {
-    "file": "assets/queryClient-DkXoH6wk.js",
+  "_queryClient-Be-0CFIa.js": {
+    "file": "assets/queryClient-Be-0CFIa.js",
     "name": "queryClient",
     "imports": [
-      "_useEncounterBodyChart-DVWIyoOj.js",
-      "_TransitionRoutes-B-saGUIi.js"
+      "_useEncounterBodyChart-D9Xsu8JE.js",
+      "_TransitionRoutes-BV45Fy88.js"
     ]
   },
   "_react-CI6q7jDD.js": {
     "file": "assets/react-CI6q7jDD.js",
     "name": "react"
   },
-  "_useEncounterBodyChart-DVWIyoOj.js": {
-    "file": "assets/useEncounterBodyChart-DVWIyoOj.js",
+  "_useEncounterBodyChart-D9Xsu8JE.js": {
+    "file": "assets/useEncounterBodyChart-D9Xsu8JE.js",
     "name": "useEncounterBodyChart",
     "imports": [
       "_react-CI6q7jDD.js"
@@ -68,11 +68,11 @@
     "file": "assets/useEncounterBodyChart-Dst1MOnx.css",
     "src": "_useEncounterBodyChart-Dst1MOnx.css"
   },
-  "_useFrontendBookAppointment-xB_ZIhGy.js": {
-    "file": "assets/useFrontendBookAppointment-xB_ZIhGy.js",
+  "_useFrontendBookAppointment-Bfzizuvg.js": {
+    "file": "assets/useFrontendBookAppointment-Bfzizuvg.js",
     "name": "useFrontendBookAppointment",
     "imports": [
-      "_useEncounterBodyChart-DVWIyoOj.js"
+      "_useEncounterBodyChart-D9Xsu8JE.js"
     ]
   },
   "app/dashboard/assets/fonts/Inter18pt-Bold.woff2": {
@@ -132,16 +132,16 @@
     "src": "app/dashboard/assets/videos/checked-animation.webm"
   },
   "app/dashboard/main.jsx": {
-    "file": "assets/dashboard-D8TzpHRL.js",
+    "file": "assets/dashboard-CqIytRNO.js",
     "name": "dashboard",
     "src": "app/dashboard/main.jsx",
     "isEntry": true,
     "imports": [
       "_react-CI6q7jDD.js",
-      "_useEncounterBodyChart-DVWIyoOj.js",
-      "_TransitionRoutes-B-saGUIi.js",
-      "_GdprReconsentModal-BYBt48Di.js",
-      "_queryClient-DkXoH6wk.js"
+      "_useEncounterBodyChart-D9Xsu8JE.js",
+      "_TransitionRoutes-BV45Fy88.js",
+      "_GdprReconsentModal-CuOj2gIe.js",
+      "_queryClient-Be-0CFIa.js"
     ],
     "css": [
       "assets/dashboard-CPnQCRBJ.css"
@@ -162,58 +162,58 @@
     ]
   },
   "app/dashboard/views/encounter/tabs/bodyChart/BodyChartEditor.jsx": {
-    "file": "assets/BodyChartEditor-idLrRdEr.js",
+    "file": "assets/BodyChartEditor-D0tin1jV.js",
     "name": "BodyChartEditor",
     "src": "app/dashboard/views/encounter/tabs/bodyChart/BodyChartEditor.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_react-CI6q7jDD.js",
-      "_useEncounterBodyChart-DVWIyoOj.js"
+      "_useEncounterBodyChart-D9Xsu8JE.js"
     ],
     "css": [
       "assets/BodyChartEditor-BeOEBLSk.css"
     ]
   },
   "app/elementor/widgets/js/ClinicWidget.jsx": {
-    "file": "assets/clinicwidget-CsSJXEj6.js",
+    "file": "assets/clinicwidget-Dj16IvIt.js",
     "name": "clinicwidget",
     "src": "app/elementor/widgets/js/ClinicWidget.jsx",
     "isEntry": true,
     "imports": [
       "_react-CI6q7jDD.js",
-      "_useEncounterBodyChart-DVWIyoOj.js",
-      "_TransitionRoutes-B-saGUIi.js"
+      "_useEncounterBodyChart-D9Xsu8JE.js",
+      "_TransitionRoutes-BV45Fy88.js"
     ],
     "css": [
       "assets/ElementorWidget-Dt1GIzI_.css"
     ]
   },
   "app/elementor/widgets/js/DoctorWidget.jsx": {
-    "file": "assets/doctorwidget-Bxi8xMf6.js",
+    "file": "assets/doctorwidget-C1V4d6-Y.js",
     "name": "doctorwidget",
     "src": "app/elementor/widgets/js/DoctorWidget.jsx",
     "isEntry": true,
     "imports": [
       "_react-CI6q7jDD.js",
-      "_useEncounterBodyChart-DVWIyoOj.js",
-      "_TransitionRoutes-B-saGUIi.js"
+      "_useEncounterBodyChart-D9Xsu8JE.js",
+      "_TransitionRoutes-BV45Fy88.js"
     ],
     "css": [
       "assets/ElementorWidget-Dt1GIzI_.css"
     ]
   },
   "app/shortcodes/assets/js/KCBookAppointment.jsx": {
-    "file": "assets/appointment-DHK6UFPJ.js",
+    "file": "assets/appointment-ByYcZOCh.js",
     "name": "appointment",
     "src": "app/shortcodes/assets/js/KCBookAppointment.jsx",
     "isEntry": true,
     "imports": [
       "_react-CI6q7jDD.js",
-      "_useEncounterBodyChart-DVWIyoOj.js",
-      "_TransitionRoutes-B-saGUIi.js",
-      "_useFrontendBookAppointment-xB_ZIhGy.js",
-      "_GdprReconsentModal-BYBt48Di.js",
-      "_queryClient-DkXoH6wk.js"
+      "_useEncounterBodyChart-D9Xsu8JE.js",
+      "_TransitionRoutes-BV45Fy88.js",
+      "_useFrontendBookAppointment-Bfzizuvg.js",
+      "_GdprReconsentModal-CuOj2gIe.js",
+      "_queryClient-Be-0CFIa.js"
     ],
     "css": [
       "assets/appointment-J-lJvfsd.css"
@@ -224,16 +224,16 @@
     ]
   },
   "app/shortcodes/assets/js/KCRegisterLogin.jsx": {
-    "file": "assets/registerLogin-BByJGWBQ.js",
+    "file": "assets/registerLogin-Dy-n-fes.js",
     "name": "registerLogin",
     "src": "app/shortcodes/assets/js/KCRegisterLogin.jsx",
     "isEntry": true,
     "imports": [
       "_react-CI6q7jDD.js",
-      "_useEncounterBodyChart-DVWIyoOj.js",
-      "_TransitionRoutes-B-saGUIi.js",
-      "_useFrontendBookAppointment-xB_ZIhGy.js",
-      "_queryClient-DkXoH6wk.js"
+      "_useEncounterBodyChart-D9Xsu8JE.js",
+      "_TransitionRoutes-BV45Fy88.js",
+      "_useFrontendBookAppointment-Bfzizuvg.js",
+      "_queryClient-Be-0CFIa.js"
     ],
     "css": [
       "assets/registerLogin-BmMsnakR.css"

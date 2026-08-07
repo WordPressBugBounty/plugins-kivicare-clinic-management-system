@@ -144,6 +144,10 @@ final class KCApp
             return $redirect_to;
         }
 
+        if ($role === 'administrator') {
+            return $redirect_to;
+        }
+
         apply_filters('kc_login_redirect_role', $role, $user, KCDashboardPermalinkHandler::instance()->get_dashboard_url($role));
         // Check if a custom redirect is set for this role
         if (!empty($login_redirects[$role])) {

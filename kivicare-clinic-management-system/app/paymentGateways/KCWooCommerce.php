@@ -668,6 +668,16 @@ class KCWooCommerce extends KCAbstractPaymentGateway {
         return $this->settings;
     }
 
+    /**
+     * Public/mobile-safe WooCommerce configuration.
+     */
+    public function get_public_config(): array
+    {
+        return [
+            'paymentMethod' => 'wooCommerce',
+        ];
+    }
+
     public function update_settings($settings)
     {
         $value = $settings['enableWooCommerce'] ?? 'off';

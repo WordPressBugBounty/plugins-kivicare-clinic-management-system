@@ -4,7 +4,7 @@ Tags: clinic management, patient management, doctor management, appointment mana
 Requires PHP: 8.0 
 Requires at least: 3.0.1
 Tested up to: 7.0.0
-Stable tag: 4.5.1
+Stable tag: 4.5.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -217,6 +217,31 @@ Free version support is available through our comprehensive Documentation and Vi
 We'd love to hear from you! Contact us at hello@iqonic.design or submit a feature request through our website.
 
 == Changelog ==
+
+= Version 4.5.3 - 07 Aug 2026
+
+### 🔧 Fixes & Improvements
+- [New] Shared data import API improvements, including paginated chunk processing and media library file upload support.
+
+= Version 4.5.2 - 07 Aug 2026
+
+### 🛡️ Security Improvements
+- [Fixed] Hardened registration permission checks for doctor and receptionist public registration.
+- [Fixed] Added object-level ownership checks for bill and encounter access based on user roles.
+- [Fixed] Added ownership checks for invoice appointment access.
+- [Fixed] Parameterized search term queries in listing data.
+
+### 🚀 New Features
+- [New] Added mobile-safe public payment gateway configuration (KnitPay, Pay Later, PayPal, WooCommerce).
+- [New] Payment method selection now displays gateway logos and descriptions in the appointment confirmation modal.
+
+### 🔧 Fixes & Improvements
+- [Fixed] Streamlined payment methods retrieval via payment gateway factory.
+- [Fixed] Improved clinic list retrieval and search/filtering.
+- [Fixed] Appointment object access helper for tighter controller checks.
+- [Fixed] Total revenue calculation handles empty/null data.
+- [Fixed] Administrators now bypass custom login redirects and go directly to the admin dashboard.
+- [Fixed] KiviCare roles still redirect to their respective dashboards.
 
 = Version 4.5.1 - 10 Jul 2026
 

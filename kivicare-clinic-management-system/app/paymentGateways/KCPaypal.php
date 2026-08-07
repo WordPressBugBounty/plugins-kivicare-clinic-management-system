@@ -666,6 +666,24 @@ class KCPaypal extends KCAbstractPaymentGateway
         return $settings;
     }
 
+    /**
+     * Public/mobile-safe PayPal configuration.
+     */
+    public function get_public_config(): array
+    {
+        $settings = $this->get_settings();
+        $environment = ((string) ($settings['mode'] ?? '0') === '0') ? 'test' : 'live';
+
+        return [
+            'paymentMethod' => 'paypal',
+            'environment' => $environment,
+            'publicKey' => $settings['client_id'] ?? '',
+            'paymentURL' => $environment === 'test'
+                ? 'https://api.sandbox.paypal.com'
+                : 'https://api.paypal.com',
+        ];
+    }
+
     public function update_settings($settings)
     {
         $processed_settings = $this->settings;

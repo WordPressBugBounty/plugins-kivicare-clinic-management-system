@@ -176,10 +176,12 @@ class KCBill extends KCBaseModel
         $prefix = $currency_format['prefix'] ?? '';
         $postfix = $currency_format['postfix'] ?? '';
 
+        $total_revenue = is_object($total) ? ($total->total_revenue ?? 0) : (is_numeric($total) ? $total : 0);
+
         // Format the total with number_format for proper thousand separators
-        $formatted_total = $prefix . number_format($total->total_revenue) . $postfix;
+        $formatted_total = $prefix . number_format((float) $total_revenue) . $postfix;
         return [
-            'count' => $total->total_revenue ?? 0,
+            'count' => $total_revenue,
             'formatted_count' => $formatted_total
         ];
     }

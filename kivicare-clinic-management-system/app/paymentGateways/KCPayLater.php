@@ -79,7 +79,7 @@ class KCPayLater extends KCAbstractPaymentGateway {
                 'Appointment booked successfully. Payment due later (manual).'
             );
             
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->log("Pay Later processing error: " . $e->getMessage(), 'error');
             return $this->create_payment_response(
                 'failed',
@@ -128,9 +128,19 @@ class KCPayLater extends KCAbstractPaymentGateway {
      */
     public function get_settings() {
         $value = $this->settings ?? 'off';
-        $this->settings = [];
-        $this->settings['enablePayLater'] = ($value === 'on');
-        return $this->settings;
+        return [
+            'enablePayLater' => ($value === 'on'),
+        ];
+    }
+
+    /**
+     * Public/mobile-safe payment config.
+     */
+    public function get_public_config(): array
+    {
+        return [
+            'paymentMethod' => 'offline',
+        ];
     }
 
     /**

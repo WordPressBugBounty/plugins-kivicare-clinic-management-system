@@ -264,11 +264,11 @@ class ListingData extends SettingsController
             $query->where(function ($q) use ($searchTerm, $like) {
                 if (is_numeric($searchTerm)) {
                     $q->where('id', $searchTerm)
-                      ->orWhereRaw("LOWER(type) LIKE '{$like}'")
-                      ->orWhereRaw("LOWER(value) LIKE '{$like}'");
+                      ->orWhereRaw('LOWER(type) LIKE %s', [$like])
+                      ->orWhereRaw('LOWER(value) LIKE %s', [$like]);
                 } else {
-                    $q->whereRaw("LOWER(type) LIKE '{$like}'")
-                      ->orWhereRaw("LOWER(value) LIKE '{$like}'");
+                    $q->whereRaw('LOWER(type) LIKE %s', [$like])
+                      ->orWhereRaw('LOWER(value) LIKE %s', [$like]);
                 }
             });
         }
@@ -453,11 +453,11 @@ class ListingData extends SettingsController
                 $query->where(function ($q) use ($searchTerm, $like) {
                     if (is_numeric($searchTerm)) {
                         $q->where('id', $searchTerm)
-                          ->orWhereRaw("LOWER(type) LIKE '{$like}'")
-                          ->orWhereRaw("LOWER(value) LIKE '{$like}'");
+                          ->orWhereRaw('LOWER(type) LIKE %s', [$like])
+                          ->orWhereRaw('LOWER(value) LIKE %s', [$like]);
                     } else {
-                        $q->whereRaw("LOWER(type) LIKE '{$like}'")
-                          ->orWhereRaw("LOWER(value) LIKE '{$like}'");
+                        $q->whereRaw('LOWER(type) LIKE %s', [$like])
+                          ->orWhereRaw('LOWER(value) LIKE %s', [$like]);
                     }
                 });
             }

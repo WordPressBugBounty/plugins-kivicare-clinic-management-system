@@ -601,21 +601,22 @@ class AuthController extends KCBaseController
      */
     public function checkRegistrationPermission($request) :bool|WP_Error
     {
-        KCErrorLogger::instance()->error("AuthController: checkRegistrationPermission called");
-
-        // Allow registration if WordPress registration is enabled OR if KiviCare registration is specifically enabled
-        if (get_option('users_can_register')) {
-            KCErrorLogger::instance()->error("AuthController: WordPress registration enabled");
-            return true;
-        }
-
-        // Determine user role
         $user_role = $request->get_param('user_role') ?? $this->kcbase->getPatientRole();
-        KCErrorLogger::instance()->error("Requested user role: " . $user_role);
 
-        // Validate if the selected role is enabled in settings
+        return $this->validatePublicRegistrationRole($user_role);
+    }
+
+    private function validatePublicRegistrationRole(string $user_role): bool|WP_Error
+    {
         $role_settings = KCOption::get('user_registration_shortcode_role_setting') ?? [];
-        if (isset($role_settings[$user_role]) && $role_settings[$user_role] !== 'on') {
+        $role_enabled = (($role_settings[$user_role] ?? 'off') === 'on');
+
+        $staff_roles = [
+            $this->kcbase->getDoctorRole(),
+            $this->kcbase->getReceptionistRole(),
+        ];
+
+        if (in_array($user_role, $staff_roles, true) && !$role_enabled) {
             return new WP_Error(
                 'role_not_allowed',
                 __('Selected user role is not enabled for registration', 'kivicare-clinic-management-system'),
@@ -623,30 +624,37 @@ class AuthController extends KCBaseController
             );
         }
 
-        // Block receptionist registration if the receptionist module is disabled
-        $receptionist_role = $this->kcbase->getReceptionistRole();
-        if ($user_role === $receptionist_role || $user_role === 'receptionist') {
-            $modules_data  = kcGetModules();
-            $module_config = $modules_data['module_config'] ?? [];
-            $receptionist_on = false;
-            foreach ($module_config as $mod) {
-                if (($mod['name'] ?? '') === 'receptionist') {
-                    $receptionist_on = ($mod['status'] === '1' || $mod['status'] === 1 || $mod['status'] === true);
-                    break;
-                }
-            }
-            if (!$receptionist_on) {
-                return new WP_Error(
-                    'role_not_allowed',
-                    __('Receptionist registration is currently disabled.', 'kivicare-clinic-management-system'),
-                    ['status' => 403]
-                );
+        if ($user_role === $this->kcbase->getPatientRole() && !get_option('users_can_register') && !$role_enabled) {
+            return new WP_Error(
+                'role_not_allowed',
+                __('Selected user role is not enabled for registration', 'kivicare-clinic-management-system'),
+                ['status' => 400]
+            );
+        }
+
+        if ($user_role === $this->kcbase->getReceptionistRole() && !$this->isReceptionistModuleEnabled()) {
+            return new WP_Error(
+                'role_not_allowed',
+                __('Receptionist registration is currently disabled.', 'kivicare-clinic-management-system'),
+                ['status' => 403]
+            );
+        }
+
+        return true;
+    }
+
+    private function isReceptionistModuleEnabled(): bool
+    {
+        $modules_data = kcGetModules();
+        $module_config = $modules_data['module_config'] ?? [];
+
+        foreach ($module_config as $module) {
+            if (($module['name'] ?? '') === 'receptionist') {
+                return in_array($module['status'] ?? null, ['1', 1, true], true);
             }
         }
 
-        // Default to allowing registration for KiviCare (since this is a medical system)
-        KCErrorLogger::instance()->error("AuthController: Allowing registration by default");
-        return true;
+        return false;
     }
 
     public function checkLogoutPermission($request)
@@ -1277,14 +1285,14 @@ class AuthController extends KCBaseController
         // Determine user role
         $user_role = $params['user_role'] ?? $this->kcbase->getPatientRole();
 
-        // Validate if the selected role is enabled in settings
-        $role_settings = KCOption::get('user_registration_shortcode_role_setting') ?? [];
-        if (isset($role_settings[$user_role]) && $role_settings[$user_role] !== 'on') {
+        $role_validation = $this->validatePublicRegistrationRole($user_role);
+        if (is_wp_error($role_validation)) {
+            $error_data = $role_validation->get_error_data();
             return $this->response(
                 null,
-                __('Selected user role is not enabled for registration', 'kivicare-clinic-management-system'),
+                $role_validation->get_error_message(),
                 false,
-                400
+                $error_data['status'] ?? 400
             );
         }
 

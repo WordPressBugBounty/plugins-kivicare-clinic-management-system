@@ -15,6 +15,7 @@ use App\models\KCAppointment;
 use App\models\KCPaymentsAppointmentMapping;
 use App\models\KCServiceDoctorMapping;
 use App\models\KCAppointmentServiceMapping;
+use App\models\KCReceptionistClinicMapping;
 use WP_REST_Request;
 use WP_REST_Response;
 use KCProApp\controllers\api\GoogleCalendarIntegration;
@@ -210,13 +211,95 @@ class BillController extends KCBaseController
         ];
     }
 
-    public function checkViewPermission()
+    public function checkViewPermission($request = null)
     {
         if (!$this->isModuleEnabled('billing')) {
             return false;
         }
-        // Check if user has permission to list
-        return $this->checkResourceAccess('patient_bill', 'view');
+
+        if (!$this->checkResourceAccess('patient_bill', 'view')) {
+            return false;
+        }
+
+        if ($request instanceof WP_REST_Request) {
+            if ($request->get_param('id')) {
+                return $this->canAccessBillId((int) $request->get_param('id'));
+            }
+
+            if ($request->get_param('encounter_id')) {
+                return $this->canAccessEncounterId((int) $request->get_param('encounter_id'));
+            }
+        }
+
+        return true;
+    }
+
+    private function canAccessBillId(int $billId): bool
+    {
+        if ($billId <= 0) {
+            return false;
+        }
+
+        $bill = KCBill::find($billId);
+        return $bill && $this->canAccessEncounterId((int) $bill->encounterId);
+    }
+
+    private function canAccessEncounterId(int $encounterId): bool
+    {
+        if ($encounterId <= 0) {
+            return false;
+        }
+
+        $encounter = KCPatientEncounter::find($encounterId);
+        if (!$encounter) {
+            return false;
+        }
+
+        $role = $this->kcbase->getLoginUserRole();
+        $currentUserId = get_current_user_id();
+        $clinicId = (int) $encounter->clinicId;
+
+        return match ($role) {
+            'administrator' => true,
+            $this->kcbase->getPatientRole() => (int) $encounter->patientId === (int) $currentUserId,
+            $this->kcbase->getDoctorRole() => (int) $encounter->doctorId === (int) $currentUserId,
+            $this->kcbase->getReceptionistRole() => $this->receptionistCanAccessClinic($currentUserId, $clinicId),
+            $this->kcbase->getClinicAdminRole() => $this->clinicAdminCanAccessClinic($currentUserId, $clinicId),
+            default => false,
+        };
+    }
+
+    private function receptionistCanAccessClinic(int $receptionistId, int $clinicId): bool
+    {
+        if ($receptionistId <= 0 || $clinicId <= 0) {
+            return false;
+        }
+
+        return in_array($clinicId, $this->getReceptionistClinicIds($receptionistId), true);
+    }
+
+    private function clinicAdminCanAccessClinic(int $clinicAdminId, int $clinicId): bool
+    {
+        if ($clinicAdminId <= 0 || $clinicId <= 0) {
+            return false;
+        }
+
+        $clinic = KCClinic::find($clinicId);
+
+        return $clinic && (int) $clinic->clinicAdminId === (int) $clinicAdminId;
+    }
+
+    /**
+     * @return int[]
+     */
+    private function getReceptionistClinicIds(int $receptionistId): array
+    {
+        return KCReceptionistClinicMapping::query()
+            ->where('receptionist_id', $receptionistId)
+            ->select(['clinic_id'])
+            ->get()
+            ->map(fn($row) => (int) $row->clinicId)
+            ->toArray();
     }
     
     public function checkPermission($request)

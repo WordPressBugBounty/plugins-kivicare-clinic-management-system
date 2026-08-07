@@ -20,6 +20,7 @@ use App\models\KCAppointmentServiceMapping;
 use App\models\KCPaymentsAppointmentMapping;
 use App\models\KCUserMeta;
 use App\models\KCUser;
+use App\models\KCReceptionistClinicMapping;
 use App\models\KCPatientMedicalReport;
 use App\services\KCAppointmentDataService;
 use App\services\KCAppointmentPaymentService;
@@ -1311,9 +1312,13 @@ class AppointmentsController extends KCBaseController
                     return $this->checkResourceAccess('appointment', 'view');
                 }
 
+                if (strpos($route, '/print-report/') !== false) {
+                    return $this->checkResourceAccess('appointment', 'view');
+                }
+
                 // For single appointment view
                 if (isset($request['id'])) {
-                    return $this->checkResourceAccess('appointment', 'view');
+                    return $this->checkResourceAccess('appointment', 'view') && $this->canAccessAppointmentId((int) $request['id']);
                 }
 
                 // For appointment list - check appointment_list capability
@@ -1342,6 +1347,57 @@ class AppointmentsController extends KCBaseController
             default:
                 return false;
         }
+    }
+
+    private function canAccessAppointmentId(int $appointmentId): bool
+    {
+        if ($appointmentId <= 0) {
+            return false;
+        }
+
+        $appointment = KCAppointment::find($appointmentId);
+        if (!$appointment) {
+            return false;
+        }
+
+        $role = $this->kcbase->getLoginUserRole();
+        $currentUserId = get_current_user_id();
+
+        if ($role === 'administrator') {
+            return true;
+        }
+
+        if ($role === $this->kcbase->getPatientRole()) {
+            return (int) $appointment->patientId === (int) $currentUserId;
+        }
+
+        if ($role === $this->kcbase->getDoctorRole()) {
+            return (int) $appointment->doctorId === (int) $currentUserId;
+        }
+
+        if ($role === $this->kcbase->getReceptionistRole()) {
+            return in_array((int) $appointment->clinicId, $this->getReceptionistClinicIds($currentUserId), true);
+        }
+
+        if ($role === $this->kcbase->getClinicAdminRole()) {
+            $clinic = KCClinic::find((int) $appointment->clinicId);
+            return $clinic && (int) $clinic->clinicAdminId === (int) $currentUserId;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return int[]
+     */
+    private function getReceptionistClinicIds(int $receptionistId): array
+    {
+        return KCReceptionistClinicMapping::query()
+            ->where('receptionistId', $receptionistId)
+            ->select(['clinic_id'])
+            ->get()
+            ->map(fn($row) => (int) $row->clinicId)
+            ->toArray();
     }
 
     /**

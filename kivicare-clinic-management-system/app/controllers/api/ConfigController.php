@@ -2,9 +2,11 @@
 
 namespace App\controllers\api;
 
+use App\baseClasses\KCActivate;
 use App\baseClasses\KCBase;
 use App\baseClasses\KCBaseController;
 use App\baseClasses\KCPaymentGatewayFactory;
+use App\baseClasses\KCPermissions;
 use App\models\KCClinic;
 use App\models\KCOption;
 use KCProApp\controllers\api\KCProPermissionSetting;
@@ -218,7 +220,7 @@ class ConfigController extends KCBaseController
 
         // Lazy generation: activation hook may have been missed on existing installs
         if (!$public_key) {
-            \App\baseClasses\KCActivate::generate_server_key_pair();
+            KCActivate::generate_server_key_pair();
             $public_key = get_option('kc_server_public_key');
         }
 
@@ -492,7 +494,7 @@ class ConfigController extends KCBaseController
             /**
              * Payment methods with detailed configuration.
              */
-            $response['payment_methods'] = $this->getPaymentMethodsArray();
+            $response['payment_methods'] = KCPaymentGatewayFactory::get_payment_methods_config();
 
             // Define the sub-module configurations to process
             $response['encounter_modules'] = apply_filters('kcpro_get_encounter_list',[]);
@@ -506,7 +508,7 @@ class ConfigController extends KCBaseController
             if ($user_id && is_user_logged_in()) {
                 $userObj = new \WP_User($user_id);
                 $final_capabilities = $userObj->allcaps;
-                $user_role_key = \App\baseClasses\KCPermissions::get_user_role($user_id);
+                $user_role_key = KCPermissions::get_user_role($user_id);
 
                 if (function_exists('isKiviCareProActive') && isKiviCareProActive()) {
                     $lookup_key = ($user_role_key === 'admin') ? 'administrator' : str_replace(KIVI_CARE_PREFIX, '', $user_role_key);
@@ -1039,145 +1041,6 @@ class ConfigController extends KCBaseController
         }
     }
 
-    /**
-     * Get payment methods array with detailed configuration
-     * Only returns enabled payment methods
-     *
-     * @return array
-     */
-    private function getPaymentMethodsArray(): array
-    {
-        $payment_methods = [];
-        $gateways = \App\baseClasses\KCPaymentGatewayFactory::get_available_gateways();
-
-        // Map gateway IDs to user's expected format
-        $gateway_id_mapping = [
-            'razorpay' => 'razorPay',
-            'stripe' => 'stripe',
-            'stripepay' => 'stripe',
-            'woocommerce' => 'wooCommerce',
-            'manual' => 'offline',
-            'paypal' => 'paypal'
-        ];
-
-        foreach ($gateways as $gateway_id => $gateway_data) {
-            $instance = $gateway_data['instance'] ?? null;
-
-            if (!$instance) {
-                continue;
-            }
-
-            // Only include enabled payment methods
-            $is_enabled = $instance->is_enabled() ?? false;
-            if (!$is_enabled) {
-                continue;
-            }
-
-            $mapped_id = $gateway_id_mapping[$gateway_id] ?? $gateway_id;
-            // Use get_settings() method to properly retrieve settings
-            $settings = method_exists($instance, 'get_settings') ? $instance->get_settings() : ($instance->settings ?? []);
-
-            // Build payment method object
-            $payment_method = [
-                'paymentMethod' => $mapped_id,
-            ];
-
-            // For offline/manual payment, only include paymentMethod
-            if ($gateway_id === 'manual') {
-                unset($payment_method['paymentURL']); // Remove URL for offline to match desired output
-                $payment_methods[] = $payment_method;
-                continue;
-            }
-            // Same for woocommerce? User JSON had "paymentMethod": "wooCommerce" and nothing else.
-            if ($gateway_id === 'woocommerce') {
-                // $checkout_page_id = get_option('woocommerce_checkout_page_id');
-                // $payment_method['paymentURL'] = $checkout_page_id ? get_permalink($checkout_page_id) : site_url();
-                $payment_methods[] = $payment_method;
-                continue;
-            }
-
-            // For gateways that support environment/mode
-            $environment = 'live';
-            $secret_key = '';
-            $public_key = '';
-            $payment_url = '';
-
-            switch ($gateway_id) {
-                case 'razorpay':
-                    // Razorpay - get settings from instance first, then fallback to option
-                    $razorpay_settings = $settings;
-
-                    // If settings are empty or missing credentials, try getting directly from option
-                    if (empty($razorpay_settings) || empty($razorpay_settings['key_id']) || empty($razorpay_settings['key_secret'])) {
-                        $option_settings = get_option(KIVI_CARE_PREFIX . 'razorpay_setting', []);
-                        if (is_string($option_settings)) {
-                            $option_settings = json_decode($option_settings, true) ?? [];
-                        }
-                        // Merge option settings with instance settings (option takes precedence)
-                        if (!empty($option_settings)) {
-                            $razorpay_settings = array_merge($razorpay_settings, $option_settings);
-                        }
-                    }
-
-                    $mode = $razorpay_settings['mode'] ?? 'sandbox';
-                    $environment = ($mode === 'sandbox') ? 'test' : 'live';
-                    $secret_key = $razorpay_settings['key_secret'] ?? '';
-                    $public_key = $razorpay_settings['key_id'] ?? '';
-                    $payment_url = 'https://api.razorpay.com/v1';
-                    break;
-
-                case 'paypal':
-                    // PayPal uses 'mode' with id 0 (sandbox) or 1 (live)
-                    $mode = $settings['mode'] ?? [];
-                    if (is_array($mode) && isset($mode['id'])) {
-                        $environment = ($mode['id'] == '0' || $mode['id'] === 0) ? 'test' : 'live';
-                    } else {
-                        $environment = ($mode == '0' || $mode === 0) ? 'test' : 'live';
-                    }
-                    $secret_key = $settings['client_secret'] ?? '';
-                    $public_key = $settings['client_id'] ?? '';
-                    $payment_url = ($environment === 'test')
-                        ? 'https://api.sandbox.paypal.com'
-                        : 'https://api.paypal.com';
-                    break;
-
-                case 'stripe':
-                case 'stripepay':
-                    // Stripe - get settings from instance or directly from options
-                    $stripe_settings = $settings;
-                    
-                    // Fallback to option if empty
-                    if (empty($stripe_settings) || (empty($stripe_settings['api_key']) && empty($stripe_settings['publishable_key']))) {
-                         $option_key = defined('KIVI_CARE_PREFIX') ? KIVI_CARE_PREFIX . 'stripepay_setting' : 'kiviCare_stripepay_setting';
-                         $option_settings = get_option($option_key, []);
-                         if (is_string($option_settings)) {
-                            $option_settings = json_decode($option_settings, true) ?? [];
-                         }
-                         if (!empty($option_settings)) {
-                             $stripe_settings = array_merge($stripe_settings, $option_settings);
-                         }
-                    }
-                    
-                    $mode = $stripe_settings['mode'] ?? 'sandbox';
-                    $environment = ($mode === 'sandbox' || $mode === 'test') ? 'test' : 'live';
-                    // Stripe addon uses 'api_key' for secret, 'publishable_key' for public
-                    $secret_key = $stripe_settings['api_key'] ?? $stripe_settings['secret_key'] ?? $stripe_settings['secretKey'] ?? '';
-                    $public_key = $stripe_settings['publishable_key'] ?? $stripe_settings['publishableKey'] ?? $stripe_settings['public_key'] ?? '';
-                    $payment_url = 'https://api.stripe.com/v1';
-                    break;
-            }
-
-            // Populate fields - always include structure if it's one of the processed gateways
-            $payment_method['environment'] = $environment;
-            $payment_method['secretKey'] = $secret_key;
-            $payment_method['publicKey'] = $public_key;
-            $payment_method['paymentURL'] = $payment_url;
-
-            $payment_methods[] = $payment_method;
-        }
-
-        return $payment_methods;
-    }
 
     /**
      * Get general configuration

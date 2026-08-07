@@ -145,6 +145,31 @@ class KCKnitPay extends KCAbstractPaymentGateway
     }
 
     /**
+     * Public/mobile-safe Knit Pay payment methods.
+     *
+     * Knit Pay can expose multiple configured payment methods, so this returns
+     * a list of payment method configs instead of a single gateway config.
+     *
+     * @return array<int, array<string, string>>
+     */
+    public function get_public_config(): array
+    {
+        $methods = [];
+
+        foreach ($this->get_enabled_configs() as $config) {
+            if (empty($config['id'])) {
+                continue;
+            }
+
+            $methods[] = [
+                'paymentMethod' => 'knit_pay_' . $config['id'],
+            ];
+        }
+
+        return $methods;
+    }
+
+    /**
      * Filter Redirect URL
      * 
      * Intercepts the Knit Pay redirect URL to ensure it hits the KiviCare REST API endpoint.

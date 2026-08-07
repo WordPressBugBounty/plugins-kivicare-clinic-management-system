@@ -140,6 +140,30 @@ abstract class KCAbstractPaymentGateway {
     public function get_settings(){
         return $this->settings;
     }
+
+    /**
+     * Public/mobile-safe gateway configuration.
+     *
+     * Gateway implementations may override this to expose SDK-safe values such
+     * as public keys, environment, and client-side API URLs. Secret credentials
+     * must never be returned from this method.
+     *
+     * @return array
+     */
+    public function get_public_config(): array
+    {
+        return ['paymentMethod' => $this->get_public_payment_method_id()];
+    }
+
+    /**
+     * Client-facing payment method identifier.
+     *
+     * @return string
+     */
+    protected function get_public_payment_method_id(): string
+    {
+        return (string) $this->gateway_id;
+    }
     
     /**
      * Log gateway activity

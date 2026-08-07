@@ -109,6 +109,10 @@ class KCDashboardPermalinkHandler
             return $redirect;
         }
 
+        if ($role === 'administrator') {
+            return $redirect;
+        }
+
         $login_redirects = KCOption::get('login_redirect', []);
 
         if (!empty($login_redirects[$role])) {
@@ -525,7 +529,12 @@ class KCDashboardPermalinkHandler
      */
     public function redirect_to_user_dashboard()
     {
-        $user_role = KCBase::get_instance()->KCGetRoles();
+        $user_role = KCBase::get_instance()->getLoginUserRole();
+        if ($user_role === 'administrator') {
+            wp_safe_redirect(admin_url());
+            exit;
+        }
+
         $dashboard_url = $this->get_dashboard_url($user_role);
         if ($dashboard_url) {
             wp_safe_redirect($dashboard_url);

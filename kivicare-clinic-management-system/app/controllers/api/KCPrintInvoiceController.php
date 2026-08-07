@@ -11,6 +11,7 @@ use App\models\KCService;
 use App\models\KCPaymentsAppointmentMapping;
 use App\models\KCPatientEncounter;
 use App\models\KCBill;
+use App\models\KCReceptionistClinicMapping;
 use WP_REST_Request;
 use WP_REST_Response;
 use App\utils\KCPdfGenerator;
@@ -35,6 +36,73 @@ class KCPrintInvoiceController extends KCBaseController
                 ],
             ]
         ]);
+    }
+
+    public function checkPermission($request)
+    {
+        if (!$this->checkCapability('read') || !$this->checkResourceAccess('appointment', 'view')) {
+            return false;
+        }
+
+        return $this->canAccessAppointmentId((int) $request->get_param('id'));
+    }
+
+    private function canAccessAppointmentId(int $appointmentId): bool
+    {
+        if ($appointmentId <= 0) {
+            return false;
+        }
+
+        $appointment = KCAppointment::find($appointmentId);
+        if (!$appointment) {
+            return false;
+        }
+
+        $role = $this->kcbase->getLoginUserRole();
+        $currentUserId = get_current_user_id();
+        $clinicId = (int) $appointment->clinicId;
+
+        return match ($role) {
+            'administrator' => true,
+            $this->kcbase->getPatientRole() => (int) $appointment->patientId === (int) $currentUserId,
+            $this->kcbase->getDoctorRole() => (int) $appointment->doctorId === (int) $currentUserId,
+            $this->kcbase->getReceptionistRole() => $this->receptionistCanAccessClinic($currentUserId, $clinicId),
+            $this->kcbase->getClinicAdminRole() => $this->clinicAdminCanAccessClinic($currentUserId, $clinicId),
+            default => false,
+        };
+    }
+
+    private function receptionistCanAccessClinic(int $receptionistId, int $clinicId): bool
+    {
+        if ($receptionistId <= 0 || $clinicId <= 0) {
+            return false;
+        }
+
+        return in_array($clinicId, $this->getReceptionistClinicIds($receptionistId), true);
+    }
+
+    private function clinicAdminCanAccessClinic(int $clinicAdminId, int $clinicId): bool
+    {
+        if ($clinicAdminId <= 0 || $clinicId <= 0) {
+            return false;
+        }
+
+        $clinic = KCClinic::find($clinicId);
+
+        return $clinic && (int) $clinic->clinicAdminId === (int) $clinicAdminId;
+    }
+
+    /**
+     * @return int[]
+     */
+    private function getReceptionistClinicIds(int $receptionistId): array
+    {
+        return KCReceptionistClinicMapping::query()
+            ->where('receptionist_id', $receptionistId)
+            ->select(['clinic_id'])
+            ->get()
+            ->map(fn($row) => (int) $row->clinicId)
+            ->toArray();
     }
 
     public function print(WP_REST_Request $request)

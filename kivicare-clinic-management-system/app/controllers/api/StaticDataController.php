@@ -200,11 +200,28 @@ class StaticDataController extends KCBaseController
                     'description' => __('Whether the request is from the mobile app (allows inactive clinics in some cases)', 'kivicare-clinic-management-system'),
                 ],
             ],
-            'permission_callback' => function (WP_REST_Request $request) {
-                // For now, allowing all requests - can be customized later
-                return true;
-            },
+            'permission_callback' => [$this, 'checkStaticDataPermission'],
         ]);
+    }
+
+    public function checkStaticDataPermission(WP_REST_Request $request)
+    {
+        $isPatientListRequest = $request->get_param('dataType') === 'patientList'
+            || ($request->get_param('dataType') === 'staticData' && $request->get_param('staticDataType') === 'patients');
+
+        if (!$isPatientListRequest) {
+            return true;
+        }
+
+        if (!is_user_logged_in() || !$this->checkCapability('read')) {
+            return false;
+        }
+
+        if ($this->kcbase->getLoginUserRole() === $this->kcbase->getPatientRole()) {
+            return false;
+        }
+
+        return $this->checkResourceAccess('patient', 'view');
     }
 
     public function getStaticData(WP_REST_Request $request): WP_REST_Response
@@ -645,7 +662,7 @@ class StaticDataController extends KCBaseController
     /**
      * Get clinic list
      */
-    private function getClinicList(?WP_REST_Request $request = null): array
+    private function getClinicList(WP_REST_Request $request): array
     {
         try {
             $currentUserRole = $this->kcbase->getLoginUserRole();
@@ -710,8 +727,22 @@ class StaticDataController extends KCBaseController
                  $clinicsQuery->where('status', 1);
             }
 
+            $clinicId = $request->get_param('clinic_id');
+            $clinicIds = $request->get_param('clinic_ids');
+
+            if (!empty($clinicId)) {
+                $clinicsQuery->where('id', absint($clinicId));
+            } elseif (!empty($clinicIds)) {
+                $clinicIdsArray = is_array($clinicIds) ? $clinicIds : explode(',', (string) $clinicIds);
+                $clinicIdsArray = array_filter(array_map('absint', $clinicIdsArray));
+
+                if (!empty($clinicIdsArray)) {
+                    $clinicsQuery->whereIn('id', $clinicIdsArray);
+                }
+            }
+
             // Handle search
-            if ($request instanceof WP_REST_Request && !empty($request->get_param('search'))) {
+            if (!empty($request->get_param('search'))) {
                 $search = $request->get_param('search');
                 if ($search !== 'undefined' && $search !== 'null') {
                     $clinicsQuery->where('name', 'LIKE', '%' . $search . '%');
@@ -719,72 +750,68 @@ class StaticDataController extends KCBaseController
             }
 
             // Filter by service_id
-            if ($request instanceof WP_REST_Request) {
-                $serviceId = $request->get_param('service_id');
-                if (!empty($serviceId)) {
-                    $serviceClinicIds = KCServiceDoctorMapping::query()
-                        ->where('service_id', absint($serviceId))
-                        ->where('status', 1)
-                        ->select(['clinic_id'])
-                        ->groupBy('clinic_id')
-                        ->get()
-                        ->map(fn($row) => $row->clinicId)
-                        ->toArray();
+            $serviceId = $request->get_param('service_id');
+            if (!empty($serviceId)) {
+                $serviceClinicIds = KCServiceDoctorMapping::query()
+                    ->where('service_id', absint($serviceId))
+                    ->where('status', 1)
+                    ->select(['clinic_id'])
+                    ->groupBy('clinic_id')
+                    ->get()
+                    ->map(fn($row) => $row->clinicId)
+                    ->toArray();
 
-                    $serviceClinicIds = array_filter($serviceClinicIds);
+                $serviceClinicIds = array_filter($serviceClinicIds);
 
-                    if (!empty($serviceClinicIds)) {
-                        $clinicsQuery->whereIn('id', $serviceClinicIds);
-                    } else {
-                        // Service not found in any clinic
-                        $clinicsQuery->whereRaw('0=1');
-                    }
+                if (!empty($serviceClinicIds)) {
+                    $clinicsQuery->whereIn('id', $serviceClinicIds);
+                } else {
+                    // Service not found in any clinic
+                    $clinicsQuery->whereRaw('0=1');
                 }
             }
 
             // Filter by doctor_id and exclude clinics with existing sessions
-            if ($request instanceof WP_REST_Request) {
-                $doctorId = $request->get_param('doctor_id');
-                $excludeWithSessions = $request->get_param('exclude_with_sessions');
+            $doctorId = $request->get_param('doctor_id');
+            $excludeWithSessions = $request->get_param('exclude_with_sessions');
 
-                if (!empty($doctorId)) {
+            if (!empty($doctorId)) {
 
-                    // First, filter to only clinics where this doctor works
-                    $doctorClinicIds = KCDoctorClinicMapping::query()
-                        ->where('doctor_id', absint($doctorId))
-                        ->select(['clinic_id'])
-                        ->get()
-                        ->map(fn($row) => $row->clinicId)
-                        ->toArray();
+                // First, filter to only clinics where this doctor works
+                $doctorClinicIds = KCDoctorClinicMapping::query()
+                    ->where('doctor_id', absint($doctorId))
+                    ->select(['clinic_id'])
+                    ->get()
+                    ->map(fn($row) => $row->clinicId)
+                    ->toArray();
 
-                    $doctorClinicIds = array_filter($doctorClinicIds);
+                $doctorClinicIds = array_filter($doctorClinicIds);
 
 
-                    if (!empty($doctorClinicIds)) {
-                        $clinicsQuery->whereIn('id', $doctorClinicIds);
+                if (!empty($doctorClinicIds)) {
+                    $clinicsQuery->whereIn('id', $doctorClinicIds);
 
-                        // If exclude_with_sessions is true, exclude clinics where doctor has sessions
-                        if ($excludeWithSessions === true) {
-                            // Get clinic IDs where this doctor already has sessions
-                            $sessionClinicIds = \App\models\KCClinicSession::query()
-                                ->where('doctorId', absint($doctorId))
-                                ->select(['clinic_id'])
-                                ->groupBy('clinic_id')
-                                ->get()
-                                ->map(fn($row) => $row->clinicId)
-                                ->toArray();
+                    // If exclude_with_sessions is true, exclude clinics where doctor has sessions
+                    if ($excludeWithSessions === true) {
+                        // Get clinic IDs where this doctor already has sessions
+                        $sessionClinicIds = \App\models\KCClinicSession::query()
+                            ->where('doctorId', absint($doctorId))
+                            ->select(['clinic_id'])
+                            ->groupBy('clinic_id')
+                            ->get()
+                            ->map(fn($row) => $row->clinicId)
+                            ->toArray();
 
-                            $sessionClinicIds = array_filter($sessionClinicIds);
+                        $sessionClinicIds = array_filter($sessionClinicIds);
 
-                            if (!empty($sessionClinicIds)) {
-                                // Exclude clinics where doctor already has sessions
-                                $clinicsQuery->whereNotIn('id', $sessionClinicIds);
-                            }
+                        if (!empty($sessionClinicIds)) {
+                            // Exclude clinics where doctor already has sessions
+                            $clinicsQuery->whereNotIn('id', $sessionClinicIds);
                         }
-                    } else {
-                        // Doctor not associated with any clinic
-                        $clinicsQuery->whereRaw('0=1');
                     }
+                } else {
+                    // Doctor not associated with any clinic
+                    $clinicsQuery->whereRaw('0=1');
                 }
             }
 
@@ -792,13 +819,11 @@ class StaticDataController extends KCBaseController
             $totalCount = $clinicsQuery->count();
 
             // Handle pagination
-            if ($request instanceof WP_REST_Request) {
-                $page = $request->get_param('page') ?: 1;
-                $perPage = $request->get_param('per_page') ?: 10;
-                $offset = ($page - 1) * $perPage;
-                if ($page !== -1) {
-                    $clinicsQuery->limit($perPage)->offset($offset);
-                }
+            $page = $request->get_param('page') ?: 1;
+            $perPage = $request->get_param('per_page') ?: 10;
+            $offset = ($page - 1) * $perPage;
+            if ($page !== -1) {
+                $clinicsQuery->limit($perPage)->offset($offset);
             }
             $clinics = $clinicsQuery->get();
 
@@ -842,30 +867,20 @@ class StaticDataController extends KCBaseController
                 ];
             })->toArray();
 
-            // Add pagination metadata if request provided
-            if ($request instanceof WP_REST_Request) {
-                $page = $request->get_param('page') ?: 1;
-                $perPage = $request->get_param('per_page') ?: 10;
-                $totalPages = ceil($totalCount / $perPage);
+            $totalPages = ceil($totalCount / $perPage);
 
-                return [
-                    'data' => $result,
-                    'pagination' => [
-                        'total' => $totalCount,
-                        'per_page' => $perPage,
-                        'current_page' => $page,
-                        'total_pages' => $totalPages,
-                        'has_more' => $page < $totalPages,
-                    ]
-                ];
-            }
-
-            return $result;
+            return [
+                'data' => $result,
+                'pagination' => [
+                    'total' => $totalCount,
+                    'per_page' => $perPage,
+                    'current_page' => $page,
+                    'total_pages' => $totalPages,
+                    'has_more' => $page < $totalPages,
+                ]
+            ];
         } catch (\Exception $e) {
-            if ($request instanceof WP_REST_Request) {
-                return ['data' => [], 'pagination' => ['total' => 0, 'per_page' => 10, 'current_page' => 1, 'total_pages' => 0, 'has_more' => false]];
-            }
-            return [];
+            return ['data' => [], 'pagination' => ['total' => 0, 'per_page' => 10, 'current_page' => 1, 'total_pages' => 0, 'has_more' => false]];
         }
     }
 
