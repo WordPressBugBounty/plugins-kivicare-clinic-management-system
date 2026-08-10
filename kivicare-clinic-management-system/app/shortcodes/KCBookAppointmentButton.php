@@ -48,8 +48,10 @@ class KCBookAppointmentButton extends KCShortcodeAbstract
         $paymentGateways = KCPaymentGatewayFactory::get_available_gateways(true);
         $show_print_button = isset($widgetSettings['widget_print']) ? filter_var($widgetSettings['widget_print'], FILTER_VALIDATE_BOOLEAN) : false;
 
-        // Get default clinic ID
+        // Get default clinic ID. Do not preselect it for doctor-only booking buttons,
+        // otherwise multi-clinic doctors cannot show clinic selection.
         $default_clinic_id = KCClinic::kcGetDefaultClinicId();
+        $preselected_clinic_id = $selected_clinic_id ?: ($selected_doctor_id ? '' : $default_clinic_id);
 
         // Get timezone from shortcode parameter or fallback
         $timezone_string = '';
@@ -57,8 +59,8 @@ class KCBookAppointmentButton extends KCShortcodeAbstract
             $timezone_string = $atts['timezone'];
         } else {
             $timezone_string = wp_timezone_string();
-            if ($default_clinic_id) {
-                $default_clinic = KCClinic::find($default_clinic_id);
+            if ($preselected_clinic_id) {
+                $default_clinic = KCClinic::find($preselected_clinic_id);
                 if ($default_clinic && !empty($default_clinic->clinicAdminId)) {
                     $admin_timezone = get_user_meta($default_clinic->clinicAdminId, 'timezone', true);
                     if (!empty($admin_timezone)) {
@@ -86,7 +88,7 @@ class KCBookAppointmentButton extends KCShortcodeAbstract
             'data-doctor-id' => $selected_doctor_id,
             'data-service-id' => $selected_service_id,
             'data-timezone' => esc_attr($timezone_string),
-            'data-default-clinic-id' => esc_attr($default_clinic_id),
+            'data-default-clinic-id' => esc_attr($preselected_clinic_id),
         ];
 
         $data_attrs_string = '';

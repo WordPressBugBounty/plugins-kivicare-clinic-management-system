@@ -3,13 +3,13 @@
     "file": "assets/ElementorWidget-Dt1GIzI_.css",
     "src": "_ElementorWidget-Dt1GIzI_.css"
   },
-  "_GdprReconsentModal-CuOj2gIe.js": {
-    "file": "assets/GdprReconsentModal-CuOj2gIe.js",
+  "_GdprReconsentModal-NRlVC3R4.js": {
+    "file": "assets/GdprReconsentModal-NRlVC3R4.js",
     "name": "GdprReconsentModal",
     "imports": [
       "_react-CI6q7jDD.js",
       "_useEncounterBodyChart-D9Xsu8JE.js",
-      "_TransitionRoutes-BV45Fy88.js"
+      "_TransitionRoutes-Bfe0W86-.js"
     ],
     "css": [
       "assets/GdprReconsentModal-b78jFB3r.css"
@@ -19,8 +19,8 @@
     "file": "assets/GdprReconsentModal-b78jFB3r.css",
     "src": "_GdprReconsentModal-b78jFB3r.css"
   },
-  "_TransitionRoutes-BV45Fy88.js": {
-    "file": "assets/TransitionRoutes-BV45Fy88.js",
+  "_TransitionRoutes-Bfe0W86-.js": {
+    "file": "assets/TransitionRoutes-Bfe0W86-.js",
     "name": "TransitionRoutes",
     "imports": [
       "_react-CI6q7jDD.js",
@@ -42,12 +42,12 @@
     "file": "assets/TransitionRoutes-DzRRekcl.css",
     "src": "_TransitionRoutes-DzRRekcl.css"
   },
-  "_queryClient-Be-0CFIa.js": {
-    "file": "assets/queryClient-Be-0CFIa.js",
+  "_queryClient-CmnasmSR.js": {
+    "file": "assets/queryClient-CmnasmSR.js",
     "name": "queryClient",
     "imports": [
       "_useEncounterBodyChart-D9Xsu8JE.js",
-      "_TransitionRoutes-BV45Fy88.js"
+      "_TransitionRoutes-Bfe0W86-.js"
     ]
   },
   "_react-CI6q7jDD.js": {
@@ -132,16 +132,16 @@
     "src": "app/dashboard/assets/videos/checked-animation.webm"
   },
   "app/dashboard/main.jsx": {
-    "file": "assets/dashboard-CqIytRNO.js",
+    "file": "assets/dashboard-CfNvm4sD.js",
     "name": "dashboard",
     "src": "app/dashboard/main.jsx",
     "isEntry": true,
     "imports": [
       "_react-CI6q7jDD.js",
       "_useEncounterBodyChart-D9Xsu8JE.js",
-      "_TransitionRoutes-BV45Fy88.js",
-      "_GdprReconsentModal-CuOj2gIe.js",
-      "_queryClient-Be-0CFIa.js"
+      "_TransitionRoutes-Bfe0W86-.js",
+      "_GdprReconsentModal-NRlVC3R4.js",
+      "_queryClient-CmnasmSR.js"
     ],
     "css": [
       "assets/dashboard-CPnQCRBJ.css"
@@ -175,45 +175,45 @@
     ]
   },
   "app/elementor/widgets/js/ClinicWidget.jsx": {
-    "file": "assets/clinicwidget-Dj16IvIt.js",
+    "file": "assets/clinicwidget-Cnu6M_K-.js",
     "name": "clinicwidget",
     "src": "app/elementor/widgets/js/ClinicWidget.jsx",
     "isEntry": true,
     "imports": [
       "_react-CI6q7jDD.js",
       "_useEncounterBodyChart-D9Xsu8JE.js",
-      "_TransitionRoutes-BV45Fy88.js"
+      "_TransitionRoutes-Bfe0W86-.js"
     ],
     "css": [
       "assets/ElementorWidget-Dt1GIzI_.css"
     ]
   },
   "app/elementor/widgets/js/DoctorWidget.jsx": {
-    "file": "assets/doctorwidget-C1V4d6-Y.js",
+    "file": "assets/doctorwidget-BMSGzq9c.js",
     "name": "doctorwidget",
     "src": "app/elementor/widgets/js/DoctorWidget.jsx",
     "isEntry": true,
     "imports": [
       "_react-CI6q7jDD.js",
       "_useEncounterBodyChart-D9Xsu8JE.js",
-      "_TransitionRoutes-BV45Fy88.js"
+      "_TransitionRoutes-Bfe0W86-.js"
     ],
     "css": [
       "assets/ElementorWidget-Dt1GIzI_.css"
     ]
   },
   "app/shortcodes/assets/js/KCBookAppointment.jsx": {
-    "file": "assets/appointment-ByYcZOCh.js",
+    "file": "assets/appointment-CVoDCdUC.js",
     "name": "appointment",
     "src": "app/shortcodes/assets/js/KCBookAppointment.jsx",
     "isEntry": true,
     "imports": [
       "_react-CI6q7jDD.js",
       "_useEncounterBodyChart-D9Xsu8JE.js",
-      "_TransitionRoutes-BV45Fy88.js",
+      "_TransitionRoutes-Bfe0W86-.js",
       "_useFrontendBookAppointment-Bfzizuvg.js",
-      "_GdprReconsentModal-CuOj2gIe.js",
-      "_queryClient-Be-0CFIa.js"
+      "_GdprReconsentModal-NRlVC3R4.js",
+      "_queryClient-CmnasmSR.js"
     ],
     "css": [
       "assets/appointment-J-lJvfsd.css"
@@ -224,16 +224,16 @@
     ]
   },
   "app/shortcodes/assets/js/KCRegisterLogin.jsx": {
-    "file": "assets/registerLogin-Dy-n-fes.js",
+    "file": "assets/registerLogin-sw2vO4TL.js",
     "name": "registerLogin",
     "src": "app/shortcodes/assets/js/KCRegisterLogin.jsx",
     "isEntry": true,
     "imports": [
       "_react-CI6q7jDD.js",
       "_useEncounterBodyChart-D9Xsu8JE.js",
-      "_TransitionRoutes-BV45Fy88.js",
+      "_TransitionRoutes-Bfe0W86-.js",
       "_useFrontendBookAppointment-Bfzizuvg.js",
-      "_queryClient-Be-0CFIa.js"
+      "_queryClient-CmnasmSR.js"
     ],
     "css": [
       "assets/registerLogin-BmMsnakR.css"

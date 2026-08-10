@@ -1313,7 +1313,7 @@ class AppointmentsController extends KCBaseController
                 }
 
                 if (strpos($route, '/print-report/') !== false) {
-                    return $this->checkResourceAccess('appointment', 'view');
+                    return $this->checkResourceAccess('appointment', 'view') && $this->canAccessReportAttachment((int) $request['id']);
                 }
 
                 // For single appointment view
@@ -1332,17 +1332,17 @@ class AppointmentsController extends KCBaseController
                 // For status updates
                 if (strpos($route, '/status') !== false) {
                     if ($current_user_role === $this->kcbase->getPatientRole()) {
-                        return $this->checkResourceAccess('appointment', 'edit');
+                        return $this->checkResourceAccess('appointment', 'edit') && $this->canAccessAppointmentId((int) $request['id']);
                     }
-                    return $this->checkResourceAccess('patient_appointment_status', 'change');
+                    return $this->checkResourceAccess('patient_appointment_status', 'change') && $this->canAccessAppointmentId((int) $request['id']);
                 }
 
                 // For appointment updates
-                return $this->checkResourceAccess('appointment', 'edit');
+                return $this->checkResourceAccess('appointment', 'edit') && $this->canAccessAppointmentId((int) $request['id']);
 
             case 'DELETE':
                 // For appointment deletion
-                return $this->checkResourceAccess('appointment', 'delete');
+                return $this->checkResourceAccess('appointment', 'delete') && $this->canAccessAppointmentId((int) $request['id']);
 
             default:
                 return false;
@@ -1382,6 +1382,62 @@ class AppointmentsController extends KCBaseController
         if ($role === $this->kcbase->getClinicAdminRole()) {
             $clinic = KCClinic::find((int) $appointment->clinicId);
             return $clinic && (int) $clinic->clinicAdminId === (int) $currentUserId;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check whether the current user may access the report file behind a WP attachment ID.
+     *
+     * Resolves the attachment to its owning patient via kc_patient_medical_report.upload_report
+     * and applies the same role-based ownership rules as canAccessAppointmentId().
+     */
+    private function canAccessReportAttachment(int $attachmentId): bool
+    {
+        if ($attachmentId <= 0) {
+            return false;
+        }
+
+        $report = KCPatientMedicalReport::query()
+            ->where('upload_report', $attachmentId)
+            ->first();
+
+        if (!$report) {
+            return false;
+        }
+
+        $role = $this->kcbase->getLoginUserRole();
+        $currentUserId = get_current_user_id();
+
+        if ($role === 'administrator') {
+            return true;
+        }
+
+        if ($role === $this->kcbase->getPatientRole()) {
+            return (int) $report->patientId === (int) $currentUserId;
+        }
+
+        if ($role === $this->kcbase->getDoctorRole()) {
+            return KCAppointment::query()
+                ->where('patient_id', (int) $report->patientId)
+                ->where('doctor_id', $currentUserId)
+                ->count() > 0;
+        }
+
+        if ($role === $this->kcbase->getReceptionistRole()) {
+            return KCAppointment::query()
+                ->where('patient_id', (int) $report->patientId)
+                ->whereIn('clinic_id', $this->getReceptionistClinicIds($currentUserId))
+                ->count() > 0;
+        }
+
+        if ($role === $this->kcbase->getClinicAdminRole()) {
+            return KCAppointment::table('a')
+                ->leftJoin(KCClinic::class, 'a.clinic_id', '=', 'c.id', 'c')
+                ->where('a.patient_id', (int) $report->patientId)
+                ->where('c.clinic_admin_id', $currentUserId)
+                ->count() > 0;
         }
 
         return false;

@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the KiviCare - Clinic & Patient Management System (EHR) plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 4.5.3\n"
+"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 4.5.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/kivicare-clinic-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-07T07:00:39+00:00\n"
+"POT-Creation-Date: 2026-08-10T07:29:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: kivicare-clinic-management-system\n"
@@ -262,11 +262,11 @@ msgstr ""
 msgid "Time frame must be all, upcoming, or past"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1436
-#: app/controllers/api/AppointmentsController.php:1637
-#: app/controllers/api/AppointmentsController.php:1841
-#: app/controllers/api/AppointmentsController.php:3090
-#: app/controllers/api/AppointmentsController.php:3579
+#: app/controllers/api/AppointmentsController.php:1492
+#: app/controllers/api/AppointmentsController.php:1693
+#: app/controllers/api/AppointmentsController.php:1897
+#: app/controllers/api/AppointmentsController.php:3146
+#: app/controllers/api/AppointmentsController.php:3635
 #: app/controllers/api/DoctorController.php:1074
 #: app/controllers/api/DoctorController.php:1134
 #: app/controllers/api/DoctorController.php:1506
@@ -279,12 +279,12 @@ msgstr ""
 msgid "Doctor not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1460
-#: app/controllers/api/AppointmentsController.php:1660
-#: app/controllers/api/AppointmentsController.php:1865
-#: app/controllers/api/AppointmentsController.php:2232
-#: app/controllers/api/AppointmentsController.php:3110
-#: app/controllers/api/AppointmentsController.php:3589
+#: app/controllers/api/AppointmentsController.php:1516
+#: app/controllers/api/AppointmentsController.php:1716
+#: app/controllers/api/AppointmentsController.php:1921
+#: app/controllers/api/AppointmentsController.php:2288
+#: app/controllers/api/AppointmentsController.php:3166
+#: app/controllers/api/AppointmentsController.php:3645
 #: app/controllers/api/ClinicController.php:993
 #: app/controllers/api/ClinicController.php:1346
 #: app/controllers/api/ClinicController.php:1637
@@ -296,89 +296,89 @@ msgstr ""
 msgid "Clinic not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1473
-#: app/controllers/api/AppointmentsController.php:3207
+#: app/controllers/api/AppointmentsController.php:1529
+#: app/controllers/api/AppointmentsController.php:3263
 #: app/controllers/api/frontend/KCBookAppoinmentShortcode.php:208
 msgid "No valid services found for the provided IDs"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1501
+#: app/controllers/api/AppointmentsController.php:1557
 msgid "Appointment summary retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1512
+#: app/controllers/api/AppointmentsController.php:1568
 msgid "Failed to generate appointment summary"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1562
-#: app/controllers/api/AppointmentsController.php:1822
+#: app/controllers/api/AppointmentsController.php:1618
+#: app/controllers/api/AppointmentsController.php:1878
 msgid "Only same-day booking is allowed."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1614
+#: app/controllers/api/AppointmentsController.php:1670
 msgid "Failed to generate appointment slots"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1669
-#: app/controllers/api/AppointmentsController.php:1874
+#: app/controllers/api/AppointmentsController.php:1725
+#: app/controllers/api/AppointmentsController.php:1930
 msgid "Missing service data"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1789
+#: app/controllers/api/AppointmentsController.php:1845
 msgid "Month slot availability retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1832
+#: app/controllers/api/AppointmentsController.php:1888
 msgid "Booking is not available for the selected date."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1954
+#: app/controllers/api/AppointmentsController.php:2010
 msgid "No available slots found for the selected date and doctor"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1961
+#: app/controllers/api/AppointmentsController.php:2017
 msgid "Appointment slots retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2524
-#: app/controllers/api/AppointmentsController.php:3038
+#: app/controllers/api/AppointmentsController.php:2580
+#: app/controllers/api/AppointmentsController.php:3094
 #: app/controllers/api/DashboardController.php:593
 msgid "Appointments retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2585
-#: app/controllers/api/AppointmentsController.php:2868
-#: app/controllers/api/AppointmentsController.php:3566
-#: app/controllers/api/AppointmentsController.php:3976
-#: app/controllers/api/AppointmentsController.php:4425
-#: app/controllers/api/AppointmentsController.php:4566
-#: app/controllers/api/AppointmentsController.php:4634
-#: app/controllers/api/AppointmentsController.php:4635
-#: app/controllers/api/AppointmentsController.php:5218
+#: app/controllers/api/AppointmentsController.php:2641
+#: app/controllers/api/AppointmentsController.php:2924
+#: app/controllers/api/AppointmentsController.php:3622
+#: app/controllers/api/AppointmentsController.php:4032
+#: app/controllers/api/AppointmentsController.php:4481
+#: app/controllers/api/AppointmentsController.php:4622
+#: app/controllers/api/AppointmentsController.php:4690
+#: app/controllers/api/AppointmentsController.php:4691
+#: app/controllers/api/AppointmentsController.php:5274
 #: app/controllers/api/KCPrintInvoiceController.php:126
 #: app/controllers/api/SettingsController/CustomFields.php:988
 msgid "Appointment not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2750
+#: app/controllers/api/AppointmentsController.php:2806
 msgid "Appointment retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2754
+#: app/controllers/api/AppointmentsController.php:2810
 msgid "Failed to retrieve appointment"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2774
+#: app/controllers/api/AppointmentsController.php:2830
 #: app/helpers/KCExportHelper.php:139
 msgid "File not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3042
+#: app/controllers/api/AppointmentsController.php:3098
 msgid "Failed to retrieve appointments"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3121
-#: app/controllers/api/AppointmentsController.php:3599
+#: app/controllers/api/AppointmentsController.php:3177
+#: app/controllers/api/AppointmentsController.php:3655
 #: app/controllers/api/PatientController.php:1129
 #: app/controllers/api/PatientController.php:1399
 #: app/controllers/api/PatientController.php:1553
@@ -389,185 +389,185 @@ msgstr ""
 msgid "Patient not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3175
-#: app/controllers/api/AppointmentsController.php:3645
+#: app/controllers/api/AppointmentsController.php:3231
+#: app/controllers/api/AppointmentsController.php:3701
 msgid "Selected time slot is not available"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3223
+#: app/controllers/api/AppointmentsController.php:3279
 msgid "Telemed services cannot be booked as telemed addon is not active"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3270
+#: app/controllers/api/AppointmentsController.php:3326
 msgid "Please select a payment method to proceed."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3325
+#: app/controllers/api/AppointmentsController.php:3381
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1085
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1203
 msgid "Failed to create appointment"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3362
-#: app/controllers/api/AppointmentsController.php:4575
+#: app/controllers/api/AppointmentsController.php:3418
+#: app/controllers/api/AppointmentsController.php:4631
 msgid "Telemed provider not found for the selected doctor"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3384
+#: app/controllers/api/AppointmentsController.php:3440
 msgid "Failed to create telemed meeting link"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3496
+#: app/controllers/api/AppointmentsController.php:3552
 msgid "Failed to create payment mapping"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3517
+#: app/controllers/api/AppointmentsController.php:3573
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1077
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1189
 msgid "Appointment created successfully"
 msgstr ""
 
 #. translators: %s: Error message
-#: app/controllers/api/AppointmentsController.php:3530
+#: app/controllers/api/AppointmentsController.php:3586
 msgid "Failed to create appointment: %s"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3555
+#: app/controllers/api/AppointmentsController.php:3611
 msgid "New appointment date and time are required"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3610
+#: app/controllers/api/AppointmentsController.php:3666
 msgid "No services found for this appointment"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3726
+#: app/controllers/api/AppointmentsController.php:3782
 msgid "Failed to update Google Meet event"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3768
-#: app/controllers/api/AppointmentsController.php:3808
-#: app/controllers/api/AppointmentsController.php:3852
+#: app/controllers/api/AppointmentsController.php:3824
+#: app/controllers/api/AppointmentsController.php:3864
+#: app/controllers/api/AppointmentsController.php:3908
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1085
 msgid "Failed to update appointment"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3841
+#: app/controllers/api/AppointmentsController.php:3897
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1041
 msgid "Appointment updated successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3875
+#: app/controllers/api/AppointmentsController.php:3931
 msgid "appointment not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3949
+#: app/controllers/api/AppointmentsController.php:4005
 msgid "Failed to delete Appointment"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4258
-#: app/controllers/api/AppointmentsController.php:4265
+#: app/controllers/api/AppointmentsController.php:4314
+#: app/controllers/api/AppointmentsController.php:4321
 msgid "Payment completed successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4453
-#: app/controllers/api/AppointmentsController.php:4460
+#: app/controllers/api/AppointmentsController.php:4509
+#: app/controllers/api/AppointmentsController.php:4516
 #: app/dashboard/views/paymentGateways/RazorpayCheckout.jsx:73
 #: app/dashboard/views/paymentGateways/StripeCheckout.jsx:123
 msgid "Payment was cancelled"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4490
+#: app/controllers/api/AppointmentsController.php:4546
 msgid "Missing gateway parameter"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4500
+#: app/controllers/api/AppointmentsController.php:4556
 msgid "Payment gateway not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4604
-#: app/controllers/api/AppointmentsController.php:4605
+#: app/controllers/api/AppointmentsController.php:4660
+#: app/controllers/api/AppointmentsController.php:4661
 msgid "Telemed link regenerated successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4616
+#: app/controllers/api/AppointmentsController.php:4672
 msgid "Failed to regenerate telemed link"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4644
-#: app/controllers/api/AppointmentsController.php:4645
+#: app/controllers/api/AppointmentsController.php:4700
+#: app/controllers/api/AppointmentsController.php:4701
 msgid "Meeting link not found for this appointment."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4654
-#: app/controllers/api/AppointmentsController.php:4655
+#: app/controllers/api/AppointmentsController.php:4710
+#: app/controllers/api/AppointmentsController.php:4711
 msgid "Appointment email data not found."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4688
-#: app/controllers/api/AppointmentsController.php:4689
+#: app/controllers/api/AppointmentsController.php:4744
+#: app/controllers/api/AppointmentsController.php:4745
 msgid "Failed to send meeting link email."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4697
+#: app/controllers/api/AppointmentsController.php:4753
 #: app/dashboard/views/appointments/AppointmentsList.jsx:1480
 msgid "Meeting link sent to patient successfully."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4706
+#: app/controllers/api/AppointmentsController.php:4762
 msgid "Failed to resend meeting link."
 msgstr ""
 
 #. translators: %s: Email template slug.
-#: app/controllers/api/AppointmentsController.php:4741
+#: app/controllers/api/AppointmentsController.php:4797
 msgid "Meeting link email template \"%s\" is missing. Please create or restore this template from KiviCare email template settings, then try again."
 msgstr ""
 
 #. translators: 1: Meeting module label. 2: Email template slug.
-#: app/controllers/api/AppointmentsController.php:4752
+#: app/controllers/api/AppointmentsController.php:4808
 msgid "%1$s meeting link email is disabled by the administrator. Please enable the \"%2$s\" email template from KiviCare email template settings, then try again."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4768
+#: app/controllers/api/AppointmentsController.php:4824
 msgid "Zoom"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4769
+#: app/controllers/api/AppointmentsController.php:4825
 #: app/dashboard/utils/activityLogHelpers.js:93
 #: app/dashboard/views/settings/googleMeet/GoogleMeet.jsx:152
 #: app/dashboard/views/settings/SettingsSideBar.jsx:191
 msgid "Google Meet"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5006
+#: app/controllers/api/AppointmentsController.php:5062
 msgid "No appointments found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5168
+#: app/controllers/api/AppointmentsController.php:5224
 msgid "Appointments data retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5176
+#: app/controllers/api/AppointmentsController.php:5232
 msgid "Failed to export appointments data"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5290
+#: app/controllers/api/AppointmentsController.php:5346
 msgid "Failed to delete appointment"
 msgstr ""
 
 #. translators: %d: number of appointments
-#: app/controllers/api/AppointmentsController.php:5318
+#: app/controllers/api/AppointmentsController.php:5374
 msgid "%d appointment has been deleted."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5329
+#: app/controllers/api/AppointmentsController.php:5385
 msgid "Failed to delete appointments"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5418
+#: app/controllers/api/AppointmentsController.php:5474
 msgid "Appointment IDs are required"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5422
+#: app/controllers/api/AppointmentsController.php:5478
 msgid "Invalid appointment ID in array"
 msgstr ""
 
@@ -4534,7 +4534,7 @@ msgstr ""
 msgid "Book Appointment"
 msgstr ""
 
-#: app/shortcodes/KCBookAppointmentButton.php:111
+#: app/shortcodes/KCBookAppointmentButton.php:113
 #: app/dashboard/components/Alert.jsx:60
 #: app/dashboard/components/FilterOffcanvas.jsx:153
 #: app/dashboard/components/FilterOffcanvas.jsx:458
