@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the KiviCare - Clinic & Patient Management System (EHR) plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 4.5.4\n"
+"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 4.5.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/kivicare-clinic-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-10T07:29:19+00:00\n"
+"POT-Creation-Date: 2026-08-22T05:31:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: kivicare-clinic-management-system\n"
@@ -132,6 +132,7 @@ msgstr ""
 #: app/dashboard/views/taxes/components/TaxForm.jsx:291
 #: app/dashboard/views/taxes/TaxesList.jsx:491
 #: app/dashboard/views/taxes/TaxesList.jsx:814
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:170
 msgid "Doctor"
 msgstr ""
 
@@ -148,6 +149,7 @@ msgstr ""
 #: app/dashboard/views/settings/googleEventTemplate/GoogleEventTemplate.jsx:182
 #: app/dashboard/views/settings/permissionSetting/PermissionSetting.jsx:30
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:283
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:171
 msgid "Receptionist"
 msgstr ""
 
@@ -179,6 +181,8 @@ msgstr ""
 #: app/dashboard/views/settings/permissionSetting/PermissionSetting.jsx:31
 #: app/dashboard/views/settings/SettingsSideBar.jsx:102
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:292
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:169
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:187
 msgid "Patient"
 msgstr ""
 
@@ -262,11 +266,11 @@ msgstr ""
 msgid "Time frame must be all, upcoming, or past"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1492
-#: app/controllers/api/AppointmentsController.php:1693
-#: app/controllers/api/AppointmentsController.php:1897
-#: app/controllers/api/AppointmentsController.php:3146
-#: app/controllers/api/AppointmentsController.php:3635
+#: app/controllers/api/AppointmentsController.php:1539
+#: app/controllers/api/AppointmentsController.php:1740
+#: app/controllers/api/AppointmentsController.php:1944
+#: app/controllers/api/AppointmentsController.php:3193
+#: app/controllers/api/AppointmentsController.php:3681
 #: app/controllers/api/DoctorController.php:1074
 #: app/controllers/api/DoctorController.php:1134
 #: app/controllers/api/DoctorController.php:1506
@@ -279,12 +283,12 @@ msgstr ""
 msgid "Doctor not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1516
-#: app/controllers/api/AppointmentsController.php:1716
-#: app/controllers/api/AppointmentsController.php:1921
-#: app/controllers/api/AppointmentsController.php:2288
-#: app/controllers/api/AppointmentsController.php:3166
-#: app/controllers/api/AppointmentsController.php:3645
+#: app/controllers/api/AppointmentsController.php:1563
+#: app/controllers/api/AppointmentsController.php:1763
+#: app/controllers/api/AppointmentsController.php:1968
+#: app/controllers/api/AppointmentsController.php:2335
+#: app/controllers/api/AppointmentsController.php:3213
+#: app/controllers/api/AppointmentsController.php:3691
 #: app/controllers/api/ClinicController.php:993
 #: app/controllers/api/ClinicController.php:1346
 #: app/controllers/api/ClinicController.php:1637
@@ -296,89 +300,89 @@ msgstr ""
 msgid "Clinic not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1529
-#: app/controllers/api/AppointmentsController.php:3263
+#: app/controllers/api/AppointmentsController.php:1576
+#: app/controllers/api/AppointmentsController.php:3310
 #: app/controllers/api/frontend/KCBookAppoinmentShortcode.php:208
 msgid "No valid services found for the provided IDs"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1557
+#: app/controllers/api/AppointmentsController.php:1604
 msgid "Appointment summary retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1568
+#: app/controllers/api/AppointmentsController.php:1615
 msgid "Failed to generate appointment summary"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1618
-#: app/controllers/api/AppointmentsController.php:1878
+#: app/controllers/api/AppointmentsController.php:1665
+#: app/controllers/api/AppointmentsController.php:1925
 msgid "Only same-day booking is allowed."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1670
+#: app/controllers/api/AppointmentsController.php:1717
 msgid "Failed to generate appointment slots"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1725
-#: app/controllers/api/AppointmentsController.php:1930
+#: app/controllers/api/AppointmentsController.php:1772
+#: app/controllers/api/AppointmentsController.php:1977
 msgid "Missing service data"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1845
+#: app/controllers/api/AppointmentsController.php:1892
 msgid "Month slot availability retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:1888
+#: app/controllers/api/AppointmentsController.php:1935
 msgid "Booking is not available for the selected date."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2010
+#: app/controllers/api/AppointmentsController.php:2057
 msgid "No available slots found for the selected date and doctor"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2017
+#: app/controllers/api/AppointmentsController.php:2064
 msgid "Appointment slots retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2580
-#: app/controllers/api/AppointmentsController.php:3094
+#: app/controllers/api/AppointmentsController.php:2627
+#: app/controllers/api/AppointmentsController.php:3141
 #: app/controllers/api/DashboardController.php:593
 msgid "Appointments retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2641
-#: app/controllers/api/AppointmentsController.php:2924
-#: app/controllers/api/AppointmentsController.php:3622
-#: app/controllers/api/AppointmentsController.php:4032
-#: app/controllers/api/AppointmentsController.php:4481
-#: app/controllers/api/AppointmentsController.php:4622
-#: app/controllers/api/AppointmentsController.php:4690
-#: app/controllers/api/AppointmentsController.php:4691
-#: app/controllers/api/AppointmentsController.php:5274
+#: app/controllers/api/AppointmentsController.php:2688
+#: app/controllers/api/AppointmentsController.php:2971
+#: app/controllers/api/AppointmentsController.php:3668
+#: app/controllers/api/AppointmentsController.php:4078
+#: app/controllers/api/AppointmentsController.php:4527
+#: app/controllers/api/AppointmentsController.php:4668
+#: app/controllers/api/AppointmentsController.php:4736
+#: app/controllers/api/AppointmentsController.php:4737
+#: app/controllers/api/AppointmentsController.php:5320
 #: app/controllers/api/KCPrintInvoiceController.php:126
 #: app/controllers/api/SettingsController/CustomFields.php:988
 msgid "Appointment not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2806
+#: app/controllers/api/AppointmentsController.php:2853
 msgid "Appointment retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2810
+#: app/controllers/api/AppointmentsController.php:2857
 msgid "Failed to retrieve appointment"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:2830
+#: app/controllers/api/AppointmentsController.php:2877
 #: app/helpers/KCExportHelper.php:139
 msgid "File not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3098
+#: app/controllers/api/AppointmentsController.php:3145
 msgid "Failed to retrieve appointments"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3177
-#: app/controllers/api/AppointmentsController.php:3655
+#: app/controllers/api/AppointmentsController.php:3224
+#: app/controllers/api/AppointmentsController.php:3701
 #: app/controllers/api/PatientController.php:1129
 #: app/controllers/api/PatientController.php:1399
 #: app/controllers/api/PatientController.php:1553
@@ -389,206 +393,212 @@ msgstr ""
 msgid "Patient not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3231
-#: app/controllers/api/AppointmentsController.php:3701
+#: app/controllers/api/AppointmentsController.php:3278
+#: app/controllers/api/AppointmentsController.php:3747
 msgid "Selected time slot is not available"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3279
+#: app/controllers/api/AppointmentsController.php:3326
 msgid "Telemed services cannot be booked as telemed addon is not active"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3326
+#: app/controllers/api/AppointmentsController.php:3373
 msgid "Please select a payment method to proceed."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3381
+#: app/controllers/api/AppointmentsController.php:3428
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1085
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1203
 msgid "Failed to create appointment"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3418
-#: app/controllers/api/AppointmentsController.php:4631
+#: app/controllers/api/AppointmentsController.php:3465
+#: app/controllers/api/AppointmentsController.php:4677
 msgid "Telemed provider not found for the selected doctor"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3440
+#: app/controllers/api/AppointmentsController.php:3487
 msgid "Failed to create telemed meeting link"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3552
+#: app/controllers/api/AppointmentsController.php:3599
 msgid "Failed to create payment mapping"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3573
+#: app/controllers/api/AppointmentsController.php:3620
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1077
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1189
 msgid "Appointment created successfully"
 msgstr ""
 
 #. translators: %s: Error message
-#: app/controllers/api/AppointmentsController.php:3586
+#: app/controllers/api/AppointmentsController.php:3633
 msgid "Failed to create appointment: %s"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3611
+#: app/controllers/api/AppointmentsController.php:3657
 msgid "New appointment date and time are required"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3666
+#: app/controllers/api/AppointmentsController.php:3712
 msgid "No services found for this appointment"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3782
+#: app/controllers/api/AppointmentsController.php:3828
 msgid "Failed to update Google Meet event"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3824
-#: app/controllers/api/AppointmentsController.php:3864
-#: app/controllers/api/AppointmentsController.php:3908
+#: app/controllers/api/AppointmentsController.php:3870
+#: app/controllers/api/AppointmentsController.php:3910
+#: app/controllers/api/AppointmentsController.php:3954
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1085
 msgid "Failed to update appointment"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3897
+#: app/controllers/api/AppointmentsController.php:3943
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1041
 msgid "Appointment updated successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:3931
+#: app/controllers/api/AppointmentsController.php:3977
 msgid "appointment not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4005
+#: app/controllers/api/AppointmentsController.php:4051
 msgid "Failed to delete Appointment"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4314
-#: app/controllers/api/AppointmentsController.php:4321
+#: app/controllers/api/AppointmentsController.php:4360
+#: app/controllers/api/AppointmentsController.php:4367
 msgid "Payment completed successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4509
-#: app/controllers/api/AppointmentsController.php:4516
+#: app/controllers/api/AppointmentsController.php:4555
+#: app/controllers/api/AppointmentsController.php:4562
 #: app/dashboard/views/paymentGateways/RazorpayCheckout.jsx:73
 #: app/dashboard/views/paymentGateways/StripeCheckout.jsx:123
 msgid "Payment was cancelled"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4546
+#: app/controllers/api/AppointmentsController.php:4592
 msgid "Missing gateway parameter"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4556
+#: app/controllers/api/AppointmentsController.php:4602
 msgid "Payment gateway not found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4660
-#: app/controllers/api/AppointmentsController.php:4661
+#: app/controllers/api/AppointmentsController.php:4706
+#: app/controllers/api/AppointmentsController.php:4707
 msgid "Telemed link regenerated successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4672
+#: app/controllers/api/AppointmentsController.php:4718
 msgid "Failed to regenerate telemed link"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4700
-#: app/controllers/api/AppointmentsController.php:4701
+#: app/controllers/api/AppointmentsController.php:4746
+#: app/controllers/api/AppointmentsController.php:4747
 msgid "Meeting link not found for this appointment."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4710
-#: app/controllers/api/AppointmentsController.php:4711
+#: app/controllers/api/AppointmentsController.php:4756
+#: app/controllers/api/AppointmentsController.php:4757
 msgid "Appointment email data not found."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4744
-#: app/controllers/api/AppointmentsController.php:4745
+#: app/controllers/api/AppointmentsController.php:4790
+#: app/controllers/api/AppointmentsController.php:4791
 msgid "Failed to send meeting link email."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4753
+#: app/controllers/api/AppointmentsController.php:4799
 #: app/dashboard/views/appointments/AppointmentsList.jsx:1480
 msgid "Meeting link sent to patient successfully."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4762
+#: app/controllers/api/AppointmentsController.php:4808
 msgid "Failed to resend meeting link."
 msgstr ""
 
 #. translators: %s: Email template slug.
-#: app/controllers/api/AppointmentsController.php:4797
+#: app/controllers/api/AppointmentsController.php:4843
 msgid "Meeting link email template \"%s\" is missing. Please create or restore this template from KiviCare email template settings, then try again."
 msgstr ""
 
 #. translators: 1: Meeting module label. 2: Email template slug.
-#: app/controllers/api/AppointmentsController.php:4808
+#: app/controllers/api/AppointmentsController.php:4854
 msgid "%1$s meeting link email is disabled by the administrator. Please enable the \"%2$s\" email template from KiviCare email template settings, then try again."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4824
+#: app/controllers/api/AppointmentsController.php:4870
 msgid "Zoom"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:4825
+#: app/controllers/api/AppointmentsController.php:4871
 #: app/dashboard/utils/activityLogHelpers.js:93
 #: app/dashboard/views/settings/googleMeet/GoogleMeet.jsx:152
 #: app/dashboard/views/settings/SettingsSideBar.jsx:191
 msgid "Google Meet"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5062
+#: app/controllers/api/AppointmentsController.php:5108
 msgid "No appointments found"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5224
+#: app/controllers/api/AppointmentsController.php:5270
 msgid "Appointments data retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5232
+#: app/controllers/api/AppointmentsController.php:5278
 msgid "Failed to export appointments data"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5346
+#: app/controllers/api/AppointmentsController.php:5392
 msgid "Failed to delete appointment"
 msgstr ""
 
 #. translators: %d: number of appointments
-#: app/controllers/api/AppointmentsController.php:5374
+#: app/controllers/api/AppointmentsController.php:5420
 msgid "%d appointment has been deleted."
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5385
+#: app/controllers/api/AppointmentsController.php:5431
 msgid "Failed to delete appointments"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5474
+#: app/controllers/api/AppointmentsController.php:5520
 msgid "Appointment IDs are required"
 msgstr ""
 
-#: app/controllers/api/AppointmentsController.php:5478
+#: app/controllers/api/AppointmentsController.php:5524
 msgid "Invalid appointment ID in array"
 msgstr ""
 
 #: app/controllers/api/AuthController.php:85
 #: app/controllers/api/AuthController.php:547
 #: app/dashboard/views/auth/Login.jsx:95
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3263
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:698
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:827
 msgid "Username is required"
 msgstr ""
 
 #: app/controllers/api/AuthController.php:89
 #: app/controllers/api/AuthController.php:119
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3266
 msgid "Username must be at least 3 characters long"
 msgstr ""
 
 #: app/controllers/api/AuthController.php:93
 #: app/controllers/api/AuthController.php:123
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3270
 msgid "Username can only contain letters, numbers, dots, dashes and underscores"
 msgstr ""
 
 #: app/controllers/api/AuthController.php:108
 #: app/controllers/api/AuthController.php:511
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3654
 msgid "Username or email is required"
 msgstr ""
 
@@ -599,11 +609,17 @@ msgstr ""
 #: app/controllers/api/PatientController.php:139
 #: app/controllers/api/ReceptionistsController.php:136
 #: app/dashboard/views/settings/appConfiguration/AppConfigurationMain.jsx:110
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3375
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:846
 msgid "Please enter a valid email address"
 msgstr ""
 
 #: app/controllers/api/AuthController.php:139
 #: app/dashboard/views/auth/Login.jsx:111
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3288
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3676
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:717
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:863
 msgid "Password is required"
 msgstr ""
 
@@ -623,6 +639,8 @@ msgstr ""
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:321
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:104
 #: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:76
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3372
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:843
 msgid "Email is required"
 msgstr ""
 
@@ -652,6 +670,7 @@ msgstr ""
 #: app/controllers/api/ClinicController.php:152
 #: app/controllers/api/PatientController.php:158
 #: app/controllers/api/ReceptionistsController.php:155
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:996
 msgid "Please enter a valid contact number"
 msgstr ""
 
@@ -661,6 +680,8 @@ msgstr ""
 #: app/dashboard/views/patients/PatientForm.jsx:470
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:350
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:203
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:488
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1064
 msgid "Gender is required"
 msgstr ""
 
@@ -676,6 +697,7 @@ msgstr ""
 #: app/controllers/api/AuthController.php:410
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1247
 #: app/dashboard/views/encounter/components/EncounterForm.jsx:517
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1087
 msgid "Clinic is required"
 msgstr ""
 
@@ -773,6 +795,9 @@ msgstr ""
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:126
 #: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:164
 #: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:166
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3229
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3403
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:991
 msgid "Contact number is required"
 msgstr ""
 
@@ -788,66 +813,70 @@ msgstr ""
 msgid "Failed to create user"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1552
+#: app/controllers/api/AuthController.php:1555
 msgid "Registration successful."
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1561
+#: app/controllers/api/AuthController.php:1564
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3210
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3214
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:558
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:665
 msgid "Registration failed. Please try again."
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1596
+#: app/controllers/api/AuthController.php:1599
 msgid "User not found"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1619
+#: app/controllers/api/AuthController.php:1622
 msgid "Failed to send password reset email. Please contact support."
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1627
+#: app/controllers/api/AuthController.php:1630
 msgid "Password reset email sent successfully"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1660
+#: app/controllers/api/AuthController.php:1663
 msgid "Password reset successful"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1680
-#: app/controllers/api/AuthController.php:1769
+#: app/controllers/api/AuthController.php:1683
+#: app/controllers/api/AuthController.php:1772
 msgid "User not authenticated"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1690
+#: app/controllers/api/AuthController.php:1693
 msgid "Current password is incorrect"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1700
+#: app/controllers/api/AuthController.php:1703
 #: app/dashboard/components/profile/ChangePassword.jsx:58
 msgid "New password and confirm password do not match"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1710
+#: app/controllers/api/AuthController.php:1713
 msgid "New password must be different from current password"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1749
+#: app/controllers/api/AuthController.php:1752
 #: app/dashboard/components/profile/ChangePassword.jsx:79
 msgid "Password changed successfully"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1788
+#: app/controllers/api/AuthController.php:1791
 msgid "Your account has been deleted successfully"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1796
+#: app/controllers/api/AuthController.php:1799
 msgid "Something went wrong while deleting your account"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1975
+#: app/controllers/api/AuthController.php:1978
 msgid "Registration settings retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/AuthController.php:1981
+#: app/controllers/api/AuthController.php:1984
 msgid "Failed to retrieve registration settings"
 msgstr ""
 
@@ -1684,6 +1713,7 @@ msgstr ""
 
 #: app/controllers/api/DoctorServiceController.php:2039
 #: app/controllers/api/DoctorServiceController.php:2052
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2238
 msgid "min"
 msgstr ""
 
@@ -2322,6 +2352,8 @@ msgstr ""
 #: app/dashboard/views/patients/PatientForm.jsx:938
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:638
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:200
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3416
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1059
 msgid "Gender"
 msgstr ""
 
@@ -2910,6 +2942,8 @@ msgstr ""
 #: app/dashboard/views/settings/emailTemplate/EmailTest.jsx:99
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:101
 #: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:73
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3364
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:836
 msgid "Email"
 msgstr ""
 
@@ -3500,50 +3534,50 @@ msgstr ""
 msgid "Exclude clinics where doctor already has sessions"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:185
-msgid "Page number for pagination (-1 to fetch all records)"
+#: app/controllers/api/StaticDataController.php:195
+msgid "Page number for pagination (-1 to fetch all records, authenticated staff only)"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:194
+#: app/controllers/api/StaticDataController.php:204
 msgid "Number of items per page (max 100)"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:200
+#: app/controllers/api/StaticDataController.php:210
 msgid "Whether the request is from the mobile app (allows inactive clinics in some cases)"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:252
+#: app/controllers/api/StaticDataController.php:293
 msgid "staticDataType parameter is required for staticData requests"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:263
+#: app/controllers/api/StaticDataController.php:304
 msgid "Invalid dataType parameter"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:271
+#: app/controllers/api/StaticDataController.php:312
 msgid "Data retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:380
+#: app/controllers/api/StaticDataController.php:421
 msgid "Invalid staticDataType parameter"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:2418
+#: app/controllers/api/StaticDataController.php:2480
 #: app/paymentGateways/KCKnitPay.php:101
 #: app/dashboard/views/settings/customField/CustomField.jsx:998
 #: app/dashboard/views/settings/listings/Listings.jsx:664
 msgid "Label is required"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:2433
+#: app/controllers/api/StaticDataController.php:2495
 msgid "Specialty already exists"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:2453
+#: app/controllers/api/StaticDataController.php:2515
 msgid "Failed to create specialty"
 msgstr ""
 
-#: app/controllers/api/StaticDataController.php:2460
+#: app/controllers/api/StaticDataController.php:2522
 #: app/dashboard/views/clinics/ClinicForm.jsx:703
 msgid "Specialty added successfully"
 msgstr ""
@@ -3977,12 +4011,17 @@ msgstr ""
 #: app/dashboard/views/reports/Reports.jsx:144
 #: app/dashboard/views/settings/appConfiguration/PushTemplateForm.jsx:252
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:927
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1596
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1613
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1637
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1083
 msgid "Select Clinic"
 msgstr ""
 
 #: app/elementor/widgets/ClinicListWidget.php:876
 #: app/shortcodes/KCClinicListShortcode.php:91
 #: app/elementor/widgets/js/ClinicWidget.jsx:164
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1734
 msgid "No clinics found."
 msgstr ""
 
@@ -4085,6 +4124,7 @@ msgstr ""
 #: app/dashboard/views/settings/customField/CustomField.jsx:968
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:925
 #: app/dashboard/views/taxes/components/TaxForm.jsx:304
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1891
 msgid "Select Doctor"
 msgstr ""
 
@@ -4553,6 +4593,10 @@ msgstr ""
 #: app/dashboard/views/settings/webHook/components/Testing.jsx:544
 #: app/dashboard/views/settings/webHook/OAuth2Callback.jsx:46
 #: app/dashboard/views/settings/zoomTelemed/ZoomTelemedDoctorConfiguration.jsx:382
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4281
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:764
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:935
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1186
 msgid "Loading..."
 msgstr ""
 
@@ -4742,6 +4786,7 @@ msgstr ""
 #: app/dashboard/views/calendar/CalendarPage.jsx:834
 #: app/dashboard/views/dashboard/components/PaymentHistory.jsx:132
 #: app/dashboard/views/dashboard/Dashboard.jsx:979
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3981
 msgid "Services"
 msgstr ""
 
@@ -5452,6 +5497,7 @@ msgstr ""
 #: templates/KCInvoicePrintTemplate.php:163
 #: templates/KCInvoicePrintTemplate.php:184
 #: app/dashboard/views/settings/webHook/components/WebhookForm.jsx:1891
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3880
 msgid "Name:"
 msgstr ""
 
@@ -5461,6 +5507,9 @@ msgstr ""
 
 #: templates/KCInvoicePrintTemplate.php:171
 #: templates/KCInvoicePrintTemplate.php:193
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1723
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1991
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3901
 msgid "Email:"
 msgstr ""
 
@@ -5853,6 +5902,8 @@ msgstr ""
 #: app/dashboard/views/taxes/TaxesList.jsx:436
 #: app/dashboard/views/taxes/TaxesList.jsx:572
 #: app/dashboard/views/taxes/TaxesList.jsx:668
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4249
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4267
 msgid "Error"
 msgstr ""
 
@@ -5870,6 +5921,7 @@ msgstr ""
 #: app/dashboard/views/settings/SMSWhatsappTemplate/SMSEditTemplate.jsx:204
 #: app/dashboard/views/settings/webHook/views/Configuration/add.jsx:40
 #: app/dashboard/views/settings/webHook/views/Configuration/edit.jsx:59
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1407
 msgid "Back"
 msgstr ""
 
@@ -7013,6 +7065,9 @@ msgstr ""
 #: app/dashboard/views/patients/PatientConsentsTab.jsx:170
 #: app/dashboard/views/settings/gdpr/ConsentCompleted.jsx:22
 #: app/dashboard/views/settings/gdpr/ConsentSettingMain.jsx:271
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3520
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1158
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1160
 msgid "Privacy Policy"
 msgstr ""
 
@@ -7020,6 +7075,9 @@ msgstr ""
 #: app/dashboard/components/gdpr/GdprReconsentModal.jsx:169
 #: app/dashboard/components/gdpr/GdprReconsentModal.jsx:204
 #: app/dashboard/views/patients/PatientConsentsTab.jsx:163
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3528
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1146
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1148
 msgid "Terms of Service"
 msgstr ""
 
@@ -7034,6 +7092,8 @@ msgstr ""
 #: app/dashboard/components/gdpr/GdprReconsentModal.jsx:143
 #: app/dashboard/components/gdpr/GdprReconsentModal.jsx:177
 #: app/dashboard/components/gdpr/GdprReconsentModal.jsx:209
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3524
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1152
 msgid "and"
 msgstr ""
 
@@ -7157,6 +7217,7 @@ msgstr ""
 
 #: app/dashboard/components/MultiFileUploader.jsx:11
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1678
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2874
 msgid "Upload Documents"
 msgstr ""
 
@@ -7305,6 +7366,7 @@ msgstr ""
 
 #: app/dashboard/components/ProfileCard.jsx:40
 #: app/dashboard/views/activityLogs/ActivityLogs.jsx:632
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:820
 msgid "User Name"
 msgstr ""
 
@@ -7314,6 +7376,8 @@ msgstr ""
 #: app/dashboard/views/patients/PatientForm.jsx:953
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:652
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:208
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3429
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1068
 msgid "Male"
 msgstr ""
 
@@ -7323,6 +7387,8 @@ msgstr ""
 #: app/dashboard/views/patients/PatientForm.jsx:967
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:665
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:209
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3441
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1069
 msgid "Female"
 msgstr ""
 
@@ -7332,6 +7398,8 @@ msgstr ""
 #: app/dashboard/views/patients/PatientForm.jsx:982
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:679
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:210
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3454
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1071
 msgid "Other"
 msgstr ""
 
@@ -7471,6 +7539,7 @@ msgstr ""
 
 #: app/dashboard/components/SessionComponents.jsx:330
 #: app/dashboard/views/settings/webHook/components/Testing.jsx:675
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3965
 msgid "Time:"
 msgstr ""
 
@@ -7533,6 +7602,7 @@ msgstr ""
 #: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:313
 #: app/elementor/widgets/js/ClinicWidget.jsx:229
 #: app/elementor/widgets/js/DoctorWidget.jsx:240
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:793
 msgid "Previous"
 msgstr ""
 
@@ -7540,6 +7610,7 @@ msgstr ""
 #: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:318
 #: app/elementor/widgets/js/ClinicWidget.jsx:239
 #: app/elementor/widgets/js/DoctorWidget.jsx:250
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1430
 msgid "Next"
 msgstr ""
 
@@ -7679,6 +7750,10 @@ msgstr ""
 #: app/dashboard/views/doctors/DoctorForm.jsx:1589
 #: app/dashboard/views/settings/customForm/Builder.jsx:302
 #: app/dashboard/views/settings/SettingsSideBar.jsx:293
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2813
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2847
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3480
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4119
 msgid "Custom Form"
 msgstr ""
 
@@ -8489,6 +8564,7 @@ msgstr ""
 
 #: app/dashboard/utils/activityLogHelpers.js:141
 #: app/dashboard/views/clinics/ClinicsList.jsx:1056
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1749
 msgid "clinics"
 msgstr ""
 
@@ -8700,6 +8776,7 @@ msgstr ""
 
 #: app/dashboard/utils/activityLogHelpers.js:222
 #: app/dashboard/views/settings/SettingsSideBar.jsx:302
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2802
 msgid "Custom Field"
 msgstr ""
 
@@ -8954,6 +9031,9 @@ msgstr ""
 
 #: app/dashboard/utils/activityLogHelpers.js:741
 #: app/dashboard/views/auth/Login.jsx:142
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1483
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2923
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:764
 msgid "Login"
 msgstr ""
 
@@ -9658,6 +9738,7 @@ msgstr ""
 
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:125
 #: app/dashboard/views/appointments/AppointmentsList.jsx:265
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4268
 msgid "Failed to generate invoice PDF."
 msgstr ""
 
@@ -9845,6 +9926,9 @@ msgstr ""
 
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1422
 #: app/dashboard/views/taxes/components/TaxForm.jsx:344
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2108
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2125
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2166
 msgid "Select Service"
 msgstr ""
 
@@ -10107,6 +10191,7 @@ msgid "Charges"
 msgstr ""
 
 #: app/dashboard/views/appointments/AppointmentsList.jsx:796
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4209
 msgid "Add To Calendar"
 msgstr ""
 
@@ -10470,10 +10555,15 @@ msgid "Appointment Summary:"
 msgstr ""
 
 #: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:72
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1867
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2093
 msgid "Clinic:"
 msgstr ""
 
 #: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:78
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1589
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2097
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3948
 msgid "Doctor:"
 msgstr ""
 
@@ -10511,50 +10601,64 @@ msgstr ""
 
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:165
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:223
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2622
 msgid "Full"
 msgstr ""
 
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:166
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:224
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2624
 msgid "All slots are booked"
 msgstr ""
 
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:178
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2570
 msgid "Not Available"
 msgstr ""
 
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:181
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:260
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2573
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2660
 msgid "Clinic Holiday"
 msgstr ""
 
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:184
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2576
 msgid "Doctor Holiday"
 msgstr ""
 
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:194
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2587
 msgid "Select doctor & service first"
 msgstr ""
 
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:201
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:229
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:246
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2598
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2629
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2652
 msgid "Available"
 msgstr ""
 
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:212
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2609
 msgid "Slots"
 msgstr ""
 
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:213
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2611
 msgid "slots available"
 msgstr ""
 
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:217
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2615
 msgid "Click to select"
 msgstr ""
 
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:242
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2648
 msgid "Calendar Legend"
 msgstr ""
 
@@ -10563,14 +10667,17 @@ msgid "Suggested"
 msgstr ""
 
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:256
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2656
 msgid "Slots Full"
 msgstr ""
 
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:264
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2664
 msgid "Doctor on leave"
 msgstr ""
 
 #: app/dashboard/views/appointments/components/AppointmentDatePicker.jsx:268
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2668
 msgid "Past Date"
 msgstr ""
 
@@ -10713,6 +10820,7 @@ msgstr ""
 
 #: app/dashboard/views/appointments/PaymentStatus.jsx:73
 #: app/dashboard/views/billings/BillingsList.jsx:286
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4023
 msgid "Total Price"
 msgstr ""
 
@@ -10721,6 +10829,7 @@ msgid "Payment Successful"
 msgstr ""
 
 #: app/dashboard/views/appointments/PaymentStatus.jsx:92
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4289
 msgid "Verifying Payment..."
 msgstr ""
 
@@ -10729,30 +10838,41 @@ msgid "Your appointment has been confirmed. Redirecting..."
 msgstr ""
 
 #: app/dashboard/views/appointments/PaymentStatus.jsx:97
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4294
 msgid "Please wait while we confirm your payment with the gateway. This usually takes a few seconds."
 msgstr ""
 
 #: app/dashboard/views/auth/Login.jsx:41
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3624
 msgid "Login failed. Please try again."
 msgstr ""
 
 #: app/dashboard/views/auth/Login.jsx:88
 #: app/dashboard/views/settings/customNotification/CustomNotificationEdit.jsx:1014
 #: app/dashboard/views/settings/webHook/components/WebhookForm.jsx:1052
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3255
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:691
 msgid "Username"
 msgstr ""
 
 #: app/dashboard/views/auth/Login.jsx:104
 #: app/dashboard/views/settings/customNotification/CustomNotificationEdit.jsx:1029
 #: app/dashboard/views/settings/webHook/components/WebhookForm.jsx:1068
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3280
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3667
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:708
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:856
 msgid "Password"
 msgstr ""
 
 #: app/dashboard/views/auth/Login.jsx:128
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:749
 msgid "Remember Me"
 msgstr ""
 
 #: app/dashboard/views/auth/Login.jsx:132
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3689
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:753
 msgid "Forgot Password?"
 msgstr ""
 
@@ -11041,6 +11161,7 @@ msgstr ""
 #: app/dashboard/views/clinics/ClinicForm.jsx:488
 #: app/dashboard/views/doctors/DoctorForm.jsx:766
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:334
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3239
 msgid "Please enter a valid phone number"
 msgstr ""
 
@@ -11092,6 +11213,8 @@ msgstr ""
 #: app/dashboard/views/patients/PatientForm.jsx:410
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:307
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:68
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3330
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:953
 msgid "First name is required"
 msgstr ""
 
@@ -11108,6 +11231,8 @@ msgstr ""
 #: app/dashboard/views/patients/PatientForm.jsx:417
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:314
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:86
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3351
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:971
 msgid "Last name is required"
 msgstr ""
 
@@ -11190,6 +11315,7 @@ msgstr ""
 #: app/dashboard/views/receptionists/ReceptionistsList.jsx:293
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:119
 #: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:159
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:983
 msgid "Contact Number"
 msgstr ""
 
@@ -11303,6 +11429,8 @@ msgstr ""
 #: app/dashboard/views/patients/PatientForm.jsx:691
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:436
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:65
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3322
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:946
 msgid "First Name"
 msgstr ""
 
@@ -11317,6 +11445,8 @@ msgstr ""
 #: app/dashboard/views/patients/PatientForm.jsx:712
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:456
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:83
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3343
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:964
 msgid "Last Name"
 msgstr ""
 
@@ -11332,6 +11462,7 @@ msgstr ""
 #: app/dashboard/views/doctors/DoctorForm.jsx:1302
 #: app/dashboard/views/patients/PatientForm.jsx:1011
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:736
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2431
 msgid "Select Timezone"
 msgstr ""
 
@@ -11849,6 +11980,8 @@ msgstr ""
 
 #: app/dashboard/views/dashboard/components/StatCard.jsx:265
 #: app/dashboard/views/encounter/EncounterDashbord.jsx:310
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1882
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2143
 msgid "Retry"
 msgstr ""
 
@@ -11954,6 +12087,7 @@ msgstr ""
 #: app/dashboard/views/doctors/DoctorForm.jsx:760
 #: app/dashboard/views/doctorSession/DoctorSessionForm.jsx:500
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:328
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:489
 msgid "Clinic selection is required"
 msgstr ""
 
@@ -13260,6 +13394,7 @@ msgstr ""
 
 #: app/dashboard/views/encounter/EncounterList.jsx:491
 #: app/dashboard/views/encounter/EncounterList.jsx:692
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2470
 msgid "Select Date"
 msgstr ""
 
@@ -14591,6 +14726,7 @@ msgid "Country Code"
 msgstr ""
 
 #: app/dashboard/views/importData/ImportData.jsx:79
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3385
 msgid "Contact"
 msgstr ""
 
@@ -17089,11 +17225,13 @@ msgstr ""
 
 #: app/dashboard/views/settings/customNotification/CustomNotificationEdit.jsx:1021
 #: app/dashboard/views/settings/webHook/components/WebhookForm.jsx:1061
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3261
 msgid "Enter username"
 msgstr ""
 
 #: app/dashboard/views/settings/customNotification/CustomNotificationEdit.jsx:1036
 #: app/dashboard/views/settings/webHook/components/WebhookForm.jsx:1077
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3286
 msgid "Enter password"
 msgstr ""
 
@@ -17214,6 +17352,7 @@ msgid "OAuth2 Token Generation"
 msgstr ""
 
 #: app/dashboard/views/settings/customNotification/CustomNotificationEdit.jsx:1264
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4316
 msgid "Generating..."
 msgstr ""
 
@@ -19982,6 +20121,8 @@ msgid "Services from Category"
 msgstr ""
 
 #: app/dashboard/views/settings/widgetSetting/WidgetSetting.jsx:21
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:592
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2412
 msgid "Select Date and Time"
 msgstr ""
 
@@ -19990,10 +20131,12 @@ msgid "User Detail information"
 msgstr ""
 
 #: app/dashboard/views/settings/widgetSetting/WidgetSetting.jsx:23
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:594
 msgid "Appointment Extra Data"
 msgstr ""
 
 #: app/dashboard/views/settings/widgetSetting/WidgetSetting.jsx:24
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:595
 msgid "Confirmation"
 msgstr ""
 
@@ -20070,6 +20213,7 @@ msgid "Secondary Hover Color"
 msgstr ""
 
 #: app/dashboard/views/settings/widgetSetting/WidgetSetting.jsx:60
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4316
 msgid "Print Detail"
 msgstr ""
 
@@ -20100,6 +20244,7 @@ msgstr ""
 
 #: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:15
 #: app/dashboard/views/setupWizard/components/StepsNavigation.jsx:61
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:796
 msgid "Step"
 msgstr ""
 
@@ -20368,6 +20513,7 @@ msgid "Date of Birth"
 msgstr ""
 
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:207
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1067
 msgid "Select Gender"
 msgstr ""
 
@@ -20702,11 +20848,15 @@ msgstr ""
 
 #: app/elementor/widgets/js/ClinicWidget.jsx:232
 #: app/elementor/widgets/js/DoctorWidget.jsx:243
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1751
 msgid "Page"
 msgstr ""
 
 #: app/elementor/widgets/js/ClinicWidget.jsx:232
 #: app/elementor/widgets/js/DoctorWidget.jsx:243
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1749
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1751
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:796
 msgid "of"
 msgstr ""
 
@@ -20720,4 +20870,620 @@ msgstr ""
 
 #: app/elementor/widgets/js/DoctorWidget.jsx:213
 msgid "Filter Doctor"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:455
+msgid "Please select a clinic to continue."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:462
+msgid "Please select a doctor to continue."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:469
+msgid "Please select a service to continue."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:476
+msgid "Please select a date to continue."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:480
+msgid "Please select a time slot to continue."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:516
+msgid "Please fill all required fields in the form."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:527
+msgid "Please fill in all required user details to continue."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:534
+msgid "Please enter a valid email address."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:539
+msgid "Please enter a valid contact number."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:544
+msgid "Please enter a valid phone number."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:563
+msgid "Please select a payment method to continue."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:589
+msgid "Choose a Clinic"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:589
+msgid "Please select a clinic from below options"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:590
+msgid "Choose Your Doctor"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:590
+msgid "Please select a doctor from available options"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:591
+msgid "Doctor Services"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:591
+msgid "Please select a service from below options"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:592
+msgid "Select date to see a timeline of available slots"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:593
+msgid "User Detail Information"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:593
+msgid "Please provide you contact details"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:594
+msgid "Upload file and description about appointment"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:595
+msgid "Confirm your booking"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:596
+msgid "Booking Confirmed"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:596
+msgid "Your appointment is booked successfully"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:597
+msgid "Payment Failed"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:597
+msgid "Payment transaction failed"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:724
+msgid "Payment failed or was cancelled."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:904
+msgid "You are already logged in. Please proceed to the next step."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:945
+msgid "Please select a clinic before booking."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:951
+msgid "Please select a doctor before booking."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:957
+msgid "Please select a service before booking."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:963
+msgid "Please select both date and time before booking."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:970
+msgid "Please select a payment method before booking."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1120
+msgid "Failed to book appointment."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1130
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1139
+msgid "An error occurred while booking the appointment. Please try again."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1279
+msgid "Logged out successfully"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1443
+msgid "Booking..."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1443
+msgid "Confirm Booking"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1483
+msgid "Logging in..."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1496
+msgid "Registering..."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1496
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2913
+msgid "Register"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1599
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1616
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1640
+msgid "Search clinics...."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1625
+msgid "Error loading clinics:"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1717
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1985
+msgid "Phone:"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1736
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2254
+msgid "Try adjusting your search terms."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1749
+msgid "Showing"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1876
+msgid "Error loading doctors. Please try again."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1894
+msgid "Search doctors...."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:1977
+msgid "Exp"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2004
+msgid "No doctors found for the selected criteria."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2111
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2128
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2169
+msgid "Search services...."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2137
+msgid "Error loading services:"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2155
+msgid "General Services"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2233
+msgid "Base Price:"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2238
+msgid "Duration:"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2252
+msgid "No services found for the selected doctor."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2432
+msgid "No timezone found"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2680
+msgid "Available time slots"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2718
+msgid "No time slots available for selected date."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2770
+msgid "More About Appointment"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2778
+msgid "Appointment Descriptions"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2783
+msgid "Enter Appointment Descriptions"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:2902
+msgid "Enter Details"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3054
+msgid "Please fill all required fields in the patient form."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3116
+msgid "Registration successful! Your account is pending approval. Please login once it is activated."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3123
+msgid "Registration successful! You are now registered and logged in."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3233
+msgid "Contact number must be at least 10 digits"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3291
+msgid "Password must be at least 6 characters long"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3301
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:899
+msgid "Confirm Password"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3307
+msgid "Confirm password"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3309
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:906
+msgid "Please confirm your password"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3312
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:909
+msgid "Passwords do not match"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3328
+msgid "Enter your first name"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3333
+msgid "First name must be at least 2 characters long"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3349
+msgid "Enter your last name"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3354
+msgid "Last name must be at least 2 characters long"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3370
+msgid "Enter your email"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3396
+msgid "Enter your contact number"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3426
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3438
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3451
+msgid "Please select your gender"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3511
+msgid "You must agree to the privacy policy and terms of service to continue."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3517
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1141
+msgid "I agree to the"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3576
+msgid "Login successful! You can now proceed to the next step."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3620
+msgid "Invalid username/email or password."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3646
+msgid "Username or Email"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3652
+msgid "Enter your username or email"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3657
+msgid "Username or email must be at least 3 characters long"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3804
+msgid "Confirmation Detail"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3814
+msgid "Payment Method"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3875
+msgid "Patient info"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3886
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3896
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3906
+msgid "Not provided"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3891
+msgid "Number:"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3918
+msgid "Clinic info"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3928
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3953
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3961
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3969
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3986
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4014
+msgid "Not selected"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3937
+msgid "Address not available"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3945
+msgid "Appointment summary"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3957
+msgid "Date:"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3975
+msgid "Timezone:"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:3995
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4001
+msgid "Service selected"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4005
+msgid "No services selected"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4034
+msgid "Uploaded Files"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4063
+msgid "No files uploaded"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4090
+msgid "Other info"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4094
+msgid "Appointment Description:"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4192
+msgid "Medical Appointment"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4193
+msgid "Appointment with Dr."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4193
+msgid "at"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4250
+msgid "Appointment ID not found. Cannot print invoice."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4288
+msgid "Your Appointment is Booked Successfully!"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4293
+msgid "Please check your email for verification"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4305
+msgid "Book More Appointments"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4341
+msgid "Payment Transaction Failed!"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4343
+msgid "There was an issue processing your payment. Please try again."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4353
+msgid "Try Again"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCBookAppointment.jsx:4360
+msgid "Book New Appointment"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:45
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:55
+msgid "Very Weak"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:56
+msgid "Weak"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:57
+msgid "Fair"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:58
+msgid "Good"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:59
+msgid "Strong"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:60
+msgid "Very Strong"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:201
+msgid "Default Clinic"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:430
+msgid "reCAPTCHA verification failed. Please try again."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:459
+msgid "Login successful. Redirecting..."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:463
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:466
+msgid "Invalid username or password."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:490
+msgid "Role selection is required"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:498
+msgid "You must accept the updated policies to continue"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:639
+msgid "Registration successful. Redirecting..."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:655
+msgid "Registration successful. Please login."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:771
+msgid "Don't have an account?"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:773
+msgid "Sign Up"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:786
+msgid "Create Your Account"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:825
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:861
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:904
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:951
+msgid "e.g. Jane"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:841
+msgid "e.g. Jane@gmail.com"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:866
+msgid "Password must be at least 8 characters"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:935
+msgid "Continue"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:969
+msgid "e.g. Doe"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1015
+msgid "+1 555 555 5555"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1030
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1044
+msgid "Select Role"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1036
+msgid "Role is required"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1038
+msgid "Please select a role"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1039
+msgid "Selected role is not available"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1096
+msgid "Choose Clinic"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1135
+msgid "You must accept the policies to continue"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1166
+msgid "By creating an account you agree to our privacy policy and data usage terms."
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1186
+msgid "Create Account"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1196
+msgid "Already have an account?"
+msgstr ""
+
+#: app/shortcodes/assets/js/KCRegisterLogin.jsx:1198
+msgid "Log In"
 msgstr ""

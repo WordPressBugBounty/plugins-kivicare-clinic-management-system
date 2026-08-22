@@ -1390,13 +1390,20 @@ class AppointmentsController extends KCBaseController
     /**
      * Check whether the current user may access the report file behind a WP attachment ID.
      *
-     * Resolves the attachment to its owning patient via kc_patient_medical_report.upload_report
-     * and applies the same role-based ownership rules as canAccessAppointmentId().
+     * Reports reach an attachment by two independent routes, so both are checked:
+     *  - kc_appointments.appointment_report — a JSON array of attachment IDs uploaded
+     *    against the appointment itself (see createAppointment()'s appointmentFileId).
+     *  - kc_patient_medical_report.upload_report — one attachment ID per report row.
+     * Access is granted when either route resolves and its ownership rules pass.
      */
     private function canAccessReportAttachment(int $attachmentId): bool
     {
         if ($attachmentId <= 0) {
             return false;
+        }
+
+        if ($this->canAccessAppointmentReportAttachment($attachmentId)) {
+            return true;
         }
 
         $report = KCPatientMedicalReport::query()
@@ -1406,7 +1413,6 @@ class AppointmentsController extends KCBaseController
         if (!$report) {
             return false;
         }
-
         $role = $this->kcbase->getLoginUserRole();
         $currentUserId = get_current_user_id();
 
@@ -1438,6 +1444,47 @@ class AppointmentsController extends KCBaseController
                 ->where('a.patient_id', (int) $report->patientId)
                 ->where('c.clinic_admin_id', $currentUserId)
                 ->count() > 0;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check whether the attachment is a report on an appointment the user may access.
+     *
+     * appointment_report holds a JSON array of attachment IDs, so candidate rows are
+     * narrowed in SQL and then confirmed by decoding the JSON — a bare LIKE '%102%'
+     * would also match unrelated IDs such as 1102 or 1024. Ownership for each
+     * candidate is delegated to canAccessAppointmentId() so both report routes stay
+     * governed by one set of role rules.
+     */
+    private function canAccessAppointmentReportAttachment(int $attachmentId): bool
+    {
+        if ($attachmentId <= 0) {
+            return false;
+        }
+
+        $candidates = KCAppointment::query()
+            ->whereNotNull('appointment_report')
+            ->where('appointment_report', 'LIKE', '%' . $attachmentId . '%')
+            ->get();
+
+        foreach ($candidates as $appointment) {
+            $reportIds = json_decode((string) $appointment->appointmentReport, true);
+
+            if (!\is_array($reportIds)) {
+                continue;
+            }
+
+            $reportIds = \array_map('intval', $reportIds);
+
+            if (!\in_array($attachmentId, $reportIds, true)) {
+                continue;
+            }
+
+            if ($this->canAccessAppointmentId((int) $appointment->id)) {
+                return true;
+            }
         }
 
         return false;
@@ -3604,7 +3651,6 @@ class AppointmentsController extends KCBaseController
 
             $params = $request->get_params();
 
-
             if (empty($params['appointmentStartDate']) || empty($params['appointmentStartTime'])) {
                 return $this->response(
                     ['error' => 'New appointment date and time are required'],
@@ -4454,7 +4500,7 @@ class AppointmentsController extends KCBaseController
         $baseUrl = trailingslashit($baseUrl);
 
         // If webhook exists → always go to payment-status
-        if ( empty($pageRef) && $paymentGateway && $paymentGateway->is_webhook_configured()) {
+        if ($paymentGateway && $paymentGateway->is_webhook_configured()) {
             return $baseUrl . 'payment-status/' . $appointmentId;
         }
         return $baseUrl;

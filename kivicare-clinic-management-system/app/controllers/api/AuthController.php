@@ -1544,7 +1544,10 @@ class AuthController extends KCBaseController
                 'profileImageUrl' => $this->getUserProfileImageUrl($user_id, $user_role),
                 'redirect_url' => $redirect_url,
                 // Nonce must be generated AFTER the user is authenticated
-                'nonce' => $auto_login ? $nonce : null
+                'nonce' => $auto_login ? $nonce : null,
+                // Explicit flag so callers (e.g. the booking widget) don't have to infer
+                // authentication state from the presence of a nonce.
+                'auto_login' => $auto_login
             ];
 
             return $this->response(

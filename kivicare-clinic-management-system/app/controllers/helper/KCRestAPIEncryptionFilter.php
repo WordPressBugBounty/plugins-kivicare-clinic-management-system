@@ -93,11 +93,19 @@ class KCRestAPIEncryptionFilter
     {
         global $wp_rest_server;
 
-        // Check per-route opt-out flag
         $routes = $wp_rest_server->get_routes();
-        if (isset($routes[$route])) {
-            foreach ($routes[$route] as $route_obj) {
-                if (isset($route_obj['encryption']) && $route_obj['encryption'] === false) {
+
+        // Check per-route opt-out flag. An exact key match covers the common case,
+        // but registered route keys can carry query-string regex groups or otherwise
+        // fail a literal match against $request->get_route(), so fall back to a
+        // pattern match over every registered route (same approach used below for
+        // the protected-routes list) to make sure the opt-out is never missed.
+        if (isset($routes[$route]) && $this->routeHasEncryptionOptOut($routes[$route])) {
+            return false;
+        }
+        if (!isset($routes[$route])) {
+            foreach ($routes as $registered_route => $endpoints) {
+                if ($this->routeMatches($registered_route, $route) && $this->routeHasEncryptionOptOut($endpoints)) {
                     return false;
                 }
             }
@@ -105,17 +113,33 @@ class KCRestAPIEncryptionFilter
 
         // Check against the collected list
         foreach ($this->routes_to_encrypt as $protected_route) {
-            $pattern = str_replace(
-                ['/', '(?P<', '>[^/]+)'],
-                ['\\/', '(?:',  '[^\\/]+)'],
-                $protected_route
-            );
-            if (preg_match("#^{$pattern}#", $route)) {
+            if ($this->routeMatches($protected_route, $route)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Whether any endpoint definition for a registered route declares `'encryption' => false`.
+     */
+    private function routeHasEncryptionOptOut($endpoints): bool
+    {
+        foreach ($endpoints as $route_obj) {
+            if (is_array($route_obj) && isset($route_obj['encryption']) && $route_obj['encryption'] === false) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Whether a registered route pattern matches a concrete request route.
+     */
+    private function routeMatches($registered_route, $request_route): bool
+    {
+        return (bool) preg_match('#^' . $registered_route . '$#i', $request_route);
     }
 
     // ─────────────────────────────────────────────────────────────────────────

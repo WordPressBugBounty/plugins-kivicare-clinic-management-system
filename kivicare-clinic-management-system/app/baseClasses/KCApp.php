@@ -434,7 +434,14 @@ final class KCApp
     }
 
     /**
-     * Check whether the current request is a KiviCare report/encounter media request.
+     * Check whether the current request is a KiviCare media request.
+     *
+     * Only the media endpoint check is a security boundary here; it runs after the
+     * caller has already been confirmed as a KiviCare role holding `upload_files`,
+     * and async-upload.php verifies its own nonce. The view-path/referer match is
+     * routing context only, so it stays broad on purpose: the media modal uploads
+     * via Plupload and cannot send X-KC-View-Path, leaving the (optional,
+     * client-controlled) referer as the sole hint on most requests.
      */
     private function is_kivicare_report_media_request(): bool
     {
@@ -448,14 +455,79 @@ final class KCApp
             return false;
         }
 
+        if ($action === 'kc_upload_report') {
+            return true;
+        }
+
         $view_path = isset($_SERVER['HTTP_X_KC_VIEW_PATH']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_X_KC_VIEW_PATH'])) : '';
         $referer = isset($_SERVER['HTTP_REFERER']) ? esc_url_raw(wp_unslash($_SERVER['HTTP_REFERER'])) : '';
 
-        return strpos($view_path, 'medical-report') !== false
-            || strpos($view_path, 'encounter') !== false
-            || strpos($referer, 'medical-report') !== false
-            || strpos($referer, 'encounter') !== false
-            || $action === 'kc_upload_report';
+        // Uploads started from any KiviCare dashboard route, not just report screens.
+        // 'appointments' covers the add/edit appointment report attachment flow.
+        $contexts = ['medical-report', 'encounter', 'appointments'];
+
+        foreach ($contexts as $context) {
+            if (strpos($view_path, $context) !== false || strpos($referer, $context) !== false) {
+                return true;
+            }
+        }
+
+        // Fallback: any upload started from the KiviCare dashboard page itself,
+        // whose slug is site-configurable and so cannot be hardcoded above.
+        return $this->is_referer_kivicare_dashboard($referer);
+    }
+
+    /**
+     * Check whether a referer URL points at a KiviCare dashboard route.
+     *
+     * Dashboard slugs are per-role and site-configurable (Pro overrides the
+     * defaults), so they are resolved the same way KCDashboardPermalinkHandler
+     * builds its rewrite rules rather than being hardcoded here.
+     */
+    private function is_referer_kivicare_dashboard(string $referer): bool
+    {
+        if (empty($referer)) {
+            return false;
+        }
+
+        $path = wp_parse_url($referer, PHP_URL_PATH);
+
+        if (empty($path)) {
+            return false;
+        }
+
+        $pro_slugs = KCOption::getMultiple([
+            'dashboard_slug_admin',
+            'dashboard_slug_clinic_admin',
+            'dashboard_slug_doctor',
+            'dashboard_slug_receptionist',
+            'dashboard_slug_patient',
+        ]);
+
+        $roles = array_merge(KCBase::get_instance()->KCGetRoles(), ['administrator']);
+
+        foreach ($roles as $role) {
+            $clean_role = str_replace(KIVI_CARE_PREFIX, '', $role);
+
+            $pro_slug_key = match ($clean_role) {
+                'administrator' => 'dashboard_slug_admin',
+                'clinic_admin' => 'dashboard_slug_clinic_admin',
+                'doctor' => 'dashboard_slug_doctor',
+                'receptionist' => 'dashboard_slug_receptionist',
+                'patient' => 'dashboard_slug_patient',
+                default => '',
+            };
+
+            $slug = (!empty($pro_slug_key) && !empty($pro_slugs[$pro_slug_key]))
+                ? $pro_slugs[$pro_slug_key]
+                : $clean_role;
+
+            if (!empty($slug) && strpos($path, '/' . trim($slug, '/')) === 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

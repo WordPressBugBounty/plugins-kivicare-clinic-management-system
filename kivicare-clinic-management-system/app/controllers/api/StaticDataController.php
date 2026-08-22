@@ -178,11 +178,21 @@ class StaticDataController extends KCBaseController
                     'type' => 'integer',
                     'default' => 1,
                     'sanitize_callback' => function ($val) {
-                        // Allow -1 as a special flag to fetch all data
                         $page = intval($val);
-                        return $page === -1 ? -1 : max(1, absint($page));
+                        // Only allow -1 (fetch all) for authenticated staff (doctors, receptionists, admins); patients and guests are restricted to paginated results
+                        if ($page === -1) {
+                            if (!is_user_logged_in()) {
+                                return 1;
+                            }
+                            $kcbase = KCBase::get_instance();
+                            if ($kcbase->getLoginUserRole() === $kcbase->getPatientRole()) {
+                                return 1;
+                            }
+                            return -1;
+                        }
+                        return max(1, absint($page));
                     },
-                    'description' => __('Page number for pagination (-1 to fetch all records)', 'kivicare-clinic-management-system'),
+                    'description' => __('Page number for pagination (-1 to fetch all records, authenticated staff only)', 'kivicare-clinic-management-system'),
                 ],
                 'per_page' => [
                     'required' => false,
@@ -204,17 +214,48 @@ class StaticDataController extends KCBaseController
         ]);
     }
 
+    /**
+     * Request shapes served to unauthenticated callers (public booking and registration widgets).
+     * Nothing here reads user records. Anything absent from these lists - including staticDataType
+     * values added later or registered through kc_static_data_custom_type - requires an
+     * authenticated caller by construction, so no new branch can reach a user query unguarded.
+     */
+    private const PUBLIC_DATA_TYPES = ['clinicList', 'doctorList'];
+
+    private const PUBLIC_STATIC_DATA_TYPES = [
+        'staticData',
+        'staticDataWithLabel',
+        'staticDataTypes',
+        'clinics',
+        'clinicsWithAllDetails',
+        'doctors',
+        'doctorsWithAllDetails',
+        'clinicDoctors',
+        'defaultClinic',
+        'servicesWithAllDetails',
+        'timezones',
+    ];
+
+    /** Request shapes that read user records and therefore need patient view access. */
+    private const USER_RECORD_STATIC_DATA_TYPES = ['patients', 'users', 'getUsersByClinic'];
+
     public function checkStaticDataPermission(WP_REST_Request $request)
     {
-        $isPatientListRequest = $request->get_param('dataType') === 'patientList'
-            || ($request->get_param('dataType') === 'staticData' && $request->get_param('staticDataType') === 'patients');
+        $dataType = $request->get_param('dataType');
+        $staticDataType = $request->get_param('staticDataType');
 
-        if (!$isPatientListRequest) {
-            return true;
+        $isPublicRequest = in_array($dataType, self::PUBLIC_DATA_TYPES, true)
+            || ($dataType === 'staticData' && in_array($staticDataType, self::PUBLIC_STATIC_DATA_TYPES, true));
+
+        if (!$isPublicRequest && (!is_user_logged_in() || !$this->checkCapability('read'))) {
+            return false;
         }
 
-        if (!is_user_logged_in() || !$this->checkCapability('read')) {
-            return false;
+        $readsUserRecords = $dataType === 'patientList'
+            || ($dataType === 'staticData' && in_array($staticDataType, self::USER_RECORD_STATIC_DATA_TYPES, true));
+
+        if (!$readsUserRecords) {
+            return true;
         }
 
         if ($this->kcbase->getLoginUserRole() === $this->kcbase->getPatientRole()) {
@@ -1632,11 +1673,41 @@ class StaticDataController extends KCBaseController
     }
 
     /**
+     * Empty result in the paginated response shape expected by the static-data route.
+     */
+    private function emptyPaginatedResponse(?WP_REST_Request $request = null): array
+    {
+        if (!$request instanceof WP_REST_Request) {
+            return [];
+        }
+
+        return [
+            'data' => [],
+            'pagination' => [
+                'total'        => 0,
+                'per_page'     => $request->get_param('per_page') ?: 10,
+                'current_page' => $request->get_param('page') ?: 1,
+                'total_pages'  => 0,
+                'has_more'     => false
+            ]
+        ];
+    }
+
+    /**
      * Get users by clinic
      */
     private function getUsersByClinic(int $clinicId, ?WP_REST_Request $request = null): array
     {
         try {
+            // Administrators may query any clinic. Every other role is scoped to their own clinic so an
+            // omitted or foreign clinic_id can never fall through to an unscoped, site-wide user query.
+            if (!current_user_can('administrator')) {
+                $clinicId = (int) KCClinic::getClinicIdForCurrentUser();
+                if ($clinicId <= 0) {
+                    return $this->emptyPaginatedResponse($request);
+                }
+            }
+
             $userIds = [];
 
             if ($clinicId > 0) {
@@ -1678,16 +1749,7 @@ class StaticDataController extends KCBaseController
 
                 // If no users found for the clinic, return empty result
                 if (empty($userIds)) {
-                    return $request instanceof WP_REST_Request ? [
-                        'data' => [],
-                        'pagination' => [
-                            'total' => 0,
-                            'per_page' => $request->get_param('per_page') ?: 10,
-                            'current_page' => $request->get_param('page') ?: 1,
-                            'total_pages' => 0,
-                            'has_more' => false
-                        ]
-                    ] : [];
+                    return $this->emptyPaginatedResponse($request);
                 }
             }
 
