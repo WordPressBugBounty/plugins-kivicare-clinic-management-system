@@ -149,7 +149,6 @@ class KCDoctor extends KCBaseModel
                 'no_of_experience' => $this->experience ?? '',
                 'specialties' => !empty($this->specialties) ? $this->specialties : [],
                 'google_map_url' => $this->googleMapUrl ?? '',
-                'temp_password' => $this->password ?? '' // Store temporary password for welcome email
             ];
 
             // Update user meta

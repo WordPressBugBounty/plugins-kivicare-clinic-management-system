@@ -4,6 +4,7 @@ namespace App\database\classes;
 
 use App\baseClasses\KCErrorLogger;
 use App\database\CLI\KCMigrate;
+use App\database\CLI\KCScaffold;
 use WP_Error;
 
 defined('ABSPATH') or die('Something went wrong');

@@ -72,9 +72,12 @@ class KCEmailTemplateManager
                 'not_found' => 'No email templates found',
                 'not_found_in_trash' => 'No email templates found in trash'
             ],
-            'public' => true,
+            'public' => false,
+            'publicly_queryable' => false,
+            'exclude_from_search' => true,
+            'show_in_nav_menus' => false,
             'has_archive' => false,
-            'rewrite' => ['slug' => 'kivicaremail'],
+            'rewrite' => false,
             'supports' => ['title', 'editor', 'thumbnail', 'excerpt', 'author'],
             'description' => esc_html__('Custom KiviCare Email Templates', 'kivicare-clinic-management-system'),
             'show_ui' => false,
@@ -89,9 +92,12 @@ class KCEmailTemplateManager
                 'name' => 'KiviCare Google Calendar Templates',
                 'singular_name' => 'Google Calendar Template'
             ],
-            'public' => true,
+            'public' => false,
+            'publicly_queryable' => false,
+            'exclude_from_search' => true,
+            'show_in_nav_menus' => false,
             'has_archive' => false,
-            'rewrite' => ['slug' => 'kivicaregoogleevent'],
+            'rewrite' => false,
             'supports' => ['title', 'editor', 'thumbnail', 'excerpt', 'author'],
             'description' => esc_html__('Custom KiviCare Google Calendar Templates', 'kivicare-clinic-management-system'),
             'show_ui' => false,
@@ -106,9 +112,12 @@ class KCEmailTemplateManager
                 'name' => 'KiviCare Google Meet Templates',
                 'singular_name' => 'Google Meet Template'
             ],
-            'public' => true,
+            'public' => false,
+            'publicly_queryable' => false,
+            'exclude_from_search' => true,
+            'show_in_nav_menus' => false,
             'has_archive' => false,
-            'rewrite' => ['slug' => 'kivicaregooglemeetevent'],
+            'rewrite' => false,
             'supports' => ['title', 'editor', 'thumbnail', 'excerpt', 'author'],
             'description' => esc_html__('Custom KiviCare Google Meet Templates', 'kivicare-clinic-management-system'),
             'show_ui' => false,
@@ -450,18 +459,33 @@ class KCEmailTemplateManager
      */
     public function createDefaultTemplates(string $type = 'mail'): bool
     {
+        // Guard against concurrent callers (e.g. this can be triggered on every
+        // settings-page load) racing the exists-check/insert below and both
+        // creating a duplicate post before either has committed its insert.
+        // A DB-level named lock is used (rather than wp_cache) so this is safe
+        // across separate requests/processes even without a persistent object cache.
+        global $wpdb;
+        $lock_name = 'kc_seed_templates_' . $type;
+        $got_lock = (bool) $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, %d)', $lock_name, 5));
+        if (!$got_lock) {
+            return true;
+        }
 
-        $templates = $this->getDefaultTemplatesData($type);
+        try {
+            $templates = $this->getDefaultTemplatesData($type);
 
-        foreach ($templates as $template) {
-            // Check if template already exists
-            if (!$this->templateExists($template['post_name'])) {
-                $post_id = wp_insert_post($template);
-                if (is_wp_error($post_id)) {
-                    KCErrorLogger::instance()->error('Failed to create template: ' . $template['post_name']);
-                    return false;
+            foreach ($templates as $template) {
+                // Check if template already exists
+                if (!$this->templateExists($template['post_name'])) {
+                    $post_id = wp_insert_post($template);
+                    if (is_wp_error($post_id)) {
+                        KCErrorLogger::instance()->error('Failed to create template: ' . $template['post_name']);
+                        return false;
+                    }
                 }
             }
+        } finally {
+            $wpdb->query($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $lock_name));
         }
 
         return true;

@@ -468,7 +468,10 @@ class HolidayList extends SettingsController
             // Extract new enhanced fields
             $selectionMode = isset($request_data['selectionMode']) ? sanitize_text_field($request_data['selectionMode']) : 'range';
             $selectedDates = isset($request_data['selectedDates']) ? $request_data['selectedDates'] : null;
-            $timeSpecific = isset($request_data['timeSpecific']) ? (bool) $request_data['timeSpecific'] : false;
+            // Accept both spellings: the website sends camelCase 'timeSpecific', while the
+            // GET list response (and some API consumers mirroring it) use snake_case 'time_specific'.
+            $timeSpecificRaw = $request_data['timeSpecific'] ?? $request_data['time_specific'] ?? null;
+            $timeSpecific = $timeSpecificRaw !== null ? (bool) $timeSpecificRaw : false;
             $startTime = isset($request_data['start_time']) ? sanitize_text_field($request_data['start_time']) : null;
             $endTime = isset($request_data['end_time']) ? sanitize_text_field($request_data['end_time']) : null;
 

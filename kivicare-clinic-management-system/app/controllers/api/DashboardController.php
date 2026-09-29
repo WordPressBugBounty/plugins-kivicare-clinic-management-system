@@ -536,12 +536,18 @@ class DashboardController extends KCBaseController
                 $service_array = [];
                 $service_list = [];
                 $service_charges = 0;
+                $seenServiceIds = [];
 
                 foreach ($aptServices as $service) {
-                    if (!empty($service->service_name)) {
+                    // An appointment books each service once; the service<->doctor/clinic
+                    // join above can match more than one row per service (e.g. duplicate
+                    // mapping rows), so guard here to keep exactly one entry per service.
+                    $serviceId = absint($service->service_id);
+                    if (!empty($service->service_name) && !isset($seenServiceIds[$serviceId])) {
+                        $seenServiceIds[$serviceId] = true;
                         $service_array[] = $service->service_name;
                         $service_list[] = [
-                            'service_id' => absint($service->service_id),
+                            'service_id' => $serviceId,
                             'name' => $service->service_name,
                             'charges' => round(floatval($service->charges), 3)
                         ];

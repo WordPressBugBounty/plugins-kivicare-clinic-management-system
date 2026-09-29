@@ -72,18 +72,19 @@ class KCErrorLogger {
 		if ( ! file_exists( $this->log_dir ) ) {
 			// Create directory with secure permissions (0755)
 			wp_mkdir_p( $this->log_dir );
-			
-			// Add .htaccess to prevent direct access if Apache
-			$htaccess_file = $this->log_dir . '/.htaccess';
-			if ( ! file_exists( $htaccess_file ) ) {
-				file_put_contents( $htaccess_file, 'Deny from all' );
-			}
-			
-			// Add index.php to prevent directory listing
-			$index_file = $this->log_dir . '/index.php';
-			if ( ! file_exists( $index_file ) ) {
-				file_put_contents( $index_file, '<?php // Silence is golden' );
-			}
+		}
+
+		// Add/repair .htaccess to prevent direct access (Apache 2.2 and 2.4+)
+		$htaccess_file = $this->log_dir . '/.htaccess';
+		$htaccess_content = "<IfModule mod_authz_core.c>\n\tRequire all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\n\tDeny from all\n</IfModule>\n";
+		if ( ! file_exists( $htaccess_file ) || file_get_contents( $htaccess_file ) !== $htaccess_content ) {
+			file_put_contents( $htaccess_file, $htaccess_content );
+		}
+
+		// Add index.php to prevent directory listing
+		$index_file = $this->log_dir . '/index.php';
+		if ( ! file_exists( $index_file ) ) {
+			file_put_contents( $index_file, '<?php // Silence is golden' );
 		}
 
 		// Check for disable constant

@@ -11,6 +11,9 @@ use App\controllers\filters\KCPatientControllerFilters;
 use App\controllers\api\AppointmentsController;
 use App\emails\KCEmailNotificationInit;
 use App\emails\KCEmailTemplateManager;
+use App\services\KCPulse\KCPulseTracker;
+use App\services\KCPulse\KCPulseConsent;
+use App\services\KCPulse\KCPulseDeactivateFeedback;
 use App\shortcodes\KCBookAppointment;
 use App\shortcodes\KCBookAppointmentButton;
 use App\shortcodes\KCRegisterLogin;
@@ -109,7 +112,20 @@ final class KCApp
     
         // Initialize media handler to consolidate KiviCare uploads
         KCMediaHandler::get_instance();
-    
+
+        (new KCPulseTracker(
+            'kivicare-clinic-management-system',
+            KIVI_CARE_VERSION,
+            KIVI_CARE_PLUGIN_FILE,
+            'KiviCare Pulse'
+        ))->init();
+
+        KCPulseDeactivateFeedback::init();
+        KCPulseConsent::init();
+        add_filter('kivicare_pulse_deactivate_reason_kivicare-clinic-management-system', function () {
+            return KCPulseDeactivateFeedback::consume_reason() ?? [];
+        });
+
     }
 
     /**
@@ -547,9 +563,11 @@ final class KCApp
      */
     public function kc_patient_woocommerce_permissions( $permission, $context, $object_id, $post_type ) {
         // Already permitted — don't interfere.
+
         if ( $permission ) {
             return $permission;
         }
+
 
         // Require an authenticated user. If OAuth/App-Password validation failed,
         // get_current_user_id() returns 0 and we deny immediately.
@@ -560,6 +578,7 @@ final class KCApp
 
         // Only apply to the patient role.
         $patient_role = KCBase::get_instance()->getPatientRole();
+
         if ( KCBase::get_instance()->getUserRoleById( $user_id ) !== $patient_role ) {
             return $permission;
         }
@@ -569,7 +588,7 @@ final class KCApp
             return false;
         }
 
-        // Allowed endpoints: their own orders and publicly-readable products.
+        // Allowed endpoints: their own orders and publicly-readable products.v
         switch ( $post_type ) {
             case 'shop_order':
                 // Collection request (object_id = 0): WC automatically filters by
@@ -585,6 +604,10 @@ final class KCApp
                 return true;
 
             case 'product':
+            case 'product_cat':
+            case 'shop_coupon':
+            case 'user':
+            case 'settings':
                 // Patients may read product listings (clinic services exposed as WC products).
                 // No object-level ownership check needed — products are public catalog data.
                 return true;

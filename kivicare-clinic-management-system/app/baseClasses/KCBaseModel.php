@@ -278,15 +278,21 @@ abstract class KCBaseModel
         if (isset($schema['columns'][$property])) {
             $column = $schema['columns'][$property];
 
+            // A nullable column explicitly set to null means "no value" and must stay
+            // null. Running it through string sanitizers (e.g. sanitize_text_field)
+            // would coerce it to '', which MySQL then stores as a zero-ish value
+            // (e.g. '00:00:00' for a TIME column) instead of NULL.
+            $skipForNull = $value === null && !empty($column['nullable']);
+
             // Apply sanitizers
-            if (!empty($column['sanitizers'])) {
+            if (!$skipForNull && !empty($column['sanitizers'])) {
                 foreach ($column['sanitizers'] as $sanitizer) {
                     $value = $sanitizer($value);
                 }
             }
 
             // Check validators
-            if (!empty($column['validators'])) {
+            if (!$skipForNull && !empty($column['validators'])) {
                 foreach ($column['validators'] as $validator) {
                     $result = is_callable($validator) ? call_user_func($validator, $value) : true;
 

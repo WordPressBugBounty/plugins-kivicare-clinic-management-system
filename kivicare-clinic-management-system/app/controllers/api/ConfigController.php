@@ -1024,6 +1024,7 @@ class ConfigController extends KCBaseController
                     'encounter_module' => 0,
                     'prescription_module' => 0,
                     'enabled_modules' => [],
+                    'third_party_plugins' => $this->getThirdPartyPluginInformation(),
                 ];
             }
 
@@ -1031,14 +1032,29 @@ class ConfigController extends KCBaseController
                 'encounter_module' => !empty($moduleOptions['enocunter_modules']) && is_string($moduleOptions['enocunter_modules']) ? (json_decode($moduleOptions['enocunter_modules']) ?? 0) : 0,
                 'prescription_module' => !empty($moduleOptions['prescription_module']) && is_string($moduleOptions['prescription_module']) ? (json_decode($moduleOptions['prescription_module']) ?? 0) : 0,
                 'enabled_modules' => !empty($moduleOptions['modules']) && is_string($moduleOptions['modules']) ? (json_decode($moduleOptions['modules'], true) ?? []) : [],
+                'third_party_plugins' => $this->getThirdPartyPluginInformation(),
             ];
         } catch (\Exception $e) {
             return [
                 'encounter_module' => 0,
                 'prescription_module' => 0,
                 'enabled_modules' => [],
+                'third_party_plugins' => $this->getThirdPartyPluginInformation(),
             ];
         }
+    }
+
+    /**
+     * Get activation status of third party plugins compatible with KiviCare apps
+     *
+     * @return array
+     */
+    private function getThirdPartyPluginInformation(): array
+    {
+        return [
+            'woocommerce' => class_exists('WooCommerce'),
+            'yith_woocommerce_wishlist' => function_exists('YITH_WCWL'),
+        ];
     }
 
 

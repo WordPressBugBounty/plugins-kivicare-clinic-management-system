@@ -6,6 +6,7 @@ use App\admin\KCDashboardPermalinkHandler;
 use App\database\classes\KCMigrator;
 use App\emails\KCEmailTemplateManager;
 use App\models\KCStaticData;
+use App\services\KCPulse\KCPulseConsent;
 
 /**
  * The code that runs during plugin activation
@@ -35,6 +36,11 @@ final class KCActivate
 
         // add widgetsetting
         self::widgetSettingLoad();
+
+        // Show the one-time telemetry/marketing consent modal on next admin load.
+        if (!KCPulseConsent::is_consent_asked()) {
+            KCPulseConsent::flag_for_activation_modal();
+        }
     }
 
     /**

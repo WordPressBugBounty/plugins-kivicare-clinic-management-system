@@ -44,26 +44,25 @@ class KCExportHelper {
         
         if (!file_exists($export_dir)) {
             wp_mkdir_p($export_dir);
-            
-            // Create .htaccess file to protect directory
-            $htaccess_content = "Options -Indexes\n";
-            $htaccess_content .= "<Files *.csv>\n";
-            $htaccess_content .= "    ForceType application/octet-stream\n";
-            $htaccess_content .= "    Header set Content-Disposition attachment\n";
-            $htaccess_content .= "</Files>\n";
-            $htaccess_content .= "<Files *.xlsx>\n";
-            $htaccess_content .= "    ForceType application/octet-stream\n";
-            $htaccess_content .= "    Header set Content-Disposition attachment\n";
-            $htaccess_content .= "</Files>\n";
-            $htaccess_content .= "<Files *.pdf>\n";
-            $htaccess_content .= "    ForceType application/octet-stream\n";
-            $htaccess_content .= "    Header set Content-Disposition attachment\n";
-            $htaccess_content .= "</Files>\n";
-            
-            file_put_contents($export_dir . '.htaccess', $htaccess_content);
-            
-            // Create index.php to prevent directory listing
-            file_put_contents($export_dir . 'index.php', '<?php // Silence is golden');
+        }
+
+        // Create/repair .htaccess to protect directory.
+        // Direct access is denied outright: legitimate downloads go through
+        // handleExportDownload() below, which reads the file server-side via
+        // WP_Filesystem, so it never needs direct web access to this path.
+        $htaccess_content = "Options -Indexes\n";
+        $htaccess_content .= "<IfModule mod_authz_core.c>\n\tRequire all denied\n</IfModule>\n";
+        $htaccess_content .= "<IfModule !mod_authz_core.c>\n\tDeny from all\n</IfModule>\n";
+
+        $htaccess_file = $export_dir . '.htaccess';
+        if (!file_exists($htaccess_file) || file_get_contents($htaccess_file) !== $htaccess_content) {
+            file_put_contents($htaccess_file, $htaccess_content);
+        }
+
+        // Create index.php to prevent directory listing
+        $index_file = $export_dir . 'index.php';
+        if (!file_exists($index_file)) {
+            file_put_contents($index_file, '<?php // Silence is golden');
         }
     }
     

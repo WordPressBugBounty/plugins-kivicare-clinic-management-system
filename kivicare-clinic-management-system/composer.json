@@ -18,7 +18,7 @@
     "require": {
         "iqonic/vite-for-wp": "dev-dev",
         "illuminate/collections": "^12.12",
-        "woocommerce/action-scheduler": "^3.9",
+        "woocommerce/action-scheduler": "^4.1",
         "paragonie/sodium_compat": "^2.5",
         "mpdf/mpdf": "^8.2.3"
     },

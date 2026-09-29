@@ -1,0 +1,197 @@
+/* KiviCare Pulse consent UI: one-time activation modal. */
+
+:root {
+	--kc-pulse-accent: #4353ff;
+	--kc-pulse-accent-hover: #2f3fe0;
+}
+
+/* ── Shared ── */
+.kc-pulse-consent-title {
+	margin: 0 0 16px;
+	font-size: 24px;
+	font-weight: 800;
+	color: #111827;
+}
+
+.kc-pulse-consent-intro {
+	margin: 0 0 20px;
+	color: #4b5563;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.kc-pulse-consent-card {
+	background: #f7f8fb;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	padding: 20px;
+	margin: 0 0 20px;
+}
+
+.kc-pulse-consent-checkbox-row {
+	margin: 0 0 12px;
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+}
+
+.kc-pulse-consent-checkbox-row label {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	cursor: pointer;
+}
+
+.kc-pulse-consent-checkbox-row input[type="checkbox"] {
+	appearance: none;
+	-webkit-appearance: none;
+	width: 24px;
+	height: 24px;
+	flex: 0 0 24px;
+	margin: 0 !important;
+	border-radius: 6px;
+	border: 2px solid #d1d5db;
+	background: #fff;
+	cursor: pointer;
+	position: relative;
+}
+
+.kc-pulse-consent-checkbox-row input[type="checkbox"]:checked {
+	background: var(--kc-pulse-accent);
+	border-color: var(--kc-pulse-accent);
+}
+
+.kc-pulse-consent-checkbox-row input[type="checkbox"]:checked::before {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 32%;
+	width: 6px;
+	height: 11px;
+	border: solid #fff;
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
+}
+
+.kc-pulse-consent-checkbox-row strong {
+	font-weight: 700;
+	font-size: 16px;
+	color: #111827;
+}
+
+.kc-pulse-consent-detail {
+	margin: 0 0 10px 36px;
+	color: #6b7280;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.kc-pulse-consent-reassurance {
+	margin: 0 0 0 36px;
+	font-size: 14px;
+}
+
+.kc-pulse-consent-reassurance .kc-pulse-consent-check {
+	color: #16a34a;
+	font-weight: 700;
+}
+
+.kc-pulse-consent-reassurance strong {
+	color: #15803d;
+	font-weight: 700;
+}
+
+.kc-pulse-consent-footnote {
+	margin: 0 0 24px;
+	color: #4b5563;
+	font-size: 14px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.kc-pulse-consent-footnote a {
+	color: var(--kc-pulse-accent);
+	text-decoration: none;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.kc-pulse-consent-footnote a:hover {
+	text-decoration: underline;
+}
+
+.kc-pulse-consent-actions {
+	margin: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.kc-pulse-consent-link-button {
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	color: #181d29;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.kc-pulse-consent-link-button:hover {
+	color: #646464;
+}
+
+.kc-pulse-consent-primary-button {
+	background: var(--kc-pulse-accent);
+	border: none;
+	border-radius: 10px;	
+	color: #fff;
+	font-size: 17px;
+	font-weight: 700;
+	padding: 14px 28px;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.kc-pulse-consent-primary-button:hover {
+	background: var(--kc-pulse-accent-hover);
+}
+
+.kc-pulse-consent-primary-button:disabled {
+	background: var(--kc-pulse-accent);
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* ── Activation modal ── */
+.kc-pulse-consent-modal-overlay {
+	display: none;
+	position: fixed;
+	inset: 0;
+	z-index: 159900;
+	background: rgba(0, 0, 0, 0.6);
+	align-items: center;
+	justify-content: center;
+}
+
+.kc-pulse-consent-modal-overlay.is-visible {
+	display: flex;
+}
+
+.kc-pulse-consent-modal {
+	background: #fff;
+	border-radius: 16px;
+	max-width: 600px;
+	width: 92%;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+	position: relative;
+}
+
+.kc-pulse-consent-modal form {
+	padding: 32px;
+}

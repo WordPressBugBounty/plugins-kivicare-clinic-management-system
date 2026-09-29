@@ -4,7 +4,7 @@ Tags: clinic management, patient management, doctor management, appointment mana
 Requires PHP: 8.0 
 Requires at least: 3.0.1
 Tested up to: 7.0.0
-Stable tag: 4.5.5
+Stable tag: 4.5.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -198,6 +198,18 @@ We love our community! Check out our other amazing free products:
 
 ---
 
+== Privacy ==
+
+KiviCare can optionally share data with IQonic Design (its developer) to support software updates and improve the plugin. All data sharing requires your explicit consent — nothing is collected by default.
+
+**Installation data (optional):** If you consent, KiviCare shares your site URL, plugin/WordPress/PHP version numbers, and plugin lifecycle events (activation, deactivation, uninstallation). If you choose to share a reason when deactivating KiviCare, that optional feedback text is included.
+
+**Marketing email (optional, separate):** If you consent, IQonic Design may send product updates and tips to your site admin email address (`get_option('admin_email')`). This is entirely independent of installation data sharing — you can accept one without the other.
+
+No patient, staff, or other end-user data collected by KiviCare is ever included in this telemetry. KiviCare works identically whether you accept or decline.
+
+You are prompted for consent on first activation and can change your preferences at any time under Settings > Privacy. Suggested privacy policy language is also available under Settings > Privacy.
+
 == Frequently Asked Questions ==
 
 = Does it work with any theme? =
@@ -217,6 +229,20 @@ Free version support is available through our comprehensive Documentation and Vi
 We'd love to hear from you! Contact us at hello@iqonic.design or submit a feature request through our website.
 
 == Changelog ==
+
+= Version 4.5.6 - 29 Sep 2026
+
+### 🛡️ Security Improvements
+- [Fixed] Security fixes.
+
+### 🚀 New Features
+- [New] Optional, consent-based usage data sharing (see the Privacy section).
+- [New] Added Zoom Public Client ID (PKCE) setting for Zoom Telemed.
+
+### 🔧 Fixes & Improvements
+- [Fixed] Doctor filter on the patient list now shows all of the doctor's patients.
+- [Fixed] Duplicate services no longer appear in appointment details.
+- [Fixed] General bug fixes and stability improvements.
 
 = Version 4.5.5 - 22 Aug 2026
 

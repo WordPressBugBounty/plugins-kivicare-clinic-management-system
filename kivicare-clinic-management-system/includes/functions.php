@@ -1208,3 +1208,25 @@ function kcGetDoctorTimezone(int $doctorId): string
     $cache[$doctorId] = $wpTz;
     return $wpTz;
 }
+
+/**
+ * Constructs and initializes an IQonic Pulse tracker instance for a
+ * product. Safe no-op if KCPulseTracker isn't loaded (e.g. Lite is
+ * inactive or too old) — lets Pro and every addon report telemetry
+ * through Lite's shared tracker without their own copy of this class,
+ * and without needing to guard every call site with a class_exists()
+ * check of their own.
+ *
+ * @param string      $product_slug           Plugin directory slug, e.g. 'kivicare-pro'.
+ * @param string      $product_version        The calling product's own version constant.
+ * @param string      $deactivation_hook_file Full path to the calling product's main plugin file.
+ * @param string|null $log_label              Optional label for WP_DEBUG_LOG lines.
+ */
+function kcPulseTrack(string $product_slug, string $product_version, string $deactivation_hook_file, ?string $log_label = null): void
+{
+    if (!class_exists('\App\services\KCPulse\KCPulseTracker')) {
+        return;
+    }
+
+    (new \App\services\KCPulse\KCPulseTracker($product_slug, $product_version, $deactivation_hook_file, $log_label))->init();
+}

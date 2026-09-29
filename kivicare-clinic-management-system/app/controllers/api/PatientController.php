@@ -916,8 +916,15 @@ class PatientController extends KCBaseController
             }
 
             if (!empty($params['doctor_id'])) {
-                $query->leftJoin(KCAppointment::class, 'p.ID', '=', 'app_filter.patient_id', 'app_filter')
-                    ->where('app_filter.doctor_id', '=', $params['doctor_id']);
+                $filterDoctorId = (int) $params['doctor_id'];
+                // A doctor's patients are those they've been appointed with OR those they
+                // registered themselves (same definition already used for the doctor-role
+                // scoping above) - appointment-only would drop newly added, not-yet-seen
+                // patients whenever this filter is applied on top of that scoping.
+                $doctorAppointmentIds = KCAppointment::query()->where('doctorId', $filterDoctorId)->pluck('patient_id');
+                $doctorAddedIds = KCUserMeta::query()->where('metaKey', 'patient_added_by')->where('metaValue', $filterDoctorId)->pluck('user_id');
+                $doctorPatientIds = array_unique(array_merge($doctorAppointmentIds, $doctorAddedIds));
+                $query->whereIn('p.ID', $doctorPatientIds ?: [0]);
             }
 
             if (!empty($patientUniqueId)) {
@@ -977,7 +984,10 @@ class PatientController extends KCBaseController
             
             // Batch fetch encounter counts
             $encCounts = KCPatientEncounter::query()->whereIn('patientId', $patientIds)->groupBy('patient_id')->pluck('COUNT(*) as total', 'patient_id');
-            
+
+            // Batch fetch appointment counts
+            $apptCounts = KCAppointment::query()->whereIn('patientId', $patientIds)->groupBy('patient_id')->pluck('COUNT(*) as total', 'patient_id');
+
             $holidayClinicIds = \App\models\KCClinicSchedule::getActiveHolidaysByModule('clinic');
 
             // 6. Format Response
@@ -1026,6 +1036,7 @@ class PatientController extends KCBaseController
                     'clinics' => $clinics,
                     'patient_unique_id' => $userMetas['patient_unique_id'] ?? null,
                     'total_encounters' => (int) ($encCounts[$pid] ?? 0),
+                    'total_appointment' => (int) ($apptCounts[$pid] ?? 0),
                 ];
             }
 

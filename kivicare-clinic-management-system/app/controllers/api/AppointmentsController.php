@@ -2389,7 +2389,7 @@ class AppointmentsController extends KCBaseController
                         'status' => 'a.status'
                     ];
 
-                    $column = $columnMapping[$orderby] ?? "a.{$orderby}";
+                    $column = $columnMapping[$orderby] ?? 'a.id';
                     $query->orderBy($column, $direction);
                     break;
             }

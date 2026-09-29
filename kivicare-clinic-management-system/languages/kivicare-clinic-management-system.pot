@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the KiviCare - Clinic & Patient Management System (EHR) plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 4.5.5\n"
+"Project-Id-Version: KiviCare - Clinic & Patient Management System (EHR) 4.5.6\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/kivicare-clinic-management-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-22T05:31:22+00:00\n"
+"POT-Creation-Date: 2026-09-29T08:58:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: kivicare-clinic-management-system\n"
@@ -47,13 +47,14 @@ msgid "Failed to save Google Meet record: "
 msgstr ""
 
 #: app/abstracts/KCAbstractTelemedProvider.php:459
-#: app/helpers/KCExportHelper.php:118
+#: app/helpers/KCExportHelper.php:117
 msgid "Security check failed"
 msgstr ""
 
 #: app/admin/AdminMenu.php:32
 #: app/admin/AdminMenu.php:42
-#: app/baseClasses/KCApp.php:288
+#: app/baseClasses/KCApp.php:304
+#: app/services/KCPulse/KCPulseConsent.php:568
 msgid "KiviCare"
 msgstr ""
 
@@ -66,15 +67,15 @@ msgstr ""
 msgid "Access Denied"
 msgstr ""
 
-#: app/baseClasses/KCApp.php:90
+#: app/baseClasses/KCApp.php:93
 msgid "Every 5 Minutes"
 msgstr ""
 
-#: app/baseClasses/KCApp.php:327
+#: app/baseClasses/KCApp.php:343
 msgid "<strong>ERROR</strong>: Your account is inactive. Please contact the administrator."
 msgstr ""
 
-#: app/baseClasses/KCApp.php:340
+#: app/baseClasses/KCApp.php:356
 msgid "<strong>ERROR</strong>: Your clinic is inactive. Please contact the administrator."
 msgstr ""
 
@@ -232,7 +233,7 @@ msgstr ""
 #: app/controllers/api/PatientController.php:613
 #: app/controllers/api/ReceptionistsController.php:1743
 #: app/controllers/api/SettingsController/CustomFields.php:711
-#: app/controllers/api/SettingsController/HolidayList.php:640
+#: app/controllers/api/SettingsController/HolidayList.php:643
 #: app/controllers/api/SettingsController/ListingData.php:399
 msgid "Format must be csv, xls, or pdf"
 msgstr ""
@@ -346,7 +347,7 @@ msgstr ""
 
 #: app/controllers/api/AppointmentsController.php:2627
 #: app/controllers/api/AppointmentsController.php:3141
-#: app/controllers/api/DashboardController.php:593
+#: app/controllers/api/DashboardController.php:599
 msgid "Appointments retrieved successfully"
 msgstr ""
 
@@ -373,7 +374,7 @@ msgid "Failed to retrieve appointment"
 msgstr ""
 
 #: app/controllers/api/AppointmentsController.php:2877
-#: app/helpers/KCExportHelper.php:139
+#: app/helpers/KCExportHelper.php:138
 msgid "File not found"
 msgstr ""
 
@@ -383,13 +384,13 @@ msgstr ""
 
 #: app/controllers/api/AppointmentsController.php:3224
 #: app/controllers/api/AppointmentsController.php:3701
-#: app/controllers/api/PatientController.php:1129
-#: app/controllers/api/PatientController.php:1399
-#: app/controllers/api/PatientController.php:1553
-#: app/controllers/api/PatientController.php:1705
-#: app/controllers/api/PatientController.php:1757
-#: app/controllers/api/PatientController.php:1845
-#: app/controllers/api/PatientController.php:2673
+#: app/controllers/api/PatientController.php:1140
+#: app/controllers/api/PatientController.php:1410
+#: app/controllers/api/PatientController.php:1564
+#: app/controllers/api/PatientController.php:1716
+#: app/controllers/api/PatientController.php:1768
+#: app/controllers/api/PatientController.php:1856
+#: app/controllers/api/PatientController.php:2684
 msgid "Patient not found"
 msgstr ""
 
@@ -634,7 +635,7 @@ msgstr ""
 #: app/controllers/api/ReceptionistsController.php:132
 #: app/models/KCDoctor.php:110
 #: app/dashboard/components/FloatingChatWidget/BugReportForm.jsx:102
-#: app/dashboard/views/doctors/DoctorForm.jsx:753
+#: app/dashboard/views/doctors/DoctorForm.jsx:736
 #: app/dashboard/views/patients/PatientForm.jsx:424
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:321
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:104
@@ -676,7 +677,7 @@ msgstr ""
 
 #: app/controllers/api/AuthController.php:381
 #: app/dashboard/views/clinics/ClinicForm.jsx:501
-#: app/dashboard/views/doctors/DoctorForm.jsx:801
+#: app/dashboard/views/doctors/DoctorForm.jsx:784
 #: app/dashboard/views/patients/PatientForm.jsx:470
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:350
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:203
@@ -773,7 +774,7 @@ msgstr ""
 #: app/controllers/api/AuthController.php:1243
 #: app/controllers/api/ClinicController.php:1477
 #: app/controllers/api/DoctorController.php:1547
-#: app/controllers/api/PatientController.php:1444
+#: app/controllers/api/PatientController.php:1455
 #: app/controllers/api/ReceptionistsController.php:560
 #: app/controllers/api/ReceptionistsController.php:749
 msgid "Email already exists"
@@ -785,8 +786,8 @@ msgstr ""
 #: app/controllers/api/ReceptionistsController.php:151
 #: app/dashboard/views/clinics/ClinicForm.jsx:416
 #: app/dashboard/views/clinics/ClinicForm.jsx:418
-#: app/dashboard/views/doctors/DoctorForm.jsx:763
-#: app/dashboard/views/doctors/DoctorForm.jsx:765
+#: app/dashboard/views/doctors/DoctorForm.jsx:746
+#: app/dashboard/views/doctors/DoctorForm.jsx:748
 #: app/dashboard/views/patients/PatientForm.jsx:442
 #: app/dashboard/views/patients/PatientForm.jsx:444
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:331
@@ -1160,7 +1161,7 @@ msgstr ""
 
 #: app/controllers/api/ClinicController.php:2134
 #: app/controllers/api/DoctorController.php:2094
-#: app/controllers/api/PatientController.php:2097
+#: app/controllers/api/PatientController.php:2108
 #: app/controllers/api/ReceptionistsController.php:1704
 msgid "Failed to resend credentials"
 msgstr ""
@@ -1329,7 +1330,7 @@ msgstr ""
 
 #: app/controllers/api/ConfigController.php:904
 #: app/controllers/api/ConfigController.php:936
-#: app/controllers/api/ConfigController.php:1110
+#: app/controllers/api/ConfigController.php:1126
 msgid "User not logged in"
 msgstr ""
 
@@ -1350,11 +1351,11 @@ msgstr ""
 msgid "Failed to update user preferences"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:1132
+#: app/controllers/api/ConfigController.php:1148
 msgid "Language switched successfully"
 msgstr ""
 
-#: app/controllers/api/ConfigController.php:1136
+#: app/controllers/api/ConfigController.php:1152
 msgid "Failed to switch language"
 msgstr ""
 
@@ -1453,23 +1454,23 @@ msgstr ""
 
 #: app/controllers/api/DoctorController.php:1358
 #: app/controllers/api/DoctorController.php:1432
-#: app/dashboard/views/doctors/DoctorForm.jsx:702
+#: app/dashboard/views/doctors/DoctorForm.jsx:685
 msgid "Failed to create doctor"
 msgstr ""
 
 #: app/controllers/api/DoctorController.php:1425
-#: app/dashboard/views/doctors/DoctorForm.jsx:688
+#: app/dashboard/views/doctors/DoctorForm.jsx:671
 msgid "Doctor created successfully"
 msgstr ""
 
 #: app/controllers/api/DoctorController.php:1615
 #: app/controllers/api/DoctorController.php:1733
-#: app/dashboard/views/doctors/DoctorForm.jsx:702
+#: app/dashboard/views/doctors/DoctorForm.jsx:685
 msgid "Failed to update doctor"
 msgstr ""
 
 #: app/controllers/api/DoctorController.php:1728
-#: app/dashboard/views/doctors/DoctorForm.jsx:673
+#: app/dashboard/views/doctors/DoctorForm.jsx:656
 msgid "Doctor updated successfully"
 msgstr ""
 
@@ -2035,164 +2036,164 @@ msgstr ""
 msgid "Status must be 0 (active) or 1 (inactive)"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1035
+#: app/controllers/api/PatientController.php:1046
 msgid "Patients retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1038
+#: app/controllers/api/PatientController.php:1049
 msgid "Failed to retrieve patients"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1056
+#: app/controllers/api/PatientController.php:1067
 msgid "Invalid patient ID provided"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1079
-#: app/controllers/api/PatientController.php:1419
+#: app/controllers/api/PatientController.php:1090
+#: app/controllers/api/PatientController.php:1430
 msgid "Access denied. Patient not found in your clinic."
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1193
+#: app/controllers/api/PatientController.php:1204
 msgid "Patient retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1198
+#: app/controllers/api/PatientController.php:1209
 msgid "Failed to retrieve patient"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1224
+#: app/controllers/api/PatientController.php:1235
 msgid "A patient with this email already exists. Please use a different email."
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1235
-#: app/controllers/api/PatientController.php:1428
+#: app/controllers/api/PatientController.php:1246
+#: app/controllers/api/PatientController.php:1439
 msgid "Patient unique ID is already used. Please use a different unique ID."
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1290
-#: app/controllers/api/PatientController.php:1344
+#: app/controllers/api/PatientController.php:1301
+#: app/controllers/api/PatientController.php:1355
 #: app/dashboard/views/patients/PatientForm.jsx:578
 msgid "Failed to create patient"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1339
+#: app/controllers/api/PatientController.php:1350
 #: app/dashboard/views/patients/PatientForm.jsx:558
 msgid "Patient created successfully"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1478
-#: app/controllers/api/PatientController.php:1531
+#: app/controllers/api/PatientController.php:1489
+#: app/controllers/api/PatientController.php:1542
 #: app/dashboard/views/patients/PatientForm.jsx:578
 msgid "Failed to update patient"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1526
+#: app/controllers/api/PatientController.php:1537
 #: app/dashboard/views/patients/PatientForm.jsx:548
 msgid "Patient updated successfully"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1673
 #: app/controllers/api/PatientController.php:1684
-#: app/controllers/api/PatientController.php:1947
-#: app/controllers/api/PatientController.php:1979
+#: app/controllers/api/PatientController.php:1695
+#: app/controllers/api/PatientController.php:1958
+#: app/controllers/api/PatientController.php:1990
 msgid "Failed to delete patient"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1678
+#: app/controllers/api/PatientController.php:1689
 msgid "Patient and all related data deleted successfully"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1713
+#: app/controllers/api/PatientController.php:1724
 msgid "Patient status updated successfully"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1720
+#: app/controllers/api/PatientController.php:1731
 msgid "Failed to update Patient status"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1763
+#: app/controllers/api/PatientController.php:1774
 msgid "patient user not found"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1789
+#: app/controllers/api/PatientController.php:1800
 #: app/controllers/api/ReceptionistsController.php:1494
 msgid "Patient credentials resent successfully"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:1796
+#: app/controllers/api/PatientController.php:1807
 #: app/controllers/api/ReceptionistsController.php:1501
 msgid "Failed to resend patient credentials"
 msgstr ""
 
 #. translators: %d: number of patients
-#: app/controllers/api/PatientController.php:1968
+#: app/controllers/api/PatientController.php:1979
 msgid "%d patient deleted successfully"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:2006
+#: app/controllers/api/PatientController.php:2017
 #: app/controllers/api/ReceptionistsController.php:1610
 msgid "Patient IDs are required"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:2010
+#: app/controllers/api/PatientController.php:2021
 #: app/controllers/api/ReceptionistsController.php:1614
 msgid "Invalid patient ID in array"
 msgstr ""
 
 #. translators: %d: number of patients
-#: app/controllers/api/PatientController.php:2086
+#: app/controllers/api/PatientController.php:2097
 msgid "Credentials resent for %d patient"
 msgstr ""
 
 #. translators: %d: number of patients
-#: app/controllers/api/PatientController.php:2166
+#: app/controllers/api/PatientController.php:2177
 msgid "Status updated for %d patient"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:2178
+#: app/controllers/api/PatientController.php:2189
 #: app/controllers/api/ReceptionistsController.php:1822
 msgid "Failed to update patient status"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:2197
+#: app/controllers/api/PatientController.php:2208
 #: app/controllers/api/ReceptionistsController.php:1128
 msgid "Array of receptionist IDs to delete"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:2205
+#: app/controllers/api/PatientController.php:2216
 #: app/controllers/api/ReceptionistsController.php:1136
 msgid "IDs parameter must be a non-empty array"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:2340
+#: app/controllers/api/PatientController.php:2351
 msgid "Patient unique ID is not enabled"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:2354
+#: app/controllers/api/PatientController.php:2365
 msgid "Patient unique ID generated successfully"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:2360
+#: app/controllers/api/PatientController.php:2371
 msgid "Failed to generate patient unique ID"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:2543
+#: app/controllers/api/PatientController.php:2554
 msgid "No patients found"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:2615
+#: app/controllers/api/PatientController.php:2626
 msgid "Patients data retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:2623
+#: app/controllers/api/PatientController.php:2634
 msgid "Failed to export patients data"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:2724
+#: app/controllers/api/PatientController.php:2735
 msgid "Patient statistics retrieved successfully"
 msgstr ""
 
-#: app/controllers/api/PatientController.php:2731
+#: app/controllers/api/PatientController.php:2742
 msgid "Failed to retrieve patient statistics"
 msgstr ""
 
@@ -2346,7 +2347,7 @@ msgstr ""
 
 #: app/controllers/api/ReceptionistsController.php:377
 #: app/dashboard/views/clinics/ClinicForm.jsx:1079
-#: app/dashboard/views/doctors/DoctorForm.jsx:1196
+#: app/dashboard/views/doctors/DoctorForm.jsx:1179
 #: app/dashboard/views/encounter/EncounterDashbord.jsx:384
 #: app/dashboard/views/importData/ImportData.jsx:80
 #: app/dashboard/views/patients/PatientForm.jsx:938
@@ -2359,7 +2360,7 @@ msgstr ""
 
 #: app/controllers/api/ReceptionistsController.php:383
 #: app/dashboard/views/clinics/ClinicForm.jsx:746
-#: app/dashboard/views/doctors/DoctorForm.jsx:1322
+#: app/dashboard/views/doctors/DoctorForm.jsx:1306
 #: app/dashboard/views/encounter/EncounterDashbord.jsx:369
 #: app/dashboard/views/patients/PatientForm.jsx:1029
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:753
@@ -2369,7 +2370,7 @@ msgstr ""
 
 #: app/controllers/api/ReceptionistsController.php:389
 #: app/dashboard/views/clinics/ClinicForm.jsx:793
-#: app/dashboard/views/doctors/DoctorForm.jsx:1341
+#: app/dashboard/views/doctors/DoctorForm.jsx:1325
 #: app/dashboard/views/patients/PatientForm.jsx:1049
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:772
 #: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:257
@@ -2378,7 +2379,7 @@ msgstr ""
 
 #: app/controllers/api/ReceptionistsController.php:395
 #: app/dashboard/views/clinics/ClinicForm.jsx:772
-#: app/dashboard/views/doctors/DoctorForm.jsx:1360
+#: app/dashboard/views/doctors/DoctorForm.jsx:1344
 #: app/dashboard/views/patients/PatientForm.jsx:1069
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:791
 #: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:275
@@ -2399,7 +2400,7 @@ msgstr ""
 
 #: app/controllers/api/ReceptionistsController.php:418
 #: app/dashboard/views/clinics/ClinicForm.jsx:975
-#: app/dashboard/views/doctors/DoctorForm.jsx:1289
+#: app/dashboard/views/doctors/DoctorForm.jsx:1273
 #: app/dashboard/views/patients/PatientForm.jsx:998
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:723
 msgid "Timezone"
@@ -2652,7 +2653,7 @@ msgstr ""
 #: app/controllers/api/SettingsController/CustomFields.php:358
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1287
 #: app/dashboard/views/clinics/ClinicForm.jsx:423
-#: app/dashboard/views/doctors/DoctorForm.jsx:798
+#: app/dashboard/views/doctors/DoctorForm.jsx:781
 #: app/dashboard/views/doctorService/DoctorServiceForm.jsx:457
 #: app/dashboard/views/patients/PatientForm.jsx:449
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:347
@@ -2685,7 +2686,7 @@ msgstr ""
 #: app/dashboard/views/clinics/ClinicsList.jsx:339
 #: app/dashboard/views/clinics/ClinicsList.jsx:532
 #: app/dashboard/views/clinics/ClinicsList.jsx:584
-#: app/dashboard/views/doctors/DoctorForm.jsx:227
+#: app/dashboard/views/doctors/DoctorForm.jsx:210
 #: app/dashboard/views/doctors/DoctorsList.jsx:205
 #: app/dashboard/views/doctors/DoctorsList.jsx:425
 #: app/dashboard/views/doctors/DoctorsList.jsx:477
@@ -2728,7 +2729,7 @@ msgstr ""
 #: app/dashboard/views/clinics/ClinicsList.jsx:344
 #: app/dashboard/views/clinics/ClinicsList.jsx:532
 #: app/dashboard/views/clinics/ClinicsList.jsx:584
-#: app/dashboard/views/doctors/DoctorForm.jsx:228
+#: app/dashboard/views/doctors/DoctorForm.jsx:211
 #: app/dashboard/views/doctors/DoctorsList.jsx:206
 #: app/dashboard/views/doctors/DoctorsList.jsx:425
 #: app/dashboard/views/doctors/DoctorsList.jsx:477
@@ -2931,7 +2932,7 @@ msgstr ""
 #: app/dashboard/views/billings/BillingDetails.jsx:82
 #: app/dashboard/views/clinics/ClinicForm.jsx:583
 #: app/dashboard/views/clinics/ClinicForm.jsx:953
-#: app/dashboard/views/doctors/DoctorForm.jsx:924
+#: app/dashboard/views/doctors/DoctorForm.jsx:907
 #: app/dashboard/views/importData/ImportData.jsx:76
 #: app/dashboard/views/importData/ImportData.jsx:101
 #: app/dashboard/views/importData/ImportData.jsx:510
@@ -2996,7 +2997,7 @@ msgstr ""
 #: app/dashboard/components/FloatingChatWidget/BugReportForm.jsx:105
 #: app/dashboard/views/clinics/ClinicForm.jsx:412
 #: app/dashboard/views/clinics/ClinicForm.jsx:481
-#: app/dashboard/views/doctors/DoctorForm.jsx:756
+#: app/dashboard/views/doctors/DoctorForm.jsx:739
 #: app/dashboard/views/patients/PatientForm.jsx:427
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:324
 #: app/dashboard/views/settings/customForm/CustomFormRenderer.jsx:186
@@ -3220,88 +3221,88 @@ msgstr ""
 msgid "You cannot create holidays for other users."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:503
+#: app/controllers/api/SettingsController/HolidayList.php:506
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:587
 msgid "Start time and end time are required for time-specific holidays."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:512
+#: app/controllers/api/SettingsController/HolidayList.php:515
 #: app/dashboard/views/settings/holidays/HolidaysMain.jsx:597
 msgid "End time must be after start time."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:522
+#: app/controllers/api/SettingsController/HolidayList.php:525
 msgid "Invalid selection mode."
 msgstr ""
 
 #. translators: %s: entity type (Doctor or Clinic)
-#: app/controllers/api/SettingsController/HolidayList.php:543
+#: app/controllers/api/SettingsController/HolidayList.php:546
 msgid "%s already has a holiday scheduled for this period."
 msgstr ""
 
 #. translators: %s: entity type (Doctor or Clinic)
-#: app/controllers/api/SettingsController/HolidayList.php:558
+#: app/controllers/api/SettingsController/HolidayList.php:561
 msgid "%s holiday scheduled added successfully."
 msgstr ""
 
 #. translators: %s: entity type (Doctor or Clinic)
-#: app/controllers/api/SettingsController/HolidayList.php:569
+#: app/controllers/api/SettingsController/HolidayList.php:572
 msgid "%s holiday schedule updated successfully."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:576
+#: app/controllers/api/SettingsController/HolidayList.php:579
 msgid "Holiday operation failed."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:656
+#: app/controllers/api/SettingsController/HolidayList.php:659
 msgid "Module type must be doctor or clinic"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:667
+#: app/controllers/api/SettingsController/HolidayList.php:670
 msgid "Invalid module ID"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:826
+#: app/controllers/api/SettingsController/HolidayList.php:829
 msgid "No holidays found to export"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:865
+#: app/controllers/api/SettingsController/HolidayList.php:868
 msgid "Holidays data retrieved successfully for export"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:872
+#: app/controllers/api/SettingsController/HolidayList.php:875
 msgid "Failed to export holidays data"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:889
+#: app/controllers/api/SettingsController/HolidayList.php:892
 msgid "Module type (doctor or clinic)"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:896
+#: app/controllers/api/SettingsController/HolidayList.php:899
 msgid "Module type must be doctor or clinic."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:904
+#: app/controllers/api/SettingsController/HolidayList.php:907
 msgid "Module ID (doctor or clinic ID)"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:911
+#: app/controllers/api/SettingsController/HolidayList.php:914
 msgid "Module ID must be a positive integer."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:919
+#: app/controllers/api/SettingsController/HolidayList.php:922
 msgid "Holiday ID to exclude (used when editing)"
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:926
+#: app/controllers/api/SettingsController/HolidayList.php:929
 msgid "Exclude ID must be a positive integer."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:990
+#: app/controllers/api/SettingsController/HolidayList.php:993
 msgid "Disabled dates retrieved successfully."
 msgstr ""
 
-#: app/controllers/api/SettingsController/HolidayList.php:996
+#: app/controllers/api/SettingsController/HolidayList.php:999
 msgid "Failed to retrieve disabled dates."
 msgstr ""
 
@@ -4000,7 +4001,7 @@ msgstr ""
 #: app/dashboard/components/ExampleFilterUsage.jsx:52
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1339
 #: app/dashboard/views/clinics/ClinicsList.jsx:756
-#: app/dashboard/views/doctors/DoctorForm.jsx:945
+#: app/dashboard/views/doctors/DoctorForm.jsx:928
 #: app/dashboard/views/doctorSession/DoctorSessionForm.jsx:494
 #: app/dashboard/views/doctorSession/DoctorSessionForm.jsx:515
 #: app/dashboard/views/encounter/components/EncounterForm.jsx:511
@@ -4179,23 +4180,23 @@ msgstr ""
 msgid "Powered by KiviCare Medical Management System"
 msgstr ""
 
-#: app/emails/KCEmailTemplateManager.php:79
+#: app/emails/KCEmailTemplateManager.php:82
 msgid "Custom KiviCare Email Templates"
 msgstr ""
 
-#: app/emails/KCEmailTemplateManager.php:96
+#: app/emails/KCEmailTemplateManager.php:102
 msgid "Custom KiviCare Google Calendar Templates"
 msgstr ""
 
-#: app/emails/KCEmailTemplateManager.php:113
+#: app/emails/KCEmailTemplateManager.php:122
 msgid "Custom KiviCare Google Meet Templates"
 msgstr ""
 
-#: app/helpers/KCExportHelper.php:123
+#: app/helpers/KCExportHelper.php:122
 msgid "Insufficient permissions"
 msgstr ""
 
-#: app/helpers/KCExportHelper.php:135
+#: app/helpers/KCExportHelper.php:134
 msgid "Invalid file path"
 msgstr ""
 
@@ -4407,7 +4408,7 @@ msgstr ""
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1746
 #: app/dashboard/views/calendar/CalendarPage.jsx:845
 #: app/dashboard/views/dashboard/Dashboard.jsx:990
-#: app/dashboard/views/doctors/DoctorForm.jsx:1252
+#: app/dashboard/views/doctors/DoctorForm.jsx:1235
 #: app/dashboard/views/encounter/components/EncounterForm.jsx:625
 #: app/dashboard/views/encounter/EncounterDashbord.jsx:425
 #: app/dashboard/views/encounter/tabs/bodyChart/BodyChartEditor.jsx:509
@@ -4557,6 +4558,177 @@ msgstr ""
 msgid "Busy"
 msgstr ""
 
+#: app/services/KCPulse/KCPulseConsent.php:253
+msgid "Help improve KiviCare"
+msgstr ""
+
+#: app/services/KCPulse/KCPulseConsent.php:257
+msgid "Help us improve KiviCare by sharing basic installation information to improve compatibility, fix issues, and prioritize future updates."
+msgstr ""
+
+#: app/services/KCPulse/KCPulseConsent.php:268
+msgid "Share anonymous data and receive product updates"
+msgstr ""
+
+#: app/services/KCPulse/KCPulseConsent.php:273
+msgid "Includes site URL, KiviCare/WordPress/PHP versions, and plugin activation/deactivation events."
+msgstr ""
+
+#: app/services/KCPulse/KCPulseConsent.php:280
+msgid "No patient, appointment, prescription, or other clinical data is ever collected."
+msgstr ""
+
+#. translators: %s: link to the KiviCare settings section
+#: app/services/KCPulse/KCPulseConsent.php:294
+msgid "You can change this preference anytime in %s."
+msgstr ""
+
+#: app/services/KCPulse/KCPulseConsent.php:295
+msgid "KiviCare settings"
+msgstr ""
+
+#: app/services/KCPulse/KCPulseConsent.php:302
+msgid "Not now"
+msgstr ""
+
+#: app/services/KCPulse/KCPulseConsent.php:305
+msgid "Allow & continue"
+msgstr ""
+
+#: app/services/KCPulse/KCPulseConsent.php:356
+msgid "You do not have permission to do this."
+msgstr ""
+
+#: app/services/KCPulse/KCPulseConsent.php:413
+msgid "KiviCare Telemetry & Marketing Email"
+msgstr ""
+
+#: app/services/KCPulse/KCPulseConsent.php:432
+msgid "Consent Preferences"
+msgstr ""
+
+#: app/services/KCPulse/KCPulseConsent.php:522
+msgid "Control what data KiviCare shares with IQonic Design. These settings do not affect KiviCare's core functionality."
+msgstr ""
+
+#: app/services/KCPulse/KCPulseConsent.php:537
+msgid "Share basic installation data (site URL, plugin/WP/PHP versions, lifecycle events) with IQonic"
+msgstr ""
+
+#. translators: %s: admin email address
+#: app/services/KCPulse/KCPulseConsent.php:546
+msgid "Allow kivicare to send product updates and tips to %s"
+msgstr ""
+
+#: app/services/KCPulse/KCPulseConsent.php:565
+msgid "KiviCare can share basic installation data with IQonic Design (its developer) to support software updates and inform product decisions. This is entirely optional and requires your explicit consent. If you choose to share, the data includes: your site URL, KiviCare/WordPress/PHP version numbers, and plugin lifecycle events (activation, deactivation, uninstallation). You may also optionally consent to receive product update emails at your site admin email address. No patient, staff, or other end-user data collected by KiviCare is ever included in this telemetry. You can grant or revoke consent at any time under Settings > Privacy."
+msgstr ""
+
+#: app/services/KCPulse/KCPulseDeactivateFeedback.php:89
+msgid "Help us improve KiviCare"
+msgstr ""
+
+#: app/services/KCPulse/KCPulseDeactivateFeedback.php:90
+msgid "We're sorry to see you go. If you have a moment, what made you decide to deactivate KiviCare?"
+msgstr ""
+
+#: app/services/KCPulse/KCPulseDeactivateFeedback.php:91
+msgid "Your feedback helps us improve KiviCare. We won't use it for marketing."
+msgstr ""
+
+#: app/services/KCPulse/KCPulseDeactivateFeedback.php:92
+msgid "Send Feedback & Deactivate"
+msgstr ""
+
+#: app/services/KCPulse/KCPulseDeactivateFeedback.php:93
+msgid "Skip & Deactivate"
+msgstr ""
+
+#: app/services/KCPulse/KCPulseDeactivateFeedback.php:94
+#: app/dashboard/components/EditBillModal.jsx:326
+#: app/dashboard/components/EditBillModal.jsx:800
+#: app/dashboard/components/EditBillModal.jsx:981
+#: app/dashboard/components/profile/ChangePassword.jsx:190
+#: app/dashboard/views/appointments/AppointmentForm.jsx:1840
+#: app/dashboard/views/appointments/AppointmentsList.jsx:1468
+#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:144
+#: app/dashboard/views/appointments/components/ReviewModal.jsx:111
+#: app/dashboard/views/billings/BillingsList.jsx:745
+#: app/dashboard/views/clinics/ClinicForm.jsx:1142
+#: app/dashboard/views/clinics/ClinicForm.jsx:1251
+#: app/dashboard/views/clinics/ClinicsList.jsx:1127
+#: app/dashboard/views/clinics/ClinicsList.jsx:1182
+#: app/dashboard/views/clinics/ClinicsList.jsx:1238
+#: app/dashboard/views/dashboard/components/AdminNotice.jsx:92
+#: app/dashboard/views/dashboard/components/AdminNotice.jsx:247
+#: app/dashboard/views/doctors/DoctorForm.jsx:1491
+#: app/dashboard/views/doctors/DoctorForm.jsx:1596
+#: app/dashboard/views/doctors/DoctorsList.jsx:613
+#: app/dashboard/views/doctors/DoctorsList.jsx:1086
+#: app/dashboard/views/doctors/DoctorsList.jsx:1137
+#: app/dashboard/views/doctors/DoctorsList.jsx:1188
+#: app/dashboard/views/doctorService/DoctorServiceForm.jsx:1240
+#: app/dashboard/views/doctorService/DoctorServiceList.jsx:978
+#: app/dashboard/views/doctorService/DoctorServiceList.jsx:1013
+#: app/dashboard/views/doctorService/DoctorServiceList.jsx:1049
+#: app/dashboard/views/doctorService/DoctorServiceList.jsx:1084
+#: app/dashboard/views/doctorSession/DoctorSessionForm.jsx:622
+#: app/dashboard/views/encounter/components/EncounterForm.jsx:645
+#: app/dashboard/views/encounter/components/MedicalReport.jsx:550
+#: app/dashboard/views/encounter/components/MedicalReport.jsx:621
+#: app/dashboard/views/encounter/components/PrescriptionModule.jsx:720
+#: app/dashboard/views/encounter/EncounterDashbord.jsx:78
+#: app/dashboard/views/encounter/EncounterTemplateList.jsx:77
+#: app/dashboard/views/encounter/tabs/bodyChart/BodyChartEditor.jsx:122
+#: app/dashboard/views/encounter/tabs/bodyChart/BodyChartEditor.jsx:455
+#: app/dashboard/views/encounter/tabs/bodyChart/BodyChartEditor.jsx:650
+#: app/dashboard/views/encounter/tabs/bodyChart/BodyChartList.jsx:237
+#: app/dashboard/views/encounter/tabs/bodyChart/BodyChartList.jsx:301
+#: app/dashboard/views/followup/FollowupDashboard.jsx:207
+#: app/dashboard/views/followup/FollowupDashboard.jsx:235
+#: app/dashboard/views/followup/FollowupDashboard.jsx:262
+#: app/dashboard/views/followup/FollowupDashboard.jsx:793
+#: app/dashboard/views/importData/ImportData.jsx:586
+#: app/dashboard/views/patients/PatientConsentsTab.jsx:53
+#: app/dashboard/views/patients/PatientForm.jsx:1158
+#: app/dashboard/views/patients/PatientsList.jsx:1101
+#: app/dashboard/views/patients/PatientsList.jsx:1158
+#: app/dashboard/views/patients/PatientsList.jsx:1218
+#: app/dashboard/views/receptionists/ReceptionistForm.jsx:833
+#: app/dashboard/views/receptionists/ReceptionistsList.jsx:201
+#: app/dashboard/views/receptionists/ReceptionistsList.jsx:838
+#: app/dashboard/views/receptionists/ReceptionistsList.jsx:892
+#: app/dashboard/views/receptionists/ReceptionistsList.jsx:946
+#: app/dashboard/views/settings/customField/CustomField.jsx:1258
+#: app/dashboard/views/settings/customForm/Builder.jsx:1333
+#: app/dashboard/views/settings/customForm/FormConditionsPanel.jsx:701
+#: app/dashboard/views/settings/customNotification/CustomNotification.jsx:119
+#: app/dashboard/views/settings/customNotification/CustomNotificationEdit.jsx:1797
+#: app/dashboard/views/settings/emailTemplate/EmailTemplateMain.jsx:269
+#: app/dashboard/views/settings/emailTemplate/EmailTest.jsx:146
+#: app/dashboard/views/settings/encounterBodyChart/EncounterBodyChart.jsx:127
+#: app/dashboard/views/settings/googleMeet/GoogleMeetDoctorConfiguration.jsx:110
+#: app/dashboard/views/settings/holidays/HolidaysMain.jsx:1359
+#: app/dashboard/views/settings/SMSWhatsappTemplate/SMSEditTemplate.jsx:286
+#: app/dashboard/views/settings/SMSWhatsappTemplate/SMSWhatsAppTemplate.jsx:335
+#: app/dashboard/views/settings/SMSWhatsappTemplate/TestMessageModal.jsx:91
+#: app/dashboard/views/settings/webHook/components/Configuration.jsx:88
+#: app/dashboard/views/settings/webHook/components/Configuration.jsx:329
+#: app/dashboard/views/settings/webHook/components/EventLogs.jsx:246
+#: app/dashboard/views/settings/webHook/components/WebhookForm.jsx:1928
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemedDoctorConfiguration.jsx:181
+#: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:298
+#: app/dashboard/views/taxes/components/TaxForm.jsx:404
+#: app/dashboard/views/taxes/TaxesList.jsx:352
+#: app/dashboard/views/taxes/TaxesList.jsx:406
+#: app/dashboard/views/taxes/TaxesList.jsx:544
+msgid "Cancel"
+msgstr ""
+
+#: app/services/KCPulse/KCPulseDeactivateFeedback.php:95
+msgid "Maximum 50 characters reached."
+msgstr ""
+
 #: app/services/KCTimeSlotService.php:363
 msgid "Busy on Google Calendar"
 msgstr ""
@@ -4624,7 +4796,7 @@ msgstr ""
 #: includes/functions.php:807
 #: app/dashboard/views/clinics/ClinicsList.jsx:413
 #: app/dashboard/views/clinics/ClinicsList.jsx:765
-#: app/dashboard/views/doctors/DoctorForm.jsx:1057
+#: app/dashboard/views/doctors/DoctorForm.jsx:1040
 #: app/dashboard/views/doctors/DoctorsList.jsx:373
 #: app/dashboard/views/doctors/DoctorsList.jsx:805
 #: app/dashboard/views/importData/ImportData.jsx:81
@@ -4648,12 +4820,12 @@ msgstr ""
 msgid "Prescription Medicine"
 msgstr ""
 
-#: kivicare-clinic-management-system.php:96
+#: kivicare-clinic-management-system.php:100
 msgid "<strong>KiviCare</strong>: The PHP <strong>mbstring</strong> extension is not enabled on your server. This extension is required for generating PDF files (invoices, appointments, bills, prescriptions, reports, etc.). Please contact your hosting provider to enable it."
 msgstr ""
 
 #. translators: 1: Plugin Name, 2: Version number
-#: kivicare-clinic-management-system.php:169
+#: kivicare-clinic-management-system.php:173
 msgid "<strong>%1$s</strong> has been deactivated. Version %2$s or higher is required for compatibility with KiviCare Lite "
 msgstr ""
 
@@ -5560,7 +5732,7 @@ msgstr ""
 #: app/dashboard/views/appointments/AppointmentsList.jsx:837
 #: app/dashboard/views/billings/BillingsList.jsx:307
 #: app/dashboard/views/clinics/ClinicsList.jsx:591
-#: app/dashboard/views/doctors/DoctorForm.jsx:1529
+#: app/dashboard/views/doctors/DoctorForm.jsx:1513
 #: app/dashboard/views/doctors/DoctorsList.jsx:484
 #: app/dashboard/views/doctorService/DoctorServiceList.jsx:651
 #: app/dashboard/views/doctorSession/DoctorSessionList.jsx:297
@@ -5697,7 +5869,7 @@ msgstr ""
 #: app/dashboard/views/settings/webHook/components/Configuration.jsx:272
 #: app/dashboard/views/settings/webHook/components/EventLogs.jsx:56
 #: app/dashboard/views/settings/widgetSetting/WidgetSetting.jsx:224
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:94
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:97
 #: app/dashboard/views/settings/zoomTelemed/ZoomTelemedDoctorConfiguration.jsx:109
 #: app/dashboard/views/taxes/TaxesList.jsx:365
 #: app/dashboard/views/taxes/TaxesList.jsx:420
@@ -5894,8 +6066,8 @@ msgstr ""
 #: app/dashboard/views/settings/widgetSetting/WidgetSetting.jsx:193
 #: app/dashboard/views/settings/widgetSetting/WidgetSetting.jsx:229
 #: app/dashboard/views/settings/widgetSetting/WidgetSetting.jsx:236
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:102
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:189
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:105
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:198
 #: app/dashboard/views/settings/zoomTelemed/ZoomTelemedDoctorConfiguration.jsx:116
 #: app/dashboard/views/taxes/TaxesList.jsx:325
 #: app/dashboard/views/taxes/TaxesList.jsx:380
@@ -6103,7 +6275,7 @@ msgstr ""
 #: app/dashboard/components/profile/ChangePassword.jsx:198
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1853
 #: app/dashboard/views/clinics/ClinicForm.jsx:1155
-#: app/dashboard/views/doctors/DoctorForm.jsx:1625
+#: app/dashboard/views/doctors/DoctorForm.jsx:1609
 #: app/dashboard/views/doctorService/DoctorServiceForm.jsx:1250
 #: app/dashboard/views/encounter/components/EncounterForm.jsx:651
 #: app/dashboard/views/encounter/tabs/CustomFormTab.jsx:124
@@ -6127,7 +6299,7 @@ msgstr ""
 #: app/dashboard/views/settings/SMSWhatsappTemplate/SMSEditTemplate.jsx:295
 #: app/dashboard/views/settings/webHook/components/WebhookForm.jsx:1769
 #: app/dashboard/views/settings/widgetSetting/WidgetSetting.jsx:407
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:395
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:404
 #: app/dashboard/views/settings/zoomTelemed/ZoomTelemedDoctorConfiguration.jsx:287
 #: app/dashboard/views/taxes/components/TaxForm.jsx:415
 msgid "Saving..."
@@ -6136,7 +6308,7 @@ msgstr ""
 #: app/dashboard/components/CustomFieldRenderer.jsx:502
 #: app/dashboard/components/EditBillModal.jsx:1008
 #: app/dashboard/components/profile/ChangePassword.jsx:198
-#: app/dashboard/views/doctors/DoctorForm.jsx:1514
+#: app/dashboard/views/doctors/DoctorForm.jsx:1498
 #: app/dashboard/views/doctorService/DoctorServiceForm.jsx:1253
 #: app/dashboard/views/encounter/components/EncounterForm.jsx:654
 #: app/dashboard/views/encounter/components/PrescriptionModule.jsx:723
@@ -6159,7 +6331,7 @@ msgstr ""
 #: app/dashboard/views/settings/permissionSetting/PermissionSetting.jsx:1354
 #: app/dashboard/views/settings/proSettings/ProSettings.jsx:1921
 #: app/dashboard/views/settings/sidebarSetting/SidebarSetting.jsx:653
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:398
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:407
 #: app/dashboard/views/taxes/components/TaxForm.jsx:418
 msgid "Save"
 msgstr ""
@@ -6404,86 +6576,6 @@ msgstr ""
 msgid "Yes, delete it!"
 msgstr ""
 
-#: app/dashboard/components/EditBillModal.jsx:326
-#: app/dashboard/components/EditBillModal.jsx:800
-#: app/dashboard/components/EditBillModal.jsx:981
-#: app/dashboard/components/profile/ChangePassword.jsx:190
-#: app/dashboard/views/appointments/AppointmentForm.jsx:1840
-#: app/dashboard/views/appointments/AppointmentsList.jsx:1468
-#: app/dashboard/views/appointments/components/AppointmentConfirmationModel.jsx:144
-#: app/dashboard/views/appointments/components/ReviewModal.jsx:111
-#: app/dashboard/views/billings/BillingsList.jsx:745
-#: app/dashboard/views/clinics/ClinicForm.jsx:1142
-#: app/dashboard/views/clinics/ClinicForm.jsx:1251
-#: app/dashboard/views/clinics/ClinicsList.jsx:1127
-#: app/dashboard/views/clinics/ClinicsList.jsx:1182
-#: app/dashboard/views/clinics/ClinicsList.jsx:1238
-#: app/dashboard/views/dashboard/components/AdminNotice.jsx:92
-#: app/dashboard/views/dashboard/components/AdminNotice.jsx:247
-#: app/dashboard/views/doctors/DoctorForm.jsx:1507
-#: app/dashboard/views/doctors/DoctorForm.jsx:1612
-#: app/dashboard/views/doctors/DoctorsList.jsx:613
-#: app/dashboard/views/doctors/DoctorsList.jsx:1086
-#: app/dashboard/views/doctors/DoctorsList.jsx:1137
-#: app/dashboard/views/doctors/DoctorsList.jsx:1188
-#: app/dashboard/views/doctorService/DoctorServiceForm.jsx:1240
-#: app/dashboard/views/doctorService/DoctorServiceList.jsx:978
-#: app/dashboard/views/doctorService/DoctorServiceList.jsx:1013
-#: app/dashboard/views/doctorService/DoctorServiceList.jsx:1049
-#: app/dashboard/views/doctorService/DoctorServiceList.jsx:1084
-#: app/dashboard/views/doctorSession/DoctorSessionForm.jsx:622
-#: app/dashboard/views/encounter/components/EncounterForm.jsx:645
-#: app/dashboard/views/encounter/components/MedicalReport.jsx:550
-#: app/dashboard/views/encounter/components/MedicalReport.jsx:621
-#: app/dashboard/views/encounter/components/PrescriptionModule.jsx:720
-#: app/dashboard/views/encounter/EncounterDashbord.jsx:78
-#: app/dashboard/views/encounter/EncounterTemplateList.jsx:77
-#: app/dashboard/views/encounter/tabs/bodyChart/BodyChartEditor.jsx:122
-#: app/dashboard/views/encounter/tabs/bodyChart/BodyChartEditor.jsx:455
-#: app/dashboard/views/encounter/tabs/bodyChart/BodyChartEditor.jsx:650
-#: app/dashboard/views/encounter/tabs/bodyChart/BodyChartList.jsx:237
-#: app/dashboard/views/encounter/tabs/bodyChart/BodyChartList.jsx:301
-#: app/dashboard/views/followup/FollowupDashboard.jsx:207
-#: app/dashboard/views/followup/FollowupDashboard.jsx:235
-#: app/dashboard/views/followup/FollowupDashboard.jsx:262
-#: app/dashboard/views/followup/FollowupDashboard.jsx:793
-#: app/dashboard/views/importData/ImportData.jsx:586
-#: app/dashboard/views/patients/PatientConsentsTab.jsx:53
-#: app/dashboard/views/patients/PatientForm.jsx:1158
-#: app/dashboard/views/patients/PatientsList.jsx:1101
-#: app/dashboard/views/patients/PatientsList.jsx:1158
-#: app/dashboard/views/patients/PatientsList.jsx:1218
-#: app/dashboard/views/receptionists/ReceptionistForm.jsx:833
-#: app/dashboard/views/receptionists/ReceptionistsList.jsx:201
-#: app/dashboard/views/receptionists/ReceptionistsList.jsx:838
-#: app/dashboard/views/receptionists/ReceptionistsList.jsx:892
-#: app/dashboard/views/receptionists/ReceptionistsList.jsx:946
-#: app/dashboard/views/settings/customField/CustomField.jsx:1258
-#: app/dashboard/views/settings/customForm/Builder.jsx:1333
-#: app/dashboard/views/settings/customForm/FormConditionsPanel.jsx:701
-#: app/dashboard/views/settings/customNotification/CustomNotification.jsx:119
-#: app/dashboard/views/settings/customNotification/CustomNotificationEdit.jsx:1797
-#: app/dashboard/views/settings/emailTemplate/EmailTemplateMain.jsx:269
-#: app/dashboard/views/settings/emailTemplate/EmailTest.jsx:146
-#: app/dashboard/views/settings/encounterBodyChart/EncounterBodyChart.jsx:127
-#: app/dashboard/views/settings/googleMeet/GoogleMeetDoctorConfiguration.jsx:110
-#: app/dashboard/views/settings/holidays/HolidaysMain.jsx:1359
-#: app/dashboard/views/settings/SMSWhatsappTemplate/SMSEditTemplate.jsx:286
-#: app/dashboard/views/settings/SMSWhatsappTemplate/SMSWhatsAppTemplate.jsx:335
-#: app/dashboard/views/settings/SMSWhatsappTemplate/TestMessageModal.jsx:91
-#: app/dashboard/views/settings/webHook/components/Configuration.jsx:88
-#: app/dashboard/views/settings/webHook/components/Configuration.jsx:329
-#: app/dashboard/views/settings/webHook/components/EventLogs.jsx:246
-#: app/dashboard/views/settings/webHook/components/WebhookForm.jsx:1928
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemedDoctorConfiguration.jsx:181
-#: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:298
-#: app/dashboard/views/taxes/components/TaxForm.jsx:404
-#: app/dashboard/views/taxes/TaxesList.jsx:352
-#: app/dashboard/views/taxes/TaxesList.jsx:406
-#: app/dashboard/views/taxes/TaxesList.jsx:544
-msgid "Cancel"
-msgstr ""
-
 #: app/dashboard/components/EditBillModal.jsx:351
 #: app/dashboard/views/doctorService/DoctorServiceList.jsx:710
 #: app/dashboard/views/doctorService/DoctorServiceList.jsx:948
@@ -6634,7 +6726,7 @@ msgid "Total"
 msgstr ""
 
 #: app/dashboard/components/EditBillModal.jsx:808
-#: app/dashboard/views/doctors/DoctorForm.jsx:1421
+#: app/dashboard/views/doctors/DoctorForm.jsx:1405
 #: app/dashboard/views/encounter/components/DynamicSelectList.jsx:132
 #: app/dashboard/views/encounter/components/MedicalHistorySection.jsx:327
 #: app/dashboard/views/encounter/components/MedicalHistorySection.jsx:387
@@ -6705,7 +6797,7 @@ msgstr ""
 #: app/dashboard/views/clinics/ClinicsList.jsx:781
 #: app/dashboard/views/dashboard/Dashboard.jsx:602
 #: app/dashboard/views/dashboard/Dashboard.jsx:603
-#: app/dashboard/views/doctors/DoctorForm.jsx:1176
+#: app/dashboard/views/doctors/DoctorForm.jsx:1159
 #: app/dashboard/views/doctorService/DoctorServiceForm.jsx:1084
 #: app/dashboard/views/followup/FollowupDashboard.jsx:338
 #: app/dashboard/views/followup/FollowupDashboard.jsx:339
@@ -7277,7 +7369,11 @@ msgstr ""
 msgid "Booking Widget"
 msgstr ""
 
-#: app/dashboard/components/partial/Header.jsx:263
+#: app/dashboard/components/partial/Header.jsx:204
+msgid "Explore KiviCare Products"
+msgstr ""
+
+#: app/dashboard/components/partial/Header.jsx:283
 #: app/dashboard/views/getHelp/GetHelpList.jsx:77
 msgid "Documentation"
 msgstr ""
@@ -7293,7 +7389,7 @@ msgstr ""
 
 #: app/dashboard/components/partial/Sidebar.jsx:518
 #: app/dashboard/views/clinics/ClinicForm.jsx:517
-#: app/dashboard/views/doctors/DoctorForm.jsx:840
+#: app/dashboard/views/doctors/DoctorForm.jsx:823
 #: app/dashboard/views/patients/PatientForm.jsx:629
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:390
 msgid "My Profile"
@@ -7372,7 +7468,7 @@ msgstr ""
 
 #: app/dashboard/components/ProfileCard.jsx:65
 #: app/dashboard/views/clinics/ClinicForm.jsx:1093
-#: app/dashboard/views/doctors/DoctorForm.jsx:1210
+#: app/dashboard/views/doctors/DoctorForm.jsx:1193
 #: app/dashboard/views/patients/PatientForm.jsx:953
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:652
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:208
@@ -7383,7 +7479,7 @@ msgstr ""
 
 #: app/dashboard/components/ProfileCard.jsx:66
 #: app/dashboard/views/clinics/ClinicForm.jsx:1106
-#: app/dashboard/views/doctors/DoctorForm.jsx:1223
+#: app/dashboard/views/doctors/DoctorForm.jsx:1206
 #: app/dashboard/views/patients/PatientForm.jsx:967
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:665
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:209
@@ -7394,7 +7490,7 @@ msgstr ""
 
 #: app/dashboard/components/ProfileCard.jsx:67
 #: app/dashboard/views/clinics/ClinicForm.jsx:1120
-#: app/dashboard/views/doctors/DoctorForm.jsx:1237
+#: app/dashboard/views/doctors/DoctorForm.jsx:1220
 #: app/dashboard/views/patients/PatientForm.jsx:982
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:679
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:210
@@ -7575,7 +7671,7 @@ msgid "rows selected"
 msgstr ""
 
 #: app/dashboard/components/Table.jsx:411
-#: app/dashboard/views/doctors/DoctorForm.jsx:1282
+#: app/dashboard/views/doctors/DoctorForm.jsx:1266
 msgid "Clear"
 msgstr ""
 
@@ -7747,7 +7843,7 @@ msgstr ""
 #: app/dashboard/utils/activityLogHelpers.js:218
 #: app/dashboard/utils/activityLogHelpers.js:219
 #: app/dashboard/utils/activityLogHelpers.js:220
-#: app/dashboard/views/doctors/DoctorForm.jsx:1589
+#: app/dashboard/views/doctors/DoctorForm.jsx:1573
 #: app/dashboard/views/settings/customForm/Builder.jsx:302
 #: app/dashboard/views/settings/SettingsSideBar.jsx:293
 #: app/shortcodes/assets/js/KCBookAppointment.jsx:2813
@@ -9537,7 +9633,7 @@ msgstr ""
 #: app/dashboard/views/clinics/ClinicsList.jsx:962
 #: app/dashboard/views/dashboard/components/PaymentHistory.jsx:145
 #: app/dashboard/views/dashboard/Dashboard.jsx:951
-#: app/dashboard/views/doctors/DoctorForm.jsx:1161
+#: app/dashboard/views/doctors/DoctorForm.jsx:1144
 #: app/dashboard/views/doctors/DoctorsList.jsx:409
 #: app/dashboard/views/doctors/DoctorsList.jsx:820
 #: app/dashboard/views/doctors/DoctorsList.jsx:931
@@ -9821,7 +9917,7 @@ msgid "Encounter Detail"
 msgstr ""
 
 #: app/dashboard/views/appointments/AppointmentDetails.jsx:298
-#: app/dashboard/views/doctors/DoctorForm.jsx:1567
+#: app/dashboard/views/doctors/DoctorForm.jsx:1551
 msgid "No records found"
 msgstr ""
 
@@ -9909,7 +10005,7 @@ msgid "Edit Follow-up"
 msgstr ""
 
 #: app/dashboard/views/appointments/AppointmentForm.jsx:1358
-#: app/dashboard/views/doctors/DoctorForm.jsx:960
+#: app/dashboard/views/doctors/DoctorForm.jsx:943
 #: app/dashboard/views/doctorService/DoctorServiceList.jsx:431
 #: app/dashboard/views/patients/PatientForm.jsx:752
 msgid "eg \"Mount Health Care\""
@@ -11159,7 +11255,7 @@ msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:419
 #: app/dashboard/views/clinics/ClinicForm.jsx:488
-#: app/dashboard/views/doctors/DoctorForm.jsx:766
+#: app/dashboard/views/doctors/DoctorForm.jsx:749
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:334
 #: app/shortcodes/assets/js/KCBookAppointment.jsx:3239
 msgid "Please enter a valid phone number"
@@ -11172,7 +11268,7 @@ msgid "At least one specialty is required"
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:435
-#: app/dashboard/views/doctors/DoctorForm.jsx:806
+#: app/dashboard/views/doctors/DoctorForm.jsx:789
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:355
 #: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:245
 msgid "Address must be at least 10 characters"
@@ -11201,7 +11297,7 @@ msgid "City must be at least 2 characters"
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:455
-#: app/dashboard/views/doctors/DoctorForm.jsx:831
+#: app/dashboard/views/doctors/DoctorForm.jsx:814
 #: app/dashboard/views/patients/PatientForm.jsx:475
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:373
 #: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:299
@@ -11209,7 +11305,7 @@ msgid "Invalid postal code format"
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:464
-#: app/dashboard/views/doctors/DoctorForm.jsx:739
+#: app/dashboard/views/doctors/DoctorForm.jsx:722
 #: app/dashboard/views/patients/PatientForm.jsx:410
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:307
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:68
@@ -11219,7 +11315,7 @@ msgid "First name is required"
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:467
-#: app/dashboard/views/doctors/DoctorForm.jsx:742
+#: app/dashboard/views/doctors/DoctorForm.jsx:725
 #: app/dashboard/views/patients/PatientForm.jsx:413
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:310
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:71
@@ -11227,7 +11323,7 @@ msgid "First name must be at least 2 characters"
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:471
-#: app/dashboard/views/doctors/DoctorForm.jsx:746
+#: app/dashboard/views/doctors/DoctorForm.jsx:729
 #: app/dashboard/views/patients/PatientForm.jsx:417
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:314
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:86
@@ -11237,7 +11333,7 @@ msgid "Last name is required"
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:474
-#: app/dashboard/views/doctors/DoctorForm.jsx:749
+#: app/dashboard/views/doctors/DoctorForm.jsx:732
 #: app/dashboard/views/patients/PatientForm.jsx:420
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:317
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:89
@@ -11272,7 +11368,7 @@ msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:546
 #: app/dashboard/views/clinics/ClinicForm.jsx:896
-#: app/dashboard/views/doctors/DoctorForm.jsx:868
+#: app/dashboard/views/doctors/DoctorForm.jsx:851
 #: app/dashboard/views/doctorService/DoctorServiceForm.jsx:595
 #: app/dashboard/views/encounter/tabs/bodyChart/BodyChartList.jsx:116
 #: app/dashboard/views/patients/PatientForm.jsx:654
@@ -11309,7 +11405,7 @@ msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:604
 #: app/dashboard/views/clinics/ClinicForm.jsx:1000
-#: app/dashboard/views/doctors/DoctorForm.jsx:981
+#: app/dashboard/views/doctors/DoctorForm.jsx:964
 #: app/dashboard/views/patients/PatientForm.jsx:795
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:529
 #: app/dashboard/views/receptionists/ReceptionistsList.jsx:293
@@ -11347,7 +11443,7 @@ msgid "Add specialty"
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:740
-#: app/dashboard/views/doctors/DoctorForm.jsx:1126
+#: app/dashboard/views/doctors/DoctorForm.jsx:1109
 #: app/dashboard/views/doctorService/DoctorServiceForm.jsx:673
 #: app/dashboard/views/doctorService/DoctorServiceForm.jsx:1204
 #: app/dashboard/views/encounter/components/PrescriptionModule.jsx:672
@@ -11366,7 +11462,7 @@ msgid "Type a new specialty and press enter to add it"
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:753
-#: app/dashboard/views/doctors/DoctorForm.jsx:1328
+#: app/dashboard/views/doctors/DoctorForm.jsx:1312
 #: app/dashboard/views/patients/PatientForm.jsx:1035
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:759
 msgid "eg \"1234 Skin Care Ave, Suite 567, Dermatown, CA 90210\""
@@ -11381,7 +11477,7 @@ msgid "eg \"New York\""
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:814
-#: app/dashboard/views/doctors/DoctorForm.jsx:1379
+#: app/dashboard/views/doctors/DoctorForm.jsx:1363
 #: app/dashboard/views/patients/PatientForm.jsx:1089
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:810
 #: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:293
@@ -11393,12 +11489,12 @@ msgid "eg \"123456\""
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:835
-#: app/dashboard/views/doctors/DoctorForm.jsx:1398
+#: app/dashboard/views/doctors/DoctorForm.jsx:1382
 msgid "Google Map URL"
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:841
-#: app/dashboard/views/doctors/DoctorForm.jsx:1404
+#: app/dashboard/views/doctors/DoctorForm.jsx:1388
 msgid "https://maps.google.com/?q=..."
 msgstr ""
 
@@ -11423,7 +11519,7 @@ msgid "Change Admin"
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:911
-#: app/dashboard/views/doctors/DoctorForm.jsx:884
+#: app/dashboard/views/doctors/DoctorForm.jsx:867
 #: app/dashboard/views/importData/ImportData.jsx:74
 #: app/dashboard/views/importData/ImportData.jsx:99
 #: app/dashboard/views/patients/PatientForm.jsx:691
@@ -11439,7 +11535,7 @@ msgid "eg \"Mark\""
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:932
-#: app/dashboard/views/doctors/DoctorForm.jsx:904
+#: app/dashboard/views/doctors/DoctorForm.jsx:887
 #: app/dashboard/views/importData/ImportData.jsx:75
 #: app/dashboard/views/importData/ImportData.jsx:100
 #: app/dashboard/views/patients/PatientForm.jsx:712
@@ -11459,7 +11555,7 @@ msgid "eg \"admin@example.com\""
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:988
-#: app/dashboard/views/doctors/DoctorForm.jsx:1302
+#: app/dashboard/views/doctors/DoctorForm.jsx:1286
 #: app/dashboard/views/patients/PatientForm.jsx:1011
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:736
 #: app/shortcodes/assets/js/KCBookAppointment.jsx:2431
@@ -11467,14 +11563,14 @@ msgid "Select Timezone"
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:1030
-#: app/dashboard/views/doctors/DoctorForm.jsx:1010
+#: app/dashboard/views/doctors/DoctorForm.jsx:993
 #: app/dashboard/views/patients/PatientForm.jsx:825
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:558
 msgid "DOB"
 msgstr ""
 
 #: app/dashboard/views/clinics/ClinicForm.jsx:1059
-#: app/dashboard/views/doctors/DoctorForm.jsx:1037
+#: app/dashboard/views/doctors/DoctorForm.jsx:1020
 #: app/dashboard/views/patients/PatientForm.jsx:852
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:585
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:174
@@ -12050,108 +12146,108 @@ msgstr ""
 msgid "Payment History"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:418
+#: app/dashboard/views/doctors/DoctorForm.jsx:401
 msgid "You do not have permission to view this doctor."
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:480
-#: app/dashboard/views/doctors/DoctorForm.jsx:812
+#: app/dashboard/views/doctors/DoctorForm.jsx:463
+#: app/dashboard/views/doctors/DoctorForm.jsx:795
 msgid "Degree is required"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:484
+#: app/dashboard/views/doctors/DoctorForm.jsx:467
 msgid "University is required"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:488
-#: app/dashboard/views/doctors/DoctorForm.jsx:818
+#: app/dashboard/views/doctors/DoctorForm.jsx:471
+#: app/dashboard/views/doctors/DoctorForm.jsx:801
 msgid "Year is required"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:508
+#: app/dashboard/views/doctors/DoctorForm.jsx:491
 msgid "Qualification updated successfully"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:512
+#: app/dashboard/views/doctors/DoctorForm.jsx:495
 msgid "Qualification added successfully"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:577
+#: app/dashboard/views/doctors/DoctorForm.jsx:560
 msgid "Please fix errors in the custom information forms before submitting"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:733
+#: app/dashboard/views/doctors/DoctorForm.jsx:716
 msgid "Qualification deleted successfully"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:760
+#: app/dashboard/views/doctors/DoctorForm.jsx:743
 #: app/dashboard/views/doctorSession/DoctorSessionForm.jsx:500
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:328
 #: app/shortcodes/assets/js/KCRegisterLogin.jsx:489
 msgid "Clinic selection is required"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:775
+#: app/dashboard/views/doctors/DoctorForm.jsx:758
 msgid "Doctor must be at least 18 years old"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:779
+#: app/dashboard/views/doctors/DoctorForm.jsx:762
 msgid "Specialization is required"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:786
+#: app/dashboard/views/doctors/DoctorForm.jsx:769
 msgid "Please enter a valid number"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:789
+#: app/dashboard/views/doctors/DoctorForm.jsx:772
 msgid "Experience cannot be negative"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:792
+#: app/dashboard/views/doctors/DoctorForm.jsx:775
 msgid "Experience cannot be more than 100 years"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:815
+#: app/dashboard/views/doctors/DoctorForm.jsx:798
 msgid "College/University is required"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:821
+#: app/dashboard/views/doctors/DoctorForm.jsx:804
 msgid "Year must be 1950 or later"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:840
+#: app/dashboard/views/doctors/DoctorForm.jsx:823
 #: app/dashboard/views/doctors/DoctorsList.jsx:497
 msgid "Edit Doctor"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:840
+#: app/dashboard/views/doctors/DoctorForm.jsx:823
 #: app/dashboard/views/doctors/DoctorsList.jsx:835
 #: app/dashboard/views/doctors/DoctorsList.jsx:842
 msgid "Add Doctor"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:857
+#: app/dashboard/views/doctors/DoctorForm.jsx:840
 msgid "Profile Information"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:891
+#: app/dashboard/views/doctors/DoctorForm.jsx:874
 #: app/dashboard/views/patients/PatientForm.jsx:698
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:443
 msgid "Enter the First Name"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:911
+#: app/dashboard/views/doctors/DoctorForm.jsx:894
 #: app/dashboard/views/patients/PatientForm.jsx:719
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:463
 msgid "Enter the Last Name"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:931
+#: app/dashboard/views/doctors/DoctorForm.jsx:914
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:483
 msgid "eg \"Markavenue@gmail.com\""
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:995
+#: app/dashboard/views/doctors/DoctorForm.jsx:978
 #: app/dashboard/views/patients/PatientForm.jsx:809
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:543
 #: app/dashboard/views/setupWizard/components/AdminDetailsStep.jsx:137
@@ -12159,122 +12255,122 @@ msgstr ""
 msgid "555-0123-4567"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1100
+#: app/dashboard/views/doctors/DoctorForm.jsx:1083
 msgid "Specialization added successfully"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1104
+#: app/dashboard/views/doctors/DoctorForm.jsx:1087
 msgid "Failed to save specialization to database."
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1114
+#: app/dashboard/views/doctors/DoctorForm.jsx:1097
 #: app/dashboard/views/setupWizard/components/ClinicDetailsStep.jsx:138
 msgid "Select or create specialization"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1120
+#: app/dashboard/views/doctors/DoctorForm.jsx:1103
 msgid "Type to create a new specialization"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1121
+#: app/dashboard/views/doctors/DoctorForm.jsx:1104
 msgid "Add specialization"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1126
+#: app/dashboard/views/doctors/DoctorForm.jsx:1109
 msgid "Type and press enter to add new specialization"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1138
+#: app/dashboard/views/doctors/DoctorForm.jsx:1121
 msgid "Experience (In Years)"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1144
+#: app/dashboard/views/doctors/DoctorForm.jsx:1127
 msgid "Enter experience"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1258
+#: app/dashboard/views/doctors/DoctorForm.jsx:1241
 #: app/dashboard/views/encounter/components/EncounterForm.jsx:630
 msgid "Write description"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1266
+#: app/dashboard/views/doctors/DoctorForm.jsx:1249
 msgid "Signature"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1279
+#: app/dashboard/views/doctors/DoctorForm.jsx:1263
 msgid "Undo"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1317
+#: app/dashboard/views/doctors/DoctorForm.jsx:1301
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:748
 msgid "Address Information"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1347
+#: app/dashboard/views/doctors/DoctorForm.jsx:1331
 #: app/dashboard/views/patients/PatientForm.jsx:1055
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:778
 msgid "Enter City Name"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1366
+#: app/dashboard/views/doctors/DoctorForm.jsx:1350
 #: app/dashboard/views/patients/PatientForm.jsx:1075
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:797
 msgid "Enter Country Name"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1385
+#: app/dashboard/views/doctors/DoctorForm.jsx:1369
 #: app/dashboard/views/patients/PatientForm.jsx:1095
 #: app/dashboard/views/receptionists/ReceptionistForm.jsx:816
 msgid "Enter Postal Code"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1413
+#: app/dashboard/views/doctors/DoctorForm.jsx:1397
 msgid "Qualifications"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1428
+#: app/dashboard/views/doctors/DoctorForm.jsx:1412
 msgid "Edit Qualification"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1428
+#: app/dashboard/views/doctors/DoctorForm.jsx:1412
 msgid "Add Qualification"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1433
-#: app/dashboard/views/doctors/DoctorForm.jsx:1526
+#: app/dashboard/views/doctors/DoctorForm.jsx:1417
+#: app/dashboard/views/doctors/DoctorForm.jsx:1510
 msgid "Degree"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1441
+#: app/dashboard/views/doctors/DoctorForm.jsx:1425
 msgid "eg \"Dermatology\""
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1455
+#: app/dashboard/views/doctors/DoctorForm.jsx:1439
 msgid "University"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1463
+#: app/dashboard/views/doctors/DoctorForm.jsx:1447
 msgid "eg \"I\""
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1477
-#: app/dashboard/views/doctors/DoctorForm.jsx:1528
+#: app/dashboard/views/doctors/DoctorForm.jsx:1461
+#: app/dashboard/views/doctors/DoctorForm.jsx:1512
 msgid "Year"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1485
+#: app/dashboard/views/doctors/DoctorForm.jsx:1469
 msgid "1999"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1525
+#: app/dashboard/views/doctors/DoctorForm.jsx:1509
 msgid "SR. NO"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1527
+#: app/dashboard/views/doctors/DoctorForm.jsx:1511
 msgid "College/University"
 msgstr ""
 
-#: app/dashboard/views/doctors/DoctorForm.jsx:1628
+#: app/dashboard/views/doctors/DoctorForm.jsx:1612
 msgid "Save Doctor"
 msgstr ""
 
@@ -15741,7 +15837,7 @@ msgstr ""
 #: app/dashboard/views/settings/proSettings/ProSettings.jsx:651
 #: app/dashboard/views/settings/SMSWhatsappTemplate/SMSWhatsAppTemplate.jsx:167
 #: app/dashboard/views/settings/widgetSetting/WidgetSetting.jsx:190
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:184
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:193
 msgid "An unknown error occurred"
 msgstr ""
 
@@ -20248,87 +20344,95 @@ msgstr ""
 msgid "Step"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:116
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:119
 msgid "Zoom Telemed Client ID"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:117
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:120
 msgid "Enter your Zoom Client ID"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:122
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:125
 msgid "Zoom Telemed Client Secret"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:123
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:126
 msgid "Enter your Zoom Client Secret"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:134
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:131
+msgid "Zoom Public Client ID (PKCE)"
+msgstr ""
+
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:132
+msgid "Required only for localhost/loopback redirect URLs"
+msgstr ""
+
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:143
 msgid "Sign up or Sign in here"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:136
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:145
 msgid "Zoom market Place portal"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:145
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:154
 msgid "Click/Hover on Develop button at the right in navigation bar and click on build app"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:150
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:159
 msgid "Create app"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:157
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:166
 msgid "Select OAuth and click Create"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:161
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:170
 msgid "Fill the mandatory information and In the App credentials tag you can see Client ID, Client secret And Redirect URL for OAuth."
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:168
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:177
 msgid "Copy and Paste Client ID, Client secret And Redirect URL here and click on save button and you are ready to go."
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:210
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:219
 msgid "Available In Telemed AddOn"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:215
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:224
 msgid "Zoom Telemed Configuration"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:230
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:239
 msgid "Zoom OAuth Configuration"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:240
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:249
 msgid "Enable Zoom OAuth Configuration"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:300
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:309
 msgid "Redirect URL"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:320
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:329
 msgid "Add this URL to your Zoom app's redirect URLs"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:328
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:337
 msgid "Guide to setup Zoom Telemed with OAuth"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:344
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:353
 msgid "Zoom Server To Server Configuration"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:354
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:363
 msgid "Enable Zoom Server To Server Configuration"
 msgstr ""
 
-#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:371
+#: app/dashboard/views/settings/zoomTelemed/ZoomTelemed.jsx:380
 msgid "After enabling this, each doctor must configure their Server-to-Server in their own settings"
 msgstr ""
 
